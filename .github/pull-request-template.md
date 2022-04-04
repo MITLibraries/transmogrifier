@@ -24,8 +24,5 @@ Include links to Jira Software and/or Jira Service Management tickets here.
 - [ ] The changes have been verified
 - [ ] New dependencies are appropriate or there were no changes
 
-#### Requires database migrations?
-YES | NO
-
 #### Includes new or updated dependencies?
 YES | NO

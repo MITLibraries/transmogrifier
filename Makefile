@@ -12,6 +12,9 @@ coveralls: test
 flake8:
 	pipenv run flake8 transmogrifier tests
 
+install:
+	pipenv install --dev
+
 isort:
 	pipenv run isort transmogrifier tests --diff
 
