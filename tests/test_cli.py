@@ -13,5 +13,5 @@ def test_zenodo(
             ["zenodo"],
         )
         assert result.exit_code == 0
-        assert "Initializing app" in caplog.text
+        assert "Initializing transmogrifier" in caplog.text
         assert "Running zenodo" in caplog.text
