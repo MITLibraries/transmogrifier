@@ -1,5 +1,3 @@
-import logging
-
 from transmogrifier.cli import main
 
 
@@ -12,9 +10,9 @@ def test_cli_with_env(caplog, monkeypatch, runner):
         assert result.exit_code == 0
         assert "Running transmogrifier with env=test and log level=INFO" in caplog.text
         assert (
-                "Sentry DSN found, exceptions will be sent to Sentry with env=test"
-                in caplog.text
-            )
+            "Sentry DSN found, exceptions will be sent to Sentry with env=test"
+            in caplog.text
+        )
 
 
 def test_cli_without_env(caplog, monkeypatch, runner):
