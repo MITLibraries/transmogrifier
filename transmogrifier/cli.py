@@ -11,13 +11,17 @@ logger = logging.getLogger(__name__)
 @click.pass_context
 def main(ctx):
     ctx.ensure_object(dict)
-    sentry_sdk.init(os.getenv("SENTRY_DSN"), environment=os.getenv("WORKSPACE"))
+    env = os.getenv("WORKSPACE")
     logger.info(
-        "Configuring transmogrifier for current env: %s", os.getenv("LOGGING_LEVEL")
+        "Running transmogrifier with env=%s and log level=%s,",
+        env,
+        os.getenv("LOGGING_LEVEL", "DEBUG").upper(),
     )
-    logger.info(
-        "Initializing transmogrifier with logging level: %s", os.getenv("LOGGING_LEVEL")
-    )
+    if sentry_dsn := os.getenv("SENTRY_DSN"):
+        sentry_sdk.init(sentry_dsn, environment=env)
+        logger.info(
+            "Sentry DSN found, exceptions will be sent to Sentry with env=%s", env
+        )
 
 
 @main.command()
