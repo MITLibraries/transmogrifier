@@ -1,0 +1,64 @@
+{
+    "content_type": [
+        "Dataset"
+    ],
+    "publication_information": [
+        "Harvard Dataverse"
+    ],
+    "source": "Abdul Latif Jameel Poverty Action Lab Dataverse",
+    "source_link": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/19PPE7",
+    "timdex_record_id": "jpal:10.7910-DVN-19PPE7",
+    "title": "The Impact of Maternal Literacy and Participation Programs: Evidence from a Randomized Evaluation in India",
+    "contributors": [
+        {
+            "value": "Banerji, Rukmini",
+            "kind": "ContactPerson"
+        },
+        {
+            "value": "Berry, James",
+            "kind": "ContactPerson"
+        },
+        {
+            "value": "Shotland, Marc",
+            "kind": "ContactPerson"
+        },
+        {
+            "kind": "Creator",
+            "value": "Banerji, Rukmini"
+        },
+        {
+            "kind": "Creator",
+            "value": "Berry, James"
+        },
+        {
+            "kind": "Creator",
+            "value": "Shotland, Marc"
+        }
+    ],
+    "dates": [
+        {
+            "kind": "Submitted",
+            "value": "2017-02-27"
+        },
+        {
+            "kind": "Updated",
+            "value": "2019-06-24"
+        },
+        {
+            "kind": "Publication",
+            "value": "2017"
+        }
+    ],
+    "identifiers": [
+        {
+            "value": "10.7910/DVN/19PPE7",
+            "kind": "DOI"
+        }
+    ],
+    "notes": [
+        {
+            "kind": "ResourceType",
+            "value": "Survey Data"
+        }
+    ]
+}

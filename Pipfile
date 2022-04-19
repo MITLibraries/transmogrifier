@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 click = "*"
 sentry-sdk = "*"
+attrs = "*"
+types-requests = "*"
+defusedxml = "*"
 
 [dev-packages]
 black = "*"

@@ -22,4 +22,4 @@ mypy:
 	pipenv run mypy transmogrifier
 
 test:
-	pipenv run pytest --cov=transmogrifier
+	pipenv run pytest --cov-report term-missing --cov=transmogrifier
