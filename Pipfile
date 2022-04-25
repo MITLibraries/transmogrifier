@@ -4,18 +4,22 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+beautifulsoup4 = "*"
 click = "*"
+lxml = "*"
 sentry-sdk = "*"
+smart-open = {version = "*", extras = ["s3"]}
+
 
 [dev-packages]
-black = "*"
-flake8 = "*"
 bandit = "*"
-mypy = "*"
+black = "*"
+coveralls = "*"
+flake8 = "*"
 isort = "*"
+mypy = "*"
 pytest = "*"
 pytest-cov = "*"
-coveralls = "*"
 
 [requires]
 python_version = "3.10"
