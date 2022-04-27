@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+        <identifier>doi:10.7910/DVN/19PPE7</identifier>
+        <datestamp>2022-03-26T06:04:55Z</datestamp>
+        <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+        <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+        <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+            <identifier identifierType="DOI">10.7910/DVN/19PPE7</identifier>
+            <titles>
+                <title>The Impact of Maternal Literacy and Participation Programs: Evidence from a Randomized Evaluation in India</title>
+            </titles>
+            <publisher>Harvard Dataverse</publisher>
+            <publicationYear>2017</publicationYear>
+            <subjects>
+                <subject>Social Sciences</subject>
+                <subject>Adult education, education inputs, field experiments</subject>
+            </subjects>
+            <contributors>
+                <contributor contributorType="ContactPerson">
+                    <contributorName nameType="Personal">Banerji, Rukmini</contributorName>
+                    <givenName>Rukmini</givenName>
+                    <familyName>Banerji</familyName>
+                    <nameIdentifier nameIdentifierScheme="ALPHA">0000-0000-0000-0000</nameIdentifier>
+                    <affiliation>Pratham and ASER Centre</affiliation>
+                </contributor>
+            </contributors>
+            <dates>
+                <date dateType="Submitted">2017-02-27</date>
+                <date dateType="Updated">2019-06-24</date>
+            </dates>
+            <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
+            <relatedIdentifiers>
+                <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150390</relatedIdentifier>
+            </relatedIdentifiers>
+            <sizes>
+                <size>124903</size>
+                <size>48958</size>
+                <size>199070</size>
+                <size>186674</size>
+                <size>139605</size>
+                <size>97304</size>
+                <size>9907</size>
+                <size>178534602</size>
+                <size>4032103</size>
+                <size>43589</size>
+                <size>15697</size>
+            </sizes>
+            <formats>
+                <format>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</format>
+                <format>application/pdf</format>
+                <format>application/pdf</format>
+                <format>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</format>
+                <format>application/pdf</format>
+                <format>application/x-stata-syntax</format>
+                <format>application/x-stata</format>
+                <format>application/x-stata</format>
+                <format>application/zip</format>
+                <format>application/pdf</format>
+                <format>application/pdf</format>
+            </formats>
+            <version>1.2</version>
+            <rightsList>
+                <rights rightsURI="info:eu-repo/semantics/openAccess" />
+                <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+            </rightsList>
+            <descriptions>
+                <description descriptionType="Abstract">Using a randomized field experiment in India, we evaluate the effectiveness of adult literacy and parental involvement interventions in improving children's learning. Households were assigned to receive either adult literacy (language and math) classes for mothers, training for mothers on how to enhance their children's learning at home, or a combination of the two programs. All three interventions had significant but modest impacts on childrens math scores. The interventions also increased mothers' test scores in both language and math, as well as a range of other outcomes reflecting greater involvement of mothers in their children's education.</description>
+            </descriptions>
+            <geoLocations />
+        </resource>
+    </metadata>
+</record>

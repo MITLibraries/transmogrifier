@@ -24,7 +24,7 @@ def test_cli_with_env(caplog, monkeypatch, runner, tmp_path):
             in caplog.text
         )
         assert "Running transform for source jpal" in caplog.text
-        # assert "Completed transform, total record count: 38" in caplog.text
+        assert "Completed transform, total record count: 38" in caplog.text
 
 
 def test_cli_without_env(caplog, monkeypatch, runner, tmp_path):
