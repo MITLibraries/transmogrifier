@@ -63,7 +63,7 @@
           <date dateType="Submitted">2017-02-27</date>
           <date dateType="Updated">2019-06-24</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150390</relatedIdentifier>
         </relatedIdentifiers>
@@ -95,13 +95,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Using a randomized field experiment in India, we evaluate the effectiveness of adult literacy and parental involvement interventions in improving children's learning. Households were assigned to receive either adult literacy (language and math) classes for mothers, training for mothers on how to enhance their children's learning at home, or a combination of the two programs. All three interventions had significant but modest impacts on childrens math scores. The interventions also increased mothers' test scores in both language and math, as well as a range of other outcomes reflecting greater involvement of mothers in their children's education.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -168,7 +168,7 @@
           <date dateType="Submitted">2018-05-01</date>
           <date dateType="Updated">2018-07-25</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1016/j.jpubeco.2017.09.005</relatedIdentifier>
         </relatedIdentifiers>
@@ -180,13 +180,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Distributing subsidized health products through existing health infrastructure could substantially and cost-effectively improve health in sub-Saharan Africa. There is, however, widespread concern that poor gov- ernance – in particular, limited health worker accountability – seriously undermines the effectiveness of subsidy programs. We audit targeted bed net distribution programs to quantify the extent of agency prob- lems. We find that around 80% of the eligible receive the subsidy as intended, and up to 15% of subsidies are leaked to ineligible people. Supplementing the program with simple financial or monitoring incentives for health workers does not improve performance further and is thus not cost-effective in this context.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -246,7 +246,7 @@
           <date dateType="Submitted">2018-05-25</date>
           <date dateType="Updated">2018-07-25</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.3368/jhr.49.3.572</relatedIdentifier>
         </relatedIdentifiers>
@@ -258,13 +258,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We evaluate the effects of academic achievement awards for first- and second-year college students studying at a Canadian commuter college.&#13;The award scheme offered linear cash incentives for course grades above&#13;70. Awards were paid every term. Program participants also had access to peer advising by upperclassmen. Program engagement appears to have been high but overall treatment effects were small. The intervention increased the number of courses graded above 70 and points earned above 70 for second- year students but generated no significant effect on overall GPA. Results are somewhat stronger for a subsample of applicants who correctly described the program rules.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -318,7 +318,7 @@
           <date dateType="Submitted">2018-07-04</date>
           <date dateType="Updated">2020-04-02</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.5.1.1</relatedIdentifier>
         </relatedIdentifiers>
@@ -330,13 +330,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We conducted a randomized experiment with 43,000 EITC recipients at H&amp;R Block. Tax preparers gave simple, personalized information about the EITC schedule to half of their clients. We find no significant effects of information provision on earnings in the subsequent year in the full sample. Further exploration uncovers evidence of heterogeneous treatment effects on both self-employment income and wage earnings across the 1,461 tax preparers involved in the experiment. Providing information about tax incentives does not systematically effect earnings on average. However, tax preparers may influence their clients' earnings decisions by providing advice about how to respond to tax incentives.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -432,13 +432,13 @@
         </formats>
         <version>2.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">This dataset provides baseline information on 281,337 households in 6 sub-districts (upazilas) in rural Southern Bangladesh. Information were collected on household composition, marriage, education and employment as part of a census in 610 villages between January and February 2007. Information was collected by surveying one household member per household, preferably the household head, about all members of the household. In total, the dataset contains information about 1,378,041 individuals.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
         <fundingReferences>
           <fundingReference>
             <funderName>3ie, Nike Foundation</funderName>
@@ -510,7 +510,7 @@
           <date dateType="Submitted">2018-07-09</date>
           <date dateType="Updated">2020-04-02</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.104.7.2210</relatedIdentifier>
         </relatedIdentifiers>
@@ -522,13 +522,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We posit that household decision-making over fertility is characterized by moral hazard since most contraception can only be perfectly observed by the woman. Using an experiment in Zambia that varied whether women were given access to contraceptives alone or with their husbands, we find that women given access with their husbands were 19 percent less likely to seek family planning services, 25 percent less likely to use concealable contraception, and 27 percent more likely to give birth. However, women given access to contraception alone report a lower subjective well-being, suggesting a psycho-social cost of making contraceptives more concealable.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -626,7 +626,7 @@
           <date dateType="Submitted">2017-10-06</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1086/685299</relatedIdentifier>
         </relatedIdentifiers>
@@ -642,13 +642,13 @@
         </formats>
         <version>1.3</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">This paper shows that adding a small application cost to transfer program can substantially improve targeting through self-selection. Our village-level experiment in Indonesia finds that requiring beneficiaries to apply for benefits results in substantially poorer beneficiaries than automatic enrollment using the same asset test. Marginally increasing application costs on an experimental basis does not further improve targeting. Estimating a model of the application decision implies that the results are largely driven by the nonpoor, who make up the bulk of the population, forecasting that they are unlikely to pass the asset test and therefore not bothering to apply.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -699,7 +699,7 @@
           <date dateType="Submitted">2018-06-29</date>
           <date dateType="Updated">2020-04-03</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.3.3.158</relatedIdentifier>
         </relatedIdentifiers>
@@ -711,14 +711,14 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Harlem Children's Zone (HCZ), an ambitious social experiment, combines community programs with charter schools. We provide the first empirical test of the causal impact of HCZ charters on educational outcomes. Both lottery and instrumental variable identification strategies suggest that the effects of attending an HCZ middle school are enough to close the black-white achievement gap in mathematics. The effects in elementary school are large enough to close the racial achievement gap in both mathematics and ELA. We conclude with evidence that suggests high-quality schools are enough to significantly increase academic achievement among the poor. Community programs appear neither necessary nor sufficient.</description>
           <description descriptionType="Other">Code only.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -772,7 +772,7 @@
           <date dateType="Submitted">2017-10-31</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>20112470</size>
         </sizes>
@@ -781,13 +781,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">This data on doctor-patient interactions and malaria treatment was collected for the project "Incentives for Accurate Diagnosis: Improving Health Care Quality in Mali" funded by DfiD/ESRC Development Frontier Award ES/N00583X/1.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -853,7 +853,7 @@
           <date dateType="Submitted">2018-07-03</date>
           <date dateType="Updated">2021-09-07</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20130442</relatedIdentifier>
         </relatedIdentifiers>
@@ -901,13 +901,13 @@
         </formats>
         <version>2.0</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Using data from a randomized experiment in rural China, we study the influence of social networks on weather insurance adoption and the mechanisms through which they operate. To quantify network effects, the experiment provides intensive information sessions about the product to a random subset of farmers. For untreated farmers, the effect of having an additional treated friend on take-up is equivalent to granting a 13 percent reduction in the insurance premium. By varying the information available about peers' decisions and randomizing default options, we show that the network effect is driven by the diffusion of insurance knowledge rather than purchase decisions.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -961,7 +961,7 @@
           <date dateType="Submitted">2018-02-21</date>
           <date dateType="Updated">2018-07-25</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>98909682</size>
         </sizes>
@@ -970,13 +970,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Improving the political participation of immigrants could advance their interests and foster their integration into receiving countries. In this study, 23,800 citizens were randomly assigned to receive visits from political activists during the lead-up to the 2010 French regional elections. Treatment increased the turnout of immigrants without having any statistically significant effect on non-immigrants, while turnout was roughly equal in the control group. A postelectoral survey reveals that immigrants initially had less political information, which could explain the heterogeneous impact. Although the effect decays over subsequent elections, our findings suggest that voter outreach efforts can successfully increase immigrants' political participation, even when they do not specifically target their communities and concerns.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1016,7 +1016,7 @@
           <date dateType="Submitted">2017-06-08</date>
           <date dateType="Updated">2020-06-24</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>631329</size>
           <size>801306</size>
@@ -1065,13 +1065,13 @@
         </formats>
         <version>1.3</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">The title of the project was: Improving Gujarat’s industrial pollution inspection standards</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
         <fundingReferences>
           <fundingReference>
             <funderName>J PAL at IFMR</funderName>
@@ -1129,7 +1129,7 @@
           <date dateType="Submitted">2017-06-30</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>6131358</size>
           <size>59360</size>
@@ -1140,13 +1140,13 @@
         </formats>
         <version>2.3</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">A large-scale randomized experiment conducted during the 2012 French presidential and parliamentary elections shows that voter registration requirements have significant effects on turnout, resulting in unequal participation.We assigned 20,500 apartments to one control or six treatment groups that received canvassing visits providing either information about registration or help to register at home. While both types of visits increased registration, home registration visits had a higher impact than information-only visits, indicating that both information costs and administrative barriers impede registration. Home registration did not reduce turnout among those who would have registered anyway. On the contrary, citizens registered due to the visits became more interested in and knowledgeable about the elections as a result of being able to participate in them, and 93% voted at least once in 2012. The results suggest that easing registration requirements could substantially enhance political participation and interest while improving representation of all groups.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1212,7 +1212,7 @@
           <date dateType="Submitted">2018-07-11</date>
           <date dateType="Updated">2020-04-02</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20140468</relatedIdentifier>
         </relatedIdentifiers>
@@ -1224,14 +1224,14 @@
         </formats>
         <version>1.3</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We show that the provision of social information influences a high-stakes decision and this influence persists over time. In a field experiment involving thousands of admits to Teach For America, those told about the previous year's matriculation rate are more likely to accept a teaching job, complete training, start, and return a second year. To show robustness, we develop a simple theory that identifies subgroups where we expect larger treatment effects and find our effect is larger in those subgroups. That social information can have a powerful, persistent effect on high-stakes behavior broadens its relevance for policy and theory.</description>
           <description descriptionType="Other">Replication data.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1286,7 +1286,7 @@
           <date dateType="Submitted">2018-06-29</date>
           <date dateType="Updated">2020-04-03</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.5.4.28</relatedIdentifier>
         </relatedIdentifiers>
@@ -1298,14 +1298,14 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">In this paper, we collect data on the inner-workings of 39 charter schools and correlate these data with school effectiveness. We find that traditionally collected input measures -- class size, per-pupil expenditure, teacher certification, and teacher training -- are not correlated with school effectiveness. In stark contrast, we show that an index of five policies suggested by qualitative research -- frequent teacher feedback, the use of data to guide instruction, high-dosage tutoring, increased instructional time, and high expectations -- explains approximately 45 percent of the variation in school effectiveness. The same index provides similar results in a separate sample of charter schools.</description>
           <description descriptionType="Other">Replication of main results.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1371,7 +1371,7 @@
           <date dateType="Submitted">2018-06-26</date>
           <date dateType="Updated">2020-04-03</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20140185</relatedIdentifier>
         </relatedIdentifiers>
@@ -1383,13 +1383,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We evaluate an experimental program in which the French public employment service anonymized résumés for firms that were hiring. Firms were free to participate or not; participating firms were then randomly assigned to receive either anonymous résumés or name-bearing ones. We find that participating firms become less likely to interview and hire minority candidates when receiving anonymous résumés. We show how these unexpected results can be explained by the self-selection of firms into the program and by the fact that anonymization prevents the attenuation of negative signals when the candidate belongs to a minority.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1456,7 +1456,7 @@
           <date dateType="Submitted">2017-07-11</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1016/j.labeco.2016.11.011</relatedIdentifier>
         </relatedIdentifiers>
@@ -1470,13 +1470,13 @@
         </formats>
         <version>1.3</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">This paper analyzes the impact of the elimination of the initial fixed costs of registration on the decision of informal firms to operate formally in Bogotá, Colombia. The Chamber of Commerce of Bogotá (CCB) conducts workshops for prospective formal-sector entrants and arranges personalized meetings for them with CCB agents. The CCB’s decision to significantly reduce the transaction costs of registration and the entry into force of Act No. 1429 of 2010, which eliminated the costs of the initial procedure for registering as a formal enterprise and provided exemptions from relevant taxes during the first years after formalization, provided us with an ideal experiment for studying how the elimination of the initial fixed costs of formalization would influence firms’ decision to operate formally or not. We obtained two important results. First, while a workshop treatment had no effect on firms’ formalization decisions, meetings at the firm with CCB agents raised the likelihood that a business would begin to operate formally by 5.5 percentage points for all the firms that were invited, at random, to participate in this arm of the intervention and by 32 percentage points for the firms that accepted the invitation. Second, the effect on the treatment firms did not persist over time. After a year of formal operation, it disappeared. These results indicate that substantial reductions in the fixed costs of operating formally are not effective in formalization choices, since such reductions had no lasting effect on formalization decisions.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1542,7 +1542,7 @@
           <date dateType="Submitted">2018-06-26</date>
           <date dateType="Updated">2020-04-03</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150090</relatedIdentifier>
         </relatedIdentifiers>
@@ -1554,13 +1554,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Boarding schools substitute school to home, but little is known on the effects this substitution produces on students. We present results of an experiment in which seats in a boarding school for disadvantaged students were randomly allocated. Boarders enjoy better studying conditions than control students. However, they start outperforming control students in mathematics only two years after admission, and this effect mostly comes from strong students. Boarders initially experience lower levels of well-being but then adjust. This suggests that substituting school to home is disruptive: only strong students benefit from the school, once they have adapted to their new environment.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1630,7 +1630,7 @@
           <date dateType="Submitted">2015-08-25</date>
           <date dateType="Updated">2019-04-24</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>212945401</size>
           <size>82816</size>
@@ -1641,13 +1641,13 @@
         </formats>
         <version>1.5</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Performance pay for tax collectors has the potential to raise revenues, but might come at a cost if it increases the bargaining power of tax collectors vis-à-vis taxpayers. We report the first large-scale field experiment on these issues, where we experimentally allocated 482 property tax units in Punjab, Pakistan, into one of three performance pay schemes or a control. After two years, incentivized units had 9.4 log points higher revenue than controls, which translates to a 46% higher growth rate. The scheme that rewarded purely on revenue did best, increasing revenue by 12.9 log points (64% higher growth rate), with little penalty for customer satisfaction and assessment accuracy compared to the two other schemes that explicitly also rewarded these dimensions. The revenue gains accrue from a small number of properties becoming taxed at their true value, which is substantially more than they had been taxed at previously. The majority of properties in incentivized areas in fact pay no more taxes, but instead report higher bribes. The results are consistent with a collusive setting in which performance pay increases collectors’ bargaining power over taxpayers, who have to either pay higher bribes to avoid being reassessed or pay substantially higher taxes if collusion breaks down.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
         <fundingReferences>
           <fundingReference>
             <funderName>NSF</funderName>
@@ -1707,7 +1707,7 @@
           <date dateType="Submitted">2018-07-09</date>
           <date dateType="Updated">2020-04-03</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.104.10.3003</relatedIdentifier>
         </relatedIdentifiers>
@@ -1719,14 +1719,14 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We document three remarkable features of the Opower program, in which social comparison-based home energy reports are repeatedly mailed to more than six million households nationwide. First, initial reports cause high-frequency "action and backsliding," but these cycles attenuate over time. Second, if reports are discontinued after two years, effects are relatively persistent, decaying at 10-20 percent per year. Third, consumers are slow to habituate: they continue to respond to repeated treatment even after two years. We show that the previous conservative assumptions about post-intervention persistence had dramatically understated cost effectiveness and illustrate how empirical estimates can optimize program design.</description>
           <description descriptionType="Other">Code only.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1768,7 +1768,7 @@
           <date dateType="Submitted">2018-01-05</date>
           <date dateType="Updated">2018-07-25</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>3786138</size>
         </sizes>
@@ -1777,13 +1777,13 @@
         </formats>
         <version>2.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">I use a field experiment in rural Kenya to study how temporary incentives to save impact long-run economic outcomes. Study participants randomly selected to receive large temporary interest rates on an individual bank account had significantly more income and assets 2.5 years after the interest rates expired. These changes are much larger than the short-run impacts on experimental bank account use and almost entirely driven by growth in entrepreneurship. Temporary Interest rates directed to joint bank accounts had no detectable long-run impacts on entrepreneurship or income, but increased investment in household public goods and spousal consensus over finances.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -1867,7 +1867,7 @@
           <date dateType="Submitted">2017-03-03</date>
           <date dateType="Updated">2019-06-24</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1162/qjec.2009.124.4.1497</relatedIdentifier>
         </relatedIdentifiers>
@@ -1949,13 +1949,13 @@
         </formats>
         <version>2.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We exploit random assignment of gender quotas for leadership positions on Indian village councils to show that prior exposure to a female leader is associated with electoral gains for women. After ten years of quotas, women are more likely to stand for, and win, elected positions in councils required to have a female chief councilor in the previous two elections. We provide experimental and survey evidence on one channel of influence—changes in voter attitudes. Prior exposure to a female chief councilor improves perceptions of female leader effectiveness and weakens stereotypes about gender roles in the public and domestic spheres.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2022,7 +2022,7 @@
           <date dateType="Submitted">2019-01-29</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>895831</size>
         </sizes>
@@ -2031,13 +2031,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We conduct a randomized experiment that generates exogenous variation in the access to foreign markets for rug producers in Egypt. Combined with detailed survey data, we causally identify the impact of exporting on firm performance. Treatment firms report 16–26% higher profits and exhibit large improvements in quality alongside reductions in output per hour relative to control firms. These findings do not simply reflect firms being offered higher margins to manufacture high-quality products that take longer to produce. Instead, we find evidence of learning-by-exporting whereby exporting improves technical efficiency. First, treatment firms have higher productivity and quality after controlling for rug specifications. Second, when asked to produce an identical domestic rug using the same inputs and same capital equipment, treatment firms produce higher quality rugs despite no difference in production time. Third, treatment firms exhibit learning curves over time. Finally, we document knowledge transfers with quality increasing most along the specific dimensions that the knowledge pertained to.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2103,7 +2103,7 @@
           <date dateType="Submitted">2018-08-10</date>
           <date dateType="Updated">2020-04-02</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.6.2.1</relatedIdentifier>
         </relatedIdentifiers>
@@ -2115,14 +2115,14 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Micro-entrepreneurs often lack the financial literacy required to make important financial decisions. We conducted a randomized evaluation with a bank in the Dominican Republic to compare the impact of two distinct programs: standard accounting training versus a simplified, rule-of-thumb training that taught basic financial heuristics. The rule-of-thumb training significantly improved firms' financial practices, objective reporting quality, and revenues. For micro-entrepreneurs with lower skills or poor initial financial practices, the impact of the rule-of-thumb training was significantly larger than that of the standard accounting training, suggesting that simplifying training programs might improve their effectiveness for less sophisticated individuals.</description>
           <description descriptionType="Other">Replication files.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2225,7 +2225,7 @@
           <date dateType="Submitted">2018-07-31</date>
           <date dateType="Updated">2020-04-02</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1093/qje/qjs020</relatedIdentifier>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1056/NEJMsa1212321</relatedIdentifier>
@@ -2241,13 +2241,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">In 2008, a group of uninsured low-income adults in Oregon was selected by lottery to be given the chance to apply for Medicaid. This lottery provides an opportunity to gauge the effects of expanding access to public health insurance on the health care use, financial strain, and health of low-income adults using a randomized controlled design.&#13;&#13;This file contains Oregon Health Insurance Experiment public use data, as well as replication code for Finkelstein et al. (2012, QJE), Baicker et al. (2013, NEJM), Taubman et al. (2014, Science), and Finkelstein et al. (2016, NEJM).</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2363,14 +2363,14 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">A Philippine bank tested sensitivity to interest rates and account ownership requirements in 10,000 randomized door-to-door solicitations for a commitment savings account. Take-up is substantial (23%), but price elasticity of saving in this account is not significantly different from zero in either the full sample or sub-groups of plausibly marginal savers. The upper bound is less than 0.5 in the full sample, and exceeds 1.0 in only 1 of 22 sub-groups. Nor do we find sensitivity to ownership requirements.</description>
           <description descriptionType="TechnicalInfo">Stata, 13</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
         <fundingReferences>
           <fundingReference>
             <funderName>National Science Foundation</funderName>
@@ -2445,7 +2445,7 @@
           <date dateType="Submitted">2018-06-01</date>
           <date dateType="Updated">2018-07-25</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1093/qje/qjy005</relatedIdentifier>
         </relatedIdentifiers>
@@ -2457,13 +2457,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">A growing number of policies and programs aim to increase investment in energy efficiency, because conventional wisdom suggests that people fail to take up these investments even though they have positive private returns and generate environmental benefits. Many explanations for this energy efficiency gap have been put forward, but there has been surprisingly little field testing of whether the conventional wisdom is correct. This article reports on the results of an experimental evaluation of the nation’s largest residential energy efficiency program—the Weatherization Assistance Program—conducted on a sample of approximately 30,000 households in Michigan. The findings suggest that the upfront investment costs are about twice the actual energy savings. Furthermore, the model-projected savings are more than three times the actual savings. Although this might be attributed to the “rebound” effect—when demand for energy end uses increases as a result of greater efficiency—the article fails to find evidence of significantly higher indoor temperatures at weatherized homes. Even when accounting for the broader societal benefits derived from emissions reductions, the costs still substantially outweigh the benefits; the average rate of return is approximately −7.8% annually.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2537,7 +2537,7 @@
           <date dateType="Submitted">2017-05-18</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>29158640</size>
           <size>4854734</size>
@@ -2554,13 +2554,13 @@
         </formats>
         <version>2.3</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">These datasets and code replicate the tables and figures found in: "The Long term Impacts of a “Graduation” Program: Evidence from West Bengal" Working Paper, September 2016. Additionally, this folder also contains the questionnaires. &#13;&#13;The following is the link to the paper: https://economics.mit.edu/files/12031</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2629,7 +2629,7 @@
           <date dateType="Submitted">2018-06-01</date>
           <date dateType="Updated">2019-05-03</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/pol.20140008</relatedIdentifier>
         </relatedIdentifiers>
@@ -2641,13 +2641,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Laboratory studies suggest that improved cooking stoves can reduce indoor air pollution, improve health, and decrease greenhouse gas emissions in developing countries. We provide evidence, from a large-scale randomized trial in India, on the benefits of a common, laboratory-validated stove with a four-year follow-up. While smoke inhalation initially falls, this effect disappears by year two. We find no changes across health outcomes or greenhouse gas emissions. Households used the stoves irregularly and inappropriately, failed to maintain them, and usage declined over time. This study underscores the need to test environmental technologies in real-world settings where behavior may undermine potential impacts.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2725,7 +2725,7 @@
           <date dateType="Submitted">2013-09-17</date>
           <date dateType="Updated">2020-03-31</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.20121607</relatedIdentifier>
         </relatedIdentifiers>
@@ -2741,13 +2741,13 @@
         </formats>
         <version>4.4</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">A seven-year randomized evaluation suggests education subsidies reduce adolescent girls' dropout, pregnancy, and marriage but not sexually transmitted infection (STI). The government's HIV curriculum, which stresses abstinence until marriage, does not reduce pregnancy or STI. Both programs combined reduce STI more, but cut dropout and pregnancy less, than education subsidies alone. These results are inconsistent with a model of schooling and sexual behavior in which both pregnancy and STI are determined by one factor (unprotected sex), but consistent with a two-factor model in which choices between committed and casual relationships also affect these outcomes.&#13;&#13;This data was collected as a part of the study "Education, HIV, and Early Fertility: Experimental Evidence from Kenya."  Details on sample construction and data collection for this survey data can be found in the paper.  The 2012 version of the paper is available here: http://www.stanford.edu/~pdupas/DDK_EducFertHIV.pdf.  Note that all sections of data collected for the study are not currently available and will be released in the future.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2789,7 +2789,7 @@
           <date dateType="Submitted">2017-10-25</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.20160524</relatedIdentifier>
         </relatedIdentifiers>
@@ -2801,13 +2801,13 @@
         </formats>
         <version>1.4</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">This paper provides the first estimate of the effect of door-to-door canvassing on actual electoral outcomes, via a countrywide experiment embedded in François Hollande's campaign in the 2012 French presidential election. While existing experiments randomized door-to-door visits at the individual level, the scale of this campaign (five million doors knocked) enabled randomization by precinct, the level at which vote shares are recorded administratively. Visits did not affect turnout, but increased Hollande's vote share in the first round and accounted for one fourth of his victory margin in the second. Visits' impact persisted in later elections, suggesting a lasting persuasion effect.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -2886,7 +2886,7 @@
           <date dateType="Submitted">2017-04-06</date>
           <date dateType="Updated">2019-06-24</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1162/qjec.122.3.1235</relatedIdentifier>
         </relatedIdentifiers>
@@ -3016,13 +3016,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">This paper presents the results of two randomized experiments conducted in schools in urban India. A remedial education program hired young women to teach students lagging behind in basic literacy and numeracy skills. It increased average test scores of all children in treatment schools by 0.28 standard deviation, mostly due to large gains experienced by children at the bottom of the test-score distribution. A computer-assisted learning program focusing on math increased math scores by 0.47 standard deviation. One year after the programs were over, initial gains remained significant for targeted children, but they faded to about 0.10 standard deviation.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -3089,7 +3089,7 @@
           <date dateType="Submitted">2018-07-09</date>
           <date dateType="Updated">2020-04-03</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.4.1.164</relatedIdentifier>
         </relatedIdentifiers>
@@ -3101,13 +3101,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Using data from a randomized experiment, we find that poor rural Mexican households invested part of their cash transfers from the Oportunidades program in productive assets, increasing agricultural income by almost 10 percent after 18 months of benefits. We estimate that for each peso transferred, households consume 74 cents and invest the rest, permanently increasing long-term consumption by about 1.6 cents. Results suggest that cash transfers can achieve long-term increases in consumption through investment in productive activities, thereby permitting beneficiary households to attain higher living standards that are sustained even after transitioning off the program.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -3161,7 +3161,7 @@
           <date dateType="Submitted">2017-09-29</date>
           <date dateType="Updated">2018-04-11</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <sizes>
           <size>24684</size>
           <size>205593</size>
@@ -3176,13 +3176,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">The data and programs replicate tables and figures from "The Morale Effects of Pay Inequality", by Breza, Kaur, and Shamdasani.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -3260,7 +3260,7 @@
           <date dateType="Submitted">2018-06-20</date>
           <date dateType="Updated">2018-07-25</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.20150474</relatedIdentifier>
         </relatedIdentifiers>
@@ -3272,13 +3272,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">We use a randomized experiment in India to show that improved technology enhances agricultural productivity by crowding in modern inputs and cultivation practices. Specifically, we show that a new rice variety that reduces downside risk by providing flood tolerance has positive effects on adoption of a more labor-intensive planting method, area cultivated, fertilizer usage, and credit utilization. We find that a large share of the expected gains from the technology comes from crowding in of other investments. Therefore, improved technologies that reduce risk by protecting production in bad years have the potential to increase agricultural productivity in normal years.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -3345,7 +3345,7 @@
           <date dateType="Submitted">2017-10-02</date>
           <date dateType="Updated">2020-04-01</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1111/ecoj.12553</relatedIdentifier>
         </relatedIdentifiers>
@@ -3361,13 +3361,13 @@
         </formats>
         <version>1.3</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">The welfare impact of expanding access to bank accounts depends on whether accounts crowd out pre-existing financial relationships, or whether private gains from accounts are shared within social networks. In this experiment, we provided free bank accounts to a random subset of 885 households. Across households, we document positive spillovers: treatment households become less reliant on grown children and siblings living outside their village, and become more supportive of neighbors and friends within their village. Within households, we randomized which spouse was offered an account and find no evidence of negative spillovers.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -3409,7 +3409,7 @@
           <date dateType="Submitted">2018-07-09</date>
           <date dateType="Updated">2020-04-02</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/pol.3.4.148</relatedIdentifier>
         </relatedIdentifiers>
@@ -3421,13 +3421,13 @@
         </formats>
         <version>1.2</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">Thousands of randomly manipulated resumes were sent in response to online job postings in Toronto to investigate why immigrants, allowed in based on skill, struggle in the labor market. The study finds substantial discrimination across a variety of occupations towards applicants with foreign experience or those with Indian, Pakistani, Chinese, and Greek names compared with English names. Listing language fluency, multinational firm experience, education from highly selective schools, or active extracurricular activities had no diminishing effect. Recruiters justify this behavior based on language skill concerns but fail to fully account for offsetting features when listed.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>
@@ -3469,7 +3469,7 @@
           <date dateType="Submitted">2018-07-09</date>
           <date dateType="Updated">2020-04-02</date>
         </dates>
-        <resourceType resourceTypeGeneral="Dataset"/>
+        <resourceType resourceTypeGeneral="Dataset" />
         <relatedIdentifiers>
           <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.99.4.1245</relatedIdentifier>
         </relatedIdentifiers>
@@ -3481,13 +3481,13 @@
         </formats>
         <version>1.1</version>
         <rightsList>
-          <rights rightsURI="info:eu-repo/semantics/openAccess"/>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
         </rightsList>
         <descriptions>
           <description descriptionType="Abstract">I elicit causal effects of spousal observability and communication on financial choices of married individuals in the Philippines. When choices are private, men put money into their personal accounts. When choices are observable, men commit money to consumption for their own benefit. When required to communicate, men put money into their wives' account. These strong treatment effects on men, but not women, appear related more to control than to gender: men whose wives control household savings respond more strongly to the treatment and women whose husbands control savings exhibit the same response. Changes in information and communication interact with underlying control to produce mutable gender-specific outcomes.</description>
         </descriptions>
-        <geoLocations/>
+        <geoLocations />
       </resource>
     </metadata>
   </record>

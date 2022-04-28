@@ -10,7 +10,7 @@ def test_cli_with_env(caplog, monkeypatch, runner, tmp_path):
             main,
             [
                 "-i",
-                "tests/fixtures/datacite_jpal_records.xml",
+                "tests/fixtures/datacite/jpal_records.xml",
                 "-o",
                 outfile,
                 "-s",
@@ -36,7 +36,7 @@ def test_cli_without_env(caplog, monkeypatch, runner, tmp_path):
             main,
             [
                 "-i",
-                "tests/fixtures/datacite_jpal_records.xml",
+                "tests/fixtures/datacite/jpal_records.xml",
                 "-o",
                 outfile,
                 "-s",

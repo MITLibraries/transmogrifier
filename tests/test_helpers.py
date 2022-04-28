@@ -4,7 +4,7 @@ from transmogrifier.helpers import parse_xml_records
 
 
 def test_read_xml_records_returns_record_iterator():
-    records = parse_xml_records("tests/fixtures/datacite_jpal_records.xml")
+    records = parse_xml_records("tests/fixtures/datacite/jpal_records.xml")
     assert len(list(records)) == 38
 
 
