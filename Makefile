@@ -32,7 +32,7 @@ test:
 dist-dev: ## Build docker image
 	docker build --platform linux/amd64 -t $(ECR_REGISTRY)/timdex-transmogrifier-dev:latest \
 		-t $(ECR_REGISTRY)/timdex-transmogrifier-dev:`git describe --always` \
-		-t oaiharvester:latest .
+		-t timdex-transmogrifier-dev:latest .
 
 publish-dev: dist-dev ## Build, tag and push
 	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_REGISTRY)
