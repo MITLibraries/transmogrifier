@@ -83,24 +83,24 @@ def test_datacite_required_fields_record(
     )
 
 
-def test_datacite_missing_required_field(
+def test_datacite_missing_required_field_raises_error(
     datacite_record_partial, datacite_jpal_record_missing_required_field
 ):
     with raises(ValueError):
         output_records = datacite_record_partial(
             input_records=datacite_jpal_record_missing_required_field
         )
-        assert next(output_records)
+        next(output_records)
 
 
-def test_datacite_multiple_titles(
+def test_datacite_multiple_titles_raises_error(
     datacite_record_partial, datacite_jpal_record_multiple_titles
 ):
     with raises(ValueError):
         output_records = datacite_record_partial(
             input_records=datacite_jpal_record_multiple_titles
         )
-        assert next(output_records)
+        next(output_records)
 
 
 def test_generate_name_identifier_url_orcid_scheme(

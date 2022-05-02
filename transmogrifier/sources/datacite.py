@@ -37,7 +37,8 @@ class Datacite:
     ) -> TimdexRecord:
         """
         Args:
-            source: The source repository that is prepended to the timdex_record_id.
+            source: A label for the source repository that is prepended to the
+            timdex_record_id.
             source_link_url: A direct link to the source metadata record.
             source_name: The full human-readable name of the source repository to be
             used in the TIMDEX record.
