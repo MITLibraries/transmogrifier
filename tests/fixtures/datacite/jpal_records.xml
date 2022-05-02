@@ -1,0 +1,3494 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/19PPE7</identifier>
+      <datestamp>2022-03-26T06:04:55Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/19PPE7</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Banerji, Rukmini</creatorName>
+            <givenName>Rukmini</givenName>
+            <familyName>Banerji</familyName>
+            <affiliation>Pratham and ASER Centre</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Berry, James</creatorName>
+            <givenName>James</givenName>
+            <familyName>Berry</familyName>
+            <affiliation>University of Delaware</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Shotland, Marc</creatorName>
+            <givenName>Marc</givenName>
+            <familyName>Shotland</familyName>
+            <affiliation>Abdul Latif Jameel Poverty Action Lab</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>The Impact of Maternal Literacy and Participation Programs: Evidence from a Randomized Evaluation in India</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+          <subject>Adult education, education inputs, field experiments</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Banerji, Rukmini</contributorName>
+            <givenName>Rukmini</givenName>
+            <familyName>Banerji</familyName>
+            <affiliation>Pratham and ASER Centre</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Berry, James</contributorName>
+            <givenName>James</givenName>
+            <familyName>Berry</familyName>
+            <affiliation>University of Delaware</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Shotland, Marc</contributorName>
+            <givenName>Marc</givenName>
+            <familyName>Shotland</familyName>
+            <affiliation>Abdul Latif Jameel Poverty Action Lab</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-02-27</date>
+          <date dateType="Updated">2019-06-24</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150390</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>124903</size>
+          <size>48958</size>
+          <size>199070</size>
+          <size>186674</size>
+          <size>139605</size>
+          <size>97304</size>
+          <size>9907</size>
+          <size>178534602</size>
+          <size>4032103</size>
+          <size>43589</size>
+          <size>15697</size>
+        </sizes>
+        <formats>
+          <format>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</format>
+          <format>application/pdf</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/zip</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Using a randomized field experiment in India, we evaluate the effectiveness of adult literacy and parental involvement interventions in improving children's learning. Households were assigned to receive either adult literacy (language and math) classes for mothers, training for mothers on how to enhance their children's learning at home, or a combination of the two programs. All three interventions had significant but modest impacts on childrens math scores. The interventions also increased mothers' test scores in both language and math, as well as a range of other outcomes reflecting greater involvement of mothers in their children's education.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/2ELQNE</identifier>
+      <datestamp>2020-04-17T07:13:13Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/2ELQNE</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Dizon-Ross, Rebecca</creatorName>
+            <givenName>Rebecca</givenName>
+            <familyName>Dizon-Ross</familyName>
+            <affiliation>University of Chicago Booth School of Business</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Dupas, Pascaline</creatorName>
+            <givenName>Pascaline</givenName>
+            <familyName>Dupas</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-0140-9417</nameIdentifier>
+            <affiliation>Stanford University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Robinson, Jonathan</creatorName>
+            <givenName>Jonathan</givenName>
+            <familyName>Robinson</familyName>
+            <affiliation>University of California at Santa Cruz</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Governance and the effectiveness of public health subsidies: Evidence from Ghana, Kenya and Uganda</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Dizon-Ross, Rebecca</contributorName>
+            <givenName>Rebecca</givenName>
+            <familyName>Dizon-Ross</familyName>
+            <affiliation>University of Chicago</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Dupas, Pascaline</contributorName>
+            <givenName>Pascaline</givenName>
+            <familyName>Dupas</familyName>
+            <affiliation>Stanford University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Robinson, Jonathan</contributorName>
+            <givenName>Jonathan</givenName>
+            <familyName>Robinson</familyName>
+            <affiliation>University of California at Santa Cruz</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-05-01</date>
+          <date dateType="Updated">2018-07-25</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1016/j.jpubeco.2017.09.005</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>3257829</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Distributing subsidized health products through existing health infrastructure could substantially and cost-effectively improve health in sub-Saharan Africa. There is, however, widespread concern that poor gov- ernance – in particular, limited health worker accountability – seriously undermines the effectiveness of subsidy programs. We audit targeted bed net distribution programs to quantify the extent of agency prob- lems. We find that around 80% of the eligible receive the subsidy as intended, and up to 15% of subsidies are leaked to ineligible people. Supplementing the program with simple financial or monitoring incentives for health workers does not improve performance further and is thus not cost-effective in this context.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/3LHKP0</identifier>
+      <datestamp>2020-04-17T07:13:25Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/3LHKP0</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Oreopoulos, Philip</creatorName>
+            <givenName>Philip</givenName>
+            <familyName>Oreopoulos</familyName>
+            <affiliation>University of Toronto</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Angrist, Josh</creatorName>
+            <givenName>Josh</givenName>
+            <familyName>Angrist</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Tyler Williams</creatorName>
+            <givenName>Tyler</givenName>
+            <familyName>Williams</familyName>
+            <affiliation>Amazon.com, Inc.</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: When Opportunity Knocks, Who Answers? New Evidence on College Achievement Awards</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Oreopoulos, Philip</contributorName>
+            <givenName>Philip</givenName>
+            <familyName>Oreopoulos</familyName>
+            <affiliation>University of Toronto</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Angrist, Josh</contributorName>
+            <givenName>Josh</givenName>
+            <familyName>Angrist</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-05-25</date>
+          <date dateType="Updated">2018-07-25</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.3368/jhr.49.3.572</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>545616</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We evaluate the effects of academic achievement awards for first- and second-year college students studying at a Canadian commuter college.&#13;The award scheme offered linear cash incentives for course grades above&#13;70. Awards were paid every term. Program participants also had access to peer advising by upperclassmen. Program engagement appears to have been high but overall treatment effects were small. The intervention increased the number of courses graded above 70 and points earned above 70 for second- year students but generated no significant effect on overall GPA. Results are somewhat stronger for a subsample of applicants who correctly described the program rules.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/40AKNU</identifier>
+      <datestamp>2020-04-17T07:13:55Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/40AKNU</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Chetty, Raj</creatorName>
+            <givenName>Raj</givenName>
+            <familyName>Chetty</familyName>
+            <affiliation>Stanford University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Saez, Emmanuel</creatorName>
+            <givenName>Emmanuel</givenName>
+            <familyName>Saez</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Teaching the Tax Code: Earnings Responses to an Experiment with EITC Recipients</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Chetty, Raj</contributorName>
+            <givenName>Raj</givenName>
+            <familyName>Chetty</familyName>
+            <affiliation>Stanford University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Saez, Emmanuel</contributorName>
+            <givenName>Emmanuel</givenName>
+            <familyName>Saez</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-04</date>
+          <date dateType="Updated">2020-04-02</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.5.1.1</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>1025247</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We conducted a randomized experiment with 43,000 EITC recipients at H&amp;R Block. Tax preparers gave simple, personalized information about the EITC schedule to half of their clients. We find no significant effects of information provision on earnings in the subsequent year in the full sample. Further exploration uncovers evidence of heterogeneous treatment effects on both self-employment income and wage earnings across the 1,461 tax preparers involved in the experiment. Providing information about tax incentives does not systematically effect earnings on average. However, tax preparers may influence their clients' earnings decisions by providing advice about how to respond to tax incentives.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/48GFKU</identifier>
+      <datestamp>2022-03-26T06:04:47Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/48GFKU</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Field, Erica</creatorName>
+            <givenName>Erica</givenName>
+            <familyName>Field</familyName>
+            <affiliation>Duke University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Glennerster, Rachel</creatorName>
+            <givenName>Rachel</givenName>
+            <familyName>Glennerster</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-9345-4858</nameIdentifier>
+            <affiliation>Abdul Latif Jameel Poverty Action Lab</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Nazneen, Shahana</creatorName>
+            <givenName>Shahana</givenName>
+            <familyName>Nazneen</familyName>
+            <affiliation>Innovations for Poverty Action</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Impact of Financial Incentives on Child Marriage and Schooling in Bangladesh - Baseline Census</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2016</publicationYear>
+        <subjects>
+          <subject>Medicine, Health and Life Sciences</subject>
+          <subject>Social Sciences</subject>
+          <subject>Child Marriage</subject>
+          <subject>Bangladesh</subject>
+          <subject>Financial Incentives</subject>
+          <subject>Health</subject>
+          <subject>Poverty</subject>
+          <subject>Randomized Controlled Trial</subject>
+          <subject>Baseline Survey</subject>
+          <subject>Health</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Field, Erica</contributorName>
+            <givenName>Erica</givenName>
+            <familyName>Field</familyName>
+            <affiliation>Duke University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Glennerster, Rachel</contributorName>
+            <givenName>Rachel</givenName>
+            <familyName>Glennerster</familyName>
+            <affiliation>Abdul Latif Jameel Poverty Action Lab</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Nazneen, Shahana</contributorName>
+            <givenName>Shahana</givenName>
+            <familyName>Nazneen</familyName>
+            <affiliation>Innovations for Poverty Action</affiliation>
+          </contributor>
+          <contributor contributorType="DataCollector">
+            <contributorName nameType="Organizational">Associates for Community and Population Research (ACPR)</contributorName>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Issued">2016-05-16</date>
+          <date dateType="Submitted">2016-05-16</date>
+          <date dateType="Updated">2018-07-25</date>
+          <date dateType="Collected">2007-01-01/2007-02-28</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
+        <sizes>
+          <size>51003293</size>
+          <size>141554</size>
+          <size>29184</size>
+          <size>98016</size>
+        </sizes>
+        <formats>
+          <format>application/x-stata-13</format>
+          <format>application/pdf</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/pdf</format>
+        </formats>
+        <version>2.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">This dataset provides baseline information on 281,337 households in 6 sub-districts (upazilas) in rural Southern Bangladesh. Information were collected on household composition, marriage, education and employment as part of a census in 610 villages between January and February 2007. Information was collected by surveying one household member per household, preferably the household head, about all members of the household. In total, the dataset contains information about 1,378,041 individuals.</description>
+        </descriptions>
+        <geoLocations />
+        <fundingReferences>
+          <fundingReference>
+            <funderName>3ie, Nike Foundation</funderName>
+            <awardNumber>OW1/1012 (3ie)</awardNumber>
+          </fundingReference>
+        </fundingReferences>
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/6MSJHK</identifier>
+      <datestamp>2020-04-17T07:14:00Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/6MSJHK</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Ashraf, Nava</creatorName>
+            <givenName>Nava</givenName>
+            <familyName>Ashraf</familyName>
+            <affiliation>London School of Economics and Political Science</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Field, Erica</creatorName>
+            <givenName>Erica</givenName>
+            <familyName>Field</familyName>
+            <affiliation>Duke University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Lee, Jean</creatorName>
+            <givenName>Jean</givenName>
+            <familyName>Lee</familyName>
+            <affiliation>Millennium Challenge Corporation</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Household Bargaining and Excess Fertility: An Experimental Study in Zambia</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Ashraf, Nava</contributorName>
+            <givenName>Nava</givenName>
+            <familyName>Ashraf</familyName>
+            <affiliation>London School of Economics and Political Science</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Field, Erica</contributorName>
+            <givenName>Erica</givenName>
+            <familyName>Field</familyName>
+            <affiliation>Duke University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Lee, Jean</contributorName>
+            <givenName>Jean</givenName>
+            <familyName>Lee</familyName>
+            <affiliation>Millennium Challenge Corporation</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-09</date>
+          <date dateType="Updated">2020-04-02</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.104.7.2210</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>343504</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We posit that household decision-making over fertility is characterized by moral hazard since most contraception can only be perfectly observed by the woman. Using an experiment in Zambia that varied whether women were given access to contraceptives alone or with their husbands, we find that women given access with their husbands were 19 percent less likely to seek family planning services, 25 percent less likely to use concealable contraception, and 27 percent more likely to give birth. However, women given access to contraception alone report a lower subjective well-being, suggesting a psycho-social cost of making contraceptives more concealable.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/6ZUIUC</identifier>
+      <datestamp>2022-03-26T06:05:03Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/6ZUIUC</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Alatas, Vivi</creatorName>
+            <givenName>Vivi</givenName>
+            <familyName>Alatas</familyName>
+            <affiliation>The World Bank</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Banerjee, Abhijit</creatorName>
+            <givenName>Abhijit</givenName>
+            <familyName>Banerjee</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9923-6088</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Hanna, Rema</creatorName>
+            <givenName>Rema</givenName>
+            <familyName>Hanna</familyName>
+            <affiliation>Harvard Kennedy School of Government</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Olken, Benjamin</creatorName>
+            <givenName>Benjamin</givenName>
+            <familyName>Olken</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-1918-4631</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName>Purnamasari, Ririn</creatorName>
+            <affiliation>The World Bank East Asia &amp; Pacific Region</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Wai-Poi, Matthew</creatorName>
+            <givenName>Matthew</givenName>
+            <familyName>Wai-Poi</familyName>
+            <affiliation>The World Bank Indonesia</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Self-Targeting: Evidence from a Field Experiment in Indonesia</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Alatas, Vivi</contributorName>
+            <givenName>Vivi</givenName>
+            <familyName>Alatas</familyName>
+            <affiliation>The World Bank</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Banerjee, Abhijit</contributorName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Hanna, Rema</contributorName>
+            <givenName>Rema</givenName>
+            <familyName>Hanna</familyName>
+            <affiliation>Harvard Kennedy School of Government</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Olken, Benjamin</contributorName>
+            <givenName>Benjamin</givenName>
+            <familyName>Olken</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Purnamasari, Ririn</contributorName>
+            <affiliation>The World Bank East Asia &amp; Pacific Region</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Wai-Poi, Matthew</contributorName>
+            <givenName>Matthew</givenName>
+            <familyName>Wai-Poi</familyName>
+            <affiliation>The World Bank Indonesia</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-10-06</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1086/685299</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>6099458</size>
+          <size>108351</size>
+          <size>949</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+          <format>application/zip</format>
+          <format>text/plain</format>
+        </formats>
+        <version>1.3</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">This paper shows that adding a small application cost to transfer program can substantially improve targeting through self-selection. Our village-level experiment in Indonesia finds that requiring beneficiaries to apply for benefits results in substantially poorer beneficiaries than automatic enrollment using the same asset test. Marginally increasing application costs on an experimental basis does not further improve targeting. Estimating a model of the application decision implies that the results are largely driven by the nonpoor, who make up the bulk of the population, forecasting that they are unlikely to pass the asset test and therefore not bothering to apply.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/B7YLTV</identifier>
+      <datestamp>2020-05-21T14:41:01Z</datestamp>
+      <setSpec>Princeton_Authored_Datasets</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/B7YLTV</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Dobbie, Will</creatorName>
+            <givenName>Will</givenName>
+            <familyName>Dobbie</familyName>
+            <affiliation>Princeton University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Fryer, Jr., Roland G.</creatorName>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Are High-Quality Schools Enough to Increase Achievement among the Poor? Evidence from the Harlem Children's Zone</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Dobbie, Will</contributorName>
+            <givenName>Will</givenName>
+            <familyName>Dobbie</familyName>
+            <affiliation>Princeton University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Fryer, Jr., Roland G.</contributorName>
+            <affiliation>Harvard University</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-06-29</date>
+          <date dateType="Updated">2020-04-03</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.3.3.158</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>80892</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Harlem Children's Zone (HCZ), an ambitious social experiment, combines community programs with charter schools. We provide the first empirical test of the causal impact of HCZ charters on educational outcomes. Both lottery and instrumental variable identification strategies suggest that the effects of attending an HCZ middle school are enough to close the black-white achievement gap in mathematics. The effects in elementary school are large enough to close the racial achievement gap in both mathematics and ELA. We conclude with evidence that suggests high-quality schools are enough to significantly increase academic achievement among the poor. Community programs appear neither necessary nor sufficient.</description>
+          <description descriptionType="Other">Code only.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/CLGN7Z</identifier>
+      <datestamp>2022-03-26T06:05:04Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/CLGN7Z</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Sautmann, Anja</creatorName>
+            <givenName>Anja</givenName>
+            <familyName>Sautmann</familyName>
+            <affiliation>J-PAL Global</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Schaner, Simone</creatorName>
+            <givenName>Simone</givenName>
+            <familyName>Schaner</familyName>
+            <affiliation>University of Southern California</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Incentives for Accurate Diagnosis: Improving Health Care Quality in Mali</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Sautmann, Anja</contributorName>
+            <givenName>Anja</givenName>
+            <familyName>Sautmann</familyName>
+            <affiliation>J-PAL Global</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Schaner, Simone</contributorName>
+            <givenName>Simone</givenName>
+            <familyName>Schaner</familyName>
+            <affiliation>University of Southern California</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-10-31</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>20112470</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">This data on doctor-patient interactions and malaria treatment was collected for the project "Incentives for Accurate Diagnosis: Improving Health Care Quality in Mali" funded by DfiD/ESRC Development Frontier Award ES/N00583X/1.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/CXDJM0</identifier>
+      <datestamp>2021-09-08T07:43:15Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/CXDJM0</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Cai, Jing</creatorName>
+            <givenName>Jing</givenName>
+            <familyName>Cai</familyName>
+            <affiliation>University of Maryland</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">De Janvry, Alain</creatorName>
+            <givenName>Alain</givenName>
+            <familyName>De Janvry</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Sadoulet, Elisabeth</creatorName>
+            <givenName>Elisabeth</givenName>
+            <familyName>Sadoulet</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Social Networks and the Decision to Insure</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Cai, Jing</contributorName>
+            <givenName>Jing</givenName>
+            <familyName>Cai</familyName>
+            <affiliation>University of Maryland</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">De Janvry, Alain</contributorName>
+            <givenName>Alain</givenName>
+            <familyName>De Janvry</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Sadoulet, Elisabeth</contributorName>
+            <givenName>Elisabeth</givenName>
+            <familyName>Sadoulet</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-03</date>
+          <date dateType="Updated">2021-09-07</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20130442</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>1057269</size>
+          <size>32561</size>
+          <size>188835</size>
+          <size>503297</size>
+          <size>19616</size>
+          <size>335845</size>
+          <size>8287</size>
+          <size>33796</size>
+          <size>615</size>
+          <size>71134</size>
+          <size>38079</size>
+          <size>20895</size>
+          <size>46840</size>
+          <size>80146</size>
+          <size>124399</size>
+          <size>57904</size>
+          <size>16110</size>
+          <size>56157</size>
+          <size>48655</size>
+        </sizes>
+        <formats>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>application/x-stata-syntax</format>
+          <format>text/plain</format>
+          <format>application/x-stata-syntax</format>
+          <format>text/plain</format>
+          <format>text/plain</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+          <format>application/vnd.ms-excel</format>
+        </formats>
+        <version>2.0</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Using data from a randomized experiment in rural China, we study the influence of social networks on weather insurance adoption and the mechanisms through which they operate. To quantify network effects, the experiment provides intensive information sessions about the product to a random subset of farmers. For untreated farmers, the effect of having an additional treated friend on take-up is equivalent to granting a 13 percent reduction in the insurance premium. By varying the information available about peers' decisions and randomizing default options, we show that the network effect is driven by the diffusion of insurance knowledge rather than purchase decisions.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/DDCNEW</identifier>
+      <datestamp>2020-04-17T07:11:52Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/DDCNEW</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Pons, Vincent</creatorName>
+            <givenName>Vincent</givenName>
+            <familyName>Pons</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Liegey, Guillaume</creatorName>
+            <givenName>Guillaume</givenName>
+            <familyName>Liegey</familyName>
+            <affiliation>Liegey Muller Pons</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Increasing the Electoral Participation of Immigrants: Experimental Evidence from France</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Pons, Vincent</contributorName>
+            <givenName>Vincent</givenName>
+            <familyName>Pons</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Liegey, Guillaume</contributorName>
+            <givenName>Guillaume</givenName>
+            <familyName>Liegey</familyName>
+            <affiliation>Liegey Muller Pons</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-02-21</date>
+          <date dateType="Updated">2018-07-25</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>98909682</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Improving the political participation of immigrants could advance their interests and foster their integration into receiving countries. In this study, 23,800 citizens were randomly assigned to receive visits from political activists during the lead-up to the 2010 French regional elections. Treatment increased the turnout of immigrants without having any statistically significant effect on non-immigrants, while turnout was roughly equal in the control group. A postelectoral survey reveals that immigrants initially had less political information, which could explain the heterogeneous impact. Although the effect decays over subsequent elections, our findings suggest that voter outreach efforts can successfully increase immigrants' political participation, even when they do not specifically target their communities and concerns.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/FORDEN</identifier>
+      <datestamp>2022-03-26T06:04:59Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/FORDEN</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Esther Duflo</creatorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <affiliation>J PAL S Asia at Institute for Financial Management and Research (Chennai, INDIA</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Truth-Telling By Third-Party Audits And The Response Of Polluting Firms Experimental Evidence From India</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Earth and Environmental Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">International Initiative for Impact Evaluation</contributorName>
+            <affiliation>3ie Int</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-06-08</date>
+          <date dateType="Updated">2020-06-24</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>631329</size>
+          <size>801306</size>
+          <size>179385</size>
+          <size>52745</size>
+          <size>3322473</size>
+          <size>699355</size>
+          <size>6785</size>
+          <size>5715</size>
+          <size>5603</size>
+          <size>6328</size>
+          <size>5060</size>
+          <size>5315</size>
+          <size>4787</size>
+          <size>78653</size>
+          <size>1336</size>
+          <size>82</size>
+          <size>6148</size>
+          <size>350214</size>
+          <size>467512</size>
+          <size>583</size>
+          <size>1323</size>
+        </sizes>
+        <formats>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/plain; charset=US-ASCII</format>
+          <format>application/octet-stream</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/plain</format>
+        </formats>
+        <version>1.3</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">The title of the project was: Improving Gujarat’s industrial pollution inspection standards</description>
+        </descriptions>
+        <geoLocations />
+        <fundingReferences>
+          <fundingReference>
+            <funderName>J PAL at IFMR</funderName>
+            <awardNumber>OW2.094</awardNumber>
+          </fundingReference>
+        </fundingReferences>
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/ILZ5QL</identifier>
+      <datestamp>2022-03-26T06:05:00Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/ILZ5QL</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Braconnier, Céline</creatorName>
+            <givenName>Céline</givenName>
+            <familyName>Braconnier</familyName>
+            <affiliation>Sciences Po Saint-Germain-University of Cergy-Pontoise</affiliation>
+          </creator>
+          <creator>
+            <creatorName>Dormage, Jean-Yves</creatorName>
+            <affiliation>Université de Montpelier</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Pons, Vincent</creatorName>
+            <givenName>Vincent</givenName>
+            <familyName>Pons</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Voter Registration Costs and Disenfranchisement: Experimental Evidence from France</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Pons, Vincent</contributorName>
+            <givenName>Vincent</givenName>
+            <familyName>Pons</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-06-30</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>6131358</size>
+          <size>59360</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+          <format>application/vnd.openxmlformats-officedocument.wordprocessingml.document</format>
+        </formats>
+        <version>2.3</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">A large-scale randomized experiment conducted during the 2012 French presidential and parliamentary elections shows that voter registration requirements have significant effects on turnout, resulting in unequal participation.We assigned 20,500 apartments to one control or six treatment groups that received canvassing visits providing either information about registration or help to register at home. While both types of visits increased registration, home registration visits had a higher impact than information-only visits, indicating that both information costs and administrative barriers impede registration. Home registration did not reduce turnout among those who would have registered anyway. On the contrary, citizens registered due to the visits became more interested in and knowledgeable about the elections as a result of being able to participate in them, and 93% voted at least once in 2012. The results suggest that easing registration requirements could substantially enhance political participation and interest while improving representation of all groups.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/JGE7FM</identifier>
+      <datestamp>2020-04-17T07:14:02Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/JGE7FM</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Coffman, Lucas C.</creatorName>
+            <givenName>Lucas C.</givenName>
+            <familyName>Coffman</familyName>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Featherstone, Clayton R.</creatorName>
+            <givenName>Clayton R.</givenName>
+            <familyName>Featherstone</familyName>
+            <affiliation>The Wharton School, University of Pennsylvania</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Kessler, Judd B.</creatorName>
+            <givenName>Judd B.</givenName>
+            <familyName>Kessler</familyName>
+            <affiliation>The Wharton School, University of Pennsylvania</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Can Social Information Affect What Job You Choose and Keep?</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Coffman, Lucas C.</contributorName>
+            <givenName>Lucas C.</givenName>
+            <familyName>Coffman</familyName>
+            <affiliation>Harvard University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Featherstone, Clayton R.</contributorName>
+            <givenName>Clayton R.</givenName>
+            <familyName>Featherstone</familyName>
+            <affiliation>The Wharton School, University of Pennsylvania</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Kessler, Judd B.</contributorName>
+            <givenName>Judd B.</givenName>
+            <familyName>Kessler</familyName>
+            <affiliation>The Wharton School, University of Pennsylvania</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-11</date>
+          <date dateType="Updated">2020-04-02</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20140468</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>101401</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.3</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We show that the provision of social information influences a high-stakes decision and this influence persists over time. In a field experiment involving thousands of admits to Teach For America, those told about the previous year's matriculation rate are more likely to accept a teaching job, complete training, start, and return a second year. To show robustness, we develop a simple theory that identifies subgroups where we expect larger treatment effects and find our effect is larger in those subgroups. That social information can have a powerful, persistent effect on high-stakes behavior broadens its relevance for policy and theory.</description>
+          <description descriptionType="Other">Replication data.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/JGRLOU</identifier>
+      <datestamp>2020-05-21T14:41:01Z</datestamp>
+      <setSpec>Princeton_Authored_Datasets</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/JGRLOU</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Dobbie, Will</creatorName>
+            <givenName>Will</givenName>
+            <familyName>Dobbie</familyName>
+            <affiliation>Princeton University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Fryer Jr., Roland G.</creatorName>
+            <givenName>Roland G.</givenName>
+            <familyName>Fryer Jr.</familyName>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Getting beneath the Veil of Effective Schools: Evidence from New York City</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Dobbie, Will</contributorName>
+            <givenName>Will</givenName>
+            <familyName>Dobbie</familyName>
+            <affiliation>Princeton University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Fryer Jr., Roland G.</contributorName>
+            <givenName>Roland G.</givenName>
+            <familyName>Fryer Jr.</familyName>
+            <affiliation>Harvard University</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-06-29</date>
+          <date dateType="Updated">2020-04-03</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.5.4.28</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>35844</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">In this paper, we collect data on the inner-workings of 39 charter schools and correlate these data with school effectiveness. We find that traditionally collected input measures -- class size, per-pupil expenditure, teacher certification, and teacher training -- are not correlated with school effectiveness. In stark contrast, we show that an index of five policies suggested by qualitative research -- frequent teacher feedback, the use of data to guide instruction, high-dosage tutoring, increased instructional time, and high expectations -- explains approximately 45 percent of the variation in school effectiveness. The same index provides similar results in a separate sample of charter schools.</description>
+          <description descriptionType="Other">Replication of main results.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/KDWAIH</identifier>
+      <datestamp>2020-04-17T07:13:48Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/KDWAIH</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Behaghel, Luc</creatorName>
+            <givenName>Luc</givenName>
+            <familyName>Behaghel</familyName>
+            <affiliation>Paris School of Economics-Inra</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Crépon, Bruno</creatorName>
+            <givenName>Bruno</givenName>
+            <familyName>Crépon</familyName>
+            <affiliation>Centre de Recherche en Économie et Statistique</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Le Barbanchon, Thomas</creatorName>
+            <givenName>Thomas</givenName>
+            <familyName>Le Barbanchon</familyName>
+            <affiliation>Bocconi  University</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Unintended Effects of Anonymous Résumés</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Behaghel, Luc</contributorName>
+            <givenName>Luc</givenName>
+            <familyName>Behaghel</familyName>
+            <affiliation>Paris School of Economics-Inra</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Crépon, Bruno</contributorName>
+            <givenName>Bruno</givenName>
+            <familyName>Crépon</familyName>
+            <affiliation>Centre de Recherche en Économie et Statistique</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Le Barbanchon, Thomas</contributorName>
+            <givenName>Thomas</givenName>
+            <familyName>Le Barbanchon</familyName>
+            <affiliation>Bocconi  University</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-06-26</date>
+          <date dateType="Updated">2020-04-03</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20140185</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>365202</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We evaluate an experimental program in which the French public employment service anonymized résumés for firms that were hiring. Firms were free to participate or not; participating firms were then randomly assigned to receive either anonymous résumés or name-bearing ones. We find that participating firms become less likely to interview and hire minority candidates when receiving anonymous résumés. We show how these unexpected results can be explained by the self-selection of firms into the program and by the fact that anonymization prevents the attenuation of negative signals when the candidate belongs to a minority.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/LLKSIA</identifier>
+      <datestamp>2022-03-26T06:05:00Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/LLKSIA</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Galiani, Sebastian</creatorName>
+            <givenName>Sebastian</givenName>
+            <familyName>Galiani</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-8965-0995</nameIdentifier>
+            <affiliation>University of Maryland</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Meléndez, Marcela</creatorName>
+            <givenName>Marcela</givenName>
+            <familyName>Meléndez</familyName>
+            <affiliation>Universidad de los Andes</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Navajas, Camila</creatorName>
+            <givenName>Camila</givenName>
+            <familyName>Navajas</familyName>
+            <affiliation>Universidad de San Andres</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>On the Effect of the Costs of Operating Formally: New Experimental Evidence</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Galiani, Sebastian</contributorName>
+            <givenName>Sebastian</givenName>
+            <familyName>Galiani</familyName>
+            <affiliation>University of Maryland</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Meléndez, Marcela</contributorName>
+            <givenName>Marcela</givenName>
+            <familyName>Meléndez</familyName>
+            <affiliation>Universidad de los Andes</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Navajas, Camila</contributorName>
+            <givenName>Camila</givenName>
+            <familyName>Navajas</familyName>
+            <affiliation>Universidad de San Andres</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-07-11</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1016/j.labeco.2016.11.011</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>672199</size>
+          <size>13010</size>
+        </sizes>
+        <formats>
+          <format>text/tab-separated-values</format>
+          <format>application/x-stata-syntax</format>
+        </formats>
+        <version>1.3</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">This paper analyzes the impact of the elimination of the initial fixed costs of registration on the decision of informal firms to operate formally in Bogotá, Colombia. The Chamber of Commerce of Bogotá (CCB) conducts workshops for prospective formal-sector entrants and arranges personalized meetings for them with CCB agents. The CCB’s decision to significantly reduce the transaction costs of registration and the entry into force of Act No. 1429 of 2010, which eliminated the costs of the initial procedure for registering as a formal enterprise and provided exemptions from relevant taxes during the first years after formalization, provided us with an ideal experiment for studying how the elimination of the initial fixed costs of formalization would influence firms’ decision to operate formally or not. We obtained two important results. First, while a workshop treatment had no effect on firms’ formalization decisions, meetings at the firm with CCB agents raised the likelihood that a business would begin to operate formally by 5.5 percentage points for all the firms that were invited, at random, to participate in this arm of the intervention and by 32 percentage points for the firms that accepted the invitation. Second, the effect on the treatment firms did not persist over time. After a year of formal operation, it disappeared. These results indicate that substantial reductions in the fixed costs of operating formally are not effective in formalization choices, since such reductions had no lasting effect on formalization decisions.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/LLTBEY</identifier>
+      <datestamp>2020-04-17T07:13:48Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/LLTBEY</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Behaghel, Luc</creatorName>
+            <givenName>Luc</givenName>
+            <familyName>Behaghel</familyName>
+            <affiliation>Paris School of Economics-Inra</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">de Chaisemartin, Clément</creatorName>
+            <givenName>Clément</givenName>
+            <familyName>de Chaisemartin</familyName>
+            <affiliation>University of California, Santa Barbara</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Gurgand, Marc</creatorName>
+            <givenName>Marc</givenName>
+            <familyName>Gurgand</familyName>
+            <affiliation>Paris School of Economics</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Ready for Boarding? The Effects of a Boarding School for Disadvantaged Students</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Behaghel, Luc</contributorName>
+            <givenName>Luc</givenName>
+            <familyName>Behaghel</familyName>
+            <affiliation>Paris School of Economics-Inra</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">de Chaisemartin, Clément</contributorName>
+            <givenName>Clément</givenName>
+            <familyName>de Chaisemartin</familyName>
+            <affiliation>University of California, Santa Barbara</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Gurgand, Marc</contributorName>
+            <givenName>Marc</givenName>
+            <familyName>Gurgand</familyName>
+            <affiliation>Paris School of Economics</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-06-26</date>
+          <date dateType="Updated">2020-04-03</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150090</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>181020</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Boarding schools substitute school to home, but little is known on the effects this substitution produces on students. We present results of an experiment in which seats in a boarding school for disadvantaged students were randomly allocated. Boarders enjoy better studying conditions than control students. However, they start outperforming control students in mathematics only two years after admission, and this effect mostly comes from strong students. Boarders initially experience lower levels of well-being but then adjust. This suggests that substituting school to home is disruptive: only strong students benefit from the school, once they have adapted to their new environment.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/MDHHQP</identifier>
+      <datestamp>2022-03-26T06:04:36Z</datestamp>
+      <setSpec>IQSS</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/MDHHQP</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Khan, Adnan Q</creatorName>
+            <givenName>Adnan Q</givenName>
+            <familyName>Khan</familyName>
+            <affiliation>London School of Economics</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Khwaja, Asim I</creatorName>
+            <givenName>Asim I</givenName>
+            <familyName>Khwaja</familyName>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Olken, Benjamin</creatorName>
+            <givenName>Benjamin</givenName>
+            <familyName>Olken</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-1918-4631</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Tax Farming Redux: Experimental Evidence on Performance Pay for Tax Collectors</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2015</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+          <subject>Incentives</subject>
+          <subject>Corruption</subject>
+          <subject>Taxation</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Khan, Adnan Q</contributorName>
+            <givenName>Adnan Q</givenName>
+            <familyName>Khan</familyName>
+            <affiliation>London School of Economics</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Khwaja, Asim I</contributorName>
+            <givenName>Asim I</givenName>
+            <familyName>Khwaja</familyName>
+            <affiliation>Harvard University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Olken, Ben</contributorName>
+            <givenName>Ben</givenName>
+            <familyName>Olken</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2015-08-25</date>
+          <date dateType="Updated">2019-04-24</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>212945401</size>
+          <size>82816</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+          <format>application/pdf</format>
+        </formats>
+        <version>1.5</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Performance pay for tax collectors has the potential to raise revenues, but might come at a cost if it increases the bargaining power of tax collectors vis-à-vis taxpayers. We report the first large-scale field experiment on these issues, where we experimentally allocated 482 property tax units in Punjab, Pakistan, into one of three performance pay schemes or a control. After two years, incentivized units had 9.4 log points higher revenue than controls, which translates to a 46% higher growth rate. The scheme that rewarded purely on revenue did best, increasing revenue by 12.9 log points (64% higher growth rate), with little penalty for customer satisfaction and assessment accuracy compared to the two other schemes that explicitly also rewarded these dimensions. The revenue gains accrue from a small number of properties becoming taxed at their true value, which is substantially more than they had been taxed at previously. The majority of properties in incentivized areas in fact pay no more taxes, but instead report higher bribes. The results are consistent with a collusive setting in which performance pay increases collectors’ bargaining power over taxpayers, who have to either pay higher bribes to avoid being reassessed or pay substantially higher taxes if collusion breaks down.</description>
+        </descriptions>
+        <geoLocations />
+        <fundingReferences>
+          <fundingReference>
+            <funderName>NSF</funderName>
+            <awardNumber>SES-1124134</awardNumber>
+          </fundingReference>
+        </fundingReferences>
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/OCRH8F</identifier>
+      <datestamp>2020-04-17T07:45:03Z</datestamp>
+      <setSpec>IQSS</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/OCRH8F</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Allcott, Hunt</creatorName>
+            <givenName>Hunt</givenName>
+            <familyName>Allcott</familyName>
+            <affiliation>New York University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Rogers, Todd</creatorName>
+            <givenName>Todd</givenName>
+            <familyName>Rogers</familyName>
+            <affiliation>Harvard Kennedy School</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>The Short-Run and Long-Run Effects of Behavioral Interventions: Experimental Evidence from Energy Conservation</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Allcott, Hunt</contributorName>
+            <givenName>Hunt</givenName>
+            <familyName>Allcott</familyName>
+            <affiliation>New York University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Rogers, Todd</contributorName>
+            <givenName>Todd</givenName>
+            <familyName>Rogers</familyName>
+            <affiliation>Harvard Kennedy School</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-09</date>
+          <date dateType="Updated">2020-04-03</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.104.10.3003</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>69271</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We document three remarkable features of the Opower program, in which social comparison-based home energy reports are repeatedly mailed to more than six million households nationwide. First, initial reports cause high-frequency "action and backsliding," but these cycles attenuate over time. Second, if reports are discontinued after two years, effects are relatively persistent, decaying at 10-20 percent per year. Third, consumers are slow to habituate: they continue to respond to repeated treatment even after two years. We show that the previous conservative assumptions about post-intervention persistence had dramatically understated cost effectiveness and illustrate how empirical estimates can optimize program design.</description>
+          <description descriptionType="Other">Code only.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/OXKJ92</identifier>
+      <datestamp>2020-04-17T07:45:03Z</datestamp>
+      <setSpec>IQSS</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/OXKJ92</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Schaner, Simone</creatorName>
+            <givenName>Simone</givenName>
+            <familyName>Schaner</familyName>
+            <affiliation>University of Southern California</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>The Persistent Power of Behavioral Change: Long-Run Impacts of Temporary Savings Subsidies for the Poor</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Schaner, Simone</contributorName>
+            <givenName>Simone</givenName>
+            <familyName>Schaner</familyName>
+            <affiliation>University of Southern California</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-01-05</date>
+          <date dateType="Updated">2018-07-25</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>3786138</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>2.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">I use a field experiment in rural Kenya to study how temporary incentives to save impact long-run economic outcomes. Study participants randomly selected to receive large temporary interest rates on an individual bank account had significantly more income and assets 2.5 years after the interest rates expired. These changes are much larger than the short-run impacts on experimental bank account use and almost entirely driven by growth in entrepreneurship. Temporary Interest rates directed to joint bank accounts had no detectable long-run impacts on entrepreneurship or income, but increased investment in household public goods and spousal consensus over finances.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/PXV79W</identifier>
+      <datestamp>2022-03-26T06:04:55Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/PXV79W</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Beaman, Lori</creatorName>
+            <givenName>Lori</givenName>
+            <familyName>Beaman</familyName>
+            <affiliation>Northwestern University</affiliation>
+          </creator>
+          <creator>
+            <creatorName>Chattopadhyay, Raghabendra</creatorName>
+            <affiliation>Indian Institute of Management (IIM) Calcutta</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Duflo, Esther</creatorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-6105-617X</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Pande, Rohini</creatorName>
+            <givenName>Rohini</givenName>
+            <familyName>Pande</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-0090-0987</nameIdentifier>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+          <creator>
+            <creatorName>Topalova, Petia</creatorName>
+            <affiliation>International Monetary Fund</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Powerful women and aspirations in India</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Beaman, Lori</contributorName>
+            <givenName>Lori</givenName>
+            <familyName>Beaman</familyName>
+            <affiliation>Northwestern University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Chattopadhyay, Raghabendra</contributorName>
+            <affiliation>Abdul Latif Jameel Poverty Action Lab</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Duflo, Esther</contributorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Pande, Rohini</contributorName>
+            <givenName>Rohini</givenName>
+            <familyName>Pande</familyName>
+            <affiliation>Harvard University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Topalova, Petia</contributorName>
+            <affiliation>International Monetary Fund</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-03-03</date>
+          <date dateType="Updated">2019-06-24</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1162/qjec.2009.124.4.1497</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>27262637</size>
+          <size>937311</size>
+          <size>55115</size>
+          <size>105718</size>
+          <size>700368</size>
+          <size>125498</size>
+          <size>666556</size>
+          <size>178204</size>
+          <size>145859</size>
+          <size>303669</size>
+          <size>962570</size>
+          <size>1532536</size>
+          <size>202108</size>
+          <size>7744108</size>
+          <size>94255</size>
+          <size>985796</size>
+          <size>621855</size>
+          <size>421376</size>
+          <size>199979</size>
+          <size>299691</size>
+          <size>5551559</size>
+          <size>6851495</size>
+          <size>6807</size>
+          <size>2134410</size>
+          <size>3134754</size>
+          <size>396288</size>
+          <size>18449</size>
+          <size>437760</size>
+          <size>179712</size>
+          <size>343040</size>
+          <size>455168</size>
+          <size>750080</size>
+          <size>435712</size>
+          <size>101888</size>
+          <size>96768</size>
+          <size>2068532</size>
+        </sizes>
+        <formats>
+          <format>application/x-stata</format>
+          <format>text/tab-separated-values</format>
+          <format>application/zip</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>application/zip</format>
+          <format>text/tab-separated-values</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/msword</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>text/tab-separated-values</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/msword</format>
+          <format>text/tab-separated-values</format>
+          <format>application/msword</format>
+          <format>application/msword</format>
+          <format>application/msword</format>
+          <format>application/msword</format>
+          <format>application/msword</format>
+          <format>application/msword</format>
+          <format>application/msword</format>
+          <format>application/msword</format>
+          <format>application/x-stata</format>
+        </formats>
+        <version>2.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We exploit random assignment of gender quotas for leadership positions on Indian village councils to show that prior exposure to a female leader is associated with electoral gains for women. After ten years of quotas, women are more likely to stand for, and win, elected positions in councils required to have a female chief councilor in the previous two elections. We provide experimental and survey evidence on one channel of influence—changes in voter attitudes. Prior exposure to a female chief councilor improves perceptions of female leader effectiveness and weakens stereotypes about gender roles in the public and domestic spheres.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/QOGMVI</identifier>
+      <datestamp>2020-04-17T07:45:03Z</datestamp>
+      <setSpec>IQSS</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/QOGMVI</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Atkin, David</creatorName>
+            <givenName>David</givenName>
+            <familyName>Atkin</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9367-5688</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Khandelwal, Amit K.</creatorName>
+            <givenName>Amit K.</givenName>
+            <familyName>Khandelwal</familyName>
+            <affiliation>Columbia University Business School</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Osman, Adam</creatorName>
+            <givenName>Adam</givenName>
+            <familyName>Osman</familyName>
+            <affiliation>University of Illinois</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Exporting and Firm Performance: Evidence from a Randomized Experiment</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2019</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Atkin, David</contributorName>
+            <givenName>David</givenName>
+            <familyName>Atkin</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Khandelwal, Amit K.</contributorName>
+            <givenName>Amit K.</givenName>
+            <familyName>Khandelwal</familyName>
+            <affiliation>Columbia University Business School</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Osman, Adam</contributorName>
+            <givenName>Adam</givenName>
+            <familyName>Osman</familyName>
+            <affiliation>University of Illinois at Urbana Champaign</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2019-01-29</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>895831</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We conduct a randomized experiment that generates exogenous variation in the access to foreign markets for rug producers in Egypt. Combined with detailed survey data, we causally identify the impact of exporting on firm performance. Treatment firms report 16–26% higher profits and exhibit large improvements in quality alongside reductions in output per hour relative to control firms. These findings do not simply reflect firms being offered higher margins to manufacture high-quality products that take longer to produce. Instead, we find evidence of learning-by-exporting whereby exporting improves technical efficiency. First, treatment firms have higher productivity and quality after controlling for rug specifications. Second, when asked to produce an identical domestic rug using the same inputs and same capital equipment, treatment firms produce higher quality rugs despite no difference in production time. Third, treatment firms exhibit learning curves over time. Finally, we document knowledge transfers with quality increasing most along the specific dimensions that the knowledge pertained to.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/QWKNBI</identifier>
+      <datestamp>2020-04-17T07:14:23Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/QWKNBI</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Drexler, Alejandro</creatorName>
+            <givenName>Alejandro</givenName>
+            <familyName>Drexler</familyName>
+            <affiliation>Federal Reserve Bank of Chicago</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Fischer, Greg</creatorName>
+            <givenName>Greg</givenName>
+            <familyName>Fischer</familyName>
+            <affiliation>London School of Economics and Political Science</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Schoar, Antoinette</creatorName>
+            <givenName>Antoinette</givenName>
+            <familyName>Schoar</familyName>
+            <affiliation>MIT Sloan School of Management</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Keeping It Simple: Financial Literacy and Rules of Thumb</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Drexler, Alejandro</contributorName>
+            <givenName>Alejandro</givenName>
+            <familyName>Drexler</familyName>
+            <affiliation>Federal Reserve Bank of Chicago</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Fischer, Greg</contributorName>
+            <givenName>Greg</givenName>
+            <familyName>Fischer</familyName>
+            <affiliation>London School of Economics and Political Science</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Schoar, Antoinette</contributorName>
+            <givenName>Antoinette</givenName>
+            <familyName>Schoar</familyName>
+            <affiliation>MIT Sloan School of Management</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-08-10</date>
+          <date dateType="Updated">2020-04-02</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.6.2.1</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>462153</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Micro-entrepreneurs often lack the financial literacy required to make important financial decisions. We conducted a randomized evaluation with a bank in the Dominican Republic to compare the impact of two distinct programs: standard accounting training versus a simplified, rule-of-thumb training that taught basic financial heuristics. The rule-of-thumb training significantly improved firms' financial practices, objective reporting quality, and revenues. For micro-entrepreneurs with lower skills or poor initial financial practices, the impact of the rule-of-thumb training was significantly larger than that of the standard accounting training, suggesting that simplifying training programs might improve their effectiveness for less sophisticated individuals.</description>
+          <description descriptionType="Other">Replication files.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/SJG1ED</identifier>
+      <datestamp>2020-04-17T07:14:15Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/SJG1ED</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Finkelstein, Amy</creatorName>
+            <givenName>Amy</givenName>
+            <familyName>Finkelstein</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-9941-6684</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Baicker, Katherine</creatorName>
+            <givenName>Katherine</givenName>
+            <familyName>Baicker</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-5960-3058</nameIdentifier>
+            <affiliation>University of Chicago</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Taubman, Sarah</creatorName>
+            <givenName>Sarah</givenName>
+            <familyName>Taubman</familyName>
+            <affiliation>National Bureau of Economic Research</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Wright, Bill</creatorName>
+            <givenName>Bill</givenName>
+            <familyName>Wright</familyName>
+            <affiliation>Center for Outcomes Research and Education</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Bernstein, Mira</creatorName>
+            <givenName>Mira</givenName>
+            <familyName>Bernstein</familyName>
+            <affiliation>National Bureau of Economic Research</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Gruber, Jonathan</creatorName>
+            <givenName>Jonathan</givenName>
+            <familyName>Gruber</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-9877-3065</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Allen, Heidi</creatorName>
+            <givenName>Heidi</givenName>
+            <familyName>Allen</familyName>
+            <affiliation>Columbia University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Newhouse, Joseph P</creatorName>
+            <givenName>Joseph P</givenName>
+            <familyName>Newhouse</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-5837-3203</nameIdentifier>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Schneider, Eric</creatorName>
+            <givenName>Eric</givenName>
+            <familyName>Schneider</familyName>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Zaslavsky, Alan</creatorName>
+            <givenName>Alan</givenName>
+            <familyName>Zaslavsky</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-1072-6043</nameIdentifier>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Oregon Health Insurance Experiment</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Medicine, Health and Life Sciences</subject>
+          <subject>Social Sciences</subject>
+          <subject>Oregon</subject>
+          <subject>Health insurance</subject>
+          <subject>Medicaid</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Doyle, Mary-Alice</contributorName>
+            <affiliation>J-PAL North America</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-31</date>
+          <date dateType="Updated">2020-04-02</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1093/qje/qjs020</relatedIdentifier>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1056/NEJMsa1212321</relatedIdentifier>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1126/science.1246183</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>816</size>
+          <size>9370270</size>
+        </sizes>
+        <formats>
+          <format>text/plain</format>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">In 2008, a group of uninsured low-income adults in Oregon was selected by lottery to be given the chance to apply for Medicaid. This lottery provides an opportunity to gauge the effects of expanding access to public health insurance on the health care use, financial strain, and health of low-income adults using a randomized controlled design.&#13;&#13;This file contains Oregon Health Insurance Experiment public use data, as well as replication code for Finkelstein et al. (2012, QJE), Baicker et al. (2013, NEJM), Taubman et al. (2014, Science), and Finkelstein et al. (2016, NEJM).</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/STTNUF</identifier>
+      <datestamp>2022-03-26T06:04:55Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/STTNUF</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Karlan, Dean</creatorName>
+            <givenName>Dean</givenName>
+            <familyName>Karlan</familyName>
+            <affiliation>Yale University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Zinman, Jonathan</creatorName>
+            <givenName>Jonathan</givenName>
+            <familyName>Zinman</familyName>
+            <affiliation>Dartmouth College</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Price and Control Elasticities of Demand for Savings</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+          <subject>Savings</subject>
+          <subject>Microcredit</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Research Transparency, Data Ethics, and Governance</contributorName>
+            <affiliation>Innovations for Poverty Action</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-02-23</date>
+          <date dateType="Updated">2019-11-13</date>
+          <date dateType="Collected">2007/2009</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset">Survey data</resourceType>
+        <sizes>
+          <size>4001</size>
+          <size>5261</size>
+          <size>5298</size>
+          <size>2462</size>
+          <size>3140</size>
+          <size>3581</size>
+          <size>3550</size>
+          <size>3158</size>
+          <size>276500</size>
+          <size>17444</size>
+          <size>40343</size>
+          <size>137948942</size>
+          <size>4111</size>
+          <size>3494</size>
+          <size>810</size>
+          <size>7408</size>
+          <size>25940</size>
+          <size>20676</size>
+          <size>3943917</size>
+          <size>27648</size>
+          <size>6436</size>
+          <size>5244</size>
+          <size>5860</size>
+          <size>3405</size>
+          <size>14916</size>
+          <size>3202</size>
+          <size>8245</size>
+          <size>6699</size>
+          <size>3616</size>
+          <size>15200</size>
+        </sizes>
+        <formats>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/zip</format>
+          <format>application/vnd.openxmlformats-officedocument.wordprocessingml.document</format>
+          <format>application/zip</format>
+          <format>application/x-stata-13</format>
+          <format>application/octet-stream</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/zip</format>
+          <format>application/msword</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">A Philippine bank tested sensitivity to interest rates and account ownership requirements in 10,000 randomized door-to-door solicitations for a commitment savings account. Take-up is substantial (23%), but price elasticity of saving in this account is not significantly different from zero in either the full sample or sub-groups of plausibly marginal savers. The upper bound is less than 0.5 in the full sample, and exceeds 1.0 in only 1 of 22 sub-groups. Nor do we find sensitivity to ownership requirements.</description>
+          <description descriptionType="TechnicalInfo">Stata, 13</description>
+        </descriptions>
+        <geoLocations />
+        <fundingReferences>
+          <fundingReference>
+            <funderName>National Science Foundation</funderName>
+          </fundingReference>
+          <fundingReference>
+            <funderName>Bill and Melinda Gates Foundation</funderName>
+          </fundingReference>
+        </fundingReferences>
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/SWXHH2</identifier>
+      <datestamp>2020-04-17T07:13:29Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/SWXHH2</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Fowlie, Meredith</creatorName>
+            <givenName>Meredith</givenName>
+            <familyName>Fowlie</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Greenstone, Michael</creatorName>
+            <givenName>Michael</givenName>
+            <familyName>Greenstone</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-2364-2810</nameIdentifier>
+            <affiliation>University of Chicago</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Wolfram, Catherine</creatorName>
+            <givenName>Catherine</givenName>
+            <familyName>Wolfram</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Do Energy Efficiency Investments Deliver? Evidence from the Weatherization Assistance Program</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Fowlie, Meredith</contributorName>
+            <givenName>Meredith</givenName>
+            <familyName>Fowlie</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Greenstone, Michael</contributorName>
+            <givenName>Michael</givenName>
+            <familyName>Greenstone</familyName>
+            <affiliation>University of Chicago</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Wolfram, Catherine</contributorName>
+            <givenName>Catherine</givenName>
+            <familyName>Wolfram</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-06-01</date>
+          <date dateType="Updated">2018-07-25</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1093/qje/qjy005</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>49977367</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">A growing number of policies and programs aim to increase investment in energy efficiency, because conventional wisdom suggests that people fail to take up these investments even though they have positive private returns and generate environmental benefits. Many explanations for this energy efficiency gap have been put forward, but there has been surprisingly little field testing of whether the conventional wisdom is correct. This article reports on the results of an experimental evaluation of the nation’s largest residential energy efficiency program—the Weatherization Assistance Program—conducted on a sample of approximately 30,000 households in Michigan. The findings suggest that the upfront investment costs are about twice the actual energy savings. Furthermore, the model-projected savings are more than three times the actual savings. Although this might be attributed to the “rebound” effect—when demand for energy end uses increases as a result of greater efficiency—the article fails to find evidence of significantly higher indoor temperatures at weatherized homes. Even when accounting for the broader societal benefits derived from emissions reductions, the costs still substantially outweigh the benefits; the average rate of return is approximately −7.8% annually.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/SYCXOS</identifier>
+      <datestamp>2022-03-26T06:04:59Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/SYCXOS</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Banerjee, Abhijit</creatorName>
+            <givenName>Abhijit</givenName>
+            <familyName>Banerjee</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9923-6088</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName>Chattopadhyay, Raghabendra</creatorName>
+            <affiliation>Indian Institute of Management (IIM) Calcutta</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Duflo, Esther</creatorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-6105-617X</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Shapiro, Jeremy</creatorName>
+            <givenName>Jeremy</givenName>
+            <familyName>Shapiro</familyName>
+            <affiliation>Busara Center for Behavioral Economics</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: "The Long term Impacts of a “Graduation” Program: Evidence from West Bengal"</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Banerjee, Abhijit</contributorName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Chattopadhyay, Raghabendra</contributorName>
+            <affiliation>Indian Institute of Management (IIM) Calcutta</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Duflo, Esther</contributorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Shapiro, Jeremy</contributorName>
+            <givenName>Jeremy</givenName>
+            <familyName>Shapiro</familyName>
+            <affiliation>Busara Center for Behavioral Economics</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-05-18</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>29158640</size>
+          <size>4854734</size>
+          <size>3721065</size>
+          <size>613</size>
+          <size>3821</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+          <format>application/zip</format>
+          <format>application/zip</format>
+          <format>application/rtf</format>
+          <format>application/zip</format>
+        </formats>
+        <version>2.3</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">These datasets and code replicate the tables and figures found in: "The Long term Impacts of a “Graduation” Program: Evidence from West Bengal" Working Paper, September 2016. Additionally, this folder also contains the questionnaires. &#13;&#13;The following is the link to the paper: https://economics.mit.edu/files/12031</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/T4APMN</identifier>
+      <datestamp>2020-04-17T07:45:04Z</datestamp>
+      <setSpec>IQSS</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/T4APMN</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Hanna, Rema</creatorName>
+            <givenName>Rema</givenName>
+            <familyName>Hanna</familyName>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Duflo, Esther</creatorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-6105-617X</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Greenstone, Michael</creatorName>
+            <givenName>Michael</givenName>
+            <familyName>Greenstone</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0002-2364-2810</nameIdentifier>
+            <affiliation>University of Chicago</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Up in Smoke: The Influence of Household Behavior on the Long-Run Impact of Improved Cooking Stoves</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Hanna, Rema</contributorName>
+            <givenName>Rema</givenName>
+            <familyName>Hanna</familyName>
+            <affiliation>Harvard University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Duflo, Esther</contributorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Greenstone, Michael</contributorName>
+            <givenName>Michael</givenName>
+            <familyName>Greenstone</familyName>
+            <affiliation>University of Chicago</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Issued">2016-02-01</date>
+          <date dateType="Submitted">2018-06-01</date>
+          <date dateType="Updated">2019-05-03</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/pol.20140008</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>62910305</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Laboratory studies suggest that improved cooking stoves can reduce indoor air pollution, improve health, and decrease greenhouse gas emissions in developing countries. We provide evidence, from a large-scale randomized trial in India, on the benefits of a common, laboratory-validated stove with a four-year follow-up. While smoke inhalation initially falls, this effect disappears by year two. We find no changes across health outcomes or greenhouse gas emissions. Households used the stoves irregularly and inappropriately, failed to maintain them, and usage declined over time. This study underscores the need to test environmental technologies in real-world settings where behavior may undermine potential impacts.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/TDFJ7X</identifier>
+      <datestamp>2022-03-25T06:09:42Z</datestamp>
+      <setSpec>IQSS</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>geospatial_metadata_harvard</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/TDFJ7X</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Duflo, Esther</creatorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-6105-617X</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Dupas, Pascaline</creatorName>
+            <givenName>Pascaline</givenName>
+            <familyName>Dupas</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-0140-9417</nameIdentifier>
+            <affiliation>Stanford University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Kremer, Michael</creatorName>
+            <givenName>Michael</givenName>
+            <familyName>Kremer</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-7914-5269</nameIdentifier>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Data on Kenyan Youths</title>
+          <title titleType="AlternativeTitle">Education, HIV, and Early Fertility: Experimental Evidence from Kenya</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2013</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+          <subject>HIV, Kenya, uniforms, Herpes (HSV2), sexually transmitted infection(STI), students, drop-out, pregnancy, teacher training, AIDS/HIV curriculum, risky sexual behavior.</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Duflo, Esther</contributorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Dupas, Pascaline</contributorName>
+            <givenName>Pascaline</givenName>
+            <familyName>Dupas</familyName>
+            <affiliation>Stanford University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Kremer, Michael</contributorName>
+            <givenName>Michael</givenName>
+            <familyName>Kremer</familyName>
+            <affiliation>Harvard University</affiliation>
+          </contributor>
+          <contributor contributorType="Distributor">
+            <contributorName nameType="Personal">Jameel Poverty Action Lab</contributorName>
+            <givenName>Jameel</givenName>
+            <familyName>Poverty Action Lab</familyName>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Issued">2012-12</date>
+          <date dateType="Submitted">2013-09-17</date>
+          <date dateType="Updated">2020-03-31</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.20121607</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>131357</size>
+          <size>140512870</size>
+          <size>390656</size>
+        </sizes>
+        <formats>
+          <format>text/plain; charset=US-ASCII</format>
+          <format>application/x-stata</format>
+          <format>application/msword</format>
+        </formats>
+        <version>4.4</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">A seven-year randomized evaluation suggests education subsidies reduce adolescent girls' dropout, pregnancy, and marriage but not sexually transmitted infection (STI). The government's HIV curriculum, which stresses abstinence until marriage, does not reduce pregnancy or STI. Both programs combined reduce STI more, but cut dropout and pregnancy less, than education subsidies alone. These results are inconsistent with a model of schooling and sexual behavior in which both pregnancy and STI are determined by one factor (unprotected sex), but consistent with a two-factor model in which choices between committed and casual relationships also affect these outcomes.&#13;&#13;This data was collected as a part of the study "Education, HIV, and Early Fertility: Experimental Evidence from Kenya."  Details on sample construction and data collection for this survey data can be found in the paper.  The 2012 version of the paper is available here: http://www.stanford.edu/~pdupas/DDK_EducFertHIV.pdf.  Note that all sections of data collected for the study are not currently available and will be released in the future.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/UPXUQB</identifier>
+      <datestamp>2022-03-26T06:05:04Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/UPXUQB</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Pons, Vincent</creatorName>
+            <givenName>Vincent</givenName>
+            <familyName>Pons</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Will a Five-Minute Discussion Change Your Mind? A Countrywide Experiment on Vote Choice in France</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Pons, Vincent</contributorName>
+            <givenName>Vincent</givenName>
+            <familyName>Pons</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-10-25</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.20160524</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>56423147</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.4</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">This paper provides the first estimate of the effect of door-to-door canvassing on actual electoral outcomes, via a countrywide experiment embedded in François Hollande's campaign in the 2012 French presidential election. While existing experiments randomized door-to-door visits at the individual level, the scale of this campaign (five million doors knocked) enabled randomization by precinct, the level at which vote shares are recorded administratively. Visits did not affect turnout, but increased Hollande's vote share in the first round and accounted for one fourth of his victory margin in the second. Visits' impact persisted in later elections, suggesting a lasting persuasion effect.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/UV7ERB</identifier>
+      <datestamp>2022-03-26T06:04:56Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/UV7ERB</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Banerjee, Abhijit</creatorName>
+            <givenName>Abhijit</givenName>
+            <familyName>Banerjee</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-9923-6088</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Cole, Shawn</creatorName>
+            <givenName>Shawn</givenName>
+            <familyName>Cole</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Duflo, Esther</creatorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0001-6105-617X</nameIdentifier>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Linden, Leigh</creatorName>
+            <givenName>Leigh</givenName>
+            <familyName>Linden</familyName>
+            <affiliation>University of Texas at Austin</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Balsakhi</title>
+          <title titleType="AlternativeTitle">Remedying Education: Evidence from Two Randomized Experiments in India</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Banerjee, Abhijit</contributorName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Cole, Shawn</contributorName>
+            <givenName>Shawn</givenName>
+            <familyName>Cole</familyName>
+            <affiliation>Harvard Business School</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Duflo, Esther</contributorName>
+            <givenName>Esther</givenName>
+            <familyName>Duflo</familyName>
+            <affiliation>Massachusetts Institute of Technology</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Linden, Leigh</contributorName>
+            <givenName>Leigh</givenName>
+            <familyName>Linden</familyName>
+            <affiliation>University of Texas at Austin</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-04-06</date>
+          <date dateType="Updated">2019-06-24</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1162/qjec.122.3.1235</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>3338</size>
+          <size>161561</size>
+          <size>6110470</size>
+          <size>179181</size>
+          <size>2923315</size>
+          <size>17745142</size>
+          <size>1292947</size>
+          <size>155808</size>
+          <size>1528115</size>
+          <size>161056</size>
+          <size>14340395</size>
+          <size>18880835</size>
+          <size>577859</size>
+          <size>113157</size>
+          <size>1806238</size>
+          <size>153942</size>
+          <size>1781955</size>
+          <size>114976</size>
+          <size>25102160</size>
+          <size>112748</size>
+          <size>992848</size>
+          <size>674676</size>
+          <size>114333</size>
+          <size>862891</size>
+          <size>119041</size>
+          <size>1122814</size>
+          <size>112782</size>
+          <size>1359015</size>
+          <size>191313</size>
+          <size>2592350</size>
+          <size>183107</size>
+          <size>902402</size>
+          <size>152793</size>
+          <size>166240</size>
+          <size>2676427</size>
+          <size>164210</size>
+          <size>11420903</size>
+          <size>10931</size>
+          <size>12098</size>
+          <size>9834</size>
+          <size>9776</size>
+          <size>6452</size>
+          <size>8575</size>
+          <size>62976</size>
+          <size>3149</size>
+          <size>18759</size>
+          <size>10448</size>
+          <size>93733</size>
+          <size>828768</size>
+          <size>3671579</size>
+          <size>144200</size>
+          <size>2036032</size>
+          <size>9753737</size>
+          <size>4317</size>
+          <size>3961</size>
+          <size>6326</size>
+          <size>11248</size>
+          <size>6381</size>
+          <size>8474</size>
+          <size>4544</size>
+        </sizes>
+        <formats>
+          <format>application/x-stata-syntax</format>
+          <format>application/pdf</format>
+          <format>text/tab-separated-values</format>
+          <format>application/pdf</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>text/tab-separated-values</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/x-stata</format>
+          <format>application/pdf</format>
+          <format>application/pdf</format>
+          <format>text/tab-separated-values</format>
+          <format>application/pdf</format>
+          <format>text/tab-separated-values</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/tab-separated-values</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>text/csv</format>
+          <format>application/msword</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/postscript</format>
+          <format>text/plain; charset=US-ASCII</format>
+          <format>application/pdf</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>application/pdf</format>
+          <format>text/tab-separated-values</format>
+          <format>text/tab-separated-values</format>
+          <format>text/plain</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+          <format>application/x-stata-syntax</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">This paper presents the results of two randomized experiments conducted in schools in urban India. A remedial education program hired young women to teach students lagging behind in basic literacy and numeracy skills. It increased average test scores of all children in treatment schools by 0.28 standard deviation, mostly due to large gains experienced by children at the bottom of the test-score distribution. A computer-assisted learning program focusing on math increased math scores by 0.47 standard deviation. One year after the programs were over, initial gains remained significant for targeted children, but they faded to about 0.10 standard deviation.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/VSTFIN</identifier>
+      <datestamp>2020-04-17T07:14:00Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/VSTFIN</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Gertler, Paul J.</creatorName>
+            <givenName>Paul J.</givenName>
+            <familyName>Gertler</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-0280-7513</nameIdentifier>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Martinez, Sebastian W.</creatorName>
+            <givenName>Sebastian W.</givenName>
+            <familyName>Martinez</familyName>
+            <affiliation>Inter-American Development Bank</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Rubio-Codina, Marta</creatorName>
+            <givenName>Marta</givenName>
+            <familyName>Rubio-Codina</familyName>
+            <affiliation>Inter-American Development Bank</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Investing Cash Transfers to Raise Long-Term Living Standards</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Gertler, Paul J.</contributorName>
+            <givenName>Paul J.</givenName>
+            <familyName>Gertler</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Martinez, Sebastian W.</contributorName>
+            <givenName>Sebastian W.</givenName>
+            <familyName>Martinez</familyName>
+            <affiliation>Inter-American Development Bank</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Rubio-Codina, Marta</contributorName>
+            <givenName>Marta</givenName>
+            <familyName>Rubio-Codina</familyName>
+            <affiliation>Inter-American Development Bank</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-09</date>
+          <date dateType="Updated">2020-04-03</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.4.1.164</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>27401138</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Using data from a randomized experiment, we find that poor rural Mexican households invested part of their cash transfers from the Oportunidades program in productive assets, increasing agricultural income by almost 10 percent after 18 months of benefits. We estimate that for each peso transferred, households consume 74 cents and invest the rest, permanently increasing long-term consumption by about 1.6 cents. Results suggest that cash transfers can achieve long-term increases in consumption through investment in productive activities, thereby permitting beneficiary households to attain higher living standards that are sustained even after transitioning off the program.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/VUUZJK</identifier>
+      <datestamp>2022-03-26T06:05:03Z</datestamp>
+      <setSpec>IQSS</setSpec>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/VUUZJK</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Breza, Emily</creatorName>
+            <givenName>Emily</givenName>
+            <familyName>Breza</familyName>
+            <affiliation>Harvard University</affiliation>
+          </creator>
+          <creator>
+            <creatorName>Kaur, Supreet</creatorName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Shamdasani, Yogita</creatorName>
+            <givenName>Yogita</givenName>
+            <familyName>Shamdasani</familyName>
+            <affiliation>University of Pittsburgh</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: 'The Morale Effects of Pay Inequality'</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+          <subject schemeURI="https://www.aeaweb.org/econlit/jelCodes.php?view=jel" subjectScheme="J3">Wages, Compensation, and Labor Costs</subject>
+          <subject schemeURI="https://www.aeaweb.org/econlit/jelCodes.php?view=jel" subjectScheme="O15">Human Resources</subject>
+          <subject schemeURI="https://www.aeaweb.org/econlit/jelCodes.php?view=jel" subjectScheme="D03">Behavioral Microeconomics</subject>
+          <subject schemeURI="https://www.aeaweb.org/econlit/jelCodes.php?view=jel" subjectScheme="E24">Wages</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Organizational">Kaur, Supreet</contributorName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-09-29</date>
+          <date dateType="Updated">2018-04-11</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <sizes>
+          <size>24684</size>
+          <size>205593</size>
+          <size>8462594</size>
+          <size>64040</size>
+        </sizes>
+        <formats>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata</format>
+          <format>application/x-stata-syntax</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">The data and programs replicate tables and figures from "The Morale Effects of Pay Inequality", by Breza, Kaur, and Shamdasani.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/W97NZB</identifier>
+      <datestamp>2020-04-17T07:13:44Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/W97NZB</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Emerick, Kyle</creatorName>
+            <givenName>Kyle</givenName>
+            <familyName>Emerick</familyName>
+            <affiliation>Tufts University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">de Janvry, Alain</creatorName>
+            <givenName>Alain</givenName>
+            <familyName>de Janvry</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Sadoulet, Elisabeth</creatorName>
+            <givenName>Elisabeth</givenName>
+            <familyName>Sadoulet</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Dar, Manzoor H.</creatorName>
+            <givenName>Manzoor H.</givenName>
+            <familyName>Dar</familyName>
+            <affiliation>International Rice Research Institute</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Technological Innovations, Downside Risk, and the Modernization of Agriculture</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Emerick, Kyle</contributorName>
+            <givenName>Kyle</givenName>
+            <familyName>Emerick</familyName>
+            <affiliation>Tufts University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">de Janvry, Alain</contributorName>
+            <givenName>Alain</givenName>
+            <familyName>de Janvry</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Sadoulet, Elisabeth</contributorName>
+            <givenName>Elisabeth</givenName>
+            <familyName>Sadoulet</familyName>
+            <affiliation>University of California, Berkeley</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Dar, Manzoor H.</contributorName>
+            <givenName>Manzoor H.</givenName>
+            <familyName>Dar</familyName>
+            <affiliation>International Rice Research Institute</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-06-20</date>
+          <date dateType="Updated">2018-07-25</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.20150474</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>5834853</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">We use a randomized experiment in India to show that improved technology enhances agricultural productivity by crowding in modern inputs and cultivation practices. Specifically, we show that a new rice variety that reduces downside risk by providing flood tolerance has positive effects on adoption of a more labor-intensive planting method, area cultivated, fertilizer usage, and credit utilization. We find that a large share of the expected gains from the technology comes from crowding in of other investments. Therefore, improved technologies that reduce risk by protecting production in bad years have the potential to increase agricultural productivity in normal years.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/WBD2QD</identifier>
+      <datestamp>2022-03-26T06:05:03Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/WBD2QD</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Dupas, Pascaline</creatorName>
+            <givenName>Pascaline</givenName>
+            <familyName>Dupas</familyName>
+            <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-0140-9417</nameIdentifier>
+            <affiliation>Stanford University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Keats, Anthony</creatorName>
+            <givenName>Anthony</givenName>
+            <familyName>Keats</familyName>
+            <affiliation>Wesleyan University</affiliation>
+          </creator>
+          <creator>
+            <creatorName nameType="Personal">Robinson, Jonathan</creatorName>
+            <givenName>Jonathan</givenName>
+            <familyName>Robinson</familyName>
+            <affiliation>University of California, Santa Cruz</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>The Effect of Savings Accounts on Interpersonal Financial Relationships: Evidence from a Field Experiment in Rural Kenya</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2017</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Dupas, Pascaline</contributorName>
+            <givenName>Pascaline</givenName>
+            <familyName>Dupas</familyName>
+            <affiliation>Stanford University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Keats, Anthony</contributorName>
+            <givenName>Anthony</givenName>
+            <familyName>Keats</familyName>
+            <affiliation>Wesleyan University</affiliation>
+          </contributor>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Robinson, Jonathan</contributorName>
+            <givenName>Jonathan</givenName>
+            <familyName>Robinson</familyName>
+            <affiliation>University of California, Santa Cruz</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2017-10-02</date>
+          <date dateType="Updated">2020-04-01</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1111/ecoj.12553</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>1323323</size>
+          <size>1444336</size>
+          <size>17553</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+          <format>application/zip</format>
+          <format>application/zip</format>
+        </formats>
+        <version>1.3</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">The welfare impact of expanding access to bank accounts depends on whether accounts crowd out pre-existing financial relationships, or whether private gains from accounts are shared within social networks. In this experiment, we provided free bank accounts to a random subset of 885 households. Across households, we document positive spillovers: treatment households become less reliant on grown children and siblings living outside their village, and become more supportive of neighbors and friends within their village. Within households, we randomized which spouse was offered an account and find no evidence of negative spillovers.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/WXMJCN</identifier>
+      <datestamp>2020-04-17T07:14:00Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/WXMJCN</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Oreopoulos, Philip</creatorName>
+            <givenName>Philip</givenName>
+            <familyName>Oreopoulos</familyName>
+            <affiliation>University of Toronto</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Why Do Skilled Immigrants Struggle in the Labor Market? A Field Experiment with Thirteen Thousand Resumes</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Oreopoulos, Philip</contributorName>
+            <givenName>Philip</givenName>
+            <familyName>Oreopoulos</familyName>
+            <affiliation>University of Toronto</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-09</date>
+          <date dateType="Updated">2020-04-02</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/pol.3.4.148</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>204718</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.2</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">Thousands of randomly manipulated resumes were sent in response to online job postings in Toronto to investigate why immigrants, allowed in based on skill, struggle in the labor market. The study finds substantial discrimination across a variety of occupations towards applicants with foreign experience or those with Indian, Pakistani, Chinese, and Greek names compared with English names. Listing language fluency, multinational firm experience, education from highly selective schools, or active extracurricular activities had no diminishing effect. Recruiters justify this behavior based on language skill concerns but fail to fully account for offsetting features when listed.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>doi:10.7910/DVN/XRGRK3</identifier>
+      <datestamp>2020-04-17T07:14:00Z</datestamp>
+      <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+      <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+      <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+        <identifier identifierType="DOI">10.7910/DVN/XRGRK3</identifier>
+        <creators>
+          <creator>
+            <creatorName nameType="Personal">Ashraf, Nava</creatorName>
+            <givenName>Nava</givenName>
+            <familyName>Ashraf</familyName>
+            <affiliation>London School of Economics and Political Science</affiliation>
+          </creator>
+        </creators>
+        <titles>
+          <title>Replication Data for: Spousal Control and Intra-household Decision Making: An Experimental Study in the Philippines</title>
+        </titles>
+        <publisher>Harvard Dataverse</publisher>
+        <publicationYear>2018</publicationYear>
+        <subjects>
+          <subject>Social Sciences</subject>
+        </subjects>
+        <contributors>
+          <contributor contributorType="ContactPerson">
+            <contributorName nameType="Personal">Ashraf, Nava</contributorName>
+            <givenName>Nava</givenName>
+            <familyName>Ashraf</familyName>
+            <affiliation>London School of Economics and Political Science</affiliation>
+          </contributor>
+        </contributors>
+        <dates>
+          <date dateType="Submitted">2018-07-09</date>
+          <date dateType="Updated">2020-04-02</date>
+        </dates>
+        <resourceType resourceTypeGeneral="Dataset" />
+        <relatedIdentifiers>
+          <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/aer.99.4.1245</relatedIdentifier>
+        </relatedIdentifiers>
+        <sizes>
+          <size>144603</size>
+        </sizes>
+        <formats>
+          <format>application/zip</format>
+        </formats>
+        <version>1.1</version>
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights rightsURI="https://creativecommons.org/publicdomain/zero/1.0/">CC0 Waiver</rights>
+        </rightsList>
+        <descriptions>
+          <description descriptionType="Abstract">I elicit causal effects of spousal observability and communication on financial choices of married individuals in the Philippines. When choices are private, men put money into their personal accounts. When choices are observable, men commit money to consumption for their own benefit. When required to communicate, men put money into their wives' account. These strong treatment effects on men, but not women, appear related more to control than to gender: men whose wives control household savings respond more strongly to the treatment and women whose husbands control savings exhibit the same response. Changes in information and communication interact with underlying control to produce mutable gender-specific outcomes.</description>
+        </descriptions>
+        <geoLocations />
+      </resource>
+    </metadata>
+  </record>
+</records>
