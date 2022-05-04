@@ -32,12 +32,14 @@
             </creators>
             <titles>
                 <title>The Impact of Maternal Literacy and Participation Programs</title>
+                <title titleType="AlternativeTitle">An Alternative Title</title>
+                <title titleType="Subtitle">Baseline Data</title>
             </titles>
             <publisher>Harvard Dataverse</publisher>
             <publicationYear>2017</publicationYear>
             <subjects>
                 <subject>Social Sciences</subject>
-                <subject>Adult education, education inputs, field experiments</subject>
+                <subject subjectScheme="LCSH">Adult education, education inputs, field experiments</subject>
             </subjects>
             <contributors>
                 <contributor contributorType="ContactPerson">
@@ -50,12 +52,13 @@
             </contributors>
             <dates>
                 <date dateType="Submitted">2017-02-27</date>
-                <date dateType="Updated">2019-06-24</date>
+                <date dateType="Updated" dateInformation="This was updated on this date">2019-06-24</date>
             </dates>
             <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
             <relatedIdentifiers>
                 <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150390</relatedIdentifier>
             </relatedIdentifiers>
+            <language>en_US</language>
             <sizes>
                 <size>124903</size>
                 <size>48958</size>
@@ -89,8 +92,20 @@
             </rightsList>
             <descriptions>
                 <description descriptionType="Abstract">Using a randomized field experiment in India, we evaluate the effectiveness of adult literacy and parental involvement interventions in improving children's learning. Households were assigned to receive either adult literacy (language and math) classes for mothers, training for mothers on how to enhance their children's learning at home, or a combination of the two programs. All three interventions had significant but modest impacts on childrens math scores. The interventions also increased mothers' test scores in both language and math, as well as a range of other outcomes reflecting greater involvement of mothers in their children's education.</description>
+                <description descriptionType="TechnicalInfo">Stata, 13</description>
             </descriptions>
-            <geoLocations />
+            <geoLocations>
+                <geoLocation>
+                    <geoLocationPlace>A point on the globe</geoLocationPlace>
+                </geoLocation>
+            </geoLocations>
+            <fundingReferences>
+                <fundingReference>
+                    <funderName>3ie, Nike Foundation</funderName>
+                    <funderIdentifier funderIdentifierType="Crossref FunderID">0987</funderIdentifier>
+                    <awardNumber awardURI="7689">OW1/1012 (3ie)</awardNumber>
+                </fundingReference>
+            </fundingReferences>
         </resource>
     </metadata>
 </record>

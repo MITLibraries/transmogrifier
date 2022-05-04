@@ -1,6 +1,18 @@
 from pytest import raises
 
-from transmogrifier.models import Contributor, Date, Identifier, Note, TimdexRecord
+from transmogrifier.models import (
+    AlternateTitle,
+    Contributor,
+    Date,
+    Funder,
+    Identifier,
+    Location,
+    Note,
+    RelatedItem,
+    Rights,
+    Subject,
+    TimdexRecord,
+)
 from transmogrifier.sources.datacite import Datacite
 
 
@@ -22,9 +34,12 @@ def test_datacite_record_all_fields(
     )
     assert next(output_records) == TimdexRecord(
         source="A Cool Repository",
-        source_link="https://example.com/item123doi:10.7910/DVN/19PPE7",
+        source_link="https://example.com/doi:10.7910/DVN/19PPE7",
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
-        title="The Impact of Maternal Literacy and Participation Programs",
+        title="The Impact of Maternal Literacy and Participation Programs: Baseline Data",
+        alternate_titles=[
+            AlternateTitle(value="An Alternative Title", kind="alternative")
+        ],
         content_type=["Dataset"],
         contributors=[
             Contributor(
@@ -56,10 +71,76 @@ def test_datacite_record_all_fields(
                 mit_affiliated=None,
             ),
         ],
-        dates=[Date(kind="Publication date", note=None, range=None, value="2017")],
+        dates=[
+            Date(kind="Publication date", note=None, range=None, value="2017"),
+            Date(kind="Submitted", note=None, range=None, value="2017-02-27"),
+            Date(
+                kind="Updated",
+                note="This was updated on this date",
+                range=None,
+                value="2019-06-24",
+            ),
+        ],
+        edition="1.2",
+        file_formats=[
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/pdf",
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/pdf",
+            "application/x-stata-syntax",
+            "application/x-stata",
+            "application/x-stata",
+            "application/zip",
+            "application/pdf",
+            "application/pdf",
+        ],
+        format="electronic resource",
+        funding_information=[
+            Funder(
+                funder_name="3ie, Nike Foundation",
+                funder_identifier="0987",
+                funder_identifier_type="Crossref FunderID",
+                award_number="OW1/1012 (3ie)",
+                award_uri="7689",
+            )
+        ],
         identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
-        notes=[Note(value=["Survey Data"], kind="Datacite resource type")],
+        locations=[Location(value="A point on the globe")],
+        languages=["en_US"],
+        notes=[
+            Note(value="Survey Data", kind="Datacite resource type"),
+            Note(value="Stata, 13", kind="TechnicalInfo"),
+        ],
         publication_information=["Harvard Dataverse"],
+        related_items=[
+            RelatedItem(uri="10.1257/app.20150390", kind="IsCitedBy", value=None)
+        ],
+        rights=[
+            Rights(uri="info:eu-repo/semantics/openAccess"),
+            Rights(
+                description="CC0 1.0",
+                uri="http://creativecommons.org/publicdomain/zero/1.0",
+            ),
+        ],
+        subjects=[
+            Subject(value="Social Sciences", kind=None),
+            Subject(
+                value="Adult education, education inputs, field experiments",
+                kind="LCSH",
+            ),
+        ],
+        summary=[
+            "Using a randomized field experiment in India, we evaluate the effectiveness "
+            "of adult literacy and parental involvement interventions in improving "
+            "children's learning. Households were assigned to receive either adult "
+            "literacy (language and math) classes for mothers, training for mothers on "
+            "how to enhance their children's learning at home, or a combination of the "
+            "two programs. All three interventions had significant but modest impacts on "
+            "childrens math scores. The interventions also increased mothers' test scores"
+            " in both language and math, as well as a range of other outcomes reflecting "
+            "greater involvement of mothers in their children's education."
+        ],
     )
 
 
@@ -71,15 +152,25 @@ def test_datacite_required_fields_record(
     )
     assert next(output_records) == TimdexRecord(
         source="A Cool Repository",
-        source_link="https://example.com/item123doi:10.7910/DVN/19PPE7",
+        source_link="https://example.com/doi:10.7910/DVN/19PPE7",
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
         title="The Impact of Maternal Literacy and Participation Programs",
+        format="electronic resource",
+        alternate_titles=None,
         content_type=None,
         contributors=None,
         dates=None,
+        edition=None,
+        file_formats=None,
+        funding_information=None,
         identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
+        locations=None,
         notes=None,
         publication_information=None,
+        related_items=None,
+        rights=None,
+        subjects=None,
+        summary=None,
     )
 
 
