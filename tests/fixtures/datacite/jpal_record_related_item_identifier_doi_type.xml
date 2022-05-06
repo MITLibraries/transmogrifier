@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+        <identifier>doi:10.7910/DVN/19PPE7</identifier>
+        <datestamp>2022-03-26T06:04:55Z</datestamp>
+        <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+        <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+        <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+            <identifier identifierType="DOI">10.7910/DVN/19PPE7</identifier>
+            <titles>
+                <title>The Impact of Maternal Literacy and Participation Programs</title>
+                <title titleType="AlternativeTitle">An Alternative Title</title>
+                <title titleType="Subtitle">Baseline Data</title>
+            </titles>
+            <publisher>Harvard Dataverse</publisher>
+            <publicationYear>2017</publicationYear>
+            <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
+            <relatedIdentifiers>
+                <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">0000.0000</relatedIdentifier>
+            </relatedIdentifiers>
+        </resource>
+    </metadata>
+</record>

@@ -4,6 +4,7 @@ from transmogrifier.models import (
     AlternateTitle,
     Contributor,
     Date,
+    Date_Range,
     Funder,
     Identifier,
     Location,
@@ -33,12 +34,18 @@ def test_datacite_record_all_fields(
         input_records=datacite_jpal_record_all_fields
     )
     assert next(output_records) == TimdexRecord(
+        citation=(
+            "Banerji, Rukmini; Berry, James; Shotland, Marc; Banerji, Rukmini "
+            "(2017): The Impact of Maternal Literacy and Participation Programs. Harvard "
+            "Dataverse. https://example.com/doi:10.7910/DVN/19PPE7"
+        ),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
-        title="The Impact of Maternal Literacy and Participation Programs: Baseline Data",
+        title="The Impact of Maternal Literacy and Participation Programs",
         alternate_titles=[
-            AlternateTitle(value="An Alternative Title", kind="alternative")
+            AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
+            AlternateTitle(value="Baseline Data", kind="Subtitle"),
         ],
         content_type=["Dataset"],
         contributors=[
@@ -80,6 +87,12 @@ def test_datacite_record_all_fields(
                 range=None,
                 value="2019-06-24",
             ),
+            Date(
+                kind="Collected",
+                note=None,
+                range=Date_Range(gt=None, gte="2007-01-0", lt=None, lte="2007-02-28"),
+                value=None,
+            ),
         ],
         edition="1.2",
         file_formats=[
@@ -102,19 +115,22 @@ def test_datacite_record_all_fields(
                 funder_identifier="0987",
                 funder_identifier_type="Crossref FunderID",
                 award_number="OW1/1012 (3ie)",
-                award_uri="7689",
+                award_uri="http://awards.example/7689",
             )
         ],
         identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
         locations=[Location(value="A point on the globe")],
         languages=["en_US"],
         notes=[
-            Note(value="Survey Data", kind="Datacite resource type"),
-            Note(value="Stata, 13", kind="TechnicalInfo"),
+            Note(value=["Survey Data"], kind="Datacite resource type"),
+            Note(value=["Stata, 13"], kind="TechnicalInfo"),
         ],
         publication_information=["Harvard Dataverse"],
         related_items=[
-            RelatedItem(uri="10.1257/app.20150390", kind="IsCitedBy", value=None)
+            RelatedItem(
+                relationship="IsCitedBy",
+                uri="https://doi.org/10.1257/app.20150390",
+            )
         ],
         rights=[
             Rights(uri="info:eu-repo/semantics/openAccess"),
@@ -124,9 +140,9 @@ def test_datacite_record_all_fields(
             ),
         ],
         subjects=[
-            Subject(value="Social Sciences", kind=None),
+            Subject(value=["Social Sciences"], kind=None),
             Subject(
-                value="Adult education, education inputs, field experiments",
+                value=["Adult education, education inputs, field experiments"],
                 kind="LCSH",
             ),
         ],
@@ -151,6 +167,10 @@ def test_datacite_required_fields_record(
         input_records=datacite_jpal_record_required_fields
     )
     assert next(output_records) == TimdexRecord(
+        citation=(
+            "The Impact of Maternal Literacy and Participation Programs. "
+            "https://example.com/doi:10.7910/DVN/19PPE7"
+        ),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
@@ -174,12 +194,40 @@ def test_datacite_required_fields_record(
     )
 
 
+def test_datacite_missing_required_fields_raises_warning(
+    caplog,
+    datacite_record_partial,
+    datacite_jpal_record_missing_required_fields_warning,
+):
+    output_records = datacite_record_partial(
+        input_records=datacite_jpal_record_missing_required_fields_warning
+    )
+    next(output_records)
+
+    assert (
+        "Datacite record doi:10.7910/DVN/19PPE7 missing required Datacite field "
+        "resourceType"
+    ) in caplog.text
+
+    assert (
+        "Datacite record doi:10.7910/DVN/19PPE7 missing required Datacite field "
+        "publicationYear"
+    ) in caplog.text
+    assert (
+        "Datacite record doi:10.7910/DVN/19PPE7 missing required Datacite attribute "
+        "@descriptionType"
+    ) in caplog.text
+    assert (
+        "Datacite record doi:10.7910/DVN/19PPE7 missing required Datacite field publisher"
+    ) in caplog.text
+
+
 def test_datacite_missing_required_field_raises_error(
-    datacite_record_partial, datacite_jpal_record_missing_required_field
+    datacite_record_partial, datacite_jpal_record_missing_required_field_error
 ):
     with raises(ValueError):
         output_records = datacite_record_partial(
-            input_records=datacite_jpal_record_missing_required_field
+            input_records=datacite_jpal_record_missing_required_field_error
         )
         next(output_records)
 
@@ -212,3 +260,21 @@ def test_generate_name_identifier_url_unknown_scheme(
         input_records=datacite_jpal_record_unknown_name_identifier
     )
     assert next(output_records).contributors[0].identifier == ["0000-0000-0000-0000"]
+
+
+def test_generate_related_item_identifier_url_doi_type(
+    datacite_record_partial, datacite_jpal_record_related_item_identifier_doi_type
+):
+    output_records = datacite_record_partial(
+        input_records=datacite_jpal_record_related_item_identifier_doi_type
+    )
+    assert next(output_records).related_items[0].uri == "https://doi.org/0000.0000"
+
+
+def test_generate_related_item_identifier_url_unknown_type(
+    datacite_record_partial, datacite_jpal_record_related_item_identifier_unknown_type
+):
+    output_records = datacite_record_partial(
+        input_records=datacite_jpal_record_related_item_identifier_unknown_type
+    )
+    assert next(output_records).related_items[0].uri == "0000.0000"

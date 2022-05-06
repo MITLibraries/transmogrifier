@@ -100,22 +100,29 @@ class Identifier:
 
 @define
 class Location:
-    value: str = field(validator=instance_of(str))  # Required subfield
+    value: Optional[str] = field(validator=optional(instance_of(str)))
     kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    geodata: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    geodata: Optional[list[float]] = field(
+        default=None, validator=optional(list_of(float))
+    )
 
 
 @define
 class Note:
-    value: str = field(validator=instance_of(str))  # Required subfield
+    value: list[str] = field(validator=list_of(str))  # Required subfield
     kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class RelatedItem:
-    uri: str = field(validator=instance_of(str))  # Required subfield
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    value: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    description: Optional[str] = field(
+        default=None, validator=optional(instance_of(str))
+    )
+    item_type: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    relationship: Optional[str] = field(
+        default=None, validator=optional(instance_of(str))
+    )
+    uri: Optional[str] = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
@@ -123,25 +130,27 @@ class Rights:
     description: Optional[str] = field(
         default=None, validator=optional(instance_of(str))
     )
+    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
     uri: Optional[str] = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Subject:
-    value: str = field(validator=instance_of(str))  # Required subfield
+    value: list[str] = field(validator=list_of(str))  # Required subfield
     kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class TimdexRecord:
     # Required fields
+    citation: str = field(validator=instance_of(str))
     source: str = field(validator=instance_of(str))
     source_link: str = field(validator=instance_of(str))
     timdex_record_id: str = field(validator=instance_of(str))
     title: str = field(validator=instance_of(str))
 
     # Optional fields
-    alternate_titles: Optional[list[str]] = field(
+    alternate_titles: Optional[list[AlternateTitle]] = field(
         default=None, validator=optional(list_of(AlternateTitle))
     )
     content_type: Optional[list[str]] = field(
