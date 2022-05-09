@@ -12,10 +12,6 @@ from transmogrifier.models import (
 
 
 def test_timdex_record_required_fields_only(timdex_record_required_fields):
-    assert (
-        timdex_record_required_fields.citation
-        == "Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID"
-    )
     assert timdex_record_required_fields.source == "A Cool Repository"
     assert timdex_record_required_fields.source_link == "https://example.com/123"
     assert timdex_record_required_fields.timdex_record_id == "cool-repo:123"
@@ -45,10 +41,6 @@ def test_timdex_record_required_subfields_only(timdex_record_required_fields):
     timdex_record_required_fields.notes = [Note(value=["This book is awesome"])]
     timdex_record_required_fields.alternate_titles = [AlternateTitle(value="Alt Title")]
     timdex_record_required_fields.subjects = [Subject(value=["Stuff"])]
-    assert (
-        timdex_record_required_fields.citation
-        == "Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID"
-    )
     assert timdex_record_required_fields.source == "A Cool Repository"
     assert timdex_record_required_fields.source_link == "https://example.com/123"
     assert timdex_record_required_fields.timdex_record_id == "cool-repo:123"
@@ -185,7 +177,6 @@ def test_record_asdict_filters_empty_fields(
     timdex_record_required_fields,
 ):
     assert timdex_record_required_fields.asdict() == {
-        "citation": "Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID",
         "source": "A Cool Repository",
         "source_link": "https://example.com/123",
         "timdex_record_id": "cool-repo:123",

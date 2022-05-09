@@ -143,7 +143,6 @@ class Subject:
 @define
 class TimdexRecord:
     # Required fields
-    citation: str = field(validator=instance_of(str))
     source: str = field(validator=instance_of(str))
     source_link: str = field(validator=instance_of(str))
     timdex_record_id: str = field(validator=instance_of(str))
@@ -153,6 +152,7 @@ class TimdexRecord:
     alternate_titles: Optional[list[AlternateTitle]] = field(
         default=None, validator=optional(list_of(AlternateTitle))
     )
+    citation: Optional[str] = field(default=None, validator=optional(instance_of(str)))
     content_type: Optional[list[str]] = field(
         default=None, validator=optional(list_of(str))
     )

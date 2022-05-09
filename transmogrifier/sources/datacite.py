@@ -100,11 +100,11 @@ class Datacite:
             kwargs["content_type"] = [resource_type["resourceTypeGeneral"]]
 
         # contributors
-        citation_contributors = []
+        citation_creators = []
         creators = xml.metadata.find_all("creator")
         for creator in creators:
             creator_name = creator.find("creatorName").string
-            citation_contributors.append(creator_name)
+            citation_creators.append(creator_name)
             c = Contributor(
                 value=creator_name,
                 affiliation=[a.string for a in creator.find_all("affiliation")] or None,
@@ -120,7 +120,6 @@ class Datacite:
         contributors = xml.metadata.find_all("contributor")
         for contributor in contributors:
             contributor_name = contributor.find("contributorName").string
-            citation_contributors.append(contributor_name)
             c = Contributor(
                 value=contributor_name,
                 affiliation=[a.string for a in contributor.find_all("affiliation")]
@@ -150,7 +149,7 @@ class Datacite:
             if "/" in date.string:
                 d = Date(
                     range=Date_Range(
-                        gte=date.string[: date.string.index("/") - 1],
+                        gte=date.string[: date.string.index("/")],
                         lte=date.string[date.string.index("/") + 1 :],
                     )
                 )
@@ -275,8 +274,8 @@ class Datacite:
 
         # citation
         citation = ""
-        if citation_contributors:
-            citation += f"{'; '.join(citation_contributors)}"
+        if citation_creators:
+            citation += f"{'; '.join(citation_creators)}"
         if publication_year:
             citation += f" ({publication_year.string}): "
         citation += f"{main_title[0].string}. "

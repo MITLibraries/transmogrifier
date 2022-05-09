@@ -101,7 +101,6 @@ def datacite_record_partial():
 @pytest.fixture()
 def timdex_record_required_fields():
     return TimdexRecord(
-        citation="Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID",
         source="A Cool Repository",
         source_link="https://example.com/123",
         timdex_record_id="cool-repo:123",

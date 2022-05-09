@@ -35,7 +35,7 @@ def test_datacite_record_all_fields(
     )
     assert next(output_records) == TimdexRecord(
         citation=(
-            "Banerji, Rukmini; Berry, James; Shotland, Marc; Banerji, Rukmini "
+            "Banerji, Rukmini; Berry, James; Shotland, Marc "
             "(2017): The Impact of Maternal Literacy and Participation Programs. Harvard "
             "Dataverse. https://example.com/doi:10.7910/DVN/19PPE7"
         ),
@@ -90,7 +90,7 @@ def test_datacite_record_all_fields(
             Date(
                 kind="Collected",
                 note=None,
-                range=Date_Range(gt=None, gte="2007-01-0", lt=None, lte="2007-02-28"),
+                range=Date_Range(gt=None, gte="2007-01-01", lt=None, lte="2007-02-28"),
                 value=None,
             ),
         ],
