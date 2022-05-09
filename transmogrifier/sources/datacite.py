@@ -294,7 +294,7 @@ class Datacite:
             name_identifier: An BeautifulSoup Tag Tag representing a Datacite
             nameIdentifier XML field.
         """
-        if name_identifier["nameIdentifierScheme"] == "ORCID":
+        if name_identifier.get("nameIdentifierScheme") == "ORCID":
             base_url = "https://orcid.org/"
         else:
             base_url = ""
@@ -308,7 +308,7 @@ class Datacite:
             related_item_identifier: An BeautifulSoup Tag Tag representing a Datacite
             relatedIdentifier XML field.
         """
-        if related_item_identifier["relatedIdentifierType"] == "DOI":
+        if related_item_identifier.get("relatedIdentifierType") == "DOI":
             base_url = "https://doi.org/"
         else:
             base_url = ""

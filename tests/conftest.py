@@ -75,6 +75,13 @@ def datacite_jpal_record_unknown_name_identifier():
 
 
 @pytest.fixture()
+def datacite_jpal_record_no_name_identifier_scheme():
+    return parse_xml_records(
+        "tests/fixtures/datacite/jpal_record_no_name_identifier_scheme.xml"
+    )
+
+
+@pytest.fixture()
 def datacite_jpal_record_related_item_identifier_doi_type():
     return parse_xml_records(
         "tests/fixtures/datacite/jpal_record_related_item_identifier_doi_type.xml"
@@ -85,6 +92,13 @@ def datacite_jpal_record_related_item_identifier_doi_type():
 def datacite_jpal_record_related_item_identifier_unknown_type():
     return parse_xml_records(
         "tests/fixtures/datacite/jpal_record_related_item_identifier_unknown_type.xml"
+    )
+
+
+@pytest.fixture()
+def datacite_jpal_record_related_item_no_identifier_type():
+    return parse_xml_records(
+        "tests/fixtures/datacite/jpal_record_related_item_no_identifier_type.xml"
     )
 
 

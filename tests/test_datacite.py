@@ -262,6 +262,15 @@ def test_generate_name_identifier_url_unknown_scheme(
     assert next(output_records).contributors[0].identifier == ["0000-0000-0000-0000"]
 
 
+def test_generate_name_identifier_url_no_identifier_scheme(
+    datacite_record_partial, datacite_jpal_record_no_name_identifier_scheme
+):
+    output_records = datacite_record_partial(
+        input_records=datacite_jpal_record_no_name_identifier_scheme
+    )
+    assert next(output_records).contributors[0].identifier == ["0000-0000-0000-0000"]
+
+
 def test_generate_related_item_identifier_url_doi_type(
     datacite_record_partial, datacite_jpal_record_related_item_identifier_doi_type
 ):
@@ -276,5 +285,15 @@ def test_generate_related_item_identifier_url_unknown_type(
 ):
     output_records = datacite_record_partial(
         input_records=datacite_jpal_record_related_item_identifier_unknown_type
+    )
+    assert next(output_records).related_items[0].uri == "0000.0000"
+
+
+def test_generate_related_item_identifier_no_identifier_type(
+    datacite_record_partial,
+    datacite_jpal_record_related_item_no_identifier_type,
+):
+    output_records = datacite_record_partial(
+        input_records=datacite_jpal_record_related_item_no_identifier_type
     )
     assert next(output_records).related_items[0].uri == "0000.0000"
