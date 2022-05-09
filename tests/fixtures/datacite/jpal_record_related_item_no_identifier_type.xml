@@ -53,11 +53,10 @@
             <dates>
                 <date dateType="Submitted">2017-02-27</date>
                 <date dateType="Updated" dateInformation="This was updated on this date">2019-06-24</date>
-                <date dateType="Collected">2007-01-01/2007-02-28</date>
             </dates>
             <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
             <relatedIdentifiers>
-                <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150390</relatedIdentifier>
+                <relatedIdentifier relationType="IsCitedBy">0000.0000</relatedIdentifier>
             </relatedIdentifiers>
             <language>en_US</language>
             <sizes>

@@ -3,7 +3,20 @@ from typing import Iterator
 
 from bs4 import Tag
 
-from transmogrifier.models import Contributor, Date, Identifier, Note, TimdexRecord
+from transmogrifier.models import (
+    AlternateTitle,
+    Contributor,
+    Date,
+    Date_Range,
+    Funder,
+    Identifier,
+    Location,
+    Note,
+    RelatedItem,
+    Rights,
+    Subject,
+    TimdexRecord,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +46,14 @@ class Datacite:
 
     @classmethod
     def create_from_datacite_xml(
-        cls, source: str, source_link_url: str, source_name: str, xml: Tag
+        cls, source: str, source_base_url: str, source_name: str, xml: Tag
     ) -> TimdexRecord:
         """
         Args:
             source: A label for the source repository that is prepended to the
             timdex_record_id.
-            source_link_url: A direct link to the source metadata record.
+            source_base_url: The base URL for the source system from which direct links
+            to source metadata records can be constructed.
             source_name: The full human-readable name of the source repository to be
             used in the TIMDEX record.
             xml: A BeautifulSoup Tag representing a single Datacite record in
@@ -56,12 +70,21 @@ class Datacite:
             )
         kwargs = {
             "source": source_name,
-            "source_link": source_link_url + source_record_id,
+            "source_link": source_base_url + source_record_id,
             "timdex_record_id": f"{source}:{source_record_id.replace('/', '-')}",
             "title": main_title[0].string,
         }
 
-        # Optional fields in TIMDEX, required in Datacite
+        # Optional fields in TIMDEX
+        # alternate_titles, uses full title list retrieved for main title field
+        alternate_titles = [t for t in all_titles if "titleType" in t.attrs]
+        for alternate_title in alternate_titles:
+            a = AlternateTitle(
+                value=alternate_title.string,
+                kind=alternate_title.attrs["titleType"],
+            )
+            kwargs.setdefault("alternate_titles", []).append(a)
+
         # content_type
         resource_type = xml.metadata.find("resourceType")
         if resource_type is None:
@@ -77,10 +100,13 @@ class Datacite:
             kwargs["content_type"] = [resource_type["resourceTypeGeneral"]]
 
         # contributors
+        citation_creators = []
         creators = xml.metadata.find_all("creator")
         for creator in creators:
+            creator_name = creator.find("creatorName").string
+            citation_creators.append(creator_name)
             c = Contributor(
-                value=creator.find("creatorName").string,
+                value=creator_name,
                 affiliation=[a.string for a in creator.find_all("affiliation")] or None,
                 identifier=[
                     cls.generate_name_identifier_url(name_identifier)
@@ -93,8 +119,9 @@ class Datacite:
 
         contributors = xml.metadata.find_all("contributor")
         for contributor in contributors:
+            contributor_name = contributor.find("contributorName").string
             c = Contributor(
-                value=contributor.find("contributorName").string,
+                value=contributor_name,
                 affiliation=[a.string for a in contributor.find_all("affiliation")]
                 or None,
                 identifier=[
@@ -117,6 +144,54 @@ class Datacite:
             kwargs["dates"] = [
                 Date(kind="Publication date", value=publication_year.string)
             ]
+        dates = xml.metadata.find_all("date")
+        for date in dates:
+            if "/" in date.string:
+                d = Date(
+                    range=Date_Range(
+                        gte=date.string[: date.string.index("/")],
+                        lte=date.string[date.string.index("/") + 1 :],
+                    )
+                )
+            else:
+                d = Date(value=date.string)
+            if "dateInformation" in date.attrs:
+                d.note = date.attrs["dateInformation"]
+            if "dateType" in date.attrs:
+                d.kind = date.attrs["dateType"]
+            kwargs.setdefault("dates", []).append(d)
+
+        # edition
+        edition = xml.metadata.find("version")
+        if edition:
+            kwargs["edition"] = edition.string
+
+        # file_formats
+        file_formats = xml.metadata.find_all("format")
+        for file_format in file_formats:
+            kwargs.setdefault("file_formats", []).append(file_format.string)
+
+        # format
+        kwargs["format"] = "electronic resource"
+
+        # funding_information
+        funding_references = xml.metadata.find_all("fundingReference")
+        for funding_reference in funding_references:
+            f = Funder(
+                funder_name=funding_reference.find("funderName").string,
+            )
+            award_number = funding_reference.find("awardNumber")
+            if award_number:
+                f.award_number = award_number.string
+                if "awardURI" in award_number.attrs:
+                    f.award_uri = award_number.attrs["awardURI"]
+            funder_identifier = funding_reference.find("funderIdentifier")
+            if funder_identifier:
+                f.funder_identifier = funder_identifier.string
+                if "funderIdentifierType" in funder_identifier.attrs:
+                    f_id_type = funder_identifier.attrs["funderIdentifierType"]
+                    f.funder_identifier_type = f_id_type
+            kwargs.setdefault("funding_information", []).append(f)
 
         # identifiers
         identifier_xml = xml.metadata.find("identifier")
@@ -126,6 +201,32 @@ class Datacite:
                 kind=identifier_xml["identifierType"],
             ),
         ]
+        # language
+        language = xml.metadata.find("language")
+        if language:
+            kwargs["languages"] = [language.string]
+
+        # locations
+        locations = xml.metadata.find_all("geoLocationPlace")
+        for location in locations:
+            kwargs.setdefault("locations", []).append(Location(value=location.string))
+
+        # notes
+        descriptions = xml.metadata.find_all("description")
+        for description in descriptions:
+            if "descriptionType" not in description.attrs:
+                logger.warning(
+                    "Datacite record %s missing required Datacite attribute "
+                    "@descriptionType",
+                    source_record_id,
+                )
+            else:
+                if description.attrs["descriptionType"] != "Abstract":
+                    n = Note(
+                        value=[description.string],
+                        kind=description.attrs["descriptionType"],
+                    )
+                    kwargs.setdefault("notes", []).append(n)
 
         # publication_information
         publisher = xml.metadata.find("publisher")
@@ -137,6 +238,52 @@ class Datacite:
         else:
             kwargs["publication_information"] = [publisher.string]
 
+        # related_items
+        related_items = xml.metadata.find_all("relatedIdentifier")
+        for related_item in related_items:
+            ri = RelatedItem(uri=cls.generate_related_item_identifier_url(related_item))
+            if "relationType" in related_item.attrs:
+                ri.relationship = related_item.attrs["relationType"]
+            kwargs.setdefault("related_items", []).append(ri)
+
+        # rights
+        rights_list = xml.metadata.find_all("rights")
+        for rights in rights_list:
+            r = Rights()
+            if rights.string:
+                r.description = rights.string
+            if "rightsURI" in rights.attrs:
+                r.uri = rights.attrs["rightsURI"]
+            kwargs.setdefault("rights", []).append(r)
+
+        # subjects
+        subjects = xml.metadata.find_all("subject")
+        for subject in subjects:
+            s = Subject(value=[subject.string])
+            if "subjectScheme" in subject.attrs:
+                s.kind = subject.attrs["subjectScheme"]
+            kwargs.setdefault("subjects", []).append(s)
+
+        # summary, uses description list retrieved for notes field
+        for description in [
+            d
+            for d in descriptions
+            if "descriptionType" in d.attrs and d.attrs["descriptionType"] == "Abstract"
+        ]:
+            kwargs.setdefault("summary", []).append(description.string)
+
+        # citation
+        citation = ""
+        if citation_creators:
+            citation += f"{'; '.join(citation_creators)}"
+        if publication_year:
+            citation += f" ({publication_year.string}): "
+        citation += f"{main_title[0].string}. "
+        if publisher:
+            citation += f"{publisher.string}. "
+        citation += kwargs["source_link"]
+        kwargs["citation"] = citation
+
         return TimdexRecord(**kwargs)
 
     @classmethod
@@ -147,8 +294,22 @@ class Datacite:
             name_identifier: An BeautifulSoup Tag Tag representing a Datacite
             nameIdentifier XML field.
         """
-        if name_identifier["nameIdentifierScheme"] == "ORCID":
+        if name_identifier.get("nameIdentifierScheme") == "ORCID":
             base_url = "https://orcid.org/"
         else:
             base_url = ""
         return base_url + name_identifier.string
+
+    @classmethod
+    def generate_related_item_identifier_url(cls, related_item_identifier):
+        """
+        Generate a full related item identifier URL with the specified scheme.
+        Args:
+            related_item_identifier: An BeautifulSoup Tag Tag representing a Datacite
+            relatedIdentifier XML field.
+        """
+        if related_item_identifier.get("relatedIdentifierType") == "DOI":
+            base_url = "https://doi.org/"
+        else:
+            base_url = ""
+        return base_url + related_item_identifier.string

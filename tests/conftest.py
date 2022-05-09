@@ -5,11 +5,17 @@ from click.testing import CliRunner
 
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.models import (
+    AlternateTitle,
     Contributor,
     Date,
     Date_Range,
+    Funder,
     Identifier,
+    Location,
     Note,
+    RelatedItem,
+    Rights,
+    Subject,
     TimdexRecord,
 )
 from transmogrifier.sources.datacite import Datacite
@@ -36,9 +42,16 @@ def datacite_jpal_record_required_fields():
 
 
 @pytest.fixture()
-def datacite_jpal_record_missing_required_field():
+def datacite_jpal_record_missing_required_fields_warning():
     return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_missing_required_field.xml"
+        "tests/fixtures/datacite/jpal_record_missing_required_fields_warning.xml"
+    )
+
+
+@pytest.fixture()
+def datacite_jpal_record_missing_required_field_error():
+    return parse_xml_records(
+        "tests/fixtures/datacite/jpal_record_missing_required_field_error.xml"
     )
 
 
@@ -62,12 +75,40 @@ def datacite_jpal_record_unknown_name_identifier():
 
 
 @pytest.fixture()
+def datacite_jpal_record_no_name_identifier_scheme():
+    return parse_xml_records(
+        "tests/fixtures/datacite/jpal_record_no_name_identifier_scheme.xml"
+    )
+
+
+@pytest.fixture()
+def datacite_jpal_record_related_item_identifier_doi_type():
+    return parse_xml_records(
+        "tests/fixtures/datacite/jpal_record_related_item_identifier_doi_type.xml"
+    )
+
+
+@pytest.fixture()
+def datacite_jpal_record_related_item_identifier_unknown_type():
+    return parse_xml_records(
+        "tests/fixtures/datacite/jpal_record_related_item_identifier_unknown_type.xml"
+    )
+
+
+@pytest.fixture()
+def datacite_jpal_record_related_item_no_identifier_type():
+    return parse_xml_records(
+        "tests/fixtures/datacite/jpal_record_related_item_no_identifier_type.xml"
+    )
+
+
+@pytest.fixture()
 def datacite_record_partial():
     return partial(
         Datacite,
         source="cool-repo",
         source_name="A Cool Repository",
-        source_base_url="https://example.com/item123",
+        source_base_url="https://example.com/",
     )
 
 
@@ -75,7 +116,7 @@ def datacite_record_partial():
 def timdex_record_required_fields():
     return TimdexRecord(
         source="A Cool Repository",
-        source_link="https://example.com/item123",
+        source_link="https://example.com/123",
         timdex_record_id="cool-repo:123",
         title="Some Data About Trees",
     )
@@ -84,10 +125,12 @@ def timdex_record_required_fields():
 @pytest.fixture()
 def timdex_record_all_fields_and_subfields():
     return TimdexRecord(
+        citation="Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID",
         source="A Cool Repository",
-        source_link="https://example.com/item123",
+        source_link="https://example.com/123",
         timdex_record_id="cool-repo:123",
         title="Some Data About Trees",
+        alternate_titles=[AlternateTitle(value="Alt title", kind="alternative")],
         content_type=["dataset"],
         contributors=[
             Contributor(
@@ -106,7 +149,44 @@ def timdex_record_all_fields_and_subfields():
                 range=Date_Range(gt="2019-01-01", lt="2019-06-30"),
             ),
         ],
+        edition="2nd revision",
+        file_formats=["application/pdf"],
+        format="electronic resource",
+        funding_information=[
+            Funder(
+                funder_name="Funding Foundation",
+                funder_identifier="4356",
+                funder_identifier_type="Crossref FunderID",
+                award_number="3124",
+                award_uri="http://awards.example/7689",
+            )
+        ],
         identifiers=[Identifier(value="123", kind="doi")],
+        languages=["en_US"],
+        locations=[
+            Location(
+                value="A point on the globe",
+                kind="Data was gathered here",
+                geodata=[-77.025955, 38.942142],
+            )
+        ],
         notes=[Note(value=["This book is awesome"], kind="opinion")],
         publication_information=["Version 1.0"],
+        related_items=[
+            RelatedItem(
+                description="This item is related to this other item",
+                item_type="An item type",
+                relationship="isReferencedBy",
+                uri="http://doi.example/123",
+            )
+        ],
+        rights=[
+            Rights(
+                description="People may use this",
+                kind="Access rights",
+                uri="http://rights.example/",
+            ),
+        ],
+        subjects=[Subject(value=["Stuff"], kind="LCSH")],
+        summary=["This is data."],
     )

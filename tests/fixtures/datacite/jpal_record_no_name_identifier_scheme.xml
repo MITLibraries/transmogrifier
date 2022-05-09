@@ -9,57 +9,32 @@
     <metadata>
         <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
             <identifier identifierType="DOI">10.7910/DVN/19PPE7</identifier>
-            <creators>
-                <creator>
-                    <creatorName nameType="Personal">Banerji, Rukmini</creatorName>
-                    <givenName>Rukmini</givenName>
-                    <familyName>Banerji</familyName>
-                    <affiliation>Pratham and ASER Centre</affiliation>
-                    <nameIdentifier nameIdentifierScheme="ORCID">0000-0000-0000-0000</nameIdentifier>
-                </creator>
-                <creator>
-                    <creatorName nameType="Personal">Berry, James</creatorName>
-                    <givenName>James</givenName>
-                    <familyName>Berry</familyName>
-                    <affiliation>University of Delaware</affiliation>
-                </creator>
-                <creator>
-                    <creatorName nameType="Personal">Shotland, Marc</creatorName>
-                    <givenName>Marc</givenName>
-                    <familyName>Shotland</familyName>
-                    <affiliation>Abdul Latif Jameel Poverty Action Lab</affiliation>
-                </creator>
-            </creators>
             <titles>
-                <title>The Impact of Maternal Literacy and Participation Programs</title>
-                <title titleType="AlternativeTitle">An Alternative Title</title>
-                <title titleType="Subtitle">Baseline Data</title>
+                <title>The Impact of Maternal Literacy and Participation Programs: Evidence from a Randomized Evaluation in India</title>
             </titles>
             <publisher>Harvard Dataverse</publisher>
             <publicationYear>2017</publicationYear>
             <subjects>
                 <subject>Social Sciences</subject>
-                <subject subjectScheme="LCSH">Adult education, education inputs, field experiments</subject>
+                <subject>Adult education, education inputs, field experiments</subject>
             </subjects>
             <contributors>
                 <contributor contributorType="ContactPerson">
                     <contributorName nameType="Personal">Banerji, Rukmini</contributorName>
                     <givenName>Rukmini</givenName>
                     <familyName>Banerji</familyName>
-                    <nameIdentifier nameIdentifierScheme="ORCID">0000-0000-0000-0000</nameIdentifier>
+                    <nameIdentifier>0000-0000-0000-0000</nameIdentifier>
                     <affiliation>Pratham and ASER Centre</affiliation>
                 </contributor>
             </contributors>
             <dates>
                 <date dateType="Submitted">2017-02-27</date>
-                <date dateType="Updated" dateInformation="This was updated on this date">2019-06-24</date>
-                <date dateType="Collected">2007-01-01/2007-02-28</date>
+                <date dateType="Updated">2019-06-24</date>
             </dates>
             <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
             <relatedIdentifiers>
                 <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150390</relatedIdentifier>
             </relatedIdentifiers>
-            <language>en_US</language>
             <sizes>
                 <size>124903</size>
                 <size>48958</size>
@@ -93,20 +68,8 @@
             </rightsList>
             <descriptions>
                 <description descriptionType="Abstract">Using a randomized field experiment in India, we evaluate the effectiveness of adult literacy and parental involvement interventions in improving children's learning. Households were assigned to receive either adult literacy (language and math) classes for mothers, training for mothers on how to enhance their children's learning at home, or a combination of the two programs. All three interventions had significant but modest impacts on childrens math scores. The interventions also increased mothers' test scores in both language and math, as well as a range of other outcomes reflecting greater involvement of mothers in their children's education.</description>
-                <description descriptionType="TechnicalInfo">Stata, 13</description>
             </descriptions>
-            <geoLocations>
-                <geoLocation>
-                    <geoLocationPlace>A point on the globe</geoLocationPlace>
-                </geoLocation>
-            </geoLocations>
-            <fundingReferences>
-                <fundingReference>
-                    <funderName>3ie, Nike Foundation</funderName>
-                    <funderIdentifier funderIdentifierType="Crossref FunderID">0987</funderIdentifier>
-                    <awardNumber awardURI="http://awards.example/7689">OW1/1012 (3ie)</awardNumber>
-                </fundingReference>
-            </fundingReferences>
+            <geoLocations />
         </resource>
     </metadata>
 </record>
