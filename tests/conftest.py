@@ -11,6 +11,7 @@ from transmogrifier.models import (
     Date_Range,
     Funder,
     Identifier,
+    IsPartOf,
     Location,
     Note,
     RelatedItem,
@@ -173,6 +174,7 @@ def timdex_record_all_fields_and_subfields():
             )
         ],
         identifiers=[Identifier(value="123", kind="doi")],
+        is_part_of=[IsPartOf(value="A Community", kind="Zenodo community")],
         languages=["en_US"],
         locations=[
             Location(
