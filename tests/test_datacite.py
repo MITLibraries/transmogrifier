@@ -17,22 +17,20 @@ from transmogrifier.models import (
 from transmogrifier.sources.datacite import Datacite
 
 
-def test_datacite_iterates_through_all_records(datacite_jpal_records):
+def test_datacite_iterates_through_all_records(datacite_records):
     output_records = Datacite(
         "jpal",
         "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
         "Abdul Latif Jameel Poverty Action Lab Dataverse",
-        datacite_jpal_records,
+        datacite_records,
     )
     assert len(list(output_records)) == 38
 
 
 def test_datacite_record_all_fields(
-    datacite_record_partial, datacite_jpal_record_all_fields
+    datacite_record_partial, datacite_record_all_fields
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_all_fields
-    )
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
     assert next(output_records) == TimdexRecord(
         citation=(
             "Banerji, Rukmini; Berry, James; Shotland, Marc "
@@ -140,7 +138,7 @@ def test_datacite_record_all_fields(
             ),
         ],
         subjects=[
-            Subject(value=["Social Sciences"], kind=None),
+            Subject(value=["Social Sciences"], kind="Subject scheme not provided"),
             Subject(
                 value=["Adult education, education inputs, field experiments"],
                 kind="LCSH",
@@ -161,10 +159,10 @@ def test_datacite_record_all_fields(
 
 
 def test_datacite_required_fields_record(
-    datacite_record_partial, datacite_jpal_record_required_fields
+    datacite_record_partial, datacite_record_required_fields
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_required_fields
+        input_records=datacite_record_required_fields
     )
     assert next(output_records) == TimdexRecord(
         citation=(
@@ -197,10 +195,10 @@ def test_datacite_required_fields_record(
 def test_datacite_missing_required_fields_raises_warning(
     caplog,
     datacite_record_partial,
-    datacite_jpal_record_missing_required_fields_warning,
+    datacite_record_missing_required_fields_warning,
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_missing_required_fields_warning
+        input_records=datacite_record_missing_required_fields_warning
     )
     next(output_records)
 
@@ -223,30 +221,30 @@ def test_datacite_missing_required_fields_raises_warning(
 
 
 def test_datacite_missing_required_field_raises_error(
-    datacite_record_partial, datacite_jpal_record_missing_required_field_error
+    datacite_record_partial, datacite_record_missing_required_field_error
 ):
     with raises(ValueError):
         output_records = datacite_record_partial(
-            input_records=datacite_jpal_record_missing_required_field_error
+            input_records=datacite_record_missing_required_field_error
         )
         next(output_records)
 
 
 def test_datacite_multiple_titles_raises_error(
-    datacite_record_partial, datacite_jpal_record_multiple_titles
+    datacite_record_partial, datacite_record_multiple_titles
 ):
     with raises(ValueError):
         output_records = datacite_record_partial(
-            input_records=datacite_jpal_record_multiple_titles
+            input_records=datacite_record_multiple_titles
         )
         next(output_records)
 
 
 def test_generate_name_identifier_url_orcid_scheme(
-    datacite_record_partial, datacite_jpal_record_orcid_name_identifier
+    datacite_record_partial, datacite_record_orcid_name_identifier
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_orcid_name_identifier
+        input_records=datacite_record_orcid_name_identifier
     )
     assert next(output_records).contributors[0].identifier == [
         "https://orcid.org/0000-0000-0000-0000"
@@ -254,46 +252,46 @@ def test_generate_name_identifier_url_orcid_scheme(
 
 
 def test_generate_name_identifier_url_unknown_scheme(
-    datacite_record_partial, datacite_jpal_record_unknown_name_identifier
+    datacite_record_partial, datacite_record_unknown_name_identifier
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_unknown_name_identifier
+        input_records=datacite_record_unknown_name_identifier
     )
     assert next(output_records).contributors[0].identifier == ["0000-0000-0000-0000"]
 
 
 def test_generate_name_identifier_url_no_identifier_scheme(
-    datacite_record_partial, datacite_jpal_record_no_name_identifier_scheme
+    datacite_record_partial, datacite_record_no_name_identifier_scheme
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_no_name_identifier_scheme
+        input_records=datacite_record_no_name_identifier_scheme
     )
     assert next(output_records).contributors[0].identifier == ["0000-0000-0000-0000"]
 
 
 def test_generate_related_item_identifier_url_doi_type(
-    datacite_record_partial, datacite_jpal_record_related_item_identifier_doi_type
+    datacite_record_partial, datacite_record_related_item_identifier_doi_type
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_related_item_identifier_doi_type
+        input_records=datacite_record_related_item_identifier_doi_type
     )
     assert next(output_records).related_items[0].uri == "https://doi.org/0000.0000"
 
 
-def test_generate_related_item_identifier_url_unknown_type(
-    datacite_record_partial, datacite_jpal_record_related_item_identifier_unknown_type
+def test_generate_related_item_identifier_no_identifier_type(
+    datacite_record_partial,
+    datacite_record_related_item_no_identifier_type,
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_related_item_identifier_unknown_type
+        input_records=datacite_record_related_item_no_identifier_type
     )
     assert next(output_records).related_items[0].uri == "0000.0000"
 
 
-def test_generate_related_item_identifier_no_identifier_type(
-    datacite_record_partial,
-    datacite_jpal_record_related_item_no_identifier_type,
+def test_generate_related_item_identifier_url_unknown_type(
+    datacite_record_partial, datacite_record_related_item_identifier_unknown_type
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_jpal_record_related_item_no_identifier_type
+        input_records=datacite_record_related_item_identifier_unknown_type
     )
     assert next(output_records).related_items[0].uri == "0000.0000"
