@@ -203,3 +203,8 @@ def timdex_record_all_fields_and_subfields():
         subjects=[Subject(value=["Stuff"], kind="LCSH")],
         summary=["This is data."],
     )
+
+
+@pytest.fixture()
+def zenodo_record():
+    return parse_xml_records("tests/fixtures/datacite/zenodo_record.xml")
