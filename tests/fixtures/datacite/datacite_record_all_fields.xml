@@ -41,6 +41,9 @@
                 <subject>Social Sciences</subject>
                 <subject subjectScheme="LCSH">Adult education, education inputs, field experiments</subject>
             </subjects>
+            <alternateIdentifiers>
+                <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/5524465</alternateIdentifier>
+            </alternateIdentifiers>
             <contributors>
                 <contributor contributorType="ContactPerson">
                     <contributorName nameType="Personal">Banerji, Rukmini</contributorName>
@@ -58,6 +61,8 @@
             <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
             <relatedIdentifiers>
                 <relatedIdentifier relationType="IsCitedBy" relatedIdentifierType="DOI">10.1257/app.20150390</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.5524464</relatedIdentifier>
+                <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/astronomy-general</relatedIdentifier>
             </relatedIdentifiers>
             <language>en_US</language>
             <sizes>

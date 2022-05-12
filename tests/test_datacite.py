@@ -7,6 +7,7 @@ from transmogrifier.models import (
     Date_Range,
     Funder,
     Identifier,
+    IsPartOf,
     Location,
     Note,
     RelatedItem,
@@ -116,7 +117,17 @@ def test_datacite_record_all_fields(
                 award_uri="http://awards.example/7689",
             )
         ],
-        identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
+        identifiers=[
+            Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
+            Identifier(value="https://zenodo.org/record/5524465", kind="url"),
+            Identifier(value="10.5281/zenodo.5524464", kind="IsVersionOf"),
+        ],
+        is_part_of=[
+            IsPartOf(
+                value="https://zenodo.org/communities/astronomy-general",
+                kind="Zenodo community",
+            )
+        ],
         locations=[Location(value="A point on the globe")],
         languages=["en_US"],
         notes=[
@@ -126,9 +137,23 @@ def test_datacite_record_all_fields(
         publication_information=["Harvard Dataverse"],
         related_items=[
             RelatedItem(
+                description=None,
+                item_type=None,
                 relationship="IsCitedBy",
                 uri="https://doi.org/10.1257/app.20150390",
-            )
+            ),
+            RelatedItem(
+                description=None,
+                item_type=None,
+                relationship="IsVersionOf",
+                uri="https://doi.org/10.5281/zenodo.5524464",
+            ),
+            RelatedItem(
+                description=None,
+                item_type=None,
+                relationship="IsPartOf",
+                uri="https://zenodo.org/communities/astronomy-general",
+            ),
         ],
         rights=[
             Rights(uri="info:eu-repo/semantics/openAccess"),
@@ -295,3 +320,14 @@ def test_generate_related_item_identifier_url_unknown_type(
         input_records=datacite_record_related_item_identifier_unknown_type
     )
     assert next(output_records).related_items[0].uri == "0000.0000"
+
+
+def test_generate_related_item_identifier_url_url_type(
+    datacite_record_partial, datacite_record_related_item_identifier_url_type
+):
+    output_records = datacite_record_partial(
+        input_records=datacite_record_related_item_identifier_url_type
+    )
+    assert (
+        next(output_records).related_items[0].uri == "https://example.example/0000.0000"
+    )
