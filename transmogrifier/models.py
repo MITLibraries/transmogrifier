@@ -99,12 +99,6 @@ class Identifier:
 
 
 @define
-class IsPartOf:
-    value: str = field(validator=instance_of(str))  # Required subfield
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-
-
-@define
 class Location:
     value: Optional[str] = field(validator=optional(instance_of(str)))
     kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
@@ -176,9 +170,6 @@ class TimdexRecord:
     )
     identifiers: Optional[list[Identifier]] = field(
         default=None, validator=optional(list_of(Identifier))
-    )
-    is_part_of: Optional[list[IsPartOf]] = field(
-        default=None, validator=optional(list_of(IsPartOf))
     )
     languages: Optional[list[str]] = field(
         default=None, validator=optional(list_of(str))

@@ -7,7 +7,6 @@ from transmogrifier.models import (
     Date_Range,
     Funder,
     Identifier,
-    IsPartOf,
     Location,
     Note,
     RelatedItem,
@@ -121,12 +120,6 @@ def test_datacite_record_all_fields(
             Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
             Identifier(value="https://zenodo.org/record/5524465", kind="url"),
             Identifier(value="10.5281/zenodo.5524464", kind="IsVersionOf"),
-        ],
-        is_part_of=[
-            IsPartOf(
-                value="https://zenodo.org/communities/astronomy-general",
-                kind="Zenodo community",
-            )
         ],
         locations=[Location(value="A point on the globe")],
         languages=["en_US"],

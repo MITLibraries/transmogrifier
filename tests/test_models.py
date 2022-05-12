@@ -6,7 +6,6 @@ from transmogrifier.models import (
     Date,
     Date_Range,
     Identifier,
-    IsPartOf,
     Note,
     Subject,
 )
@@ -39,7 +38,6 @@ def test_timdex_record_required_fields_only(timdex_record_required_fields):
 def test_timdex_record_required_subfields_only(timdex_record_required_fields):
     timdex_record_required_fields.contributors = [Contributor(value="Smith, Jane")]
     timdex_record_required_fields.identifiers = [Identifier(value="123")]
-    timdex_record_required_fields.is_part_of = [IsPartOf(value="A Community")]
     timdex_record_required_fields.notes = [Note(value=["This book is awesome"])]
     timdex_record_required_fields.alternate_titles = [AlternateTitle(value="Alt Title")]
     timdex_record_required_fields.subjects = [Subject(value=["Stuff"])]
@@ -56,7 +54,6 @@ def test_timdex_record_required_subfields_only(timdex_record_required_fields):
     assert timdex_record_required_fields.format is None
     assert timdex_record_required_fields.funding_information is None
     assert timdex_record_required_fields.identifiers[0].value == "123"
-    assert timdex_record_required_fields.is_part_of[0].value == "A Community"
     assert timdex_record_required_fields.languages is None
     assert timdex_record_required_fields.locations is None
     assert timdex_record_required_fields.notes[0].value == ["This book is awesome"]
@@ -127,10 +124,6 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
     )
     assert timdex_record_all_fields_and_subfields.identifiers[0].value == "123"
     assert timdex_record_all_fields_and_subfields.identifiers[0].kind == "doi"
-    assert timdex_record_all_fields_and_subfields.is_part_of[0].value == "A Community"
-    assert (
-        timdex_record_all_fields_and_subfields.is_part_of[0].kind == "Zenodo community"
-    )
     assert timdex_record_all_fields_and_subfields.languages == ["en_US"]
     assert (
         timdex_record_all_fields_and_subfields.locations[0].value
@@ -230,7 +223,6 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
             }
         ],
         "identifiers": [{"value": "123", "kind": "doi"}],
-        "is_part_of": [{"kind": "Zenodo community", "value": "A Community"}],
         "languages": ["en_US"],
         "locations": [
             {
