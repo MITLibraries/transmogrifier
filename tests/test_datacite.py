@@ -57,14 +57,14 @@ def test_datacite_record_all_fields(
             Contributor(
                 value="Berry, James",
                 affiliation=["University of Delaware"],
-                identifier=None,
+                identifier=["0000-0000-0000-0001"],
                 kind="Creator",
                 mit_affiliated=None,
             ),
             Contributor(
                 value="Shotland, Marc",
                 affiliation=["Abdul Latif Jameel Poverty Action Lab"],
-                identifier=None,
+                identifier=["0000-0000-0000-0002"],
                 kind="Creator",
                 mit_affiliated=None,
             ),
@@ -119,7 +119,7 @@ def test_datacite_record_all_fields(
         identifiers=[
             Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
             Identifier(value="https://zenodo.org/record/5524465", kind="url"),
-            Identifier(value="10.5281/zenodo.5524464", kind="IsVersionOf"),
+            Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
         ],
         locations=[Location(value="A point on the globe")],
         languages=["en_US"],
@@ -139,7 +139,13 @@ def test_datacite_record_all_fields(
                 description=None,
                 item_type=None,
                 relationship="IsVersionOf",
-                uri="https://doi.org/10.5281/zenodo.5524464",
+                uri="10.5281/zenodo.5524464",
+            ),
+            RelatedItem(
+                description=None,
+                item_type=None,
+                relationship="IsIdenticalTo",
+                uri="1234567.5524464",
             ),
             RelatedItem(
                 description=None,
@@ -259,68 +265,58 @@ def test_datacite_multiple_titles_raises_error(
 
 
 def test_generate_name_identifier_url_orcid_scheme(
-    datacite_record_partial, datacite_record_orcid_name_identifier
+    datacite_record_partial, datacite_record_all_fields
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_orcid_name_identifier
-    )
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
     assert next(output_records).contributors[0].identifier == [
         "https://orcid.org/0000-0000-0000-0000"
     ]
 
 
 def test_generate_name_identifier_url_unknown_scheme(
-    datacite_record_partial, datacite_record_unknown_name_identifier
+    datacite_record_partial, datacite_record_all_fields
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_unknown_name_identifier
-    )
-    assert next(output_records).contributors[0].identifier == ["0000-0000-0000-0000"]
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
+    assert next(output_records).contributors[1].identifier == ["0000-0000-0000-0001"]
 
 
 def test_generate_name_identifier_url_no_identifier_scheme(
-    datacite_record_partial, datacite_record_no_name_identifier_scheme
+    datacite_record_partial, datacite_record_all_fields
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_no_name_identifier_scheme
-    )
-    assert next(output_records).contributors[0].identifier == ["0000-0000-0000-0000"]
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
+    assert next(output_records).contributors[2].identifier == ["0000-0000-0000-0002"]
 
 
 def test_generate_related_item_identifier_url_doi_type(
-    datacite_record_partial, datacite_record_related_item_identifier_doi_type
+    datacite_record_partial, datacite_record_all_fields
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_related_item_identifier_doi_type
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
+    assert (
+        next(output_records).related_items[0].uri
+        == "https://doi.org/10.1257/app.20150390"
     )
-    assert next(output_records).related_items[0].uri == "https://doi.org/0000.0000"
 
 
 def test_generate_related_item_identifier_no_identifier_type(
     datacite_record_partial,
-    datacite_record_related_item_no_identifier_type,
+    datacite_record_all_fields,
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_related_item_no_identifier_type
-    )
-    assert next(output_records).related_items[0].uri == "0000.0000"
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
+    assert next(output_records).related_items[1].uri == "10.5281/zenodo.5524464"
 
 
 def test_generate_related_item_identifier_url_unknown_type(
-    datacite_record_partial, datacite_record_related_item_identifier_unknown_type
+    datacite_record_partial, datacite_record_all_fields
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_related_item_identifier_unknown_type
-    )
-    assert next(output_records).related_items[0].uri == "0000.0000"
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
+    assert next(output_records).related_items[2].uri == "1234567.5524464"
 
 
 def test_generate_related_item_identifier_url_url_type(
-    datacite_record_partial, datacite_record_related_item_identifier_url_type
+    datacite_record_partial, datacite_record_all_fields
 ):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_related_item_identifier_url_type
-    )
+    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
     assert (
-        next(output_records).related_items[0].uri == "https://example.example/0000.0000"
+        next(output_records).related_items[3].uri
+        == "https://zenodo.org/communities/astronomy-general"
     )

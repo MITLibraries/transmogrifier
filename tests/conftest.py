@@ -65,55 +65,6 @@ def datacite_record_multiple_titles():
 
 
 @pytest.fixture()
-def datacite_record_orcid_name_identifier():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_orcid_name_identifier.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_unknown_name_identifier():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_unknown_name_identifier.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_no_name_identifier_scheme():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_no_name_identifier_scheme.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_related_item_identifier_doi_type():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_related_item_identifier_doi_type.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_related_item_no_identifier_type():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_related_item_no_identifier_type.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_related_item_identifier_unknown_type():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_related_item_identifier_unknown_type.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_related_item_identifier_url_type():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_related_item_identifier_url_type.xml"
-    )
-
-
-@pytest.fixture()
 def datacite_record_partial():
     return partial(
         Datacite,

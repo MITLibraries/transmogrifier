@@ -16,13 +16,16 @@ class Zenodo(Datacite):
         super().__init__(source, source_base_url, source_name, input_records)
 
     @classmethod
-    def create_source_link(cls, source_base_url: str, source_record_id: str) -> str:
+    def create_source_record_id(cls, xml: Tag) -> str:
         """
+        Create a source record ID from a Zenodo Datacite XML record. This method
+        is subclassed from the Datacite class as more parsing required for
+        Zenodo identifiers.
         Args:
-            source_record_id: The source record ID from which direct links to source
-            metadata records can be constructed.
-            source_base_url: The base URL for the source system from which direct links
-            to source metadata records can be constructed.
+            xml: A BeautifulSoup Tag representing a single Datacite record in
+            oai_datacite XML.
         """
-        source_link = source_base_url + source_record_id.replace("oai:zenodo.org:", "")
-        return source_link
+        source_record_id = xml.header.find("identifier").string.replace(
+            "oai:zenodo.org:", ""
+        )
+        return source_record_id

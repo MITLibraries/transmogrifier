@@ -60,7 +60,7 @@ class Datacite:
             oai_datacite XML.
         """
         # Required fields in TIMDEX
-        source_record_id = xml.header.find("identifier").string
+        source_record_id = cls.create_source_record_id(xml)
         all_titles = xml.metadata.find_all("title")
         main_title = [t for t in all_titles if "titleType" not in t.attrs]
         if len(main_title) != 1:
@@ -70,7 +70,7 @@ class Datacite:
             )
         kwargs = {
             "source": source_name,
-            "source_link": cls.create_source_link(source_base_url, source_record_id),
+            "source_link": source_base_url + source_record_id,
             "timdex_record_id": f"{source}:{source_record_id.replace('/', '-')}",
             "title": main_title[0].string,
         }
@@ -214,15 +214,12 @@ class Datacite:
         for related_identifier in [
             i
             for i in related_identifiers
-            if "relationType" in i.attrs
-            and i.attrs["relationType"] in ["IsIdenticalTo", "IsVersionOf"]
+            if "relationType" in i.attrs and i.attrs["relationType"] == "IsIdenticalTo"
         ]:
             i = Identifier(
-                value=related_identifier.string,
+                value=cls.generate_related_item_identifier_url(related_identifier),
+                kind=related_identifier.attrs["relationType"],
             )
-
-            if "relationType" in related_identifier.attrs:
-                i.kind = related_identifier.attrs["relationType"]
             kwargs["identifiers"].append(i)
 
         # language
@@ -314,6 +311,17 @@ class Datacite:
         return TimdexRecord(**kwargs)
 
     @classmethod
+    def create_source_record_id(cls, xml: Tag) -> str:
+        """
+        Create a source record ID from a Datacite XML record.
+        Args:
+            xml: A BeautifulSoup Tag representing a single Datacite record in
+            oai_datacite XML.
+        """
+        source_record_id = xml.header.find("identifier").string
+        return source_record_id
+
+    @classmethod
     def generate_name_identifier_url(cls, name_identifier):
         """
         Generate a full name identifier URL with the specified scheme.
@@ -326,18 +334,6 @@ class Datacite:
         else:
             base_url = ""
         return base_url + name_identifier.string
-
-    @classmethod
-    def create_source_link(cls, source_base_url: str, source_record_id: str) -> str:
-        """
-        Args:
-            source_record_id: The source record ID from which direct links to source
-            metadata records can be constructed.
-            source_base_url: The base URL for the source system from which direct links
-            to source metadata records can be constructed.
-        """
-        source_link = source_base_url + source_record_id
-        return source_link
 
     @classmethod
     def generate_related_item_identifier_url(cls, related_item_identifier):
