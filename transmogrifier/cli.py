@@ -7,6 +7,7 @@ import sentry_sdk
 from transmogrifier.config import SOURCES
 from transmogrifier.helpers import parse_xml_records, write_timdex_records_to_json
 from transmogrifier.sources.datacite import Datacite
+from transmogrifier.sources.zenodo import Zenodo
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ logger = logging.getLogger(__name__)
     "-s",
     "--source",
     required=True,
-    type=click.Choice(["jpal"], case_sensitive=False),
+    type=click.Choice(["jpal", "zenodo"], case_sensitive=False),
     help="Source records were harvested from, must choose from list of options",
 )
 @click.option(
@@ -52,6 +53,14 @@ def main(source, input_file, output_file, verbose):
     if source == "jpal":
         input_records = parse_xml_records(input_file)
         output_records = Datacite(
+            source,
+            SOURCES[source]["base_url"],
+            SOURCES[source]["name"],
+            input_records,
+        )
+    elif source == "zenodo":
+        input_records = parse_xml_records(input_file)
+        output_records = Zenodo(
             source,
             SOURCES[source]["base_url"],
             SOURCES[source]["name"],

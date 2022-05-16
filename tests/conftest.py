@@ -27,78 +27,40 @@ def runner():
 
 
 @pytest.fixture()
-def datacite_jpal_records():
-    return parse_xml_records("tests/fixtures/datacite/jpal_records.xml")
+def datacite_records():
+    return parse_xml_records("tests/fixtures/datacite/datacite_records.xml")
 
 
 @pytest.fixture()
-def datacite_jpal_record_all_fields():
-    return parse_xml_records("tests/fixtures/datacite/jpal_record_all_fields.xml")
+def datacite_record_all_fields():
+    return parse_xml_records("tests/fixtures/datacite/datacite_record_all_fields.xml")
 
 
 @pytest.fixture()
-def datacite_jpal_record_required_fields():
-    return parse_xml_records("tests/fixtures/datacite/jpal_record_required_fields.xml")
-
-
-@pytest.fixture()
-def datacite_jpal_record_missing_required_fields_warning():
+def datacite_record_required_fields():
     return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_missing_required_fields_warning.xml"
+        "tests/fixtures/datacite/datacite_record_required_fields.xml"
     )
 
 
 @pytest.fixture()
-def datacite_jpal_record_missing_required_field_error():
+def datacite_record_missing_required_fields_warning():
     return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_missing_required_field_error.xml"
+        "tests/fixtures/datacite/datacite_record_missing_required_fields_warning.xml"
     )
 
 
 @pytest.fixture()
-def datacite_jpal_record_multiple_titles():
-    return parse_xml_records("tests/fixtures/datacite/jpal_record_multiple_titles.xml")
-
-
-@pytest.fixture()
-def datacite_jpal_record_orcid_name_identifier():
+def datacite_record_missing_required_field_error():
     return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_orcid_name_identifier.xml"
+        "tests/fixtures/datacite/datacite_record_missing_required_field_error.xml"
     )
 
 
 @pytest.fixture()
-def datacite_jpal_record_unknown_name_identifier():
+def datacite_record_multiple_titles():
     return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_unknown_name_identifier.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_jpal_record_no_name_identifier_scheme():
-    return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_no_name_identifier_scheme.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_jpal_record_related_item_identifier_doi_type():
-    return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_related_item_identifier_doi_type.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_jpal_record_related_item_identifier_unknown_type():
-    return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_related_item_identifier_unknown_type.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_jpal_record_related_item_no_identifier_type():
-    return parse_xml_records(
-        "tests/fixtures/datacite/jpal_record_related_item_no_identifier_type.xml"
+        "tests/fixtures/datacite/datacite_record_multiple_titles.xml"
     )
 
 
@@ -190,3 +152,8 @@ def timdex_record_all_fields_and_subfields():
         subjects=[Subject(value=["Stuff"], kind="LCSH")],
         summary=["This is data."],
     )
+
+
+@pytest.fixture()
+def zenodo_record():
+    return parse_xml_records("tests/fixtures/datacite/zenodo_record.xml")

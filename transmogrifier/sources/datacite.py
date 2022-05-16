@@ -60,7 +60,7 @@ class Datacite:
             oai_datacite XML.
         """
         # Required fields in TIMDEX
-        source_record_id = xml.header.find("identifier").string
+        source_record_id = cls.create_source_record_id(xml)
         all_titles = xml.metadata.find_all("title")
         main_title = [t for t in all_titles if "titleType" not in t.attrs]
         if len(main_title) != 1:
@@ -201,6 +201,27 @@ class Datacite:
                 kind=identifier_xml["identifierType"],
             ),
         ]
+        alternate_identifiers = xml.metadata.find_all("alternateIdentifier")
+        for alternate_identifier in alternate_identifiers:
+            i = Identifier(
+                value=alternate_identifier.string,
+            )
+            if "alternateIdentifierType" in alternate_identifier.attrs:
+                i.kind = alternate_identifier.attrs["alternateIdentifierType"]
+            kwargs["identifiers"].append(i)
+
+        related_identifiers = xml.metadata.find_all("relatedIdentifier")
+        for related_identifier in [
+            i
+            for i in related_identifiers
+            if "relationType" in i.attrs and i.attrs["relationType"] == "IsIdenticalTo"
+        ]:
+            i = Identifier(
+                value=cls.generate_related_item_identifier_url(related_identifier),
+                kind=related_identifier.attrs["relationType"],
+            )
+            kwargs["identifiers"].append(i)
+
         # language
         language = xml.metadata.find("language")
         if language:
@@ -238,12 +259,13 @@ class Datacite:
         else:
             kwargs["publication_information"] = [publisher.string]
 
-        # related_items
-        related_items = xml.metadata.find_all("relatedIdentifier")
-        for related_item in related_items:
-            ri = RelatedItem(uri=cls.generate_related_item_identifier_url(related_item))
-            if "relationType" in related_item.attrs:
-                ri.relationship = related_item.attrs["relationType"]
+        # related_items, uses related_identifiers retrieved for identifiers
+        for related_identifier in related_identifiers:
+            ri = RelatedItem(
+                uri=cls.generate_related_item_identifier_url(related_identifier)
+            )
+            if "relationType" in related_identifier.attrs:
+                ri.relationship = related_identifier.attrs["relationType"]
             kwargs.setdefault("related_items", []).append(ri)
 
         # rights
@@ -262,6 +284,8 @@ class Datacite:
             s = Subject(value=[subject.string])
             if "subjectScheme" in subject.attrs:
                 s.kind = subject.attrs["subjectScheme"]
+            else:
+                s.kind = "Subject scheme not provided"
             kwargs.setdefault("subjects", []).append(s)
 
         # summary, uses description list retrieved for notes field
@@ -287,6 +311,17 @@ class Datacite:
         return TimdexRecord(**kwargs)
 
     @classmethod
+    def create_source_record_id(cls, xml: Tag) -> str:
+        """
+        Create a source record ID from a Datacite XML record.
+        Args:
+            xml: A BeautifulSoup Tag representing a single Datacite record in
+            oai_datacite XML.
+        """
+        source_record_id = xml.header.find("identifier").string
+        return source_record_id
+
+    @classmethod
     def generate_name_identifier_url(cls, name_identifier):
         """
         Generate a full name identifier URL with the specified scheme.
@@ -310,6 +345,8 @@ class Datacite:
         """
         if related_item_identifier.get("relatedIdentifierType") == "DOI":
             base_url = "https://doi.org/"
+        elif related_item_identifier.get("relatedIdentifierType") == "URL":
+            base_url = ""
         else:
             base_url = ""
         return base_url + related_item_identifier.string

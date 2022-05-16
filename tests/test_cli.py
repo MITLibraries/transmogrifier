@@ -10,7 +10,7 @@ def test_cli_with_env(caplog, monkeypatch, runner, tmp_path):
             main,
             [
                 "-i",
-                "tests/fixtures/datacite/jpal_records.xml",
+                "tests/fixtures/datacite/datacite_records.xml",
                 "-o",
                 outfile,
                 "-s",
@@ -36,7 +36,7 @@ def test_cli_without_env(caplog, monkeypatch, runner, tmp_path):
             main,
             [
                 "-i",
-                "tests/fixtures/datacite/jpal_records.xml",
+                "tests/fixtures/datacite/datacite_records.xml",
                 "-o",
                 outfile,
                 "-s",
@@ -47,3 +47,23 @@ def test_cli_without_env(caplog, monkeypatch, runner, tmp_path):
         assert result.exit_code == 0
         assert "Running transmogrifier with env=None and log level=DEBUG" in caplog.text
         assert "Sentry DSN found" not in caplog.text
+
+
+def test_cli_zenodo(caplog, monkeypatch, runner, tmp_path):
+    with caplog.at_level("INFO"):
+        outfile = tmp_path / "timdex_jpal_records.json"
+        result = runner.invoke(
+            main,
+            [
+                "-i",
+                "tests/fixtures/datacite/datacite_records.xml",
+                "-o",
+                outfile,
+                "-s",
+                "zenodo",
+                "-v",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Running transform for source zenodo" in caplog.text
+        assert "Completed transform, total record count: 38" in caplog.text
