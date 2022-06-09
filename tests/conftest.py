@@ -10,7 +10,9 @@ from transmogrifier.models import (
     Date,
     Date_Range,
     Funder,
+    Holding,
     Identifier,
+    Link,
     Location,
     Note,
     RelatedItem,
@@ -93,7 +95,9 @@ def timdex_record_all_fields_and_subfields():
         timdex_record_id="cool-repo:123",
         title="Some Data About Trees",
         alternate_titles=[AlternateTitle(value="Alt title", kind="alternative")],
+        call_numbers=["QC173.59.S65"],
         content_type=["dataset"],
+        contents=["Chapter 1, Chapter 2"],
         contributors=[
             Contributor(
                 value="Smith, Jane",
@@ -123,8 +127,26 @@ def timdex_record_all_fields_and_subfields():
                 award_uri="http://awards.example/7689",
             )
         ],
+        holdings=[
+            Holding(
+                call_number="QC173.59.S65",
+                collection="Stacks",
+                format="Print volume",
+                location="Hayden Library",
+                note="Holdings note",
+            )
+        ],
         identifiers=[Identifier(value="123", kind="doi")],
         languages=["en_US"],
+        links=[
+            Link(
+                kind="SpringerLink",
+                restrictions="Touchstone authentication required for access",
+                text="Direct access via SpringerLink",
+                url="http://dx.doi.org/10.1007/978-94-017-0726-8",
+            )
+        ],
+        literary_form="nonfiction",
         locations=[
             Location(
                 value="A point on the globe",
@@ -133,6 +155,9 @@ def timdex_record_all_fields_and_subfields():
             )
         ],
         notes=[Note(value=["This book is awesome"], kind="opinion")],
+        numbering="Began with v. 32, issue 1 (Jan./June 2005).",
+        physical_description="1 online resource (1 sound file)",
+        publication_frequency=["Semiannual"],
         publication_information=["Version 1.0"],
         related_items=[
             RelatedItem(
