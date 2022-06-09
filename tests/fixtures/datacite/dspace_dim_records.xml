@@ -1,0 +1,234 @@
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/2641</identifier>
+      <datestamp>2020-01-28T19:30:01Z</datestamp>
+      <setSpec>com_1912_3</setSpec>
+      <setSpec>col_1912_534</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">LaFountain, James R.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">Oldenbourg, Rudolf</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="accessioned">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="available">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en">The events of meiosis I in a living spermatocyte obtained from the testis of a crane-fly larva are recorded in this time-lapse sequence beginning at diakinesis through telophase to the near completion of cytokinesis following meiosis I.</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Ann Devenish (adevenish@whoi.edu) on 2009-01-08T16:23:47Z&#13;
+No. of bitstreams: 2&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Ann Devenish(adevenish@whoi.edu) on 2009-01-08T16:24:36Z (GMT) No. of bitstreams: 2&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2009-01-08T16:24:37Z (GMT). No. of bitstreams: 2&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)&#13;
+  Previous issue date: 2002-11</dim:field>
+        <dim:field mdschema="dc" element="format" qualifier="mimetype">application/msword</dim:field>
+        <dim:field mdschema="dc" element="format" qualifier="mimetype">image/tiff</dim:field>
+        <dim:field mdschema="dc" element="format" qualifier="mimetype">video/quicktime</dim:field>
+        <dim:field mdschema="dc" element="relation">A low resolution version of this movie was published as supplemental material to: Rieder, C. L. and A. Khodjakov. Mitosis through the microscope: advances in seeing inside live dividing cells. Science 300 (2003): 91-96, doi: 10.1126/science.1082177</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Meiosis I</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Spermatocyte</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Microtubules</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Kinetochore microtubules</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Polarized light microscopy</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">LC-PolScope</dim:field>
+        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis I in a living spermatocyte from the crane fly, Nephrotoma suturalis, viewed with polarized light microscopy</dim:field>
+        <dim:field mdschema="dc" element="type" lang="en">Moving Image</dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/2642</identifier>
+      <datestamp>2020-01-28T19:30:31Z</datestamp>
+      <setSpec>com_1912_3</setSpec>
+      <setSpec>col_1912_534</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">LaFountain, James R.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">Oldenbourg, Rudolf</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="accessioned">2009-01-08T16:38:26Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="available">2009-01-08T16:38:26Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2642</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en">The events of meiosis II in two living spermatocytes obtained from the testis of a crane-fly larva are recorded in this time-lapse sequence beginning at prophase II through telophase II to the near completion of cytokinesis following meiosis II.</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Ann Devenish (adevenish@whoi.edu) on 2009-01-08T16:37:32Z&#13;
+No. of bitstreams: 2&#13;
+Movie02_LaFountainOldenbourg_MeiosisII_Long.doc: 25600 bytes, checksum: 3e5707bb59c502d619f94559e824b724 (MD5)&#13;
+Movie02_LaFountainOldenbourg_MeiosisII_MPEG4.mov: 24710426 bytes, checksum: 58fd2a1939231abba8e7de6e54148235 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Ann Devenish(adevenish@whoi.edu) on 2009-01-08T16:38:25Z (GMT) No. of bitstreams: 2&#13;
+Movie02_LaFountainOldenbourg_MeiosisII_Long.doc: 25600 bytes, checksum: 3e5707bb59c502d619f94559e824b724 (MD5)&#13;
+Movie02_LaFountainOldenbourg_MeiosisII_MPEG4.mov: 24710426 bytes, checksum: 58fd2a1939231abba8e7de6e54148235 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2009-01-08T16:38:26Z (GMT). No. of bitstreams: 2&#13;
+Movie02_LaFountainOldenbourg_MeiosisII_Long.doc: 25600 bytes, checksum: 3e5707bb59c502d619f94559e824b724 (MD5)&#13;
+Movie02_LaFountainOldenbourg_MeiosisII_MPEG4.mov: 24710426 bytes, checksum: 58fd2a1939231abba8e7de6e54148235 (MD5)&#13;
+  Previous issue date: 2002-11</dim:field>
+        <dim:field mdschema="dc" element="format" qualifier="mimetype">application/msword</dim:field>
+        <dim:field mdschema="dc" element="format" qualifier="mimetype">video/quicktime</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Meiosis II</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Spermatocyte</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Microtubules</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Kinetochore microtubules</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">Polarized light microscopy</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en">LC-PolScope</dim:field>
+        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis II in a living spermatocyte from the crane fly, Nephrotoma suturalis, viewed with polarized light microscopy</dim:field>
+        <dim:field mdschema="dc" element="type" lang="en">Moving Image</dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/6281</identifier>
+      <datestamp>2020-01-28T19:31:03Z</datestamp>
+      <setSpec>com_1912_1</setSpec>
+      <setSpec>com_1912_9302</setSpec>
+      <setSpec>com_1912_4</setSpec>
+      <setSpec>col_1912_9303</setSpec>
+      <setSpec>col_1912_12</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Wiebe, Peter H.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Chandler, Cynthia L.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Raymond, Lisa</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Shepherd, Adam</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Finin, Tim</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Narock, Tom</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Arko, Robert A.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Carbotte, Suzanne M.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Hitzler, Pascal</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Cheatham, Michelle</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="e7d1ac61-f985-4469-aee3-8b990929c825" confidence="600">Krisnadhi, Adila</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="accessioned">2013-10-28T19:27:03Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="available">2013-10-28T19:27:03Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2013-10-28</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/6281</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="abstract">The OceanLink EarthCube project will apply state-of-the-art Semantic Web Technologies to support data representation, discovery, analysis, sharing, and integration of datasets from the global oceans, and related resources including meeting abstracts and library holdings. Ships are a principal platform from which a wide spectrum of oceanographic data are collected. &#13;
+&#13;
+At the University of Maryland, Baltimore County, semantic relationships will be extracted from text for use in developing methods that efficiently identify relationships across distributed oceanographic datasets.  At Wright State University integration of disparate data will occur by refining and applying leading edge technology from the Semantic Web, ontologies, and linked data.&#13;
+&#13;
+From the MBLWHOI Library, DSpace content will be published as Linked Open Data, providing relationships between oceanographic datasets, publications, conference presentations, and funded National Science Foundation projects.&#13;
+&#13;
+Teams of researchers at the Lamont-Doherty Earth Observatory and the Woods Hole Oceanographic Institution will develop Use Cases that represent the needs of the oceanographic research community and will publish oceanographic dataset catalogs as Linked Open Data. &#13;
+&#13;
+A key contribution will be semantically-enabled cyberinfrastructure components capable of automated data integration across distributed repositories.  These efforts will ultimately lead to generalized computational techniques applicable to all of EarthCube.</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Ann Devenish (adevenish@whoi.edu) on 2013-10-28T19:26:29Z&#13;
+No. of bitstreams: 1&#13;
+Eager_Short_introduction_v4_LQ.avi: 9390132 bytes, checksum: c78ca405809c4ed7c478ef8644279dd3 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Ann Devenish (adevenish@whoi.edu) on 2013-10-28T19:27:03Z (GMT) No. of bitstreams: 1&#13;
+Eager_Short_introduction_v4_LQ.avi: 9390132 bytes, checksum: c78ca405809c4ed7c478ef8644279dd3 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2013-10-28T19:27:03Z (GMT). No. of bitstreams: 1&#13;
+Eager_Short_introduction_v4_LQ.avi: 9390132 bytes, checksum: c78ca405809c4ed7c478ef8644279dd3 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="format" qualifier="mimetype">video/avi</dim:field>
+        <dim:field mdschema="dc" element="language" qualifier="iso" lang="en_US">en_US</dim:field>
+        <dim:field mdschema="dc" element="subject">Rolling Deck to Repository (R2R)</dim:field>
+        <dim:field mdschema="dc" element="subject">Biological and Chemical Oceanography Data Management Office (BCO-DMO)</dim:field>
+        <dim:field mdschema="dc" element="title" lang="en_US">Collaborative research : EarthCube building blocks, leveraging semantics and linked data for geoscience data sharing and discovery, OceanLink</dim:field>
+        <dim:field mdschema="dc" element="type" lang="en_US">Moving Image</dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/25158</identifier>
+      <datestamp>2020-01-14T18:52:10Z</datestamp>
+      <setSpec>com_1912_4134</setSpec>
+      <setSpec>com_1912_4</setSpec>
+      <setSpec>col_1912_4878</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="661bc1c6-d302-461d-ae33-3005533d70d9" confidence="600">Gawarkiewicz, Glen G.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="661bc1c6-d302-461d-ae33-3005533d70d9" confidence="600">Harden, Benjamin E.</dim:field>
+        <dim:field mdschema="dc" element="coverage" qualifier="spatial">N: 41°N, S: 39.5°N, W:71.5°W, E: 70.5°W</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="accessioned">2020-01-14T18:49:54Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="available">2020-01-14T18:49:54Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2020-01-14</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/25158</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="doi">10.26025/dz4w-kk13</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en_US">CTD data from 11 WHOI-MIT Joint Program Orientation Cruises aboard the SSV Corwith Cramer. Cruises occupied standard sections to the south of Cape Cod across the New England Shelfbreak in late June between 2003 and 2013.</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Deborah Roth (droth@whoi.edu) on 2020-01-14T18:49:40Z&#13;
+No. of bitstreams: 12&#13;
+Raw_Data_C187B.tar: 8044032 bytes, checksum: 47f54b7f9fa41397121c17b26a7caf21 (MD5)&#13;
+Raw_Data_C193A.tar: 15127552 bytes, checksum: 93f096d30522bfd8d442fcb154e29a43 (MD5)&#13;
+Raw_Data_C199A.tar: 21752832 bytes, checksum: 7a88d74d21737f9ef7ba8cc0b7c7b5ee (MD5)&#13;
+Raw_Data_C205G.tar: 15144448 bytes, checksum: a281b0aee08a3c4b705c90fdb92c0cb9 (MD5)&#13;
+Raw_Data_C211A.tar: 6371328 bytes, checksum: 5b4be07e7aa3e86a8ff543d5f939b8e8 (MD5)&#13;
+Raw_Data_C218A.tar: 7212032 bytes, checksum: 125157bd69621deba00cb998318304a6 (MD5)&#13;
+Raw_Data_C223A.tar: 25344000 bytes, checksum: b1dd9e5ddd768e49fc24f358a4475466 (MD5)&#13;
+Raw_Data_C230A.tar: 10071040 bytes, checksum: da2db43c78cf6bf222dc15baa4a075c1 (MD5)&#13;
+Raw_Data_C235A.tar: 28670976 bytes, checksum: 8bf510aa652d82f78ee3976a1a9e999a (MD5)&#13;
+Raw_Data_C241A.tar: 40282112 bytes, checksum: c72cc7325ca65ffac1466408b1b32a67 (MD5)&#13;
+Raw_Data_C248B.tar: 39699968 bytes, checksum: 0cd454b028fccff1192116ccb191639b (MD5)&#13;
+README.docx: 18925 bytes, checksum: 34e261f3a35508908fa0d2adb97723ff (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Deborah Roth (droth@whoi.edu) on 2020-01-14T18:49:54Z (GMT) No. of bitstreams: 12&#13;
+Raw_Data_C187B.tar: 8044032 bytes, checksum: 47f54b7f9fa41397121c17b26a7caf21 (MD5)&#13;
+Raw_Data_C193A.tar: 15127552 bytes, checksum: 93f096d30522bfd8d442fcb154e29a43 (MD5)&#13;
+Raw_Data_C199A.tar: 21752832 bytes, checksum: 7a88d74d21737f9ef7ba8cc0b7c7b5ee (MD5)&#13;
+Raw_Data_C205G.tar: 15144448 bytes, checksum: a281b0aee08a3c4b705c90fdb92c0cb9 (MD5)&#13;
+Raw_Data_C211A.tar: 6371328 bytes, checksum: 5b4be07e7aa3e86a8ff543d5f939b8e8 (MD5)&#13;
+Raw_Data_C218A.tar: 7212032 bytes, checksum: 125157bd69621deba00cb998318304a6 (MD5)&#13;
+Raw_Data_C223A.tar: 25344000 bytes, checksum: b1dd9e5ddd768e49fc24f358a4475466 (MD5)&#13;
+Raw_Data_C230A.tar: 10071040 bytes, checksum: da2db43c78cf6bf222dc15baa4a075c1 (MD5)&#13;
+Raw_Data_C235A.tar: 28670976 bytes, checksum: 8bf510aa652d82f78ee3976a1a9e999a (MD5)&#13;
+Raw_Data_C241A.tar: 40282112 bytes, checksum: c72cc7325ca65ffac1466408b1b32a67 (MD5)&#13;
+Raw_Data_C248B.tar: 39699968 bytes, checksum: 0cd454b028fccff1192116ccb191639b (MD5)&#13;
+README.docx: 18925 bytes, checksum: 34e261f3a35508908fa0d2adb97723ff (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2020-01-14T18:49:54Z (GMT). No. of bitstreams: 12&#13;
+Raw_Data_C187B.tar: 8044032 bytes, checksum: 47f54b7f9fa41397121c17b26a7caf21 (MD5)&#13;
+Raw_Data_C193A.tar: 15127552 bytes, checksum: 93f096d30522bfd8d442fcb154e29a43 (MD5)&#13;
+Raw_Data_C199A.tar: 21752832 bytes, checksum: 7a88d74d21737f9ef7ba8cc0b7c7b5ee (MD5)&#13;
+Raw_Data_C205G.tar: 15144448 bytes, checksum: a281b0aee08a3c4b705c90fdb92c0cb9 (MD5)&#13;
+Raw_Data_C211A.tar: 6371328 bytes, checksum: 5b4be07e7aa3e86a8ff543d5f939b8e8 (MD5)&#13;
+Raw_Data_C218A.tar: 7212032 bytes, checksum: 125157bd69621deba00cb998318304a6 (MD5)&#13;
+Raw_Data_C223A.tar: 25344000 bytes, checksum: b1dd9e5ddd768e49fc24f358a4475466 (MD5)&#13;
+Raw_Data_C230A.tar: 10071040 bytes, checksum: da2db43c78cf6bf222dc15baa4a075c1 (MD5)&#13;
+Raw_Data_C235A.tar: 28670976 bytes, checksum: 8bf510aa652d82f78ee3976a1a9e999a (MD5)&#13;
+Raw_Data_C241A.tar: 40282112 bytes, checksum: c72cc7325ca65ffac1466408b1b32a67 (MD5)&#13;
+Raw_Data_C248B.tar: 39699968 bytes, checksum: 0cd454b028fccff1192116ccb191639b (MD5)&#13;
+README.docx: 18925 bytes, checksum: 34e261f3a35508908fa0d2adb97723ff (MD5)&#13;
+  Previous issue date: 2020-01-14</dim:field>
+        <dim:field mdschema="dc" element="publisher" lang="en_US">Woods Hole Oceanographic Institution</dim:field>
+        <dim:field mdschema="dc" element="title" lang="en_US">CTD data from the WHOI-MIT Joint Program Orientation Cruises aboard the SSV Corwith Cramer (2003-2013)</dim:field>
+        <dim:field mdschema="dc" element="type" lang="en_US">Dataset</dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/25192</identifier>
+      <datestamp>2020-01-17T17:15:48Z</datestamp>
+      <setSpec>com_1912_164</setSpec>
+      <setSpec>col_1912_25139</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="date" qualifier="accessioned">2020-01-17T17:15:48Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="available">2020-01-17T17:15:48Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2020-01-17</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="issn">2380-0399</dim:field>
+        <dim:field mdschema="dc" element="description" lang="en_US">Abstracts of posters presented at the conference</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Dorothy Barr (dorbarr2@gmail.com) on 2020-01-17T13:38:22Z
+No. of bitstreams: 2
+license_rdf: 805 bytes, checksum: 4460e5956bc1d1639be9ae6146a50347 (MD5)
+Posters2019.docx: 22889 bytes, checksum: 05ac2ee847325f0196b9fc91cef7d23b (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Dorothy Barr (dorbarr2@gmail.com) on 2020-01-17T17:15:48Z (GMT) No. of bitstreams: 2
+license_rdf: 805 bytes, checksum: 4460e5956bc1d1639be9ae6146a50347 (MD5)
+Posters2019.docx: 22889 bytes, checksum: 05ac2ee847325f0196b9fc91cef7d23b (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2020-01-17T17:15:48Z (GMT). No. of bitstreams: 2
+license_rdf: 805 bytes, checksum: 4460e5956bc1d1639be9ae6146a50347 (MD5)
+Posters2019.docx: 22889 bytes, checksum: 05ac2ee847325f0196b9fc91cef7d23b (MD5)</dim:field>
+        <dim:field mdschema="dc" element="rights" lang="*">Attribution-NonCommercial-NoDerivatives 4.0 International</dim:field>
+        <dim:field mdschema="dc" element="rights" qualifier="uri" lang="*">http://creativecommons.org/licenses/by-nc-nd/4.0/</dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en_US">Libraries, institutional repositories, digitization projects, story map, oral histories, research metrics, citstion tracking, climate drisis, information literacy</dim:field>
+        <dim:field mdschema="dc" element="title" lang="en_US">Posters</dim:field>
+        <dim:field mdschema="dc" element="type" lang="en_US">Article</dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+</records>

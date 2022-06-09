@@ -4,5 +4,12 @@ SOURCES = {
         "name": "Abdul Latif Jameel Poverty Action Lab Dataverse",
         "base_url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
     },
-    "zenodo": {"name": "Zenodo", "base_url": "https://zenodo.org/record/"},
+    "whoas": {
+        "name": "Woods Hole Open Access Server",
+        "base_url": "https://darchive.mblwhoilibrary.org/handle/",
+    },
+    "zenodo": {
+        "name": "Zenodo",
+        "base_url": "https://zenodo.org/record/",
+    },
 }

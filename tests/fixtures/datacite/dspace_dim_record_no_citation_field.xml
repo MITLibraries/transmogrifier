@@ -1,0 +1,32 @@
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/2641</identifier>
+      <datestamp>2020-01-28T19:30:01Z</datestamp>
+      <setSpec>com_1912_3</setSpec>
+      <setSpec>col_1912_534</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="creator" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">Jamerson, James</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="accessioned">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="available">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Ann Devenish (adevenish@whoi.edu) on 2009-01-08T16:23:47Z&#13;
+No. of bitstreams: 2&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Ann Devenish(adevenish@whoi.edu) on 2009-01-08T16:24:36Z (GMT) No. of bitstreams: 2&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2009-01-08T16:24:37Z (GMT). No. of bitstreams: 2&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)&#13;
+  Previous issue date: 2002-11</dim:field>
+        <dim:field mdschema="dc" element="publisher" lang="en_US">Woods Hole Oceanographic Institution</dim:field>
+        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis I in a living spermatocyte from the crane fly, Nephrotoma suturalis, viewed with polarized light microscopy</dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+</records>
