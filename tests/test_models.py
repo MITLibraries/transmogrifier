@@ -6,6 +6,7 @@ from transmogrifier.models import (
     Date,
     Date_Range,
     Identifier,
+    Link,
     Note,
     Subject,
 )
@@ -17,17 +18,25 @@ def test_timdex_record_required_fields_only(timdex_record_required_fields):
     assert timdex_record_required_fields.timdex_record_id == "cool-repo:123"
     assert timdex_record_required_fields.title == "Some Data About Trees"
     assert timdex_record_required_fields.alternate_titles is None
+    assert timdex_record_required_fields.call_numbers is None
     assert timdex_record_required_fields.content_type is None
+    assert timdex_record_required_fields.contents is None
     assert timdex_record_required_fields.contributors is None
     assert timdex_record_required_fields.dates is None
     assert timdex_record_required_fields.edition is None
     assert timdex_record_required_fields.file_formats is None
     assert timdex_record_required_fields.format is None
     assert timdex_record_required_fields.funding_information is None
+    assert timdex_record_required_fields.holdings is None
     assert timdex_record_required_fields.identifiers is None
     assert timdex_record_required_fields.languages is None
+    assert timdex_record_required_fields.links is None
+    assert timdex_record_required_fields.literary_form is None
     assert timdex_record_required_fields.locations is None
     assert timdex_record_required_fields.notes is None
+    assert timdex_record_required_fields.numbering is None
+    assert timdex_record_required_fields.publication_frequency is None
+    assert timdex_record_required_fields.physical_description is None
     assert timdex_record_required_fields.publication_information is None
     assert timdex_record_required_fields.related_items is None
     assert timdex_record_required_fields.rights is None
@@ -38,6 +47,9 @@ def test_timdex_record_required_fields_only(timdex_record_required_fields):
 def test_timdex_record_required_subfields_only(timdex_record_required_fields):
     timdex_record_required_fields.contributors = [Contributor(value="Smith, Jane")]
     timdex_record_required_fields.identifiers = [Identifier(value="123")]
+    timdex_record_required_fields.links = [
+        Link(url="http://dx.doi.org/10.1007/978-94-017-0726-8")
+    ]
     timdex_record_required_fields.notes = [Note(value=["This book is awesome"])]
     timdex_record_required_fields.alternate_titles = [AlternateTitle(value="Alt Title")]
     timdex_record_required_fields.subjects = [Subject(value=["Stuff"])]
@@ -46,17 +58,28 @@ def test_timdex_record_required_subfields_only(timdex_record_required_fields):
     assert timdex_record_required_fields.timdex_record_id == "cool-repo:123"
     assert timdex_record_required_fields.title == "Some Data About Trees"
     assert timdex_record_required_fields.alternate_titles[0].value == "Alt Title"
+    assert timdex_record_required_fields.call_numbers is None
     assert timdex_record_required_fields.content_type is None
+    assert timdex_record_required_fields.contents is None
     assert timdex_record_required_fields.contributors[0].value == "Smith, Jane"
     assert timdex_record_required_fields.dates is None
     assert timdex_record_required_fields.edition is None
     assert timdex_record_required_fields.file_formats is None
     assert timdex_record_required_fields.format is None
     assert timdex_record_required_fields.funding_information is None
+    assert timdex_record_required_fields.holdings is None
     assert timdex_record_required_fields.identifiers[0].value == "123"
     assert timdex_record_required_fields.languages is None
+    assert (
+        timdex_record_required_fields.links[0].url
+        == "http://dx.doi.org/10.1007/978-94-017-0726-8"
+    )
+    assert timdex_record_required_fields.literary_form is None
     assert timdex_record_required_fields.locations is None
     assert timdex_record_required_fields.notes[0].value == ["This book is awesome"]
+    assert timdex_record_required_fields.numbering is None
+    assert timdex_record_required_fields.physical_description is None
+    assert timdex_record_required_fields.publication_frequency is None
     assert timdex_record_required_fields.publication_information is None
     assert timdex_record_required_fields.rights is None
     assert timdex_record_required_fields.subjects[0].value == ["Stuff"]
@@ -80,7 +103,9 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
     assert (
         timdex_record_all_fields_and_subfields.alternate_titles[0].kind == "alternative"
     )
+    assert timdex_record_all_fields_and_subfields.call_numbers == ["QC173.59.S65"]
     assert timdex_record_all_fields_and_subfields.content_type == ["dataset"]
+    assert timdex_record_all_fields_and_subfields.contents == ["Chapter 1, Chapter 2"]
     assert timdex_record_all_fields_and_subfields.contributors[0].value == "Smith, Jane"
     assert timdex_record_all_fields_and_subfields.contributors[0].affiliation == ["MIT"]
     assert timdex_record_all_fields_and_subfields.contributors[0].identifier == [
@@ -122,9 +147,32 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
         timdex_record_all_fields_and_subfields.funding_information[0].award_uri
         == "http://awards.example/7689"
     )
+    assert (
+        timdex_record_all_fields_and_subfields.holdings[0].call_number == "QC173.59.S65"
+    )
+    assert timdex_record_all_fields_and_subfields.holdings[0].collection == "Stacks"
+    assert timdex_record_all_fields_and_subfields.holdings[0].format == "Print volume"
+    assert (
+        timdex_record_all_fields_and_subfields.holdings[0].location == "Hayden Library"
+    )
+    assert timdex_record_all_fields_and_subfields.holdings[0].note == "Holdings note"
     assert timdex_record_all_fields_and_subfields.identifiers[0].value == "123"
     assert timdex_record_all_fields_and_subfields.identifiers[0].kind == "doi"
     assert timdex_record_all_fields_and_subfields.languages == ["en_US"]
+    assert timdex_record_all_fields_and_subfields.links[0].kind == "SpringerLink"
+    assert (
+        timdex_record_all_fields_and_subfields.links[0].restrictions
+        == "Touchstone authentication required for access"
+    )
+    assert (
+        timdex_record_all_fields_and_subfields.links[0].text
+        == "Direct access via SpringerLink"
+    )
+    assert (
+        timdex_record_all_fields_and_subfields.links[0].url
+        == "http://dx.doi.org/10.1007/978-94-017-0726-8"
+    )
+    assert timdex_record_all_fields_and_subfields.literary_form == "nonfiction"
     assert (
         timdex_record_all_fields_and_subfields.locations[0].value
         == "A point on the globe"
@@ -141,6 +189,17 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
         "This book is awesome"
     ]
     assert timdex_record_all_fields_and_subfields.notes[0].kind == "opinion"
+    assert (
+        timdex_record_all_fields_and_subfields.numbering
+        == "Began with v. 32, issue 1 (Jan./June 2005)."
+    )
+    assert (
+        timdex_record_all_fields_and_subfields.physical_description
+        == "1 online resource (1 sound file)"
+    )
+    assert timdex_record_all_fields_and_subfields.publication_frequency == [
+        "Semiannual"
+    ]
     assert timdex_record_all_fields_and_subfields.publication_information == [
         "Version 1.0"
     ]
@@ -193,6 +252,8 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
         "title": "Some Data About Trees",
         "alternate_titles": [{"kind": "alternative", "value": "Alt title"}],
         "content_type": ["dataset"],
+        "call_numbers": ["QC173.59.S65"],
+        "contents": ["Chapter 1, Chapter 2"],
         "contributors": [
             {
                 "affiliation": ["MIT"],
@@ -222,8 +283,26 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
                 "funder_name": "Funding Foundation",
             }
         ],
+        "holdings": [
+            {
+                "call_number": "QC173.59.S65",
+                "collection": "Stacks",
+                "format": "Print volume",
+                "location": "Hayden Library",
+                "note": "Holdings note",
+            }
+        ],
         "identifiers": [{"value": "123", "kind": "doi"}],
         "languages": ["en_US"],
+        "links": [
+            {
+                "kind": "SpringerLink",
+                "restrictions": "Touchstone authentication required for access",
+                "text": "Direct access via SpringerLink",
+                "url": "http://dx.doi.org/10.1007/978-94-017-0726-8",
+            }
+        ],
+        "literary_form": "nonfiction",
         "locations": [
             {
                 "geodata": [-77.025955, 38.942142],
@@ -237,6 +316,9 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
                 "value": ["This book is awesome"],
             }
         ],
+        "numbering": "Began with v. 32, issue 1 (Jan./June 2005).",
+        "physical_description": "1 online resource (1 sound file)",
+        "publication_frequency": ["Semiannual"],
         "publication_information": ["Version 1.0"],
         "related_items": [
             {

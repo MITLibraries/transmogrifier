@@ -93,9 +93,32 @@ class Funder:
 
 
 @define
+class Holding:
+    call_number: Optional[str] = field(
+        default=None, validator=optional(instance_of(str))
+    )
+    collection: Optional[str] = field(
+        default=None, validator=optional(instance_of(str))
+    )
+    format: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    location: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    note: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+
+
+@define
 class Identifier:
     value: str = field(validator=instance_of(str))  # Required subfield
     kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+
+
+@define
+class Link:
+    url: str = field(validator=instance_of(str))  # Required subfield
+    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    restrictions: Optional[str] = field(
+        default=None, validator=optional(instance_of(str))
+    )
+    text: Optional[str] = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
@@ -152,8 +175,14 @@ class TimdexRecord:
     alternate_titles: Optional[list[AlternateTitle]] = field(
         default=None, validator=optional(list_of(AlternateTitle))
     )
+    call_numbers: Optional[list[str]] = field(
+        default=None, validator=optional(list_of(str))
+    )
     citation: Optional[str] = field(default=None, validator=optional(instance_of(str)))
     content_type: Optional[list[str]] = field(
+        default=None, validator=optional(list_of(str))
+    )
+    contents: Optional[list[str]] = field(
         default=None, validator=optional(list_of(str))
     )
     contributors: Optional[list[Contributor]] = field(
@@ -168,16 +197,30 @@ class TimdexRecord:
     funding_information: Optional[list[Funder]] = field(
         default=None, validator=optional(list_of(Funder))
     )
+    holdings: Optional[list[Holding]] = field(
+        default=None, validator=optional(list_of(Holding))
+    )
     identifiers: Optional[list[Identifier]] = field(
         default=None, validator=optional(list_of(Identifier))
     )
     languages: Optional[list[str]] = field(
         default=None, validator=optional(list_of(str))
     )
+    links: Optional[list[Link]] = field(default=None, validator=optional(list_of(Link)))
+    literary_form: Optional[str] = field(
+        default=None, validator=optional(instance_of(str))
+    )
     locations: Optional[list[Location]] = field(
         default=None, validator=optional(list_of(Location))
     )
     notes: Optional[list[Note]] = field(default=None, validator=optional(list_of(Note)))
+    numbering: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    physical_description: Optional[str] = field(
+        default=None, validator=optional(instance_of(str))
+    )
+    publication_frequency: Optional[list[str]] = field(
+        default=None, validator=optional(list_of(str))
+    )
     publication_information: Optional[list[str]] = field(
         default=None, validator=optional(list_of(str))
     )
