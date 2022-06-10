@@ -7,6 +7,7 @@ import sentry_sdk
 from transmogrifier.config import SOURCES
 from transmogrifier.helpers import parse_xml_records, write_timdex_records_to_json
 from transmogrifier.sources.datacite import Datacite
+from transmogrifier.sources.dspace_mets import DspaceMets
 from transmogrifier.sources.zenodo import Zenodo
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
     "-s",
     "--source",
     required=True,
-    type=click.Choice(["jpal", "zenodo"], case_sensitive=False),
+    type=click.Choice(["dspace", "jpal", "zenodo"], case_sensitive=False),
     help="Source records were harvested from, must choose from list of options",
 )
 @click.option(
@@ -37,8 +38,11 @@ logger = logging.getLogger(__name__)
 )
 def main(source, input_file, output_file, verbose):
     env = os.getenv("WORKSPACE")
+    root_logger = logging.getLogger()
     if verbose:
-        logger.setLevel(logging.DEBUG)
+        root_logger.setLevel(logging.DEBUG)
+    else:
+        root_logger.setLevel(logging.INFO)
     logger.info(
         "Running transmogrifier with env=%s and log level=%s,",
         env,
@@ -50,7 +54,12 @@ def main(source, input_file, output_file, verbose):
             "Sentry DSN found, exceptions will be sent to Sentry with env=%s", env
         )
     logger.info("Running transform for source %s", source)
-    if source == "jpal":
+    if source == "dspace":
+        input_records = parse_xml_records(input_file)
+        output_records = DspaceMets(
+            source, SOURCES[source]["base_url"], SOURCES[source]["name"], input_records
+        )
+    elif source == "jpal":
         input_records = parse_xml_records(input_file)
         output_records = Datacite(
             source,
