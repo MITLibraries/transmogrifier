@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+        <identifier>oai:dspace.mit.edu:1721.1/142832</identifier>
+        <datestamp>2022-06-01T03:46:27Z</datestamp>
+        <setSpec>com_1721.1_7582</setSpec>
+        <setSpec>hdl_1721.1_7582</setSpec>
+        <setSpec>com_1721.1_7581</setSpec>
+        <setSpec>hdl_1721.1_7581</setSpec>
+        <setSpec>col_1721.1_131023</setSpec>
+        <setSpec>hdl_1721.1_131023</setSpec>
+    </header>
+    <metadata>
+        <mets xmlns="http://www.loc.gov/METS/"
+            xmlns:doc="http://www.lyncode.com/xoai"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd" PROFILE="DSpace METS SIP Profile 1.0" TYPE="DSpace ITEM" ID="&#10;&#9;&#9;&#9;&#9;DSpace_ITEM_1721.1-142832" OBJID="&#10;&#9;&#9;&#9;&#9;hdl:1721.1/142832">
+            <metsHdr CREATEDATE="2022-06-06T14:02:17Z">
+                <agent TYPE="ORGANIZATION" ROLE="CUSTODIAN">
+                    <name>mit-6</name>
+                </agent>
+            </metsHdr>
+            <dmdSec ID="DMD_1721.1_142832">
+                <mdWrap MDTYPE="MODS">
+                    <xmlData xmlns:mods="http://www.loc.gov/mods/v3" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
+                        <mods:mods xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
+                            <mods:titleInfo>
+                                <mods:title></mods:title>
+                            </mods:titleInfo>
+                        </mods:mods>
+                    </xmlData>
+                </mdWrap>
+            </dmdSec>
+            <amdSec ID="FO_1721.1_142832_1">
+                <techMD ID="TECH_O_1721.1_142832_1">
+                    <mdWrap MDTYPE="PREMIS">
+                        <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd">
+                            <premis:premis>
+                                <premis:object>
+                                    <premis:objectIdentifier>
+                                        <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+                                        <premis:objectIdentifierValue>https://dspace.mit.edu/bitstream/1721.1/142832/1/tatsumi-yukit-sm-physisc-2021-thesis.pdf</premis:objectIdentifierValue>
+                                    </premis:objectIdentifier>
+                                    <premis:objectCategory>File</premis:objectCategory>
+                                    <premis:objectCharacteristics>
+                                        <premis:fixity>
+                                            <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+                                            <premis:messageDigest>3a06f8863f4dfb2f1ab22607007c34e7</premis:messageDigest>
+                                        </premis:fixity>
+                                        <premis:size>12351827</premis:size>
+                                        <premis:format>
+                                            <premis:formatDesignation>
+                                                <premis:formatName>application/pdf</premis:formatName>
+                                            </premis:formatDesignation>
+                                        </premis:format>
+                                    </premis:objectCharacteristics>
+                                    <premis:originalName>tatsumi-yukit-sm-physisc-2021-thesis.pdf</premis:originalName>
+                                </premis:object>
+                            </premis:premis>
+                        </xmlData>
+                    </mdWrap>
+                </techMD>
+            </amdSec>
+            <amdSec ID="FT_1721.1_142832_2">
+                <techMD ID="TECH_T_1721.1_142832_2">
+                    <mdWrap MDTYPE="PREMIS">
+                        <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd">
+                            <premis:premis>
+                                <premis:object>
+                                    <premis:objectIdentifier>
+                                        <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+                                        <premis:objectIdentifierValue>https://dspace.mit.edu/bitstream/1721.1/142832/2/tatsumi-yukit-sm-physisc-2021-thesis.pdf.txt</premis:objectIdentifierValue>
+                                    </premis:objectIdentifier>
+                                    <premis:objectCategory>File</premis:objectCategory>
+                                    <premis:objectCharacteristics>
+                                        <premis:fixity>
+                                            <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+                                            <premis:messageDigest>588f139172959b8eee0a67e406ef4016</premis:messageDigest>
+                                        </premis:fixity>
+                                        <premis:size>76618</premis:size>
+                                        <premis:format>
+                                            <premis:formatDesignation>
+                                                <premis:formatName>text/plain</premis:formatName>
+                                            </premis:formatDesignation>
+                                        </premis:format>
+                                    </premis:objectCharacteristics>
+                                    <premis:originalName>tatsumi-yukit-sm-physisc-2021-thesis.pdf.txt</premis:originalName>
+                                </premis:object>
+                            </premis:premis>
+                        </xmlData>
+                    </mdWrap>
+                </techMD>
+            </amdSec>
+            <fileSec>
+                <fileGrp USE="TEXT">
+                    <file ID="BITSTREAM_TEXT_1721.1_142832_2" MIMETYPE="text/plain" SEQ="2" SIZE="76618" CHECKSUM="588f139172959b8eee0a67e406ef4016" CHECKSUMTYPE="MD5" ADMID="FT_1721.1_142832_2" GROUPID="GROUP_BITSTREAM_1721.1_142832_2">
+                        <FLocat xlink:type="simple" LOCTYPE="URL" xlink:href="https://dspace.mit.edu/bitstream/1721.1/142832/2/tatsumi-yukit-sm-physisc-2021-thesis.pdf.txt"/>
+                    </file>
+                </fileGrp>
+            </fileSec>
+            <structMap TYPE="LOGICAL" LABEL="DSpace Object">
+                <div TYPE="DSpace Object Contents" ADMID="DMD_1721.1_142832">
+                    <div TYPE="DSpace BITSTREAM">
+                        <fptr FILEID="BITSTREAM_ORIGINAL_1721.1_142832_1"/>
+                    </div>
+                </div>
+            </structMap>
+        </mets>
+    </metadata>
+</record>
