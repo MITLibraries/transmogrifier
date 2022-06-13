@@ -41,7 +41,7 @@ def test_dspace_dim_record_all_fields(
             "Nephrotoma suturalis, viewed with polarized light microscopy"
         ),
         alternate_titles=[
-            AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
+            AlternateTitle(value="An Alternative Title", kind="alternative"),
         ],
         contributors=[
             Contributor(
@@ -163,6 +163,45 @@ def test_dspace_dim_record_all_fields(
                 "cytokinesis following meiosis I."
             )
         ],
+    )
+
+
+def test_dspace_dim_record_optional_fields_blank_transforms_correctly(
+    dspace_dim_record_partial, dspace_dim_record_optional_fields_blank
+):
+    output_records = dspace_dim_record_partial(
+        input_records=dspace_dim_record_optional_fields_blank
+    )
+    assert next(output_records) == TimdexRecord(
+        source="A Cool Repository",
+        source_link="https://example.com/oai:darchive.mblwhoilibrary.org:1912/2641",
+        timdex_record_id="cool-repo:oai:darchive.mblwhoilibrary.org:1912-2641",
+        title=(
+            "Time lapse movie of meiosis I in a living spermatocyte from the crane "
+            "fly, Nephrotoma suturalis, viewed with polarized light microscopy"
+        ),
+        alternate_titles=None,
+        citation=(
+            "(2002-11): Time lapse movie of meiosis I in a living spermatocyte from "
+            "the crane fly, Nephrotoma suturalis, viewed with polarized light microscopy."
+            " https://example.com/oai:darchive.mblwhoilibrary.org:1912/2641"
+        ),
+        content_type=None,
+        contributors=None,
+        dates=[Date(kind="issued", note=None, range=None, value="2002-11")],
+        edition=None,
+        file_formats=None,
+        format="electronic resource",
+        funding_information=None,
+        identifiers=[Identifier(value="https://hdl.handle.net/1912/2641", kind="uri")],
+        languages=None,
+        locations=None,
+        notes=None,
+        publication_information=None,
+        related_items=None,
+        rights=None,
+        subjects=None,
+        summary=None,
     )
 
 

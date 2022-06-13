@@ -83,6 +83,13 @@ def dspace_dim_record_all_fields():
 
 
 @pytest.fixture()
+def dspace_dim_record_optional_fields_blank():
+    return parse_xml_records(
+        "tests/fixtures/datacite/dspace_dim_record_optional_fields_blank.xml"
+    )
+
+
+@pytest.fixture()
 def dspace_dim_record_multiple_titles():
     return parse_xml_records(
         "tests/fixtures/datacite/dspace_dim_record_multiple_titles.xml"

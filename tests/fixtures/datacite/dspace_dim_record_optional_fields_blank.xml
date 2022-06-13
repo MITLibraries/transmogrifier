@@ -1,0 +1,40 @@
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/2641</identifier>
+      <datestamp>2020-01-28T19:30:01Z</datestamp>
+      <setSpec>com_1912_3</setSpec>
+      <setSpec>col_1912_534</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600"></dim:field>
+        <dim:field mdschema="dc" element="creator" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600"></dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="citation"></dim:field>
+        <dim:field mdschema="dc" element="description" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="embargo" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="sponsorship" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="format" qualifier="mimetype"></dim:field>
+        <dim:field mdschema="dc" element="language" qualifier="iso" lang="en_US"></dim:field>
+        <dim:field mdschema="dc" element="publisher" lang="en_US"></dim:field>
+        <dim:field mdschema="dc" element="relation"></dim:field>
+        <dim:field mdschema="dc" element="relation" qualifier="ispartofseries" lang="en_US"></dim:field>
+        <dim:field mdschema="dc" element="relation" qualifier="uri"></dim:field>
+        <dim:field mdschema="dc" element="rights" lang="*"></dim:field>
+        <dim:field mdschema="dc" element="rights" qualifier="uri" lang="*"></dim:field>
+        <dim:field mdschema="dc" element="rights" qualifier="license" lang="*"></dim:field>
+        <dim:field mdschema="dc" element="subject" qualifier="lcsh" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="subject" qualifier="lcsh" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="subject" qualifier="lcsh" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="subject" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis I in a living spermatocyte from the crane fly, Nephrotoma suturalis, viewed with polarized light microscopy</dim:field>
+        <dim:field mdschema="dc" element="title" qualifier="alternative" lang="en"></dim:field>
+        <dim:field mdschema="dc" element="type" lang="en"></dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+</records>
