@@ -4,6 +4,11 @@ from typing import Iterator
 
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
+
+# Note: the lxml module in defusedxml is deprecated, so we have to use the
+# regular lxml library. Transmogrifier only parses data from known sources so this
+# should not be a security issue.
+from lxml import etree  # nosec B410
 from smart_open import open
 
 from transmogrifier.models import TimdexRecord
@@ -62,23 +67,29 @@ def generate_citation(extracted_data: dict) -> str:
 
 
 def parse_xml_records(input_file_path: str) -> Iterator[Tag]:
-    with open(input_file_path, "r") as file:
-        soup = BeautifulSoup(file, "xml")
-        record = soup.record
-        if record is None:
-            raise ValueError("No records found in input file")
-        yield record
-        for record in record.find_next_siblings("record"):
+    with open(input_file_path, "rb") as file:
+        for _, element in etree.iterparse(
+            file,
+            tag="{http://www.openarchives.org/OAI/2.0/}record",
+            encoding="utf-8",
+            recover=True,
+        ):
+            record_string = etree.tostring(element, encoding="utf-8")
+            record = BeautifulSoup(record_string, "xml")
             yield record
+            element.clear()
 
 
 def write_timdex_records_to_json(
     records: Iterator[TimdexRecord], output_file_path: str
 ) -> int:
     count = 0
+    try:
+        record = next(records)
+    except StopIteration as error:
+        raise ValueError("No records transformed from input file") from error
     with open(output_file_path, "w") as file:
         file.write("[\n")
-        record = next(records)
         while record:
             file.write(
                 json.dumps(
