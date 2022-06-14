@@ -70,7 +70,7 @@ def main(source, input_file, output_file, verbose):
         )
     elif source == "whoas":
         input_records = parse_xml_records(input_file)
-        output_records = DSpace_dim(
+        output_records = DSpaceDim(
             source,
             SOURCES[source]["base_url"],
             SOURCES[source]["name"],

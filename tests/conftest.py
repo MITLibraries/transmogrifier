@@ -21,7 +21,7 @@ from transmogrifier.models import (
     TimdexRecord,
 )
 from transmogrifier.sources.datacite import Datacite
-from transmogrifier.sources.dspace_dim import DSpace_dim
+from transmogrifier.sources.dspace_dim import DSpaceDim
 
 
 @pytest.fixture()
@@ -79,46 +79,44 @@ def datacite_record_partial():
 
 @pytest.fixture()
 def dspace_dim_record_all_fields():
-    return parse_xml_records("tests/fixtures/datacite/dspace_dim_record_all_fields.xml")
+    return parse_xml_records("tests/fixtures/dspace/dspace_dim_record_all_fields.xml")
 
 
 @pytest.fixture()
 def dspace_dim_record_optional_fields_blank():
     return parse_xml_records(
-        "tests/fixtures/datacite/dspace_dim_record_optional_fields_blank.xml"
+        "tests/fixtures/dspace/dspace_dim_record_optional_fields_blank.xml"
     )
+
+
+@pytest.fixture()
+def dspace_dim_record_blank_title():
+    return parse_xml_records("tests/fixtures/dspace/dspace_dim_record_blank_title.xml")
 
 
 @pytest.fixture()
 def dspace_dim_record_multiple_titles():
     return parse_xml_records(
-        "tests/fixtures/datacite/dspace_dim_record_multiple_titles.xml"
+        "tests/fixtures/dspace/dspace_dim_record_multiple_titles.xml"
     )
 
 
 @pytest.fixture()
 def dspace_dim_record_no_citation_field():
     return parse_xml_records(
-        "tests/fixtures/datacite/dspace_dim_record_no_citation_field.xml"
+        "tests/fixtures/dspace/dspace_dim_record_no_citation_field.xml"
     )
 
 
 @pytest.fixture()
 def dspace_dim_record_no_title():
-    return parse_xml_records("tests/fixtures/datacite/dspace_dim_record_no_title.xml")
-
-
-@pytest.fixture()
-def dspace_dim_record_unqualified_identifier():
-    return parse_xml_records(
-        "tests/fixtures/datacite/dspace_dim_record_unqualified_identifier.xml"
-    )
+    return parse_xml_records("tests/fixtures/dspace/dspace_dim_record_no_title.xml")
 
 
 @pytest.fixture()
 def dspace_dim_record_partial():
     return partial(
-        DSpace_dim,
+        DSpaceDim,
         source="cool-repo",
         source_name="A Cool Repository",
         source_base_url="https://example.com/",
@@ -127,7 +125,7 @@ def dspace_dim_record_partial():
 
 @pytest.fixture()
 def dspace_dim_records():
-    return parse_xml_records("tests/fixtures/datacite/dspace_dim_records.xml")
+    return parse_xml_records("tests/fixtures/dspace/dspace_dim_records.xml")
 
 
 @pytest.fixture()

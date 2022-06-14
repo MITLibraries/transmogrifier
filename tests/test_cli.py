@@ -71,7 +71,7 @@ def test_cli_whoas(caplog, monkeypatch, runner, tmp_path):
             main,
             [
                 "-i",
-                "tests/fixtures/datacite/dspace_dim_records.xml",
+                "tests/fixtures/dspace/dspace_dim_records.xml",
                 "-o",
                 outfile,
                 "-s",

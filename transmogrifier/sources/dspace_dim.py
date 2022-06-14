@@ -3,12 +3,16 @@ from typing import Dict, Iterator, List
 
 from bs4 import Tag
 
+from transmogrifier.helpers import generate_citation
 from transmogrifier.models import (
     AlternateTitle,
     Contributor,
     Date,
+    Date_Range,
     Funder,
     Identifier,
+    Link,
+    Location,
     Note,
     RelatedItem,
     Rights,
@@ -58,13 +62,20 @@ class DSpaceDim:
             dim XML.
         """
         # Required fields in TIMDEX
-        source_record_id = xml.header.find("identifier").string
+        source_record_id = xml.header.find("identifier").string.replace(
+            "oai:darchive.mblwhoilibrary.org:", ""
+        )
         all_titles = xml.find_all("dim:field", element="title")
         main_title = [t for t in all_titles if "qualifier" not in t.attrs]
         if len(main_title) != 1:
             raise ValueError(
                 "A record must have exactly one title. Titles found for record "
                 f"{source_record_id}: {main_title}"
+            )
+        if not main_title[0].string:
+            raise ValueError(
+                f"Title field cannot be empty, record {source_record_id} had title "
+                f"field value of '{main_title[0]}'"
             )
         kwargs = {
             "source": source_name,
@@ -78,11 +89,30 @@ class DSpaceDim:
         for alternate_title in [
             t for t in all_titles if "qualifier" in t.attrs and t.string
         ]:
-            a = AlternateTitle(
-                value=alternate_title.string,
-                kind=alternate_title.get("qualifier"),
+            kwargs.setdefault("alternate_titles", []).append(
+                AlternateTitle(
+                    value=alternate_title.string,
+                    kind=alternate_title.get("qualifier"),
+                )
             )
-            kwargs.setdefault("alternate_titles", []).append(a)
+
+        # citation
+        citation = xml.find("dim:field", element="identifier", qualifier="citation")
+        kwargs["citation"] = citation.string if citation and citation.string else None
+
+        # content_type
+        kwargs["content_type"] = [
+            t.string for t in xml.find_all("dim:field", element="type") if t.string
+        ] or None
+
+        # contents
+        kwargs["contents"] = [
+            t.string
+            for t in xml.find_all(
+                "dim:field", element="description", qualifier="tableofcontents"
+            )
+            if t.string
+        ] or None
 
         # contributors
         citation_creators = []
@@ -90,37 +120,53 @@ class DSpaceDim:
             c for c in xml.find_all("dim:field", element="creator") if c.string
         ]:
             citation_creators.append(creator.string)
-            c = Contributor(
-                value=creator.string,
-                kind="Creator",
+            kwargs.setdefault("contributors", []).append(
+                Contributor(
+                    value=creator.string,
+                    kind="Creator",
+                )
             )
-            kwargs.setdefault("contributors", []).append(c)
 
         for contributor in [
             c for c in xml.find_all("dim:field", element="contributor") if c.string
         ]:
             if contributor.get("qualifier") == "author":
                 citation_creators.append(contributor.string)
-            c = Contributor(value=contributor.string, kind=contributor.get("qualifier"))
-            kwargs.setdefault("contributors", []).append(c)
+            kwargs.setdefault("contributors", []).append(
+                Contributor(value=contributor.string, kind=contributor.get("qualifier"))
+            )
 
         # dates
-        date_issued = ""
         for date in [d for d in xml.find_all("dim:field", element="date") if d.string]:
-            d = Date(value=date.string, kind=date.get("qualifier"))
             if date.get("qualifier") == "issued":
-                date_issued = date.string
+                d = Date(value=date.string, kind="Publication")
+            else:
+                d = Date(value=date.string, kind=date.get("qualifier"))
+            kwargs.setdefault("dates", []).append(d)
+
+        for coverage in [
+            c.string
+            for c in xml.find_all("dim:field", element="coverage", qualifier="temporal")
+            if c.string
+        ]:
+            if "/" in coverage:
+                d = Date(
+                    range=Date_Range(
+                        gte=coverage.string[: coverage.string.index("/")],
+                        lte=coverage.string[coverage.string.index("/") + 1 :],
+                    ),
+                    kind="coverage",
+                )
+            else:
+                d = Date(value=coverage.string, kind="coverage")
             kwargs.setdefault("dates", []).append(d)
 
         # file_formats
-        for file_format in [
-            f
+        kwargs["file_formats"] = [
+            f.string
             for f in xml.find_all("dim:field", element="format")
-            if "qualifier" in f.attrs
-            and f.attrs["qualifier"] == "mimetype"
-            and f.string
-        ]:
-            kwargs.setdefault("file_formats", []).append(file_format.string)
+            if f.get("qualifier") == "mimetype" and f.string
+        ] or None
 
         # format
         kwargs["format"] = "electronic resource"
@@ -128,32 +174,54 @@ class DSpaceDim:
         # funding_information
         for funding_reference in [
             f
-            for f in xml.find_all("dim:field", element="description")
-            if "qualifier" in f.attrs
-            and f.attrs["qualifier"] == "sponsorship"
-            and f.string
-        ]:
-            fr = Funder(
-                funder_name=funding_reference.string,
+            for f in xml.find_all(
+                "dim:field", element="description", qualifier="sponsorship"
             )
-            kwargs.setdefault("funding_information", []).append(fr)
+            if f.string
+        ]:
+            kwargs.setdefault("funding_information", []).append(
+                Funder(
+                    funder_name=funding_reference.string,
+                )
+            )
 
         # identifiers
         identifiers = xml.find_all("dim:field", element="identifier")
         for identifier in [
             i for i in identifiers if i.get("qualifier") != "citation" and i.string
         ]:
-            i = Identifier(
-                value=identifier.string,
-                kind=identifier.get("qualifier"),
+            kwargs.setdefault("identifiers", []).append(
+                Identifier(
+                    value=identifier.string,
+                    kind=identifier.get("qualifier"),
+                )
             )
-            kwargs.setdefault("identifiers", []).append(i)
 
         # language
-        for language in [
-            la for la in xml.find_all("dim:field", element="language") if la.string
-        ]:
-            kwargs.setdefault("languages", []).append(language.string)
+        kwargs["languages"] = [
+            la.string
+            for la in xml.find_all("dim:field", element="language")
+            if la.string
+        ] or None
+
+        # links, uses identifiers list retrieved for identifiers field
+        kwargs["links"] = [
+            Link(
+                kind="Digital object URL",
+                text="Digital object URL",
+                url=identifier.string,
+            )
+            for identifier in [
+                i for i in identifiers if i.get("qualifier") == "uri" and i.string
+            ]
+        ] or None
+
+        # locations
+        kwargs["locations"] = [
+            Location(value=lo.string)
+            for lo in xml.find_all("dim:field", element="coverage", qualifier="spatial")
+            if lo.string
+        ] or None
 
         # notes
         descriptions = xml.find_all("dim:field", element="description")
@@ -165,19 +233,20 @@ class DSpaceDim:
                 "abstract",
                 "provenance",
                 "sponsorship",
+                "tableofcontents",
             ]
             and d.string
         ]:
-            n = Note(value=[description.string], kind=description.get("qualifier"))
-            kwargs.setdefault("notes", []).append(n)
+            kwargs.setdefault("notes", []).append(
+                Note(value=[description.string], kind=description.get("qualifier"))
+            )
 
         # publication_information
-        for publisher in [
-            p for p in xml.find_all("dim:field", element="publisher") if p.string
-        ]:
-            kwargs.setdefault("publication_information", []).append(publisher.string)
+        kwargs["publication_information"] = [
+            p.string for p in xml.find_all("dim:field", element="publisher") if p.string
+        ] or None
 
-        # related_items, uses related_identifiers retrieved for identifiers
+        # related_items
         for related_item in [
             r for r in xml.find_all("dim:field", element="relation") if r.string
         ]:
@@ -223,21 +292,7 @@ class DSpaceDim:
         ]:
             kwargs.setdefault("summary", []).append(description.string)
 
-        # citation, uses identifiers list retrieved for identifiers field
-        citation = ""
-        for identifier in [
-            i for i in identifiers if i.get("qualifier") == "citation" and i.string
-        ]:
-            citation = identifier.string
-        if citation == "":
-            if citation_creators:
-                citation += f"{'; '.join(citation_creators)} "
-            if date_issued:
-                citation += f"({date_issued}): "
-            citation += f"{main_title[0].string}. "
-            if "publication_information" in kwargs:
-                citation += f"{kwargs['publication_information'][0]}. "
-            citation += kwargs["source_link"]
-        kwargs["citation"] = citation
+        if kwargs.get("citation") is None:
+            kwargs["citation"] = generate_citation(kwargs)
 
         return TimdexRecord(**kwargs)
