@@ -115,11 +115,9 @@ class DSpaceDim:
         ] or None
 
         # contributors
-        citation_creators = []
         for creator in [
             c for c in xml.find_all("dim:field", element="creator") if c.string
         ]:
-            citation_creators.append(creator.string)
             kwargs.setdefault("contributors", []).append(
                 Contributor(
                     value=creator.string,
@@ -130,8 +128,6 @@ class DSpaceDim:
         for contributor in [
             c for c in xml.find_all("dim:field", element="contributor") if c.string
         ]:
-            if contributor.get("qualifier") == "author":
-                citation_creators.append(contributor.string)
             kwargs.setdefault("contributors", []).append(
                 Contributor(value=contributor.string, kind=contributor.get("qualifier"))
             )
