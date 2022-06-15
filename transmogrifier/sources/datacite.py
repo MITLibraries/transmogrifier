@@ -3,6 +3,7 @@ from typing import Iterator
 
 from bs4 import Tag
 
+from transmogrifier.helpers import generate_citation
 from transmogrifier.models import (
     AlternateTitle,
     Contributor,
@@ -296,17 +297,8 @@ class Datacite:
         ]:
             kwargs.setdefault("summary", []).append(description.string)
 
-        # citation
-        citation = ""
-        if citation_creators:
-            citation += f"{'; '.join(citation_creators)}"
-        if publication_year:
-            citation += f" ({publication_year.string}): "
-        citation += f"{main_title[0].string}. "
-        if publisher:
-            citation += f"{publisher.string}. "
-        citation += kwargs["source_link"]
-        kwargs["citation"] = citation
+        # citation, generate citation from other fields
+        kwargs["citation"] = generate_citation(kwargs)
 
         return TimdexRecord(**kwargs)
 
