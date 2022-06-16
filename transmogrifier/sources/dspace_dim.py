@@ -3,22 +3,8 @@ from typing import Dict, Iterator, List
 
 from bs4 import Tag
 
+import transmogrifier.models as timdex
 from transmogrifier.helpers import generate_citation
-from transmogrifier.models import (
-    AlternateTitle,
-    Contributor,
-    Date,
-    Date_Range,
-    Funder,
-    Identifier,
-    Link,
-    Location,
-    Note,
-    RelatedItem,
-    Rights,
-    Subject,
-    TimdexRecord,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +22,10 @@ class DSpaceDim:
         self.source_name = source_name
         self.input_records = input_records
 
-    def __iter__(self) -> Iterator[TimdexRecord]:
+    def __iter__(self) -> Iterator[timdex.TimdexRecord]:
         return self
 
-    def __next__(self) -> TimdexRecord:
+    def __next__(self) -> timdex.TimdexRecord:
         xml = next(self.input_records)
         record = self.create_from_dspace_dim(
             self.source, self.source_base_url, self.source_name, xml
@@ -49,7 +35,7 @@ class DSpaceDim:
     @classmethod
     def create_from_dspace_dim(
         cls, source: str, source_base_url: str, source_name: str, xml: Tag
-    ) -> TimdexRecord:
+    ) -> timdex.TimdexRecord:
         """
         Args:
             source: A label for the source repository that is prepended to the
@@ -90,7 +76,7 @@ class DSpaceDim:
             t for t in all_titles if "qualifier" in t.attrs and t.string
         ]:
             kwargs.setdefault("alternate_titles", []).append(
-                AlternateTitle(
+                timdex.AlternateTitle(
                     value=alternate_title.string,
                     kind=alternate_title.get("qualifier"),
                 )
@@ -119,7 +105,7 @@ class DSpaceDim:
             c for c in xml.find_all("dim:field", element="creator") if c.string
         ]:
             kwargs.setdefault("contributors", []).append(
-                Contributor(
+                timdex.Contributor(
                     value=creator.string,
                     kind="Creator",
                 )
@@ -129,15 +115,17 @@ class DSpaceDim:
             c for c in xml.find_all("dim:field", element="contributor") if c.string
         ]:
             kwargs.setdefault("contributors", []).append(
-                Contributor(value=contributor.string, kind=contributor.get("qualifier"))
+                timdex.Contributor(
+                    value=contributor.string, kind=contributor.get("qualifier")
+                )
             )
 
         # dates
         for date in [d for d in xml.find_all("dim:field", element="date") if d.string]:
             if date.get("qualifier") == "issued":
-                d = Date(value=date.string, kind="Publication")
+                d = timdex.Date(value=date.string, kind="Publication date")
             else:
-                d = Date(value=date.string, kind=date.get("qualifier"))
+                d = timdex.Date(value=date.string, kind=date.get("qualifier"))
             kwargs.setdefault("dates", []).append(d)
 
         for coverage in [
@@ -146,15 +134,15 @@ class DSpaceDim:
             if c.string
         ]:
             if "/" in coverage:
-                d = Date(
-                    range=Date_Range(
+                d = timdex.Date(
+                    range=timdex.Date_Range(
                         gte=coverage.string[: coverage.string.index("/")],
                         lte=coverage.string[coverage.string.index("/") + 1 :],
                     ),
                     kind="coverage",
                 )
             else:
-                d = Date(value=coverage.string, kind="coverage")
+                d = timdex.Date(note=coverage.string, kind="coverage")
             kwargs.setdefault("dates", []).append(d)
 
         # file_formats
@@ -176,7 +164,7 @@ class DSpaceDim:
             if f.string
         ]:
             kwargs.setdefault("funding_information", []).append(
-                Funder(
+                timdex.Funder(
                     funder_name=funding_reference.string,
                 )
             )
@@ -187,7 +175,7 @@ class DSpaceDim:
             i for i in identifiers if i.get("qualifier") != "citation" and i.string
         ]:
             kwargs.setdefault("identifiers", []).append(
-                Identifier(
+                timdex.Identifier(
                     value=identifier.string,
                     kind=identifier.get("qualifier"),
                 )
@@ -202,7 +190,7 @@ class DSpaceDim:
 
         # links, uses identifiers list retrieved for identifiers field
         kwargs["links"] = [
-            Link(
+            timdex.Link(
                 kind="Digital object URL",
                 text="Digital object URL",
                 url=identifier.string,
@@ -214,7 +202,7 @@ class DSpaceDim:
 
         # locations
         kwargs["locations"] = [
-            Location(value=lo.string)
+            timdex.Location(value=lo.string)
             for lo in xml.find_all("dim:field", element="coverage", qualifier="spatial")
             if lo.string
         ] or None
@@ -234,7 +222,9 @@ class DSpaceDim:
             and d.string
         ]:
             kwargs.setdefault("notes", []).append(
-                Note(value=[description.string], kind=description.get("qualifier"))
+                timdex.Note(
+                    value=[description.string], kind=description.get("qualifier")
+                )
             )
 
         # publication_information
@@ -247,9 +237,9 @@ class DSpaceDim:
             r for r in xml.find_all("dim:field", element="relation") if r.string
         ]:
             if related_item.get("qualifier") == "uri":
-                ri = RelatedItem(uri=related_item.string)
+                ri = timdex.RelatedItem(uri=related_item.string)
             else:
-                ri = RelatedItem(
+                ri = timdex.RelatedItem(
                     description=related_item.string,
                     relationship=related_item.get("qualifier"),
                 )
@@ -260,9 +250,11 @@ class DSpaceDim:
             r for r in xml.find_all("dim:field", element="rights") if r.string
         ]:
             if rights.get("qualifier") == "uri":
-                rg = Rights(uri=rights.string)
+                rg = timdex.Rights(uri=rights.string)
             else:
-                rg = Rights(description=rights.string, kind=rights.get("qualifier"))
+                rg = timdex.Rights(
+                    description=rights.string, kind=rights.get("qualifier")
+                )
             kwargs.setdefault("rights", []).append(rg)
 
         # subjects
@@ -279,7 +271,7 @@ class DSpaceDim:
                     subject.string
                 )
         for key, value in subjects_dict.items():
-            s = Subject(value=value, kind=key)
+            s = timdex.Subject(value=value, kind=key)
             kwargs.setdefault("subjects", []).append(s)
 
         # summary, uses description list retrieved for notes field
@@ -291,4 +283,4 @@ class DSpaceDim:
         if kwargs.get("citation") is None:
             kwargs["citation"] = generate_citation(kwargs)
 
-        return TimdexRecord(**kwargs)
+        return timdex.TimdexRecord(**kwargs)

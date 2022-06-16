@@ -22,7 +22,6 @@ def generate_citation(extracted_data: dict) -> str:
     if not extracted_data.get("contributors"):
         creator_string = None
     else:
-        print(extracted_data["contributors"])
         creator_names = [
             contributor.value
             for contributor in extracted_data["contributors"]
@@ -30,7 +29,6 @@ def generate_citation(extracted_data: dict) -> str:
             or (contributor.kind and contributor.kind.lower() == "creator")
         ]
         creator_string = (", ").join(creator_names)
-        print(creator_string)
 
     if not extracted_data.get("dates"):
         publication_dates = None
@@ -57,7 +55,6 @@ def generate_citation(extracted_data: dict) -> str:
     resource_type_string = f" {(', ').join(resource_types)}." if resource_types else ""
 
     citation += publisher_string + resource_type_string + url_string
-    print(citation)
     return citation
 
 

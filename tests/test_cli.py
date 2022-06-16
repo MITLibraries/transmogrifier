@@ -65,23 +65,22 @@ def test_cli_dspace_mets(caplog, runner, tmp_path):
 
 
 def test_cli_whoas(caplog, monkeypatch, runner, tmp_path):
-    with caplog.at_level("INFO"):
-        outfile = tmp_path / "timdex_whoas_records.json"
-        result = runner.invoke(
-            main,
-            [
-                "-i",
-                "tests/fixtures/dspace/dspace_dim_records.xml",
-                "-o",
-                outfile,
-                "-s",
-                "whoas",
-                "-v",
-            ],
-        )
-        assert result.exit_code == 0
-        assert "Running transform for source whoas" in caplog.text
-        assert "Completed transform, total record count: 5" in caplog.text
+    outfile = tmp_path / "timdex_whoas_records.json"
+    result = runner.invoke(
+        main,
+        [
+            "-i",
+            "tests/fixtures/dspace/dspace_dim_records.xml",
+            "-o",
+            outfile,
+            "-s",
+            "whoas",
+            "-v",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Running transform for source whoas" in caplog.text
+    assert "Completed transform, total record count: 5" in caplog.text
 
 
 def test_cli_zenodo(caplog, runner, tmp_path):
