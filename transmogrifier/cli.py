@@ -1,10 +1,10 @@
 import logging
-import os
+from datetime import timedelta
+from time import perf_counter
 
 import click
-import sentry_sdk
 
-from transmogrifier.config import SOURCES
+from transmogrifier.config import SOURCES, configure_logger, configure_sentry
 from transmogrifier.helpers import parse_xml_records, write_timdex_records_to_json
 from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.dspace_dim import DSpaceDim
@@ -38,30 +38,17 @@ logger = logging.getLogger(__name__)
     "-v", "--verbose", is_flag=True, help="Pass to log at debug level instead of info"
 )
 def main(source, input_file, output_file, verbose):
-    env = os.getenv("WORKSPACE")
+    START_TIME = perf_counter()
     root_logger = logging.getLogger()
-    if verbose:
-        root_logger.setLevel(logging.DEBUG)
-    else:
-        root_logger.setLevel(logging.INFO)
-    logger.info(
-        "Running transmogrifier with env=%s and log level=%s,",
-        env,
-        logging.getLevelName(logger.getEffectiveLevel()),
-    )
-    if sentry_dsn := os.getenv("SENTRY_DSN"):
-        sentry_sdk.init(sentry_dsn, environment=env)
-        logger.info(
-            "Sentry DSN found, exceptions will be sent to Sentry with env=%s", env
-        )
+    logger.info(configure_logger(root_logger, verbose))
+    logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
+    input_records = parse_xml_records(input_file)
     if source == "dspace":
-        input_records = parse_xml_records(input_file)
         output_records = DspaceMets(
             source, SOURCES[source]["base_url"], SOURCES[source]["name"], input_records
         )
     elif source == "jpal":
-        input_records = parse_xml_records(input_file)
         output_records = Datacite(
             source,
             SOURCES[source]["base_url"],
@@ -77,7 +64,6 @@ def main(source, input_file, output_file, verbose):
             input_records,
         )
     elif source == "zenodo":
-        input_records = parse_xml_records(input_file)
         output_records = Zenodo(
             source,
             SOURCES[source]["base_url"],
@@ -86,3 +72,7 @@ def main(source, input_file, output_file, verbose):
         )
     count = write_timdex_records_to_json(output_records, output_file)
     logger.info("Completed transform, total record count: %d", count)
+    elapsed_time = perf_counter() - START_TIME
+    logger.info(
+        "Total time to complete transform: %s", str(timedelta(seconds=elapsed_time))
+    )

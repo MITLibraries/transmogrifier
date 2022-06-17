@@ -1,3 +1,4 @@
+import os
 from functools import partial
 
 import pytest
@@ -22,6 +23,12 @@ from transmogrifier.models import (
 )
 from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.dspace_dim import DSpaceDim
+
+
+@pytest.fixture(autouse=True)
+def test_env():
+    os.environ = {"WORKSPACE": "test"}
+    yield
 
 
 @pytest.fixture()
