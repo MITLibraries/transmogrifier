@@ -33,9 +33,9 @@ def test_datacite_record_all_fields(
     output_records = datacite_record_partial(input_records=datacite_record_all_fields)
     assert next(output_records) == TimdexRecord(
         citation=(
-            "Banerji, Rukmini; Berry, James; Shotland, Marc "
+            "Banerji, Rukmini, Berry, James, Shotland, Marc "
             "(2017): The Impact of Maternal Literacy and Participation Programs. Harvard "
-            "Dataverse. https://example.com/doi:10.7910/DVN/19PPE7"
+            "Dataverse. Dataset. https://example.com/doi:10.7910/DVN/19PPE7"
         ),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",

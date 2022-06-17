@@ -3,20 +3,8 @@ from typing import Iterator
 
 from bs4 import Tag
 
-from transmogrifier.models import (
-    AlternateTitle,
-    Contributor,
-    Date,
-    Date_Range,
-    Funder,
-    Identifier,
-    Location,
-    Note,
-    RelatedItem,
-    Rights,
-    Subject,
-    TimdexRecord,
-)
+import transmogrifier.models as timdex
+from transmogrifier.helpers import generate_citation
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +22,10 @@ class Datacite:
         self.source_name = source_name
         self.input_records = input_records
 
-    def __iter__(self) -> Iterator[TimdexRecord]:
+    def __iter__(self) -> Iterator[timdex.TimdexRecord]:
         return self
 
-    def __next__(self) -> TimdexRecord:
+    def __next__(self) -> timdex.TimdexRecord:
         xml = next(self.input_records)
         record = self.create_from_datacite_xml(
             self.source, self.source_base_url, self.source_name, xml
@@ -47,7 +35,7 @@ class Datacite:
     @classmethod
     def create_from_datacite_xml(
         cls, source: str, source_base_url: str, source_name: str, xml: Tag
-    ) -> TimdexRecord:
+    ) -> timdex.TimdexRecord:
         """
         Args:
             source: A label for the source repository that is prepended to the
@@ -79,7 +67,7 @@ class Datacite:
         # alternate_titles, uses full title list retrieved for main title field
         alternate_titles = [t for t in all_titles if "titleType" in t.attrs]
         for alternate_title in alternate_titles:
-            a = AlternateTitle(
+            a = timdex.AlternateTitle(
                 value=alternate_title.string,
                 kind=alternate_title.attrs["titleType"],
             )
@@ -95,18 +83,17 @@ class Datacite:
         else:
             if resource_type.string:
                 kwargs["notes"] = [
-                    Note(value=[resource_type.string], kind="Datacite resource type")
+                    timdex.Note(
+                        value=[resource_type.string], kind="Datacite resource type"
+                    )
                 ]
             kwargs["content_type"] = [resource_type["resourceTypeGeneral"]]
 
         # contributors
-        citation_creators = []
         creators = xml.metadata.find_all("creator")
         for creator in creators:
-            creator_name = creator.find("creatorName").string
-            citation_creators.append(creator_name)
-            c = Contributor(
-                value=creator_name,
+            c = timdex.Contributor(
+                value=creator.find("creatorName").string,
                 affiliation=[a.string for a in creator.find_all("affiliation")] or None,
                 identifier=[
                     cls.generate_name_identifier_url(name_identifier)
@@ -120,7 +107,7 @@ class Datacite:
         contributors = xml.metadata.find_all("contributor")
         for contributor in contributors:
             contributor_name = contributor.find("contributorName").string
-            c = Contributor(
+            c = timdex.Contributor(
                 value=contributor_name,
                 affiliation=[a.string for a in contributor.find_all("affiliation")]
                 or None,
@@ -142,19 +129,19 @@ class Datacite:
             )
         else:
             kwargs["dates"] = [
-                Date(kind="Publication date", value=publication_year.string)
+                timdex.Date(kind="Publication date", value=publication_year.string)
             ]
         dates = xml.metadata.find_all("date")
         for date in dates:
             if "/" in date.string:
-                d = Date(
-                    range=Date_Range(
+                d = timdex.Date(
+                    range=timdex.Date_Range(
                         gte=date.string[: date.string.index("/")],
                         lte=date.string[date.string.index("/") + 1 :],
                     )
                 )
             else:
-                d = Date(value=date.string)
+                d = timdex.Date(value=date.string)
             if "dateInformation" in date.attrs:
                 d.note = date.attrs["dateInformation"]
             if "dateType" in date.attrs:
@@ -177,7 +164,7 @@ class Datacite:
         # funding_information
         funding_references = xml.metadata.find_all("fundingReference")
         for funding_reference in funding_references:
-            f = Funder(
+            f = timdex.Funder(
                 funder_name=funding_reference.find("funderName").string,
             )
             award_number = funding_reference.find("awardNumber")
@@ -196,14 +183,14 @@ class Datacite:
         # identifiers
         identifier_xml = xml.metadata.find("identifier")
         kwargs["identifiers"] = [
-            Identifier(
+            timdex.Identifier(
                 value=identifier_xml.string,
                 kind=identifier_xml["identifierType"],
             ),
         ]
         alternate_identifiers = xml.metadata.find_all("alternateIdentifier")
         for alternate_identifier in alternate_identifiers:
-            i = Identifier(
+            i = timdex.Identifier(
                 value=alternate_identifier.string,
             )
             if "alternateIdentifierType" in alternate_identifier.attrs:
@@ -216,7 +203,7 @@ class Datacite:
             for i in related_identifiers
             if "relationType" in i.attrs and i.attrs["relationType"] == "IsIdenticalTo"
         ]:
-            i = Identifier(
+            i = timdex.Identifier(
                 value=cls.generate_related_item_identifier_url(related_identifier),
                 kind=related_identifier.attrs["relationType"],
             )
@@ -230,7 +217,9 @@ class Datacite:
         # locations
         locations = xml.metadata.find_all("geoLocationPlace")
         for location in locations:
-            kwargs.setdefault("locations", []).append(Location(value=location.string))
+            kwargs.setdefault("locations", []).append(
+                timdex.Location(value=location.string)
+            )
 
         # notes
         descriptions = xml.metadata.find_all("description")
@@ -243,7 +232,7 @@ class Datacite:
                 )
             else:
                 if description.attrs["descriptionType"] != "Abstract":
-                    n = Note(
+                    n = timdex.Note(
                         value=[description.string],
                         kind=description.attrs["descriptionType"],
                     )
@@ -261,7 +250,7 @@ class Datacite:
 
         # related_items, uses related_identifiers retrieved for identifiers
         for related_identifier in related_identifiers:
-            ri = RelatedItem(
+            ri = timdex.RelatedItem(
                 uri=cls.generate_related_item_identifier_url(related_identifier)
             )
             if "relationType" in related_identifier.attrs:
@@ -271,7 +260,7 @@ class Datacite:
         # rights
         rights_list = xml.metadata.find_all("rights")
         for rights in rights_list:
-            r = Rights()
+            r = timdex.Rights()
             if rights.string:
                 r.description = rights.string
             if "rightsURI" in rights.attrs:
@@ -281,7 +270,7 @@ class Datacite:
         # subjects
         subjects = xml.metadata.find_all("subject")
         for subject in subjects:
-            s = Subject(value=[subject.string])
+            s = timdex.Subject(value=[subject.string])
             if "subjectScheme" in subject.attrs:
                 s.kind = subject.attrs["subjectScheme"]
             else:
@@ -296,19 +285,10 @@ class Datacite:
         ]:
             kwargs.setdefault("summary", []).append(description.string)
 
-        # citation
-        citation = ""
-        if citation_creators:
-            citation += f"{'; '.join(citation_creators)}"
-        if publication_year:
-            citation += f" ({publication_year.string}): "
-        citation += f"{main_title[0].string}. "
-        if publisher:
-            citation += f"{publisher.string}. "
-        citation += kwargs["source_link"]
-        kwargs["citation"] = citation
+        # citation, generate citation from other fields
+        kwargs["citation"] = generate_citation(kwargs)
 
-        return TimdexRecord(**kwargs)
+        return timdex.TimdexRecord(**kwargs)
 
     @classmethod
     def create_source_record_id(cls, xml: Tag) -> str:
