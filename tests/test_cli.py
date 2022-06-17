@@ -64,7 +64,7 @@ def test_cli_dspace_mets(caplog, runner, tmp_path):
     assert "Completed transform, total record count: 12" in caplog.text
 
 
-def test_cli_whoas(caplog, monkeypatch, runner, tmp_path):
+def test_cli_whoas(caplog, runner, tmp_path):
     outfile = tmp_path / "timdex_whoas_records.json"
     result = runner.invoke(
         main,
