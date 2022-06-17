@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Iterator
 
 from attrs import asdict
@@ -6,6 +7,8 @@ from bs4 import BeautifulSoup, Tag
 from smart_open import open
 
 from transmogrifier.models import TimdexRecord
+
+logger = logging.getLogger(__name__)
 
 
 def generate_citation(extracted_data: dict) -> str:
@@ -77,13 +80,17 @@ def write_timdex_records_to_json(
         file.write("[\n")
         record = next(records)
         while record:
-            count += 1
             file.write(
                 json.dumps(
                     asdict(record, filter=lambda attr, value: value is not None),
                     indent=2,
                 )
             )
+            count += 1
+            if count % 1000 == 0:
+                logger.info(
+                    "Status update: %s records written to output file so far!", count
+                )
             try:
                 record = next(records)
             except StopIteration:

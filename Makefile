@@ -5,31 +5,43 @@ ECR_NAME_DEV:=transmogrifier-dev
 ECR_URL_DEV:=222053980223.dkr.ecr.us-east-1.amazonaws.com/transmogrifier-dev
 ### End of Terraform-generated header ###
 
-lint: bandit black flake8 isort mypy
+
+### Dependency commands ###
+install: ## Install script and dependencies
+	pipenv install --dev
+
+update: install ## Update all Python dependencies
+	pipenv clean
+	pipenv update --dev
+
+
+### Testing commands ###
+test: ## Run tests and print a coverage report
+	pipenv run coverage run --source=transmogrifier -m pytest
+	pipenv run coverage report -m
+
+coveralls: test
+	pipenv run coverage lcov -o ./coverage/lcov.info
+
+
+### Linting commands ###
+lint: bandit black flake8 isort mypy ## Lint the repo
 
 bandit:
 	pipenv run bandit -r transmogrifier
 
 black:
-	pipenv run black --check --diff transmogrifier tests
-
-coveralls: test
-	pipenv run coveralls
+	pipenv run black --check --diff .
 
 flake8:
-	pipenv run flake8 transmogrifier tests
-
-install:
-	pipenv install --dev
+	pipenv run flake8 .
 
 isort:
-	pipenv run isort transmogrifier tests --diff
+	pipenv run isort . --diff
 
 mypy:
 	pipenv run mypy transmogrifier
 
-test:
-	pipenv run pytest --cov-report term-missing --cov=transmogrifier
 
 ### Terraform-generated Developer Deploy Commands for Dev environment ###
 dist-dev: ## Build docker container (intended for developer-based manual build)

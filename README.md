@@ -16,14 +16,13 @@ To lint the repo:
 ```
 make lint
 ```
- 
+
 To run the app:
 ```
 pipenv run transform <command>
 ```
 
 ## Required ENV
-`LOGGING_LEVEL` = Set to the desired logging level for the app.
 
 `SENTRY_DSN` = If set to a valid Sentry DSN, enables Sentry exception monitoring. This is not needed for local development.
 

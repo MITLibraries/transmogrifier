@@ -192,8 +192,3 @@ def test_parse_xml_records_raises_error_if_no_records_found():
     records = parse_xml_records("tests/fixtures/no_records.xml")
     with raises(ValueError):
         next(records)
-
-
-# TODO: add read from S3 with moto
-
-# TODO: add tests for write function, including to S3 with moto
