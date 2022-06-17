@@ -90,13 +90,10 @@ class Datacite:
             kwargs["content_type"] = [resource_type["resourceTypeGeneral"]]
 
         # contributors
-        citation_creators = []
         creators = xml.metadata.find_all("creator")
         for creator in creators:
-            creator_name = creator.find("creatorName").string
-            citation_creators.append(creator_name)
             c = timdex.Contributor(
-                value=creator_name,
+                value=creator.find("creatorName").string,
                 affiliation=[a.string for a in creator.find_all("affiliation")] or None,
                 identifier=[
                     cls.generate_name_identifier_url(name_identifier)
