@@ -21,6 +21,7 @@ from transmogrifier.models import (
     TimdexRecord,
 )
 from transmogrifier.sources.datacite import Datacite
+from transmogrifier.sources.dspace_dim import DSpaceDim
 
 
 @pytest.fixture()
@@ -74,6 +75,21 @@ def datacite_record_partial():
         source_name="A Cool Repository",
         source_base_url="https://example.com/",
     )
+
+
+@pytest.fixture()
+def dspace_dim_record_partial():
+    return partial(
+        DSpaceDim,
+        source="cool-repo",
+        source_name="A Cool Repository",
+        source_base_url="https://example.com/",
+    )
+
+
+@pytest.fixture()
+def dspace_dim_records():
+    return parse_xml_records("tests/fixtures/dspace/dspace_dim_records.xml")
 
 
 @pytest.fixture()
