@@ -48,6 +48,23 @@ def test_cli_jpal_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path)
     assert "Completed transform, total record count: 38" in caplog.text
 
 
+def test_cli_no_records(caplog, runner, tmp_path):
+    outfile = tmp_path / "no_records.json"
+    result = runner.invoke(
+        main,
+        [
+            "-i",
+            "tests/fixtures/no_records.xml",
+            "-o",
+            outfile,
+            "-s",
+            "dspace",
+        ],
+    )
+    assert result.exit_code == 1
+    assert isinstance(result.exception, ValueError)
+
+
 def test_cli_dspace_mets(caplog, runner, tmp_path):
     outfile = tmp_path / "timdex_dspace_records.json"
     result = runner.invoke(

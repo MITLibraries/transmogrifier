@@ -1,5 +1,3 @@
-from pytest import raises
-
 import transmogrifier.models as timdex
 from transmogrifier.helpers import generate_citation, parse_xml_records
 
@@ -186,9 +184,3 @@ def test_generate_citation_with_all_fields():
 def test_parse_xml_records_returns_record_iterator():
     records = parse_xml_records("tests/fixtures/datacite/datacite_records.xml")
     assert len(list(records)) == 38
-
-
-def test_parse_xml_records_raises_error_if_no_records_found():
-    records = parse_xml_records("tests/fixtures/no_records.xml")
-    with raises(ValueError):
-        next(records)
