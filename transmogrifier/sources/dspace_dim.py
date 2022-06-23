@@ -271,8 +271,9 @@ class DSpaceDim:
                     subject.string
                 )
         for key, value in subjects_dict.items():
-            s = timdex.Subject(value=value, kind=key)
-            kwargs.setdefault("subjects", []).append(s)
+            kwargs.setdefault("subjects", []).append(
+                timdex.Subject(value=value, kind=key)
+            )
 
         # summary, uses description list retrieved for notes field
         for description in [
