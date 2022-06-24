@@ -41,7 +41,9 @@
             <publicationYear>2017</publicationYear>
             <subjects>
                 <subject>Social Sciences</subject>
+                <subject>Educational materials</subject>
                 <subject subjectScheme="LCSH">Adult education, education inputs, field experiments</subject>
+                <subject subjectScheme="LCSH">Education</subject>
             </subjects>
             <alternateIdentifiers>
                 <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/5524465</alternateIdentifier>

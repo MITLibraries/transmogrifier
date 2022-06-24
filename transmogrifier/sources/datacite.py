@@ -1,5 +1,5 @@
 import logging
-from typing import Iterator
+from typing import Dict, Iterator, List
 
 from bs4 import Tag
 
@@ -268,14 +268,20 @@ class Datacite:
             kwargs.setdefault("rights", []).append(r)
 
         # subjects
-        subjects = xml.metadata.find_all("subject")
-        for subject in subjects:
-            s = timdex.Subject(value=[subject.string])
-            if "subjectScheme" in subject.attrs:
-                s.kind = subject.attrs["subjectScheme"]
+        subjects_dict: Dict[str, List[str]] = {}
+        for subject in [s for s in xml.metadata.find_all("subject") if s.string]:
+            if subject.get("subjectScheme") is None:
+                subjects_dict.setdefault("Subject scheme not provided", []).append(
+                    subject.string
+                )
             else:
-                s.kind = "Subject scheme not provided"
-            kwargs.setdefault("subjects", []).append(s)
+                subjects_dict.setdefault(subject.attrs["subjectScheme"], []).append(
+                    subject.string
+                )
+        for key, value in subjects_dict.items():
+            kwargs.setdefault("subjects", []).append(
+                timdex.Subject(value=value, kind=key)
+            )
 
         # summary, uses description list retrieved for notes field
         for description in [

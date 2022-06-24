@@ -162,9 +162,15 @@ def test_datacite_record_all_fields(
             ),
         ],
         subjects=[
-            Subject(value=["Social Sciences"], kind="Subject scheme not provided"),
             Subject(
-                value=["Adult education, education inputs, field experiments"],
+                value=["Social Sciences", "Educational materials"],
+                kind="Subject scheme not provided",
+            ),
+            Subject(
+                value=[
+                    "Adult education, education inputs, field experiments",
+                    "Education",
+                ],
                 kind="LCSH",
             ),
         ],
