@@ -78,7 +78,7 @@ class DSpaceDim:
             kwargs.setdefault("alternate_titles", []).append(
                 timdex.AlternateTitle(
                     value=alternate_title.string,
-                    kind=alternate_title.get("qualifier"),
+                    kind=alternate_title["qualifier"],
                 )
             )
 
@@ -177,7 +177,7 @@ class DSpaceDim:
             kwargs.setdefault("identifiers", []).append(
                 timdex.Identifier(
                     value=identifier.string,
-                    kind=identifier.get("qualifier"),
+                    kind=identifier.get("qualifier", "Identifier kind not specified"),
                 )
             )
 
@@ -267,7 +267,7 @@ class DSpaceDim:
                     subject.string
                 )
             else:
-                subjects_dict.setdefault(subject.attrs["qualifier"], []).append(
+                subjects_dict.setdefault(subject["qualifier"], []).append(
                     subject.string
                 )
         for key, value in subjects_dict.items():

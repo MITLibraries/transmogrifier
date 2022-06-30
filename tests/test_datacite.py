@@ -8,6 +8,7 @@ from transmogrifier.models import (
     Date_Range,
     Funder,
     Identifier,
+    Link,
     Location,
     Note,
     RelatedItem,
@@ -116,6 +117,13 @@ def test_datacite_record_all_fields(
             Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
         ],
         locations=[Location(value="A point on the globe")],
+        links=[
+            Link(
+                url="https://example.com/doi:10.7910/DVN/19PPE7",
+                kind="Digital object URL",
+                text="Digital object URL",
+            )
+        ],
         languages=["en_US"],
         notes=[
             Note(value=["Survey Data"], kind="Datacite resource type"),
@@ -222,6 +230,13 @@ def test_datacite_optional_fields_blank_transforms_correctly(
         title="The Impact of Maternal Literacy and Participation Programs",
         format="electronic resource",
         identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
+        links=[
+            Link(
+                url="https://example.com/doi:10.7910/DVN/19PPE7",
+                kind="Digital object URL",
+                text="Digital object URL",
+            )
+        ],
     )
 
 
@@ -244,6 +259,13 @@ def test_datacite_record_optional_fields_missing_transforms_correctly(
         title="The Impact of Maternal Literacy and Participation Programs",
         format="electronic resource",
         identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
+        links=[
+            Link(
+                url="https://example.com/doi:10.7910/DVN/19PPE7",
+                kind="Digital object URL",
+                text="Digital object URL",
+            )
+        ],
     )
 
 
