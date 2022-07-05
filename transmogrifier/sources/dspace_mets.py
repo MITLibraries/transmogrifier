@@ -105,9 +105,10 @@ class DspaceMets:
         kwargs["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        content_types = xml.find_all("mods:genre")
         kwargs["content_type"] = [
-            content_type.string for content_type in content_types if content_type.string
+            content_type.string
+            for content_type in xml.find_all("mods:genre")
+            if content_type.string
         ] or None
 
         # contents: relevant field in DSpace (dc.description.tableofcontents) is not

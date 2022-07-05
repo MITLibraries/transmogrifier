@@ -56,6 +56,11 @@ class Datacite:
                 "A record must have exactly one title. Titles found for record "
                 f"{source_record_id}: {main_title}"
             )
+        if not main_title[0].string:
+            raise ValueError(
+                f"Title field cannot be empty, record {source_record_id} had title "
+                f"field value of '{main_title[0]}'"
+            )
         kwargs = {
             "source": source_name,
             "source_link": source_base_url + source_record_id,
@@ -65,64 +70,72 @@ class Datacite:
 
         # Optional fields in TIMDEX
         # alternate_titles, uses full title list retrieved for main title field
-        alternate_titles = [t for t in all_titles if "titleType" in t.attrs]
-        for alternate_title in alternate_titles:
-            a = timdex.AlternateTitle(
-                value=alternate_title.string,
-                kind=alternate_title.attrs["titleType"],
+        for alternate_title in [
+            t for t in all_titles if "titleType" in t.attrs and t.string
+        ]:
+            kwargs.setdefault("alternate_titles", []).append(
+                timdex.AlternateTitle(
+                    value=alternate_title.string,
+                    kind=alternate_title["titleType"],
+                )
             )
-            kwargs.setdefault("alternate_titles", []).append(a)
 
         # content_type
         resource_type = xml.metadata.find("resourceType")
-        if resource_type is None:
+        if resource_type and resource_type.string:
+            kwargs["notes"] = [
+                timdex.Note(value=[resource_type.string], kind="Datacite resource type")
+            ]
+            if resource_type["resourceTypeGeneral"]:
+                kwargs["content_type"] = [resource_type["resourceTypeGeneral"]]
+        else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
                 source_record_id,
             )
-        else:
-            if resource_type.string:
-                kwargs["notes"] = [
-                    timdex.Note(
-                        value=[resource_type.string], kind="Datacite resource type"
-                    )
-                ]
-            kwargs["content_type"] = [resource_type["resourceTypeGeneral"]]
 
         # contributors
-        creators = xml.metadata.find_all("creator")
-        for creator in creators:
-            c = timdex.Contributor(
-                value=creator.find("creatorName").string,
-                affiliation=[a.string for a in creator.find_all("affiliation")] or None,
-                identifier=[
-                    cls.generate_name_identifier_url(name_identifier)
-                    for name_identifier in creator.find_all("nameIdentifier")
-                ]
-                or None,
-                kind="Creator",
-            )
-            kwargs.setdefault("contributors", []).append(c)
+        for creator in xml.metadata.find_all("creator"):
+            creator_name_element = creator.find("creatorName")
+            if creator_name_element and creator_name_element.string:
+                kwargs.setdefault("contributors", []).append(
+                    timdex.Contributor(
+                        value=creator_name_element.string,
+                        affiliation=[a.string for a in creator.find_all("affiliation")]
+                        or None,
+                        identifier=[
+                            cls.generate_name_identifier_url(name_identifier)
+                            for name_identifier in creator.find_all("nameIdentifier")
+                        ]
+                        or None,
+                        kind="Creator",
+                    )
+                )
 
-        contributors = xml.metadata.find_all("contributor")
-        for contributor in contributors:
-            contributor_name = contributor.find("contributorName").string
-            c = timdex.Contributor(
-                value=contributor_name,
-                affiliation=[a.string for a in contributor.find_all("affiliation")]
-                or None,
-                identifier=[
-                    cls.generate_name_identifier_url(name_identifier)
-                    for name_identifier in contributor.find_all("nameIdentifier")
-                ]
-                or None,
-                kind=contributor["contributorType"],
-            )
-            kwargs.setdefault("contributors", []).append(c)
+        for contributor in xml.metadata.find_all("contributor"):
+            contributor_name_element = contributor.find("contributorName")
+            if contributor_name_element and contributor_name_element.string:
+                kwargs.setdefault("contributors", []).append(
+                    timdex.Contributor(
+                        value=contributor_name_element.string,
+                        affiliation=[
+                            a.string for a in contributor.find_all("affiliation")
+                        ]
+                        or None,
+                        identifier=[
+                            cls.generate_name_identifier_url(name_identifier)
+                            for name_identifier in contributor.find_all(
+                                "nameIdentifier"
+                            )
+                        ]
+                        or None,
+                        kind=contributor["contributorType"],
+                    )
+                )
 
         # dates
         publication_year = xml.metadata.find("publicationYear")
-        if publication_year is None:
+        if not publication_year or not publication_year.string:
             logger.warning(
                 "Datacite record %s missing required Datacite field publicationYear",
                 source_record_id,
@@ -131,8 +144,8 @@ class Datacite:
             kwargs["dates"] = [
                 timdex.Date(kind="Publication date", value=publication_year.string)
             ]
-        dates = xml.metadata.find_all("date")
-        for date in dates:
+
+        for date in [d for d in xml.metadata.find_all("date") if d.string]:
             if "/" in date.string:
                 d = timdex.Date(
                     range=timdex.Date_Range(
@@ -142,105 +155,120 @@ class Datacite:
                 )
             else:
                 d = timdex.Date(value=date.string)
-            if "dateInformation" in date.attrs:
-                d.note = date.attrs["dateInformation"]
-            if "dateType" in date.attrs:
-                d.kind = date.attrs["dateType"]
+            d.note = date.get("dateInformation")
+            d.kind = date.get("dateType")
             kwargs.setdefault("dates", []).append(d)
 
         # edition
         edition = xml.metadata.find("version")
-        if edition:
+        if edition and edition.string:
             kwargs["edition"] = edition.string
 
         # file_formats
-        file_formats = xml.metadata.find_all("format")
-        for file_format in file_formats:
-            kwargs.setdefault("file_formats", []).append(file_format.string)
+        kwargs["file_formats"] = [
+            f.string for f in xml.metadata.find_all("format") if f.string
+        ] or None
 
         # format
         kwargs["format"] = "electronic resource"
 
         # funding_information
-        funding_references = xml.metadata.find_all("fundingReference")
-        for funding_reference in funding_references:
-            f = timdex.Funder(
-                funder_name=funding_reference.find("funderName").string,
-            )
+        for funding_reference in [
+            fr for fr in xml.metadata.find_all("fundingReference")
+        ]:
+            f = timdex.Funder()
+            funder_name = funding_reference.find("funderName")
+            if funder_name.string:
+                f.funder_name = funder_name.string
             award_number = funding_reference.find("awardNumber")
-            if award_number:
+            if award_number and award_number.string:
                 f.award_number = award_number.string
-                if "awardURI" in award_number.attrs:
-                    f.award_uri = award_number.attrs["awardURI"]
+                f.award_uri = award_number.get("awardURI")
             funder_identifier = funding_reference.find("funderIdentifier")
-            if funder_identifier:
+            if funder_identifier and funder_identifier.string:
                 f.funder_identifier = funder_identifier.string
-                if "funderIdentifierType" in funder_identifier.attrs:
-                    f_id_type = funder_identifier.attrs["funderIdentifierType"]
-                    f.funder_identifier_type = f_id_type
-            kwargs.setdefault("funding_information", []).append(f)
+                f.funder_identifier_type = funder_identifier.get("funderIdentifierType")
+            if f != timdex.Funder():
+                kwargs.setdefault("funding_information", []).append(f)
 
         # identifiers
         identifier_xml = xml.metadata.find("identifier")
         kwargs["identifiers"] = [
             timdex.Identifier(
                 value=identifier_xml.string,
-                kind=identifier_xml["identifierType"],
+                kind=identifier_xml.get(
+                    "identifierType", "Identifier kind not specified"
+                ),
             ),
         ]
-        alternate_identifiers = xml.metadata.find_all("alternateIdentifier")
-        for alternate_identifier in alternate_identifiers:
-            i = timdex.Identifier(
-                value=alternate_identifier.string,
+        for alternate_identifier in [
+            i for i in xml.metadata.find_all("alternateIdentifier") if i.string
+        ]:
+            kwargs["identifiers"].append(
+                timdex.Identifier(
+                    value=alternate_identifier.string,
+                    kind=alternate_identifier.get(
+                        "alternateIdentifierType", "Identifier kind not specified"
+                    ),
+                )
             )
-            if "alternateIdentifierType" in alternate_identifier.attrs:
-                i.kind = alternate_identifier.attrs["alternateIdentifierType"]
-            kwargs["identifiers"].append(i)
 
         related_identifiers = xml.metadata.find_all("relatedIdentifier")
         for related_identifier in [
             i
             for i in related_identifiers
-            if "relationType" in i.attrs and i.attrs["relationType"] == "IsIdenticalTo"
+            if i.get("relationType") == "IsIdenticalTo" and i.string
         ]:
             i = timdex.Identifier(
                 value=cls.generate_related_item_identifier_url(related_identifier),
-                kind=related_identifier.attrs["relationType"],
+                kind=related_identifier.get(
+                    "relationType", "Identifier kind not specified"
+                ),
             )
             kwargs["identifiers"].append(i)
 
         # language
         language = xml.metadata.find("language")
-        if language:
+        if language and language.string:
             kwargs["languages"] = [language.string]
 
+        # links
+        kwargs["links"] = [
+            timdex.Link(
+                kind="Digital object URL",
+                text="Digital object URL",
+                url=kwargs["source_link"],
+            )
+        ]
+
         # locations
-        locations = xml.metadata.find_all("geoLocationPlace")
-        for location in locations:
+        for location in [
+            gl for gl in xml.metadata.find_all("geoLocationPlace") if gl.string
+        ]:
             kwargs.setdefault("locations", []).append(
                 timdex.Location(value=location.string)
             )
 
         # notes
         descriptions = xml.metadata.find_all("description")
-        for description in descriptions:
+        for description in [d for d in descriptions if d.string]:
             if "descriptionType" not in description.attrs:
                 logger.warning(
                     "Datacite record %s missing required Datacite attribute "
                     "@descriptionType",
                     source_record_id,
                 )
-            else:
-                if description.attrs["descriptionType"] != "Abstract":
-                    n = timdex.Note(
+            if description.get("descriptionType") != "Abstract":
+                kwargs.setdefault("notes", []).append(
+                    timdex.Note(
                         value=[description.string],
-                        kind=description.attrs["descriptionType"],
+                        kind=description.get("descriptionType"),
                     )
-                    kwargs.setdefault("notes", []).append(n)
+                )
 
         # publication_information
         publisher = xml.metadata.find("publisher")
-        if publisher is None:
+        if not publication_year or not publication_year.string:
             logger.warning(
                 "Datacite record %s missing required Datacite field publisher",
                 source_record_id,
@@ -249,23 +277,23 @@ class Datacite:
             kwargs["publication_information"] = [publisher.string]
 
         # related_items, uses related_identifiers retrieved for identifiers
-        for related_identifier in related_identifiers:
-            ri = timdex.RelatedItem(
-                uri=cls.generate_related_item_identifier_url(related_identifier)
+        for related_identifier in [i for i in related_identifiers if i.string]:
+            kwargs.setdefault("related_items", []).append(
+                timdex.RelatedItem(
+                    uri=cls.generate_related_item_identifier_url(related_identifier),
+                    relationship=related_identifier.get("relationType"),
+                )
             )
-            if "relationType" in related_identifier.attrs:
-                ri.relationship = related_identifier.attrs["relationType"]
-            kwargs.setdefault("related_items", []).append(ri)
 
         # rights
-        rights_list = xml.metadata.find_all("rights")
-        for rights in rights_list:
-            r = timdex.Rights()
-            if rights.string:
-                r.description = rights.string
-            if "rightsURI" in rights.attrs:
-                r.uri = rights.attrs["rightsURI"]
-            kwargs.setdefault("rights", []).append(r)
+        for right in [
+            r for r in xml.metadata.find_all("rights") if r.string or r.get("rightsURI")
+        ]:
+            kwargs.setdefault("rights", []).append(
+                timdex.Rights(
+                    description=right.string or None, uri=right.get("rightsURI")
+                )
+            )
 
         # subjects
         subjects_dict: Dict[str, List[str]] = {}
@@ -278,18 +306,17 @@ class Datacite:
                 subjects_dict.setdefault(subject.attrs["subjectScheme"], []).append(
                     subject.string
                 )
-        for key, value in subjects_dict.items():
-            kwargs.setdefault("subjects", []).append(
-                timdex.Subject(value=value, kind=key)
-            )
+        kwargs["subjects"] = [
+            timdex.Subject(value=value, kind=key)
+            for key, value in subjects_dict.items()
+        ] or None
 
         # summary, uses description list retrieved for notes field
-        for description in [
-            d
+        kwargs["summary"] = [
+            d.string
             for d in descriptions
-            if "descriptionType" in d.attrs and d.attrs["descriptionType"] == "Abstract"
-        ]:
-            kwargs.setdefault("summary", []).append(description.string)
+            if d.get("descriptionType") == "Abstract" and d.string
+        ] or None
 
         # citation, generate citation from other fields
         kwargs["citation"] = generate_citation(kwargs)

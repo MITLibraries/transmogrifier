@@ -47,34 +47,6 @@ def datacite_record_all_fields():
 
 
 @pytest.fixture()
-def datacite_record_required_fields():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_required_fields.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_missing_required_fields_warning():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_missing_required_fields_warning.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_missing_required_field_error():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_missing_required_field_error.xml"
-    )
-
-
-@pytest.fixture()
-def datacite_record_multiple_titles():
-    return parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_multiple_titles.xml"
-    )
-
-
-@pytest.fixture()
 def datacite_record_partial():
     return partial(
         Datacite,

@@ -1,5 +1,6 @@
 from pytest import raises
 
+from transmogrifier.helpers import parse_xml_records
 from transmogrifier.models import (
     AlternateTitle,
     Contributor,
@@ -7,6 +8,7 @@ from transmogrifier.models import (
     Date_Range,
     Funder,
     Identifier,
+    Link,
     Location,
     Note,
     RelatedItem,
@@ -52,44 +54,37 @@ def test_datacite_record_all_fields(
                 affiliation=["Pratham and ASER Centre"],
                 identifier=["https://orcid.org/0000-0000-0000-0000"],
                 kind="Creator",
-                mit_affiliated=None,
             ),
             Contributor(
                 value="Berry, James",
                 affiliation=["University of Delaware"],
                 identifier=["0000-0000-0000-0001"],
                 kind="Creator",
-                mit_affiliated=None,
             ),
             Contributor(
                 value="Shotland, Marc",
                 affiliation=["Abdul Latif Jameel Poverty Action Lab"],
                 identifier=["0000-0000-0000-0002"],
                 kind="Creator",
-                mit_affiliated=None,
             ),
             Contributor(
                 value="Banerji, Rukmini",
                 affiliation=["Pratham and ASER Centre"],
                 identifier=["https://orcid.org/0000-0000-0000-0000"],
                 kind="ContactPerson",
-                mit_affiliated=None,
             ),
         ],
         dates=[
-            Date(kind="Publication date", note=None, range=None, value="2017"),
-            Date(kind="Submitted", note=None, range=None, value="2017-02-27"),
+            Date(kind="Publication date", value="2017"),
+            Date(kind="Submitted", value="2017-02-27"),
             Date(
                 kind="Updated",
                 note="This was updated on this date",
-                range=None,
                 value="2019-06-24",
             ),
             Date(
                 kind="Collected",
-                note=None,
-                range=Date_Range(gt=None, gte="2007-01-01", lt=None, lte="2007-02-28"),
-                value=None,
+                range=Date_Range(gte="2007-01-01", lte="2007-02-28"),
             ),
         ],
         edition="1.2",
@@ -122,6 +117,13 @@ def test_datacite_record_all_fields(
             Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
         ],
         locations=[Location(value="A point on the globe")],
+        links=[
+            Link(
+                url="https://example.com/doi:10.7910/DVN/19PPE7",
+                kind="Digital object URL",
+                text="Digital object URL",
+            )
+        ],
         languages=["en_US"],
         notes=[
             Note(value=["Survey Data"], kind="Datacite resource type"),
@@ -130,26 +132,18 @@ def test_datacite_record_all_fields(
         publication_information=["Harvard Dataverse"],
         related_items=[
             RelatedItem(
-                description=None,
-                item_type=None,
                 relationship="IsCitedBy",
                 uri="https://doi.org/10.1257/app.20150390",
             ),
             RelatedItem(
-                description=None,
-                item_type=None,
                 relationship="IsVersionOf",
                 uri="10.5281/zenodo.5524464",
             ),
             RelatedItem(
-                description=None,
-                item_type=None,
                 relationship="IsIdenticalTo",
                 uri="1234567.5524464",
             ),
             RelatedItem(
-                description=None,
-                item_type=None,
                 relationship="IsPartOf",
                 uri="https://zenodo.org/communities/astronomy-general",
             ),
@@ -188,47 +182,14 @@ def test_datacite_record_all_fields(
     )
 
 
-def test_datacite_required_fields_record(
-    datacite_record_partial, datacite_record_required_fields
-):
-    output_records = datacite_record_partial(
-        input_records=datacite_record_required_fields
-    )
-    assert next(output_records) == TimdexRecord(
-        citation=(
-            "The Impact of Maternal Literacy and Participation Programs. "
-            "https://example.com/doi:10.7910/DVN/19PPE7"
-        ),
-        source="A Cool Repository",
-        source_link="https://example.com/doi:10.7910/DVN/19PPE7",
-        timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
-        title="The Impact of Maternal Literacy and Participation Programs",
-        format="electronic resource",
-        alternate_titles=None,
-        content_type=None,
-        contributors=None,
-        dates=None,
-        edition=None,
-        file_formats=None,
-        funding_information=None,
-        identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
-        locations=None,
-        notes=None,
-        publication_information=None,
-        related_items=None,
-        rights=None,
-        subjects=None,
-        summary=None,
-    )
-
-
 def test_datacite_missing_required_fields_raises_warning(
     caplog,
     datacite_record_partial,
-    datacite_record_missing_required_fields_warning,
 ):
     output_records = datacite_record_partial(
-        input_records=datacite_record_missing_required_fields_warning
+        input_records=parse_xml_records(
+            "tests/fixtures/datacite/datacite_record_missing_required_fields_warning.xml"
+        )
     )
     next(output_records)
 
@@ -250,22 +211,96 @@ def test_datacite_missing_required_fields_raises_warning(
     ) in caplog.text
 
 
-def test_datacite_missing_required_field_raises_error(
-    datacite_record_partial, datacite_record_missing_required_field_error
+def test_datacite_optional_fields_blank_transforms_correctly(
+    datacite_record_partial,
+):
+    output_records = datacite_record_partial(
+        input_records=parse_xml_records(
+            "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
+        )
+    )
+    assert next(output_records) == TimdexRecord(
+        citation=(
+            "The Impact of Maternal Literacy and Participation Programs. "
+            "https://example.com/doi:10.7910/DVN/19PPE7"
+        ),
+        source="A Cool Repository",
+        source_link="https://example.com/doi:10.7910/DVN/19PPE7",
+        timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
+        title="The Impact of Maternal Literacy and Participation Programs",
+        format="electronic resource",
+        identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
+        links=[
+            Link(
+                url="https://example.com/doi:10.7910/DVN/19PPE7",
+                kind="Digital object URL",
+                text="Digital object URL",
+            )
+        ],
+    )
+
+
+def test_datacite_record_optional_fields_missing_transforms_correctly(
+    datacite_record_partial,
+):
+    output_records = datacite_record_partial(
+        input_records=parse_xml_records(
+            "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
+        )
+    )
+    assert next(output_records) == TimdexRecord(
+        citation=(
+            "The Impact of Maternal Literacy and Participation Programs. "
+            "https://example.com/doi:10.7910/DVN/19PPE7"
+        ),
+        source="A Cool Repository",
+        source_link="https://example.com/doi:10.7910/DVN/19PPE7",
+        timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
+        title="The Impact of Maternal Literacy and Participation Programs",
+        format="electronic resource",
+        identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
+        links=[
+            Link(
+                url="https://example.com/doi:10.7910/DVN/19PPE7",
+                kind="Digital object URL",
+                text="Digital object URL",
+            )
+        ],
+    )
+
+
+def test_datacite_title_field_blank_raises_error(
+    datacite_record_partial,
 ):
     with raises(ValueError):
         output_records = datacite_record_partial(
-            input_records=datacite_record_missing_required_field_error
+            input_records=parse_xml_records(
+                "tests/fixtures/datacite/datacite_record_title_field_blank.xml"
+            )
         )
         next(output_records)
 
 
-def test_datacite_multiple_titles_raises_error(
-    datacite_record_partial, datacite_record_multiple_titles
+def test_datacite_title_field_missing_raises_error(
+    datacite_record_partial,
 ):
     with raises(ValueError):
         output_records = datacite_record_partial(
-            input_records=datacite_record_multiple_titles
+            input_records=parse_xml_records(
+                "tests/fixtures/datacite/datacite_record_title_field_missing.xml"
+            )
+        )
+        next(output_records)
+
+
+def test_datacite_title_field_multiple_raises_error(
+    datacite_record_partial,
+):
+    with raises(ValueError):
+        output_records = datacite_record_partial(
+            input_records=parse_xml_records(
+                "tests/fixtures/datacite/datacite_record_title_field_multiple.xml"
+            )
         )
         next(output_records)
 
