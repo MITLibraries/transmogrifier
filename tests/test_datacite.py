@@ -19,21 +19,10 @@ from transmogrifier.models import (
 from transmogrifier.sources.datacite import Datacite
 
 
-def test_datacite_iterates_through_all_records(datacite_records):
-    output_records = Datacite(
-        "jpal",
-        "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
-        "Abdul Latif Jameel Poverty Action Lab Dataverse",
-        datacite_records,
-    )
-    assert len(list(output_records)) == 38
-
-
-def test_datacite_record_all_fields(
-    datacite_record_partial, datacite_record_all_fields
+def test_datacite_transform_with_all_fields_transforms_correctly(
+    datacite_record_all_fields,
 ):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
-    assert next(output_records) == TimdexRecord(
+    assert next(datacite_record_all_fields) == TimdexRecord(
         citation=(
             "Banerji, Rukmini, Berry, James, Shotland, Marc "
             "(2017): The Impact of Maternal Literacy and Participation Programs. Harvard "
@@ -182,15 +171,11 @@ def test_datacite_record_all_fields(
     )
 
 
-def test_datacite_missing_required_fields_raises_warning(
-    caplog,
-    datacite_record_partial,
-):
-    output_records = datacite_record_partial(
-        input_records=parse_xml_records(
-            "tests/fixtures/datacite/datacite_record_missing_required_fields_warning.xml"
-        )
+def test_datacite_transform_missing_required_datacite_fields_logs_warning(caplog):
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_missing_required_fields_warning.xml"
     )
+    output_records = Datacite("cool-repo", input_records)
     next(output_records)
 
     assert (
@@ -211,14 +196,11 @@ def test_datacite_missing_required_fields_raises_warning(
     ) in caplog.text
 
 
-def test_datacite_optional_fields_blank_transforms_correctly(
-    datacite_record_partial,
-):
-    output_records = datacite_record_partial(
-        input_records=parse_xml_records(
-            "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
-        )
+def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
     )
+    output_records = Datacite("cool-repo", input_records)
     assert next(output_records) == TimdexRecord(
         citation=(
             "The Impact of Maternal Literacy and Participation Programs. "
@@ -240,14 +222,11 @@ def test_datacite_optional_fields_blank_transforms_correctly(
     )
 
 
-def test_datacite_record_optional_fields_missing_transforms_correctly(
-    datacite_record_partial,
-):
-    output_records = datacite_record_partial(
-        input_records=parse_xml_records(
-            "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
-        )
+def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
     )
+    output_records = Datacite("cool-repo", input_records)
     assert next(output_records) == TimdexRecord(
         citation=(
             "The Impact of Maternal Literacy and Participation Programs. "
@@ -269,95 +248,77 @@ def test_datacite_record_optional_fields_missing_transforms_correctly(
     )
 
 
-def test_datacite_title_field_blank_raises_error(
-    datacite_record_partial,
-):
+def test_datacite_transform_with_title_field_blank_raises_error():
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_title_field_blank.xml"
+    )
     with raises(ValueError):
-        output_records = datacite_record_partial(
-            input_records=parse_xml_records(
-                "tests/fixtures/datacite/datacite_record_title_field_blank.xml"
-            )
-        )
+        output_records = Datacite("cool-repo", input_records)
         next(output_records)
 
 
-def test_datacite_title_field_missing_raises_error(
-    datacite_record_partial,
-):
+def test_datacite_transform_with_title_field_missing_raises_error():
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_title_field_missing.xml"
+    )
     with raises(ValueError):
-        output_records = datacite_record_partial(
-            input_records=parse_xml_records(
-                "tests/fixtures/datacite/datacite_record_title_field_missing.xml"
-            )
-        )
+        output_records = Datacite("cool-repo", input_records)
         next(output_records)
 
 
-def test_datacite_title_field_multiple_raises_error(
-    datacite_record_partial,
-):
+def test_datacite_transform_with_title_field_multiple_raises_error():
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_title_field_multiple.xml"
+    )
     with raises(ValueError):
-        output_records = datacite_record_partial(
-            input_records=parse_xml_records(
-                "tests/fixtures/datacite/datacite_record_title_field_multiple.xml"
-            )
-        )
+        output_records = Datacite("cool-repo", input_records)
         next(output_records)
 
 
-def test_generate_name_identifier_url_orcid_scheme(
-    datacite_record_partial, datacite_record_all_fields
-):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
-    assert next(output_records).contributors[0].identifier == [
+def test_generate_name_identifier_url_orcid_scheme(datacite_record_all_fields):
+    assert next(datacite_record_all_fields).contributors[0].identifier == [
         "https://orcid.org/0000-0000-0000-0000"
     ]
 
 
-def test_generate_name_identifier_url_unknown_scheme(
-    datacite_record_partial, datacite_record_all_fields
-):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
-    assert next(output_records).contributors[1].identifier == ["0000-0000-0000-0001"]
+def test_generate_name_identifier_url_unknown_scheme(datacite_record_all_fields):
+    assert next(datacite_record_all_fields).contributors[1].identifier == [
+        "0000-0000-0000-0001"
+    ]
 
 
 def test_generate_name_identifier_url_no_identifier_scheme(
-    datacite_record_partial, datacite_record_all_fields
+    datacite_record_all_fields,
 ):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
-    assert next(output_records).contributors[2].identifier == ["0000-0000-0000-0002"]
+    assert next(datacite_record_all_fields).contributors[2].identifier == [
+        "0000-0000-0000-0002"
+    ]
 
 
-def test_generate_related_item_identifier_url_doi_type(
-    datacite_record_partial, datacite_record_all_fields
-):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
+def test_generate_related_item_identifier_url_doi_type(datacite_record_all_fields):
     assert (
-        next(output_records).related_items[0].uri
+        next(datacite_record_all_fields).related_items[0].uri
         == "https://doi.org/10.1257/app.20150390"
     )
 
 
-def test_generate_related_item_identifier_no_identifier_type(
-    datacite_record_partial,
+def test_generate_related_item_identifier_url_no_identifier_type(
     datacite_record_all_fields,
 ):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
-    assert next(output_records).related_items[1].uri == "10.5281/zenodo.5524464"
+    assert (
+        next(datacite_record_all_fields).related_items[1].uri
+        == "10.5281/zenodo.5524464"
+    )
 
 
 def test_generate_related_item_identifier_url_unknown_type(
-    datacite_record_partial, datacite_record_all_fields
+    datacite_record_all_fields,
 ):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
-    assert next(output_records).related_items[2].uri == "1234567.5524464"
+    assert next(datacite_record_all_fields).related_items[2].uri == "1234567.5524464"
 
 
-def test_generate_related_item_identifier_url_url_type(
-    datacite_record_partial, datacite_record_all_fields
-):
-    output_records = datacite_record_partial(input_records=datacite_record_all_fields)
+def test_generate_related_item_identifier_url_url_type(datacite_record_all_fields):
     assert (
-        next(output_records).related_items[3].uri
+        next(datacite_record_all_fields).related_items[3].uri
         == "https://zenodo.org/communities/astronomy-general"
     )

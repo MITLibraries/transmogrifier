@@ -1,65 +1,26 @@
 """DSpace METS XML transform module."""
 import logging
-from typing import Iterator
 
 from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import generate_citation
+from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-class DspaceMets:
-    """DSpace METS transform class."""
+class DspaceMets(Transformer):
+    """DSpace METS transformer."""
 
-    def __init__(
-        self,
-        source: str,
-        source_base_url: str,
-        source_name: str,
-        input_records: Iterator[Tag],
-    ) -> None:
+    def transform(self, xml: Tag) -> timdex.TimdexRecord:
         """
-        Initialize DSpaceMets instance.
+        Transform a DSpace METS XML record to a TIMDEX record.
+
+        Overrides the base Transformer.transform() method.
 
         Args:
-            source: Source repository short label.
-            source_base_url: Base URL for source repository records.
-            source_name: Human-Readable full name of the source repository.
-            input_records: Iterator of DSpace METS XML records.
-        """
-        self.source = source
-        self.source_base_url = source_base_url
-        self.source_name = source_name
-        self.input_records = input_records
-
-    def __iter__(self) -> Iterator[timdex.TimdexRecord]:
-        """Iterate over records."""
-        return self
-
-    def __next__(self) -> timdex.TimdexRecord:
-        """Return next transformed record in record iterator."""
-        xml = next(self.input_records)
-        record = self.create_from_dspace_mets_xml(
-            self.source, self.source_base_url, self.source_name, xml
-        )
-        return record
-
-    @classmethod
-    def create_from_dspace_mets_xml(
-        cls, source: str, source_base_url: str, source_name: str, xml: Tag
-    ) -> timdex.TimdexRecord:
-        """
-        Create a TimdexRecord instance from a DSpace METS XML record.
-
-        Args:
-            source: A short label for the source repository.
-            source_base_url: The base URL for the source system from which direct links
-                to source metadata records can be constructed.
-            source_name: The full human-readable name of the source repository to be
-                used in the TIMDEX record.
-            xml: A BeautifulSoup Tag representing a single DSpace record in METS XML.
+            xml: A BeautifulSoup Tag representing a single DSpace METS XML record.
         """
 
         # Required fields in TIMDEX
@@ -77,9 +38,9 @@ class DspaceMets:
                 f"field value of '{main_title[0]}'"
             )
         kwargs = {
-            "source": source_name,
-            "source_link": f"{source_base_url}handle/{source_record_id}",
-            "timdex_record_id": f"{source}:{source_record_id.replace('/', '-')}",
+            "source": self.source_name,
+            "source_link": f"{self.source_base_url}handle/{source_record_id}",
+            "timdex_record_id": f"{self.source}:{source_record_id.replace('/', '-')}",
             "title": main_title[0].string,
         }
 

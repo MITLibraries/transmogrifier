@@ -1,22 +1,30 @@
 """transmogrifier.config module."""
 import logging
 import os
+from importlib import import_module
 
 import sentry_sdk
 
 SOURCES = {
-    "dspace": {"name": "DSpace@MIT", "base_url": "https://dspace.mit.edu/"},
+    "dspace": {
+        "name": "DSpace@MIT",
+        "base_url": "https://dspace.mit.edu/",
+        "transform-class": "transmogrifier.sources.dspace_mets.DspaceMets",
+    },
     "jpal": {
         "name": "Abdul Latif Jameel Poverty Action Lab Dataverse",
         "base_url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
+        "transform-class": "transmogrifier.sources.datacite.Datacite",
     },
     "whoas": {
         "name": "Woods Hole Open Access Server",
         "base_url": "https://darchive.mblwhoilibrary.org/handle/",
+        "transform-class": "transmogrifier.sources.dspace_dim.DspaceDim",
     },
     "zenodo": {
         "name": "Zenodo",
         "base_url": "https://zenodo.org/record/",
+        "transform-class": "transmogrifier.sources.zenodo.Zenodo",
     },
 }
 
@@ -48,3 +56,14 @@ def configure_sentry() -> str:
         sentry_sdk.init(sentry_dsn, environment=env)
         return f"Sentry DSN found, exceptions will be sent to Sentry with env={env}"
     return "No Sentry DSN found, exceptions will not be sent to Sentry"
+
+
+def get_transformer(source: str) -> type:
+    """
+    Return configured transformer class for a source.
+
+    Source must be configured with a valid transform class path.
+    """
+    module_name, class_name = SOURCES[source]["transform-class"].rsplit(".", 1)
+    source_module = import_module(module_name)
+    return getattr(source_module, class_name)

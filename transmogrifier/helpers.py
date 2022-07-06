@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from typing import Iterator
 
 from attrs import asdict
@@ -98,7 +99,7 @@ def write_timdex_records_to_json(
                 )
             )
             count += 1
-            if count % 1000 == 0:
+            if count % int(os.getenv("STATUS_UPDATE_INTERVAL", 1000)) == 0:
                 logger.info(
                     "Status update: %s records written to output file so far!", count
                 )

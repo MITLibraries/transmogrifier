@@ -5,71 +5,38 @@ from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.dspace_mets import DspaceMets
 
 
-def test_dspace_mets_iterates_through_all_records():
-    dspace_xml_records = parse_xml_records(
-        "tests/fixtures/dspace/dspace_mets_records.xml"
-    )
-    output_records = DspaceMets(
-        source="dspace",
-        source_base_url="https://dspace.mit.edu/",
-        source_name="DSpace@MIT",
-        input_records=dspace_xml_records,
-    )
-    assert len(list(output_records)) == 12
-
-
-def test_dspace_mets_create_from_xml_with_missing_title_field_raises_error():
+def test_dspace_mets_transform_with_missing_title_field_raises_error():
     dspace_xml_records = parse_xml_records(
         "tests/fixtures/dspace/dspace_mets_record_title_field_missing.xml"
     )
     with pytest.raises(ValueError):
-        output_records = DspaceMets(
-            source="dspace",
-            source_base_url="https://dspace.mit.edu/",
-            source_name="DSpace@MIT",
-            input_records=dspace_xml_records,
-        )
+        output_records = DspaceMets("dspace", dspace_xml_records)
         next(output_records)
 
 
-def test_dspace_mets_create_from_xml_with_blank_title_field_raises_error():
+def test_dspace_mets_transform_with_blank_title_field_raises_error():
     dspace_xml_records = parse_xml_records(
         "tests/fixtures/dspace/dspace_mets_record_title_field_blank.xml"
     )
     with pytest.raises(ValueError):
-        output_records = DspaceMets(
-            source="dspace",
-            source_base_url="https://dspace.mit.edu/",
-            source_name="DSpace@MIT",
-            input_records=dspace_xml_records,
-        )
+        output_records = DspaceMets("dspace", dspace_xml_records)
         next(output_records)
 
 
-def test_dspace_mets_create_from_xml_with_multiple_title_fields_raises_error():
+def test_dspace_mets_transform_with_multiple_title_fields_raises_error():
     dspace_xml_records = parse_xml_records(
         "tests/fixtures/dspace/dspace_mets_record_title_field_multiple.xml"
     )
     with pytest.raises(ValueError):
-        output_records = DspaceMets(
-            source="dspace",
-            source_base_url="https://dspace.mit.edu/",
-            source_name="DSpace@MIT",
-            input_records=dspace_xml_records,
-        )
+        output_records = DspaceMets("dspace", dspace_xml_records)
         next(output_records)
 
 
-def test_dspace_mets_create_from_xml_with_missing_optional_fields_transforms_correctly():
+def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly():
     dspace_xml_records = parse_xml_records(
         "tests/fixtures/dspace/dspace_mets_record_optional_fields_missing.xml"
     )
-    output_records = DspaceMets(
-        source="dspace",
-        source_base_url="https://dspace.mit.edu/",
-        source_name="DSpace@MIT",
-        input_records=dspace_xml_records,
-    )
+    output_records = DspaceMets("dspace", dspace_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
@@ -83,16 +50,11 @@ def test_dspace_mets_create_from_xml_with_missing_optional_fields_transforms_cor
     )
 
 
-def test_dspace_mets_create_from_xml_with_blank_optional_fields_transforms_correctly():
+def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly():
     dspace_xml_records = parse_xml_records(
         "tests/fixtures/dspace/dspace_mets_record_optional_fields_blank.xml"
     )
-    output_records = DspaceMets(
-        source="dspace",
-        source_base_url="https://dspace.mit.edu/",
-        source_name="DSpace@MIT",
-        input_records=dspace_xml_records,
-    )
+    output_records = DspaceMets("dspace", dspace_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
@@ -106,16 +68,11 @@ def test_dspace_mets_create_from_xml_with_blank_optional_fields_transforms_corre
     )
 
 
-def test_dspace_mets_create_from_xml_with_all_fields_transforms_correctly():
+def test_dspace_mets_transform_with_all_fields_transforms_correctly():
     dspace_xml_records = parse_xml_records(
         "tests/fixtures/dspace/dspace_mets_record_all_fields.xml"
     )
-    output_records = DspaceMets(
-        source="dspace",
-        source_base_url="https://dspace.mit.edu/",
-        source_name="DSpace@MIT",
-        input_records=dspace_xml_records,
-    )
+    output_records = DspaceMets("dspace", dspace_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
