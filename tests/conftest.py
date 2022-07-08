@@ -1,34 +1,44 @@
 import os
-from functools import partial
 
 import pytest
 from click.testing import CliRunner
 
+import transmogrifier.models as timdex
+from transmogrifier.config import SOURCES
 from transmogrifier.helpers import parse_xml_records
-from transmogrifier.models import (
-    AlternateTitle,
-    Contributor,
-    Date,
-    Date_Range,
-    Funder,
-    Holding,
-    Identifier,
-    Link,
-    Location,
-    Note,
-    RelatedItem,
-    Rights,
-    Subject,
-    TimdexRecord,
-)
 from transmogrifier.sources.datacite import Datacite
-from transmogrifier.sources.dspace_dim import DSpaceDim
 
 
 @pytest.fixture(autouse=True)
 def test_env():
     os.environ = {"WORKSPACE": "test"}
     yield
+
+
+@pytest.fixture(autouse=True, scope="session")
+def test_config():
+    SOURCES["cool-repo"] = {
+        "name": "A Cool Repository",
+        "base_url": "https://example.com/",
+    }
+    yield
+
+
+@pytest.fixture()
+def bad_config():
+    SOURCES["bad-class-name"] = {
+        "name": "Some Repository",
+        "base_url": "https://example.com/",
+        "transform-class": "transmogrifier.sources.datacite.WrongClass",
+    }
+    SOURCES["bad-module-path"] = {
+        "name": "Some Repository",
+        "base_url": "https://example.com/",
+        "transform-class": "wrong.module.Datacite",
+    }
+    yield
+    SOURCES.pop("bad-class-name")
+    SOURCES.pop("bad-module-path")
 
 
 @pytest.fixture()
@@ -43,37 +53,15 @@ def datacite_records():
 
 @pytest.fixture()
 def datacite_record_all_fields():
-    return parse_xml_records("tests/fixtures/datacite/datacite_record_all_fields.xml")
-
-
-@pytest.fixture()
-def datacite_record_partial():
-    return partial(
-        Datacite,
-        source="cool-repo",
-        source_name="A Cool Repository",
-        source_base_url="https://example.com/",
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_all_fields.xml"
     )
-
-
-@pytest.fixture()
-def dspace_dim_record_partial():
-    return partial(
-        DSpaceDim,
-        source="cool-repo",
-        source_name="A Cool Repository",
-        source_base_url="https://example.com/",
-    )
-
-
-@pytest.fixture()
-def dspace_dim_records():
-    return parse_xml_records("tests/fixtures/dspace/dspace_dim_records.xml")
+    return Datacite("cool-repo", input_records)
 
 
 @pytest.fixture()
 def timdex_record_required_fields():
-    return TimdexRecord(
+    return timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/123",
         timdex_record_id="cool-repo:123",
@@ -83,18 +71,18 @@ def timdex_record_required_fields():
 
 @pytest.fixture()
 def timdex_record_all_fields_and_subfields():
-    return TimdexRecord(
+    return timdex.TimdexRecord(
         citation="Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID",
         source="A Cool Repository",
         source_link="https://example.com/123",
         timdex_record_id="cool-repo:123",
         title="Some Data About Trees",
-        alternate_titles=[AlternateTitle(value="Alt title", kind="alternative")],
+        alternate_titles=[timdex.AlternateTitle(value="Alt title", kind="alternative")],
         call_numbers=["QC173.59.S65"],
         content_type=["dataset"],
         contents=["Chapter 1, Chapter 2"],
         contributors=[
-            Contributor(
+            timdex.Contributor(
                 value="Smith, Jane",
                 affiliation=["MIT"],
                 identifier=["https://orcid.org/456"],
@@ -103,18 +91,18 @@ def timdex_record_all_fields_and_subfields():
             ),
         ],
         dates=[
-            Date(kind="date of publication", value="2020-01-15"),
-            Date(
+            timdex.Date(kind="date of publication", value="2020-01-15"),
+            timdex.Date(
                 kind="dates collected",
                 note="data collected every 3 days",
-                range=Date_Range(gt="2019-01-01", lt="2019-06-30"),
+                range=timdex.Date_Range(gt="2019-01-01", lt="2019-06-30"),
             ),
         ],
         edition="2nd revision",
         file_formats=["application/pdf"],
         format="electronic resource",
         funding_information=[
-            Funder(
+            timdex.Funder(
                 funder_name="Funding Foundation",
                 funder_identifier="4356",
                 funder_identifier_type="Crossref FunderID",
@@ -123,7 +111,7 @@ def timdex_record_all_fields_and_subfields():
             )
         ],
         holdings=[
-            Holding(
+            timdex.Holding(
                 call_number="QC173.59.S65",
                 collection="Stacks",
                 format="Print volume",
@@ -131,10 +119,10 @@ def timdex_record_all_fields_and_subfields():
                 note="Holdings note",
             )
         ],
-        identifiers=[Identifier(value="123", kind="doi")],
+        identifiers=[timdex.Identifier(value="123", kind="doi")],
         languages=["en_US"],
         links=[
-            Link(
+            timdex.Link(
                 kind="SpringerLink",
                 restrictions="Touchstone authentication required for access",
                 text="Direct access via SpringerLink",
@@ -143,19 +131,19 @@ def timdex_record_all_fields_and_subfields():
         ],
         literary_form="nonfiction",
         locations=[
-            Location(
+            timdex.Location(
                 value="A point on the globe",
                 kind="Data was gathered here",
                 geodata=[-77.025955, 38.942142],
             )
         ],
-        notes=[Note(value=["This book is awesome"], kind="opinion")],
+        notes=[timdex.Note(value=["This book is awesome"], kind="opinion")],
         numbering="Began with v. 32, issue 1 (Jan./June 2005).",
         physical_description="1 online resource (1 sound file)",
         publication_frequency=["Semiannual"],
         publication_information=["Version 1.0"],
         related_items=[
-            RelatedItem(
+            timdex.RelatedItem(
                 description="This item is related to this other item",
                 item_type="An item type",
                 relationship="isReferencedBy",
@@ -163,17 +151,12 @@ def timdex_record_all_fields_and_subfields():
             )
         ],
         rights=[
-            Rights(
+            timdex.Rights(
                 description="People may use this",
                 kind="Access rights",
                 uri="http://rights.example/",
             ),
         ],
-        subjects=[Subject(value=["Stuff"], kind="LCSH")],
+        subjects=[timdex.Subject(value=["Stuff"], kind="LCSH")],
         summary=["This is data."],
     )
-
-
-@pytest.fixture()
-def zenodo_record():
-    return parse_xml_records("tests/fixtures/datacite/zenodo_record.xml")

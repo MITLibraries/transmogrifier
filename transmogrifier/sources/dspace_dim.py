@@ -1,52 +1,28 @@
 import logging
-from typing import Dict, Iterator, List
+from typing import Dict, List
 
 from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import generate_citation
+from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-class DSpaceDim:
-    def __init__(
-        self,
-        source: str,
-        source_base_url: str,
-        source_name: str,
-        input_records: Iterator[Tag],
-    ) -> None:
-        self.source = source
-        self.source_base_url = source_base_url
-        self.source_name = source_name
-        self.input_records = input_records
+class DspaceDim(Transformer):
+    """DSpace DIM transformer class."""
 
-    def __iter__(self) -> Iterator[timdex.TimdexRecord]:
-        return self
-
-    def __next__(self) -> timdex.TimdexRecord:
-        xml = next(self.input_records)
-        record = self.create_from_dspace_dim(
-            self.source, self.source_base_url, self.source_name, xml
-        )
-        return record
-
-    @classmethod
-    def create_from_dspace_dim(
-        cls, source: str, source_base_url: str, source_name: str, xml: Tag
-    ) -> timdex.TimdexRecord:
+    def transform(self, xml: Tag) -> timdex.TimdexRecord:
         """
+        Transform a DSpace DIM XML record to a TIMDEX record.
+
+        Overrides the base Transformer.transform() method.
+
         Args:
-            source: A label for the source repository that is prepended to the
-            timdex_record_id.
-            source_base_url: The base URL for the source system from which direct links
-            to source metadata records can be constructed.
-            source_name: The full human-readable name of the source repository to be
-            used in the TIMDEX record.
-            xml: A BeautifulSoup Tag representing a single DSpace record in
-            dim XML.
+            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
         """
+
         # Required fields in TIMDEX
         source_record_id = xml.header.find("identifier").string.replace(
             "oai:darchive.mblwhoilibrary.org:", ""
@@ -64,9 +40,9 @@ class DSpaceDim:
                 f"field value of '{main_title[0]}'"
             )
         kwargs = {
-            "source": source_name,
-            "source_link": source_base_url + source_record_id,
-            "timdex_record_id": f"{source}:{source_record_id.replace('/', '-')}",
+            "source": self.source_name,
+            "source_link": self.source_base_url + source_record_id,
+            "timdex_record_id": f"{self.source}:{source_record_id.replace('/', '-')}",
             "title": main_title[0].string,
         }
 

@@ -1,54 +1,30 @@
 import logging
-from typing import Dict, Iterator, List
+from typing import Dict, List
 
 from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import generate_citation
+from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-class Datacite:
-    def __init__(
-        self,
-        source: str,
-        source_base_url: str,
-        source_name: str,
-        input_records: Iterator[Tag],
-    ) -> None:
-        self.source = source
-        self.source_base_url = source_base_url
-        self.source_name = source_name
-        self.input_records = input_records
+class Datacite(Transformer):
+    """Datacite transformer."""
 
-    def __iter__(self) -> Iterator[timdex.TimdexRecord]:
-        return self
-
-    def __next__(self) -> timdex.TimdexRecord:
-        xml = next(self.input_records)
-        record = self.create_from_datacite_xml(
-            self.source, self.source_base_url, self.source_name, xml
-        )
-        return record
-
-    @classmethod
-    def create_from_datacite_xml(
-        cls, source: str, source_base_url: str, source_name: str, xml: Tag
-    ) -> timdex.TimdexRecord:
+    def transform(self, xml: Tag) -> timdex.TimdexRecord:
         """
+        Transform a Datacite XML record to a TIMDEX record.
+
+        Overrides the base Transformer.transform() method.
+
         Args:
-            source: A label for the source repository that is prepended to the
-            timdex_record_id.
-            source_base_url: The base URL for the source system from which direct links
-            to source metadata records can be constructed.
-            source_name: The full human-readable name of the source repository to be
-            used in the TIMDEX record.
-            xml: A BeautifulSoup Tag representing a single Datacite record in
-            oai_datacite XML.
+            xml: A BeautifulSoup Tag representing a single Datacite XML record.
         """
+
         # Required fields in TIMDEX
-        source_record_id = cls.create_source_record_id(xml)
+        source_record_id = self.create_source_record_id(xml)
         all_titles = xml.metadata.find_all("title")
         main_title = [t for t in all_titles if "titleType" not in t.attrs]
         if len(main_title) != 1:
@@ -62,9 +38,9 @@ class Datacite:
                 f"field value of '{main_title[0]}'"
             )
         kwargs = {
-            "source": source_name,
-            "source_link": source_base_url + source_record_id,
-            "timdex_record_id": f"{source}:{source_record_id.replace('/', '-')}",
+            "source": self.source_name,
+            "source_link": self.source_base_url + source_record_id,
+            "timdex_record_id": f"{self.source}:{source_record_id.replace('/', '-')}",
             "title": main_title[0].string,
         }
 
@@ -104,7 +80,7 @@ class Datacite:
                         affiliation=[a.string for a in creator.find_all("affiliation")]
                         or None,
                         identifier=[
-                            cls.generate_name_identifier_url(name_identifier)
+                            self.generate_name_identifier_url(name_identifier)
                             for name_identifier in creator.find_all("nameIdentifier")
                         ]
                         or None,
@@ -123,7 +99,7 @@ class Datacite:
                         ]
                         or None,
                         identifier=[
-                            cls.generate_name_identifier_url(name_identifier)
+                            self.generate_name_identifier_url(name_identifier)
                             for name_identifier in contributor.find_all(
                                 "nameIdentifier"
                             )
@@ -220,7 +196,7 @@ class Datacite:
             if i.get("relationType") == "IsIdenticalTo" and i.string
         ]:
             i = timdex.Identifier(
-                value=cls.generate_related_item_identifier_url(related_identifier),
+                value=self.generate_related_item_identifier_url(related_identifier),
                 kind=related_identifier.get(
                     "relationType", "Identifier kind not specified"
                 ),
@@ -280,7 +256,7 @@ class Datacite:
         for related_identifier in [i for i in related_identifiers if i.string]:
             kwargs.setdefault("related_items", []).append(
                 timdex.RelatedItem(
-                    uri=cls.generate_related_item_identifier_url(related_identifier),
+                    uri=self.generate_related_item_identifier_url(related_identifier),
                     relationship=related_identifier.get("relationType"),
                 )
             )
