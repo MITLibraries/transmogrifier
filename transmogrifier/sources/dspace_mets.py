@@ -4,7 +4,6 @@ import logging
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import generate_citation
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -13,45 +12,23 @@ logger = logging.getLogger(__name__)
 class DspaceMets(Transformer):
     """DSpace METS transformer."""
 
-    def transform(self, xml: Tag) -> timdex.TimdexRecord:
+    def get_optional_fields(self, xml: Tag) -> dict:
         """
-        Transform a DSpace METS XML record to a TIMDEX record.
+        Retrieve optional TIMDEX fields from a DSpace METS XML record.
 
-        Overrides the base Transformer.transform() method.
+        Overrides metaclass get_optional_fields() method.
 
         Args:
             xml: A BeautifulSoup Tag representing a single DSpace METS XML record.
         """
-
-        # Required fields in TIMDEX
-        source_record_id = xml.header.identifier.string.split(":")[2]
-        all_titles = xml.metadata.find_all("mods:title")
-        main_title = [t for t in all_titles if "type" not in t.attrs]
-        if len(main_title) != 1:
-            raise ValueError(
-                f"A record must have exactly one title. {len(main_title)} titles found "
-                f"for record {source_record_id}."
-            )
-        if not main_title[0].string:
-            raise ValueError(
-                f"Title field cannot be empty, record {source_record_id} had title "
-                f"field value of '{main_title[0]}'"
-            )
-        kwargs = {
-            "source": self.source_name,
-            "source_link": f"{self.source_base_url}handle/{source_record_id}",
-            "timdex_record_id": f"{self.source}:{source_record_id.replace('/', '-')}",
-            "title": main_title[0].string,
-        }
-
-        # Optional fields in TIMDEX
+        fields: dict = {}
 
         # alternate_titles
         # Uses full title list retrieved for main title field
         for alternate_title in [
-            t for t in all_titles if "type" in t.attrs and t.string
+            t for t in xml.find_all("mods:title") if "type" in t.attrs and t.string
         ]:
-            kwargs.setdefault("alternate_titles", []).append(
+            fields.setdefault("alternate_titles", []).append(
                 timdex.AlternateTitle(
                     value=alternate_title.string,
                     kind=alternate_title["type"],
@@ -63,10 +40,10 @@ class DspaceMets(Transformer):
 
         # citation
         citation = xml.find("mods:identifier", type="citation")
-        kwargs["citation"] = citation.string if citation and citation.string else None
+        fields["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        kwargs["content_type"] = [
+        fields["content_type"] = [
             content_type.string
             for content_type in xml.find_all("mods:genre")
             if content_type.string
@@ -85,7 +62,7 @@ class DspaceMets(Transformer):
                     kind = role_name.string or "Contributor role not specified"
                 else:
                     kind = "Contributor role not specified"
-                kwargs.setdefault("contributors", []).append(
+                fields.setdefault("contributors", []).append(
                     timdex.Contributor(
                         kind=kind,
                         value=name.string,
@@ -97,7 +74,7 @@ class DspaceMets(Transformer):
         # coverage.temporal) is not mapped to the OAI-PMH METS output.
         publication_date = xml.find("mods:dateIssued")
         if publication_date and publication_date.string:
-            kwargs["dates"] = [
+            fields["dates"] = [
                 timdex.Date(kind="Publication date", value=publication_date.string)
             ]
 
@@ -110,10 +87,10 @@ class DspaceMets(Transformer):
         for file_group in file_groups:
             file = file_group.find("file")
             if file and file.get("MIMETYPE"):
-                kwargs.setdefault("file_formats", []).append(file["MIMETYPE"])
+                fields.setdefault("file_formats", []).append(file["MIMETYPE"])
 
         # format
-        kwargs["format"] = "electronic resource"
+        fields["format"] = "electronic resource"
 
         # funding_information: relevant field in DSpace (dc.description.sponsorship) is
         # not mapped to the OAI-PMH METS output.
@@ -126,7 +103,7 @@ class DspaceMets(Transformer):
         for identifier in [
             i for i in identifiers if i.get("type") != "citation" and i.string
         ]:
-            kwargs.setdefault("identifiers", []).append(
+            fields.setdefault("identifiers", []).append(
                 timdex.Identifier(
                     kind=identifier.get("type", "Identifier kind not specified"),
                     value=identifier.string,
@@ -138,11 +115,11 @@ class DspaceMets(Transformer):
         for language in languages:
             language_term = language.find("mods:languageTerm")
             if language_term and language_term.string:
-                kwargs.setdefault("languages", []).append(language_term.string)
+                fields.setdefault("languages", []).append(language_term.string)
 
         # links
         links = xml.find_all("mods:identifier", type="uri")
-        kwargs["links"] = [
+        fields["links"] = [
             timdex.Link(
                 kind="Digital object URL",
                 text="Digital object URL",
@@ -162,7 +139,7 @@ class DspaceMets(Transformer):
 
         # numbering
         numbering = xml.find("mods:relatedItem", type="series")
-        kwargs["numbering"] = (
+        fields["numbering"] = (
             numbering.string if numbering and numbering.string else None
         )
 
@@ -173,7 +150,7 @@ class DspaceMets(Transformer):
 
         # publication_information
         publication_information = xml.find_all("mods:publisher")
-        kwargs["publication_information"] = [
+        fields["publication_information"] = [
             publisher.string
             for publisher in publication_information
             if publisher.string
@@ -186,7 +163,7 @@ class DspaceMets(Transformer):
         for related_item in [
             ri for ri in related_items if ri.get("type") != "series" and ri.string
         ]:
-            kwargs.setdefault("related_items", []).append(
+            fields.setdefault("related_items", []).append(
                 timdex.RelatedItem(
                     description=related_item.string,
                     relationship=related_item.get("type", "Relationship not specified"),
@@ -197,7 +174,7 @@ class DspaceMets(Transformer):
         # Note: rights uri field in DSpace (dc.rights.uri) is not mapped to the OAI-PMH
         # METS output.
         rights = xml.find_all("mods:accessCondition")
-        kwargs["rights"] = [
+        fields["rights"] = [
             timdex.Rights(description=right.string, kind=right.get("type"))
             for right in rights
             if right.string
@@ -212,7 +189,7 @@ class DspaceMets(Transformer):
             topic = subject.find("mods:topic")
             if topic and topic.string:
                 subject_values.append(topic.string)
-        kwargs["subjects"] = (
+        fields["subjects"] = (
             [timdex.Subject(kind="Subject scheme not provided", value=subject_values)]
             if subject_values
             else None
@@ -220,12 +197,32 @@ class DspaceMets(Transformer):
 
         # summary
         summaries = xml.find_all("mods:abstract")
-        kwargs["summary"] = [
+        fields["summary"] = [
             summary.string for summary in summaries if summary.string
         ] or None
 
-        # If citation field was not present, generate citation from other fields
-        if kwargs.get("citation") is None:
-            kwargs["citation"] = generate_citation(kwargs)
+        return fields
 
-        return timdex.TimdexRecord(**kwargs)
+    @classmethod
+    def get_main_titles(cls, xml: Tag) -> list[str]:
+        """
+        Retrieve main title(s) from a DSpace METS XML record.
+
+        Overrides metaclass get_main_titles() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single DSpace METS XML record.
+        """
+        return [t for t in xml.find_all("mods:title") if "type" not in t.attrs]
+
+    @classmethod
+    def get_source_record_id(cls, xml) -> str:
+        """
+        Get the source record ID from a DSpace METS XML record.
+
+        Overrides metaclass get_source_record_id() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single DSpace METS XML record.
+        """
+        return xml.header.identifier.string.split(":")[2]

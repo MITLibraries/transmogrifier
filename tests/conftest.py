@@ -60,6 +60,11 @@ def datacite_record_all_fields():
 
 
 @pytest.fixture()
+def oai_pmh_records():
+    return parse_xml_records("tests/fixtures/oai_pmh_records.xml")
+
+
+@pytest.fixture()
 def timdex_record_required_fields():
     return timdex.TimdexRecord(
         source="A Cool Repository",

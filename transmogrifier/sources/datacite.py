@@ -4,7 +4,6 @@ from typing import Dict, List
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import generate_citation
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -13,43 +12,24 @@ logger = logging.getLogger(__name__)
 class Datacite(Transformer):
     """Datacite transformer."""
 
-    def transform(self, xml: Tag) -> timdex.TimdexRecord:
+    def get_optional_fields(self, xml: Tag) -> dict:
         """
-        Transform a Datacite XML record to a TIMDEX record.
+        Retrieve optional TIMDEX fields from a Datacite XML record.
 
-        Overrides the base Transformer.transform() method.
+        Overrides metaclass get_optional_fields() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single Datacite XML record.
+            xml: A BeautifulSoup Tag representing a single Datacite record in
+                oai_datacite XML.
         """
+        fields: dict = {}
+        source_record_id = self.get_source_record_id(xml)
 
-        # Required fields in TIMDEX
-        source_record_id = self.create_source_record_id(xml)
-        all_titles = xml.metadata.find_all("title")
-        main_title = [t for t in all_titles if "titleType" not in t.attrs]
-        if len(main_title) != 1:
-            raise ValueError(
-                "A record must have exactly one title. Titles found for record "
-                f"{source_record_id}: {main_title}"
-            )
-        if not main_title[0].string:
-            raise ValueError(
-                f"Title field cannot be empty, record {source_record_id} had title "
-                f"field value of '{main_title[0]}'"
-            )
-        kwargs = {
-            "source": self.source_name,
-            "source_link": self.source_base_url + source_record_id,
-            "timdex_record_id": f"{self.source}:{source_record_id.replace('/', '-')}",
-            "title": main_title[0].string,
-        }
-
-        # Optional fields in TIMDEX
-        # alternate_titles, uses full title list retrieved for main title field
+        # alternate_titles
         for alternate_title in [
-            t for t in all_titles if "titleType" in t.attrs and t.string
+            t for t in xml.find_all("title") if "titleType" in t.attrs and t.string
         ]:
-            kwargs.setdefault("alternate_titles", []).append(
+            fields.setdefault("alternate_titles", []).append(
                 timdex.AlternateTitle(
                     value=alternate_title.string,
                     kind=alternate_title["titleType"],
@@ -59,11 +39,11 @@ class Datacite(Transformer):
         # content_type
         resource_type = xml.metadata.find("resourceType")
         if resource_type and resource_type.string:
-            kwargs["notes"] = [
+            fields["notes"] = [
                 timdex.Note(value=[resource_type.string], kind="Datacite resource type")
             ]
             if resource_type["resourceTypeGeneral"]:
-                kwargs["content_type"] = [resource_type["resourceTypeGeneral"]]
+                fields["content_type"] = [resource_type["resourceTypeGeneral"]]
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
@@ -74,7 +54,7 @@ class Datacite(Transformer):
         for creator in xml.metadata.find_all("creator"):
             creator_name_element = creator.find("creatorName")
             if creator_name_element and creator_name_element.string:
-                kwargs.setdefault("contributors", []).append(
+                fields.setdefault("contributors", []).append(
                     timdex.Contributor(
                         value=creator_name_element.string,
                         affiliation=[a.string for a in creator.find_all("affiliation")]
@@ -91,7 +71,7 @@ class Datacite(Transformer):
         for contributor in xml.metadata.find_all("contributor"):
             contributor_name_element = contributor.find("contributorName")
             if contributor_name_element and contributor_name_element.string:
-                kwargs.setdefault("contributors", []).append(
+                fields.setdefault("contributors", []).append(
                     timdex.Contributor(
                         value=contributor_name_element.string,
                         affiliation=[
@@ -117,7 +97,7 @@ class Datacite(Transformer):
                 source_record_id,
             )
         else:
-            kwargs["dates"] = [
+            fields["dates"] = [
                 timdex.Date(kind="Publication date", value=publication_year.string)
             ]
 
@@ -133,20 +113,20 @@ class Datacite(Transformer):
                 d = timdex.Date(value=date.string)
             d.note = date.get("dateInformation")
             d.kind = date.get("dateType")
-            kwargs.setdefault("dates", []).append(d)
+            fields.setdefault("dates", []).append(d)
 
         # edition
         edition = xml.metadata.find("version")
         if edition and edition.string:
-            kwargs["edition"] = edition.string
+            fields["edition"] = edition.string
 
         # file_formats
-        kwargs["file_formats"] = [
+        fields["file_formats"] = [
             f.string for f in xml.metadata.find_all("format") if f.string
         ] or None
 
         # format
-        kwargs["format"] = "electronic resource"
+        fields["format"] = "electronic resource"
 
         # funding_information
         for funding_reference in [
@@ -165,11 +145,11 @@ class Datacite(Transformer):
                 f.funder_identifier = funder_identifier.string
                 f.funder_identifier_type = funder_identifier.get("funderIdentifierType")
             if f != timdex.Funder():
-                kwargs.setdefault("funding_information", []).append(f)
+                fields.setdefault("funding_information", []).append(f)
 
         # identifiers
         identifier_xml = xml.metadata.find("identifier")
-        kwargs["identifiers"] = [
+        fields["identifiers"] = [
             timdex.Identifier(
                 value=identifier_xml.string,
                 kind=identifier_xml.get(
@@ -180,7 +160,7 @@ class Datacite(Transformer):
         for alternate_identifier in [
             i for i in xml.metadata.find_all("alternateIdentifier") if i.string
         ]:
-            kwargs["identifiers"].append(
+            fields["identifiers"].append(
                 timdex.Identifier(
                     value=alternate_identifier.string,
                     kind=alternate_identifier.get(
@@ -201,19 +181,19 @@ class Datacite(Transformer):
                     "relationType", "Identifier kind not specified"
                 ),
             )
-            kwargs["identifiers"].append(i)
+            fields["identifiers"].append(i)
 
         # language
         language = xml.metadata.find("language")
         if language and language.string:
-            kwargs["languages"] = [language.string]
+            fields["languages"] = [language.string]
 
         # links
-        kwargs["links"] = [
+        fields["links"] = [
             timdex.Link(
                 kind="Digital object URL",
                 text="Digital object URL",
-                url=kwargs["source_link"],
+                url=self.source_base_url + source_record_id,
             )
         ]
 
@@ -221,7 +201,7 @@ class Datacite(Transformer):
         for location in [
             gl for gl in xml.metadata.find_all("geoLocationPlace") if gl.string
         ]:
-            kwargs.setdefault("locations", []).append(
+            fields.setdefault("locations", []).append(
                 timdex.Location(value=location.string)
             )
 
@@ -235,7 +215,7 @@ class Datacite(Transformer):
                     source_record_id,
                 )
             if description.get("descriptionType") != "Abstract":
-                kwargs.setdefault("notes", []).append(
+                fields.setdefault("notes", []).append(
                     timdex.Note(
                         value=[description.string],
                         kind=description.get("descriptionType"),
@@ -250,11 +230,11 @@ class Datacite(Transformer):
                 source_record_id,
             )
         else:
-            kwargs["publication_information"] = [publisher.string]
+            fields["publication_information"] = [publisher.string]
 
         # related_items, uses related_identifiers retrieved for identifiers
         for related_identifier in [i for i in related_identifiers if i.string]:
-            kwargs.setdefault("related_items", []).append(
+            fields.setdefault("related_items", []).append(
                 timdex.RelatedItem(
                     uri=self.generate_related_item_identifier_url(related_identifier),
                     relationship=related_identifier.get("relationType"),
@@ -265,7 +245,7 @@ class Datacite(Transformer):
         for right in [
             r for r in xml.metadata.find_all("rights") if r.string or r.get("rightsURI")
         ]:
-            kwargs.setdefault("rights", []).append(
+            fields.setdefault("rights", []).append(
                 timdex.Rights(
                     description=right.string or None, uri=right.get("rightsURI")
                 )
@@ -282,41 +262,53 @@ class Datacite(Transformer):
                 subjects_dict.setdefault(subject.attrs["subjectScheme"], []).append(
                     subject.string
                 )
-        kwargs["subjects"] = [
+        fields["subjects"] = [
             timdex.Subject(value=value, kind=key)
             for key, value in subjects_dict.items()
         ] or None
 
         # summary, uses description list retrieved for notes field
-        kwargs["summary"] = [
+        fields["summary"] = [
             d.string
             for d in descriptions
             if d.get("descriptionType") == "Abstract" and d.string
         ] or None
 
-        # citation, generate citation from other fields
-        kwargs["citation"] = generate_citation(kwargs)
-
-        return timdex.TimdexRecord(**kwargs)
+        return fields
 
     @classmethod
-    def create_source_record_id(cls, xml: Tag) -> str:
+    def get_main_titles(cls, xml: Tag) -> list[str]:
         """
-        Create a source record ID from a Datacite XML record.
+        Retrieve main title(s) from a Datacite XML record.
+
+        Overrides metaclass get_main_titles() method.
+
         Args:
             xml: A BeautifulSoup Tag representing a single Datacite record in
-            oai_datacite XML.
+                oai_datacite XML.
         """
-        source_record_id = xml.header.find("identifier").string
-        return source_record_id
+        return [t for t in xml.metadata.find_all("title", titleType=False)]
+
+    @classmethod
+    def get_source_record_id(cls, xml) -> str:
+        """
+        Get the source record ID from a Datacite XML record.
+
+        Overrides metaclass get_source_record_id() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single Datacite record in
+                oai_datacite XML.
+        """
+        return xml.header.find("identifier").string
 
     @classmethod
     def generate_name_identifier_url(cls, name_identifier):
         """
         Generate a full name identifier URL with the specified scheme.
         Args:
-            name_identifier: An BeautifulSoup Tag Tag representing a Datacite
-            nameIdentifier XML field.
+            name_identifier: A BeautifulSoup Tag representing a Datacite
+                nameIdentifier XML field.
         """
         if name_identifier.get("nameIdentifierScheme") == "ORCID":
             base_url = "https://orcid.org/"
@@ -329,8 +321,8 @@ class Datacite(Transformer):
         """
         Generate a full related item identifier URL with the specified scheme.
         Args:
-            related_item_identifier: An BeautifulSoup Tag Tag representing a Datacite
-            relatedIdentifier XML field.
+            related_item_identifier: A BeautifulSoup Tag representing a Datacite
+                relatedIdentifier XML field.
         """
         if related_item_identifier.get("relatedIdentifierType") == "DOI":
             base_url = "https://doi.org/"

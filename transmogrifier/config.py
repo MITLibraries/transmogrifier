@@ -8,7 +8,7 @@ import sentry_sdk
 SOURCES = {
     "dspace": {
         "name": "DSpace@MIT",
-        "base_url": "https://dspace.mit.edu/",
+        "base_url": "https://dspace.mit.edu/handle/",
         "transform-class": "transmogrifier.sources.dspace_mets.DspaceMets",
     },
     "jpal": {
