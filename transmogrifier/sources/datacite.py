@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from bs4 import Tag
 
@@ -38,12 +38,19 @@ class Datacite(Transformer):
 
         # content_type
         resource_type = xml.metadata.find("resourceType")
-        if resource_type and resource_type.string:
-            fields["notes"] = [
-                timdex.Note(value=[resource_type.string], kind="Datacite resource type")
-            ]
+        if resource_type:
+            if resource_type.string:
+                fields["notes"] = [
+                    timdex.Note(
+                        value=[resource_type.string], kind="Datacite resource type"
+                    )
+                ]
             if resource_type["resourceTypeGeneral"]:
-                fields["content_type"] = [resource_type["resourceTypeGeneral"]]
+                content_type = self.get_content_type(resource_type)
+                if content_type == "Unaccepted content_type":
+                    return None
+                else:
+                    fields["content_type"] = [content_type]
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
@@ -331,3 +338,14 @@ class Datacite(Transformer):
         else:
             base_url = ""
         return base_url + related_item_identifier.string
+
+    @classmethod
+    def get_content_type(cls, resource_type_xml_element: Tag) -> str:
+        """
+        Get content_type value from a resourceType element from a Datacite XML record.
+
+        Args:
+            resource_type_xml_element: A BeautifulSoup Tag representing a single Datacite
+            resourceType element.
+        """
+        return resource_type_xml_element["resourceTypeGeneral"]

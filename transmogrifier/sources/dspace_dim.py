@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from bs4 import Tag
 
@@ -41,9 +41,13 @@ class DspaceDim(Transformer):
         fields["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        fields["content_type"] = [
-            t.string for t in xml.find_all("dim:field", element="type") if t.string
-        ] or None
+        content_types = self.get_content_types(
+            xml.find_all("dim:field", element="type")
+        )
+        if content_types == ["Unaccepted content_types"]:
+            return None
+        else:
+            fields["content_type"] = content_types or None
 
         # contents
         fields["contents"] = [
@@ -264,3 +268,18 @@ class DspaceDim(Transformer):
             xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
         """
         return xml.header.identifier.string.split(":")[2]
+
+    @classmethod
+    def get_content_types(cls, dc_type_xml_element_list: Tag) -> List[Optional[str]]:
+        """
+        Get a list of content_type values from a list of dc.type elements from a DSpace
+        DIM record.
+
+        Args:
+            dc_type_xml_element_list: A list of BeautifulSoup Tags which each represent
+            a single DIM dc.type element.
+        """
+        content_types = []
+        for dc_type_xml_element in [t for t in dc_type_xml_element_list if t.string]:
+            content_types.append(dc_type_xml_element.string)
+        return content_types
