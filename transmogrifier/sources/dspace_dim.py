@@ -4,54 +4,32 @@ from typing import Dict, List
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import generate_citation
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
 class DspaceDim(Transformer):
-    """DSpace DIM transformer class."""
+    """DSpace DIM transformer."""
 
-    def transform(self, xml: Tag) -> timdex.TimdexRecord:
+    def get_optional_fields(self, xml: Tag) -> dict:
         """
-        Transform a DSpace DIM XML record to a TIMDEX record.
+        Retrieve optional TIMDEX fields from a DSpace DIM XML record.
 
-        Overrides the base Transformer.transform() method.
+        Overrides metaclass get_optional_fields() method.
 
         Args:
             xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
         """
+        fields: dict = {}
 
-        # Required fields in TIMDEX
-        source_record_id = xml.header.find("identifier").string.replace(
-            "oai:darchive.mblwhoilibrary.org:", ""
-        )
-        all_titles = xml.find_all("dim:field", element="title")
-        main_title = [t for t in all_titles if "qualifier" not in t.attrs]
-        if len(main_title) != 1:
-            raise ValueError(
-                "A record must have exactly one title. Titles found for record "
-                f"{source_record_id}: {main_title}"
-            )
-        if not main_title[0].string:
-            raise ValueError(
-                f"Title field cannot be empty, record {source_record_id} had title "
-                f"field value of '{main_title[0]}'"
-            )
-        kwargs = {
-            "source": self.source_name,
-            "source_link": self.source_base_url + source_record_id,
-            "timdex_record_id": f"{self.source}:{source_record_id.replace('/', '-')}",
-            "title": main_title[0].string,
-        }
-
-        # Optional fields in TIMDEX
-        # alternate_titles, uses full title list retrieved for main title field
+        # alternate_titles
         for alternate_title in [
-            t for t in all_titles if "qualifier" in t.attrs and t.string
+            t
+            for t in xml.find_all("dim:field", element="title")
+            if "qualifier" in t.attrs and t.string
         ]:
-            kwargs.setdefault("alternate_titles", []).append(
+            fields.setdefault("alternate_titles", []).append(
                 timdex.AlternateTitle(
                     value=alternate_title.string,
                     kind=alternate_title["qualifier"],
@@ -60,15 +38,15 @@ class DspaceDim(Transformer):
 
         # citation
         citation = xml.find("dim:field", element="identifier", qualifier="citation")
-        kwargs["citation"] = citation.string if citation and citation.string else None
+        fields["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        kwargs["content_type"] = [
+        fields["content_type"] = [
             t.string for t in xml.find_all("dim:field", element="type") if t.string
         ] or None
 
         # contents
-        kwargs["contents"] = [
+        fields["contents"] = [
             t.string
             for t in xml.find_all(
                 "dim:field", element="description", qualifier="tableofcontents"
@@ -80,7 +58,7 @@ class DspaceDim(Transformer):
         for creator in [
             c for c in xml.find_all("dim:field", element="creator") if c.string
         ]:
-            kwargs.setdefault("contributors", []).append(
+            fields.setdefault("contributors", []).append(
                 timdex.Contributor(
                     value=creator.string,
                     kind="Creator",
@@ -90,7 +68,7 @@ class DspaceDim(Transformer):
         for contributor in [
             c for c in xml.find_all("dim:field", element="contributor") if c.string
         ]:
-            kwargs.setdefault("contributors", []).append(
+            fields.setdefault("contributors", []).append(
                 timdex.Contributor(
                     value=contributor.string, kind=contributor.get("qualifier")
                 )
@@ -102,7 +80,7 @@ class DspaceDim(Transformer):
                 d = timdex.Date(value=date.string, kind="Publication date")
             else:
                 d = timdex.Date(value=date.string, kind=date.get("qualifier"))
-            kwargs.setdefault("dates", []).append(d)
+            fields.setdefault("dates", []).append(d)
 
         for coverage in [
             c.string
@@ -119,17 +97,17 @@ class DspaceDim(Transformer):
                 )
             else:
                 d = timdex.Date(note=coverage.string, kind="coverage")
-            kwargs.setdefault("dates", []).append(d)
+            fields.setdefault("dates", []).append(d)
 
         # file_formats
-        kwargs["file_formats"] = [
+        fields["file_formats"] = [
             f.string
             for f in xml.find_all("dim:field", element="format")
             if f.get("qualifier") == "mimetype" and f.string
         ] or None
 
         # format
-        kwargs["format"] = "electronic resource"
+        fields["format"] = "electronic resource"
 
         # funding_information
         for funding_reference in [
@@ -139,7 +117,7 @@ class DspaceDim(Transformer):
             )
             if f.string
         ]:
-            kwargs.setdefault("funding_information", []).append(
+            fields.setdefault("funding_information", []).append(
                 timdex.Funder(
                     funder_name=funding_reference.string,
                 )
@@ -150,7 +128,7 @@ class DspaceDim(Transformer):
         for identifier in [
             i for i in identifiers if i.get("qualifier") != "citation" and i.string
         ]:
-            kwargs.setdefault("identifiers", []).append(
+            fields.setdefault("identifiers", []).append(
                 timdex.Identifier(
                     value=identifier.string,
                     kind=identifier.get("qualifier", "Identifier kind not specified"),
@@ -158,14 +136,14 @@ class DspaceDim(Transformer):
             )
 
         # language
-        kwargs["languages"] = [
+        fields["languages"] = [
             la.string
             for la in xml.find_all("dim:field", element="language")
             if la.string
         ] or None
 
         # links, uses identifiers list retrieved for identifiers field
-        kwargs["links"] = [
+        fields["links"] = [
             timdex.Link(
                 kind="Digital object URL",
                 text="Digital object URL",
@@ -177,7 +155,7 @@ class DspaceDim(Transformer):
         ] or None
 
         # locations
-        kwargs["locations"] = [
+        fields["locations"] = [
             timdex.Location(value=lo.string)
             for lo in xml.find_all("dim:field", element="coverage", qualifier="spatial")
             if lo.string
@@ -197,14 +175,14 @@ class DspaceDim(Transformer):
             ]
             and d.string
         ]:
-            kwargs.setdefault("notes", []).append(
+            fields.setdefault("notes", []).append(
                 timdex.Note(
                     value=[description.string], kind=description.get("qualifier")
                 )
             )
 
         # publication_information
-        kwargs["publication_information"] = [
+        fields["publication_information"] = [
             p.string for p in xml.find_all("dim:field", element="publisher") if p.string
         ] or None
 
@@ -219,7 +197,7 @@ class DspaceDim(Transformer):
                     description=related_item.string,
                     relationship=related_item.get("qualifier"),
                 )
-            kwargs.setdefault("related_items", []).append(ri)
+            fields.setdefault("related_items", []).append(ri)
 
         # rights
         for rights in [
@@ -231,7 +209,7 @@ class DspaceDim(Transformer):
                 rg = timdex.Rights(
                     description=rights.string, kind=rights.get("qualifier")
                 )
-            kwargs.setdefault("rights", []).append(rg)
+            fields.setdefault("rights", []).append(rg)
 
         # subjects
         subjects_dict: Dict[str, List[str]] = {}
@@ -247,7 +225,7 @@ class DspaceDim(Transformer):
                     subject.string
                 )
         for key, value in subjects_dict.items():
-            kwargs.setdefault("subjects", []).append(
+            fields.setdefault("subjects", []).append(
                 timdex.Subject(value=value, kind=key)
             )
 
@@ -255,9 +233,34 @@ class DspaceDim(Transformer):
         for description in [
             d for d in descriptions if d.get("qualifier") == "abstract" and d.string
         ]:
-            kwargs.setdefault("summary", []).append(description.string)
+            fields.setdefault("summary", []).append(description.string)
 
-        if kwargs.get("citation") is None:
-            kwargs["citation"] = generate_citation(kwargs)
+        return fields
 
-        return timdex.TimdexRecord(**kwargs)
+    @classmethod
+    def get_main_titles(cls, xml: Tag) -> list[str]:
+        """
+        Retrieve main title(s) from a DSpace DIM XML record.
+
+        Overrides metaclass get_main_titles() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
+        """
+        return [
+            t
+            for t in xml.find_all("dim:field", element="title")
+            if "qualifier" not in t.attrs
+        ]
+
+    @classmethod
+    def get_source_record_id(cls, xml: Tag) -> str:
+        """
+        Get the source record ID from a DSpace DIM XML record.
+
+        Overrides metaclass get_source_record_id() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
+        """
+        return xml.header.identifier.string.split(":")[2]

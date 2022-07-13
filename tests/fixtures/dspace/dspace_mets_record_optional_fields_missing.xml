@@ -26,7 +26,7 @@
                     <xmlData xmlns:mods="http://www.loc.gov/mods/v3" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
                         <mods:mods xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
                             <mods:titleInfo>
-                                <mods:title>Magneto-thermal Transport and Machine Learning-assisted Investigation of Magnetic Materials</mods:title>
+                                <mods:title></mods:title>
                             </mods:titleInfo>
                         </mods:mods>
                     </xmlData>

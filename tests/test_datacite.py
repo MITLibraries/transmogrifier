@@ -1,5 +1,3 @@
-from pytest import raises
-
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.models import (
     AlternateTitle,
@@ -173,7 +171,7 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
 
 def test_datacite_transform_missing_required_datacite_fields_logs_warning(caplog):
     input_records = parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_missing_required_fields_warning.xml"
+        "tests/fixtures/datacite/datacite_record_missing_datacite_required_fields.xml"
     )
     output_records = Datacite("cool-repo", input_records)
     next(output_records)
@@ -202,14 +200,11 @@ def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
     )
     output_records = Datacite("cool-repo", input_records)
     assert next(output_records) == TimdexRecord(
-        citation=(
-            "The Impact of Maternal Literacy and Participation Programs. "
-            "https://example.com/doi:10.7910/DVN/19PPE7"
-        ),
+        citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
-        title="The Impact of Maternal Literacy and Participation Programs",
+        title="Title not provided",
         format="electronic resource",
         identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
         links=[
@@ -228,14 +223,11 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
     )
     output_records = Datacite("cool-repo", input_records)
     assert next(output_records) == TimdexRecord(
-        citation=(
-            "The Impact of Maternal Literacy and Participation Programs. "
-            "https://example.com/doi:10.7910/DVN/19PPE7"
-        ),
+        citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
-        title="The Impact of Maternal Literacy and Participation Programs",
+        title="Title not provided",
         format="electronic resource",
         identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
         links=[
@@ -246,33 +238,6 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
             )
         ],
     )
-
-
-def test_datacite_transform_with_title_field_blank_raises_error():
-    input_records = parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_title_field_blank.xml"
-    )
-    with raises(ValueError):
-        output_records = Datacite("cool-repo", input_records)
-        next(output_records)
-
-
-def test_datacite_transform_with_title_field_missing_raises_error():
-    input_records = parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_title_field_missing.xml"
-    )
-    with raises(ValueError):
-        output_records = Datacite("cool-repo", input_records)
-        next(output_records)
-
-
-def test_datacite_transform_with_title_field_multiple_raises_error():
-    input_records = parse_xml_records(
-        "tests/fixtures/datacite/datacite_record_title_field_multiple.xml"
-    )
-    with raises(ValueError):
-        output_records = Datacite("cool-repo", input_records)
-        next(output_records)
 
 
 def test_generate_name_identifier_url_orcid_scheme(datacite_record_all_fields):

@@ -7,16 +7,14 @@ class Zenodo(Datacite):
     """Zenodo transformer class."""
 
     @classmethod
-    def create_source_record_id(cls, xml: Tag) -> str:
+    def get_source_record_id(cls, xml: Tag) -> str:
         """
-        Create a source record ID from a Zenodo Datacite XML record.
+        Get the source record ID from a Zenodo Datacite XML record.
 
-        Overrides the base Datacite.create_source_record_id() method.
+        Overrides the base Datacite.get_source_record_id() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single Datacite XML record.
+            xml: A BeautifulSoup Tag representing a single Zenodo record in
+                oai_datacite XML.
         """
-        source_record_id = xml.header.find("identifier").string.replace(
-            "oai:zenodo.org:", ""
-        )
-        return source_record_id
+        return xml.header.find("identifier").string.replace("oai:zenodo.org:", "")

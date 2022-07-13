@@ -1,35 +1,6 @@
-import pytest
-
 import transmogrifier.models as timdex
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.dspace_mets import DspaceMets
-
-
-def test_dspace_mets_transform_with_missing_title_field_raises_error():
-    dspace_xml_records = parse_xml_records(
-        "tests/fixtures/dspace/dspace_mets_record_title_field_missing.xml"
-    )
-    with pytest.raises(ValueError):
-        output_records = DspaceMets("dspace", dspace_xml_records)
-        next(output_records)
-
-
-def test_dspace_mets_transform_with_blank_title_field_raises_error():
-    dspace_xml_records = parse_xml_records(
-        "tests/fixtures/dspace/dspace_mets_record_title_field_blank.xml"
-    )
-    with pytest.raises(ValueError):
-        output_records = DspaceMets("dspace", dspace_xml_records)
-        next(output_records)
-
-
-def test_dspace_mets_transform_with_multiple_title_fields_raises_error():
-    dspace_xml_records = parse_xml_records(
-        "tests/fixtures/dspace/dspace_mets_record_title_field_multiple.xml"
-    )
-    with pytest.raises(ValueError):
-        output_records = DspaceMets("dspace", dspace_xml_records)
-        next(output_records)
 
 
 def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly():
@@ -41,11 +12,8 @@ def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
         timdex_record_id="dspace:1721.1-142832",
-        title="Magneto-thermal Transport and Machine Learning-assisted Investigation "
-        "of Magnetic Materials",
-        citation="Magneto-thermal Transport and Machine Learning-assisted "
-        "Investigation of Magnetic Materials. "
-        "https://dspace.mit.edu/handle/1721.1/142832",
+        title="Title not provided",
+        citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
         format="electronic resource",
     )
 
@@ -59,11 +27,8 @@ def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly()
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
         timdex_record_id="dspace:1721.1-142832",
-        title="Magneto-thermal Transport and Machine Learning-assisted Investigation "
-        "of Magnetic Materials",
-        citation="Magneto-thermal Transport and Machine Learning-assisted "
-        "Investigation of Magnetic Materials. "
-        "https://dspace.mit.edu/handle/1721.1/142832",
+        title="Title not provided",
+        citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
         format="electronic resource",
     )
 

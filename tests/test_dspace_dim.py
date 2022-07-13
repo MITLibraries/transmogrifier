@@ -1,5 +1,3 @@
-from pytest import raises
-
 import transmogrifier.models as timdex
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.dspace_dim import DspaceDim
@@ -143,15 +141,8 @@ def test_dspace_dim_transform_with_optional_fields_blank_transforms_correctly():
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
         timdex_record_id="cool-repo:1912-2641",
-        title=(
-            "Time lapse movie of meiosis I in a living spermatocyte from the crane "
-            "fly, Nephrotoma suturalis, viewed with polarized light microscopy"
-        ),
-        citation=(
-            "Time lapse movie of meiosis I in a living spermatocyte from the crane fly, "
-            "Nephrotoma suturalis, viewed with polarized light microscopy. "
-            "https://example.com/1912/2641"
-        ),
+        title="Title not provided",
+        citation="Title not provided. https://example.com/1912/2641",
         format="electronic resource",
     )
 
@@ -165,41 +156,7 @@ def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly(
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
         timdex_record_id="cool-repo:1912-2641",
-        title=(
-            "Time lapse movie of meiosis I in a living spermatocyte from the crane "
-            "fly, Nephrotoma suturalis, viewed with polarized light microscopy"
-        ),
-        citation=(
-            "Time lapse movie of meiosis I in a living spermatocyte from the crane fly, "
-            "Nephrotoma suturalis, viewed with polarized light microscopy. "
-            "https://example.com/1912/2641"
-        ),
+        title="Title not provided",
+        citation="Title not provided. https://example.com/1912/2641",
         format="electronic resource",
     )
-
-
-def test_dspace_dim_transform_with_title_field_blank_raises_error():
-    input_records = parse_xml_records(
-        "tests/fixtures/dspace/dspace_dim_record_title_field_blank.xml"
-    )
-    with raises(ValueError):
-        output_records = DspaceDim("cool-repo", input_records)
-        next(output_records)
-
-
-def test_dspace_dim_transform_with_title_field_missing_raises_error():
-    input_records = parse_xml_records(
-        "tests/fixtures/dspace/dspace_dim_record_title_field_missing.xml"
-    )
-    with raises(ValueError):
-        output_records = DspaceDim("cool-repo", input_records)
-        next(output_records)
-
-
-def test_dspace_dim_transform_with_title_field_multiple_values_raises_error():
-    input_records = parse_xml_records(
-        "tests/fixtures/dspace/dspace_dim_record_title_field_multiple.xml"
-    )
-    with raises(ValueError):
-        output_records = DspaceDim("cool-repo", input_records)
-        next(output_records)
