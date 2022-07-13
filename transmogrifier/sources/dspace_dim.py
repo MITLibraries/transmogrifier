@@ -254,7 +254,7 @@ class DspaceDim(Transformer):
         ]
 
     @classmethod
-    def get_source_record_id(cls, xml) -> str:
+    def get_source_record_id(cls, xml: Tag) -> str:
         """
         Get the source record ID from a DSpace DIM XML record.
 

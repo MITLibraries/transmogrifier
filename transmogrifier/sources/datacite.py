@@ -290,7 +290,7 @@ class Datacite(Transformer):
         return [t for t in xml.metadata.find_all("title", titleType=False)]
 
     @classmethod
-    def get_source_record_id(cls, xml) -> str:
+    def get_source_record_id(cls, xml: Tag) -> str:
         """
         Get the source record ID from a Datacite XML record.
 
@@ -303,7 +303,7 @@ class Datacite(Transformer):
         return xml.header.find("identifier").string
 
     @classmethod
-    def generate_name_identifier_url(cls, name_identifier):
+    def generate_name_identifier_url(cls, name_identifier: Tag) -> str:
         """
         Generate a full name identifier URL with the specified scheme.
         Args:
@@ -317,7 +317,7 @@ class Datacite(Transformer):
         return base_url + name_identifier.string
 
     @classmethod
-    def generate_related_item_identifier_url(cls, related_item_identifier):
+    def generate_related_item_identifier_url(cls, related_item_identifier: Tag) -> str:
         """
         Generate a full related item identifier URL with the specified scheme.
         Args:

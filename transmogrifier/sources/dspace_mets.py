@@ -216,7 +216,7 @@ class DspaceMets(Transformer):
         return [t for t in xml.find_all("mods:title") if "type" not in t.attrs]
 
     @classmethod
-    def get_source_record_id(cls, xml) -> str:
+    def get_source_record_id(cls, xml: Tag) -> str:
         """
         Get the source record ID from a DSpace METS XML record.
 
