@@ -46,11 +46,18 @@ def main(source, input_file, output_file, verbose):
     logger.info("Running transform for source %s", source)
 
     input_records = parse_xml_records(input_file)
-    transformer = get_transformer(source)
-    output_records = transformer(source, input_records)
-
-    count = write_timdex_records_to_json(output_records, output_file)
-    logger.info("Completed transform, total record count: %d", count)
+    configured_transformer = get_transformer(source)
+    active_transformer = configured_transformer(source, input_records)
+    write_timdex_records_to_json(active_transformer, output_file)
+    logger.info(
+        (
+            "Completed transform, total records processed: %d, transformed records: %d, "
+            "skipped records: %d"
+        ),
+        active_transformer.processed_record_count,
+        active_transformer.transformed_record_count,
+        active_transformer.skipped_record_count,
+    )
     elapsed_time = perf_counter() - START_TIME
     logger.info(
         "Total time to complete transform: %s", str(timedelta(seconds=elapsed_time))

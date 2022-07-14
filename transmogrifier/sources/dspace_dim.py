@@ -45,7 +45,7 @@ class DspaceDim(Transformer):
             xml.find_all("dim:field", element="type")
         )
         if content_types == ["Unaccepted content_types"]:
-            return None
+            return {"Unaccepted content_type": "skip"}
         else:
             fields["content_type"] = content_types or None
 

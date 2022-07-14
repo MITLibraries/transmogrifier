@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from bs4 import Tag
 
@@ -48,7 +48,7 @@ class Datacite(Transformer):
             if resource_type["resourceTypeGeneral"]:
                 content_type = self.get_content_type(resource_type)
                 if content_type == "Unaccepted content_type":
-                    return None
+                    return {"Unaccepted content_type": "skip"}
                 else:
                     fields["content_type"] = [content_type]
         else:
