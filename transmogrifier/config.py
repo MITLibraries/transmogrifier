@@ -19,7 +19,7 @@ SOURCES = {
     "whoas": {
         "name": "Woods Hole Open Access Server",
         "base_url": "https://darchive.mblwhoilibrary.org/handle/",
-        "transform-class": "transmogrifier.sources.whoas.WHOAS",
+        "transform-class": "transmogrifier.sources.whoas.Whoas",
     },
     "zenodo": {
         "name": "Zenodo",

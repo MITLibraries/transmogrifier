@@ -1,24 +1,20 @@
-from typing import List, Optional
-
-from bs4 import Tag
+from typing import List
 
 from transmogrifier.sources.dspace_dim import DspaceDim
 
 
-class WHOAS(DspaceDim):
-    """WHOAS transformer class."""
+class Whoas(DspaceDim):
+    """Whoas transformer class."""
 
     @classmethod
-    def get_content_types(cls, dc_type_xml_element_list: Tag) -> List[Optional[str]]:
+    def valid_content_types(cls, content_type_list: List[str]) -> bool:
         """
-        Get a list of content_type values from a list of dc.type elements from a WHOAS
-        DSpace DIM record.
+        Validate a list content_type values from a Datacite XML record.
 
-        Overrides the base DSpaceDim.get_content_types() method.
+        Overrides the base DSpaceDim.valid_content_types() method.
 
         Args:
-            dc_type_xml_element_list: A list of BeautifulSoup Tags which each represent
-            a single DIM dc.type element.
+            content_type_list: A list of content_type values.
         """
         unaccepted_content_types = [
             "Article",
@@ -32,10 +28,7 @@ class WHOAS(DspaceDim):
             "Thesis",
             "Working Paper",
         ]
-        content_types = []
-        for dc_type_xml_element in [t for t in dc_type_xml_element_list if t.string]:
-            content_types.append(dc_type_xml_element.string)
-        if all(item in unaccepted_content_types for item in content_types):
-            return ["Unaccepted content_types"]
+        if all(item in unaccepted_content_types for item in content_type_list):
+            return False
         else:
-            return content_types
+            return True

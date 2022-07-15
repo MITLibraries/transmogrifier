@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from bs4 import Tag
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Datacite(Transformer):
     """Datacite transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict:
+    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from a Datacite XML record.
 
@@ -45,12 +45,11 @@ class Datacite(Transformer):
                         value=[resource_type.string], kind="Datacite resource type"
                     )
                 ]
-            if resource_type["resourceTypeGeneral"]:
-                content_type = self.get_content_type(resource_type)
-                if content_type == "Unaccepted content_type":
-                    return {"Unaccepted content_type": "skip"}
+            if content_type_list := resource_type.get("resourceTypeGeneral"):
+                if self.valid_content_types([content_type_list]):
+                    fields["content_type"] = [content_type_list]
                 else:
-                    fields["content_type"] = [content_type]
+                    return None
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
@@ -340,12 +339,11 @@ class Datacite(Transformer):
         return base_url + related_item_identifier.string
 
     @classmethod
-    def get_content_type(cls, resource_type_xml_element: Tag) -> str:
+    def valid_content_types(cls, content_type_list: List[str]) -> bool:
         """
-        Get content_type value from a resourceType element from a Datacite XML record.
+        Validate a list content_type values from a Datacite XML record.
 
         Args:
-            resource_type_xml_element: A BeautifulSoup Tag representing a single Datacite
-            resourceType element.
+            content_type_list: A list of content_type values.
         """
-        return resource_type_xml_element["resourceTypeGeneral"]
+        return True

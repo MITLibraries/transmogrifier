@@ -1,3 +1,5 @@
+from typing import List
+
 from bs4 import Tag
 
 from transmogrifier.sources.datacite import Datacite
@@ -20,23 +22,21 @@ class Zenodo(Datacite):
         return xml.header.find("identifier").string.replace("oai:zenodo.org:", "")
 
     @classmethod
-    def get_content_type(cls, resource_type_xml_element: Tag) -> str:
+    def valid_content_types(cls, content_type_list: List[str]) -> bool:
         """
-        Get content_type value from a resourceType element from a Zenodo Datacite XML
-        record.
+        Validate a list content_type values from a Datacite XML record.
 
-        Overrides the base Datacite.get_content_type() method.
+        Overrides the base Datacite.valid_content_types() method.
 
         Args:
-            resource_type_xml_element: A BeautifulSoup Tag representing a single Datacite
-            resourceType element.
+            content_type_list: A list of content_type values.
         """
-        if resource_type_xml_element["resourceTypeGeneral"] in [
+        if content_type_list[0] in [
             "lesson",
             "poster",
             "presentation",
             "publication",
         ]:
-            return "Unaccepted content_type"
+            return False
         else:
-            return resource_type_xml_element["resourceTypeGeneral"]
+            return True

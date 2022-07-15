@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class DspaceDim(Transformer):
     """DSpace DIM transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict:
+    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from a DSpace DIM XML record.
 
@@ -41,13 +41,13 @@ class DspaceDim(Transformer):
         fields["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        content_types = self.get_content_types(
-            xml.find_all("dim:field", element="type")
-        )
-        if content_types == ["Unaccepted content_types"]:
-            return {"Unaccepted content_type": "skip"}
-        else:
-            fields["content_type"] = content_types or None
+        if content_type_list := [
+            t.string for t in xml.find_all("dim:field", element="type") if t.string
+        ]:
+            if self.valid_content_types(content_type_list):
+                fields["content_type"] = content_type_list
+            else:
+                return None
 
         # contents
         fields["contents"] = [
@@ -270,16 +270,11 @@ class DspaceDim(Transformer):
         return xml.header.identifier.string.split(":")[2]
 
     @classmethod
-    def get_content_types(cls, dc_type_xml_element_list: Tag) -> List[Optional[str]]:
+    def valid_content_types(cls, content_type_list: List[str]) -> bool:
         """
-        Get a list of content_type values from a list of dc.type elements from a DSpace
-        DIM record.
+        Validate a list content_type values from a Datacite XML record.
 
         Args:
-            dc_type_xml_element_list: A list of BeautifulSoup Tags which each represent
-            a single DIM dc.type element.
+            content_type_list: A list of content_type values.
         """
-        content_types = []
-        for dc_type_xml_element in [t for t in dc_type_xml_element_list if t.string]:
-            content_types.append(dc_type_xml_element.string)
-        return content_types
+        return True

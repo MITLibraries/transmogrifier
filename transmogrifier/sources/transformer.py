@@ -50,7 +50,7 @@ class Transformer(object):
             return self.__next__()
 
     @abstractmethod
-    def get_optional_fields(self, xml: Tag) -> dict:
+    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from an XML record.
 
@@ -116,10 +116,14 @@ class Transformer(object):
         Args:
             xml: A BeautifulSoup Tag representing a single OAI-PMH XML record.
         """
-        if self.get_optional_fields(xml) == {"Unaccepted content_type": "skip"}:
+        optional_fields = self.get_optional_fields(xml)
+        if optional_fields is None:
             return None
         else:
-            fields = {**self.get_required_fields(xml), **self.get_optional_fields(xml)}
+            fields = {
+                **self.get_required_fields(xml),
+                **optional_fields,
+            }
 
             # If citation field was not present, generate citation from other fields
             if fields.get("citation") is None:
