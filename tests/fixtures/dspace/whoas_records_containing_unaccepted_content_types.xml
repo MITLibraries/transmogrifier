@@ -8,7 +8,6 @@
     </header>
     <metadata>
       <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
-        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis I in a living spermatocyte from the crane fly, Nephrotoma suturalis, viewed with polarized light microscopy</dim:field>
         <dim:field mdschema="dc" element="type" lang="en">Book</dim:field>
         <dim:field mdschema="dc" element="type" lang="en">Book chapter</dim:field>
       </dim:dim>
@@ -23,7 +22,6 @@
     </header>
     <metadata>
       <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
-        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis I</dim:field>
         <dim:field mdschema="dc" element="type" lang="en">Moving Image</dim:field>
       </dim:dim>
     </metadata>

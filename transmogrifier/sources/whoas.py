@@ -1,5 +1,3 @@
-from typing import List
-
 from transmogrifier.sources.dspace_dim import DspaceDim
 
 
@@ -7,9 +5,9 @@ class Whoas(DspaceDim):
     """Whoas transformer class."""
 
     @classmethod
-    def valid_content_types(cls, content_type_list: List[str]) -> bool:
+    def valid_content_types(cls, content_type_list: list[str]) -> bool:
         """
-        Validate a list content_type values from a Datacite XML record.
+        Validate a list of content_type values from a Dspace DIM XML record.
 
         Overrides the base DSpaceDim.valid_content_types() method.
 

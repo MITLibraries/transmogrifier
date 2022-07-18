@@ -10,63 +10,10 @@
         </header>
         <metadata>
             <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.0/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.0/ oai_datacite.xsd">
-                <isReferenceQuality>true</isReferenceQuality>
-                <schemaVersion>4.1</schemaVersion>
-                <datacentreSymbol>CERN.ZENODO</datacentreSymbol>
                 <payload>
                     <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
                         <identifier identifierType="DOI">10.5281/zenodo.4291646</identifier>
-                        <creators>
-                            <creator>
-                                <creatorName>David Nidever</creatorName>
-                                <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-1793-3689</nameIdentifier>
-                                <affiliation>Montana State University/NOAO</affiliation>
-                            </creator>
-                            <creator>
-                                <creatorName>Knut Olsen</creatorName>
-                                <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-7134-8296</nameIdentifier>
-                                <affiliation>NOIRLab</affiliation>
-                            </creator>
-                            <creator>
-                                <creatorName>Yumi Choi</creatorName>
-                                <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0003-1680-1884</nameIdentifier>
-                                <affiliation>Space Telescope Science Institute</affiliation>
-                            </creator>
-                            <creator>
-                                <creatorName>SMASH team</creatorName>
-                            </creator>
-                        </creators>
-                        <titles>
-                            <title>dnidever/SMASHRED: SMASH DR2</title>
-                        </titles>
-                        <publisher>Zenodo</publisher>
-                        <publicationYear>2020</publicationYear>
-                        <subjects>
-                            <subject>Astronomy</subject>
-                            <subject>Magellanic Clouds</subject>
-                            <subject>Photometric catalog</subject>
-                        </subjects>
-                        <dates>
-                            <date dateType="Issued">2020-11-26</date>
-                        </dates>
-                        <language>en</language>
                         <resourceType resourceTypeGeneral="presentation" />
-                        <alternateIdentifiers>
-                            <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/4291646</alternateIdentifier>
-                        </alternateIdentifiers>
-                        <relatedIdentifiers>
-                            <relatedIdentifier relatedIdentifierType="URL" relationType="IsSupplementTo">https://github.com/dnidever/SMASHRED/tree/1.0.0</relatedIdentifier>
-                            <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.4291645</relatedIdentifier>
-                            <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/aas</relatedIdentifier>
-                            <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">https://zenodo.org/communities/astronomy-general</relatedIdentifier>
-                        </relatedIdentifiers>
-                        <version>1.0.0</version>
-                        <rightsList>
-                            <rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>
-                        </rightsList>
-                        <descriptions>
-                            <description descriptionType="Abstract">&lt;p&gt;This the pre- and post-processing software used for the SMASH DR2 data release.&lt;/p&gt;</description>
-                        </descriptions>
                     </resource>
                 </payload>
             </oai_datacite>
@@ -82,9 +29,6 @@
         <metadata>
             <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
                 <identifier identifierType="DOI">10.7910/DVN/19PPE7</identifier>
-                <titles>
-                    <title>The Impact of Maternal Literacy and Participation Programs</title>
-                </titles>
                 <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
             </resource>
         </metadata>

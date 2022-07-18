@@ -343,6 +343,8 @@ class Datacite(Transformer):
         """
         Validate a list content_type values from a Datacite XML record.
 
+        May be overridden by source subclasses that require content type validation.
+
         Args:
             content_type_list: A list of content_type values.
         """

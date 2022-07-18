@@ -24,19 +24,23 @@ class Zenodo(Datacite):
     @classmethod
     def valid_content_types(cls, content_type_list: List[str]) -> bool:
         """
-        Validate a list content_type values from a Datacite XML record.
+        Validate a list of content_type values from a Datacite XML record.
 
         Overrides the base Datacite.valid_content_types() method.
 
         Args:
             content_type_list: A list of content_type values.
         """
-        if content_type_list[0] in [
-            "lesson",
-            "poster",
-            "presentation",
-            "publication",
-        ]:
+        if all(
+            item
+            in [
+                "lesson",
+                "poster",
+                "presentation",
+                "publication",
+            ]
+            for item in content_type_list
+        ):
             return False
         else:
             return True
