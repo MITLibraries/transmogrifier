@@ -154,15 +154,16 @@ class Datacite(Transformer):
                 fields.setdefault("funding_information", []).append(f)
 
         # identifiers
-        identifier_xml = xml.metadata.find("identifier")
-        fields["identifiers"] = [
-            timdex.Identifier(
-                value=identifier_xml.string,
-                kind=identifier_xml.get(
-                    "identifierType", "Identifier kind not specified"
+        identifier_xml = xml.metadata.find("identifier", string=True)
+        if identifier_xml:
+            fields["identifiers"] = [
+                timdex.Identifier(
+                    value=identifier_xml.string,
+                    kind=identifier_xml.get(
+                        "identifierType", "Identifier kind not specified"
+                    ),
                 ),
-            ),
-        ]
+            ]
         for alternate_identifier in [
             i for i in xml.metadata.find_all("alternateIdentifier") if i.string
         ]:
