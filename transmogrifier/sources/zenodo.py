@@ -4,6 +4,8 @@ from bs4 import Tag
 
 from transmogrifier.sources.datacite import Datacite
 
+INVALID_CONTENT_TYPES = ["lesson", "poster", "presentation", "publication"]
+
 
 class Zenodo(Datacite):
     """Zenodo transformer class."""
@@ -31,16 +33,7 @@ class Zenodo(Datacite):
         Args:
             content_type_list: A list of content_type values.
         """
-        if all(
-            item
-            in [
-                "lesson",
-                "poster",
-                "presentation",
-                "publication",
-            ]
-            for item in content_type_list
-        ):
+        if all(item in INVALID_CONTENT_TYPES for item in content_type_list):
             return False
         else:
             return True

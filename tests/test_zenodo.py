@@ -10,18 +10,26 @@ def test_zenodo_create_source_record_id_generates_correct_id():
     assert zenodo_record.timdex_record_id == "zenodo:4291646"
 
 
-def test_zenodo_validate_content_types_returns_accepted_content_type():
-    input_records = parse_xml_records("tests/fixtures/datacite/zenodo_record.xml")
-    output_records = Zenodo("zenodo", input_records)
-    zenodo_record = next(output_records)
-    assert zenodo_record.content_type == ["Software"]
+def test_valid_content_types_with_all_invalid():
+    content_types = ["lesson", "poster"]
+    assert Zenodo.valid_content_types(content_types) is False
 
 
-def test_zenodo_validate_content_types_filters_unaccepted_content_types():
+def test_valid_content_types_with_some_invalid():
+    content_types = ["lesson", "dataset"]
+    assert Zenodo.valid_content_types(content_types) is True
+
+
+def test_valid_content_types_with_all_valid():
+    content_types = ["dataset", "image"]
+    assert Zenodo.valid_content_types(content_types) is True
+
+
+def test_zenodo_skips_records_with_invalid_content_types():
     input_records = list(
         parse_xml_records(
-            "tests/fixtures/datacite/zenodo_records_"
-            "containing_unaccepted_content_types.xml"
+            "tests/fixtures/datacite/"
+            "zenodo_records_with_valid_and_invalid_content_types.xml"
         )
     )
     assert len(input_records) == 2

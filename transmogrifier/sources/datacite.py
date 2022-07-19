@@ -45,9 +45,9 @@ class Datacite(Transformer):
                         value=[resource_type.string], kind="Datacite resource type"
                     )
                 ]
-            if content_type_list := resource_type.get("resourceTypeGeneral"):
-                if self.valid_content_types([content_type_list]):
-                    fields["content_type"] = [content_type_list]
+            if content_type := resource_type.get("resourceTypeGeneral"):
+                if self.valid_content_types([content_type]):
+                    fields["content_type"] = [content_type]
                 else:
                     return None
         else:
@@ -341,7 +341,7 @@ class Datacite(Transformer):
     @classmethod
     def valid_content_types(cls, content_type_list: List[str]) -> bool:
         """
-        Validate a list content_type values from a Datacite XML record.
+        Validate a list of content_type values from a Datacite XML record.
 
         May be overridden by source subclasses that require content type validation.
 

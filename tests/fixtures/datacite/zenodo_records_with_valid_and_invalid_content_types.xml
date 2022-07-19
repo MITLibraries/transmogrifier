@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+    <record xmlns="http://www.openarchives.org/OAI/2.0/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <header>
+            <identifier>oai:zenodo.org:invalid_content_type</identifier>
+            <datestamp>2021-02-19T18:32:39Z</datestamp>
+        </header>
+        <metadata>
+            <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.0/" xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.0/ oai_datacite.xsd">
+                <payload>
+                    <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+                        <resourceType resourceTypeGeneral="presentation" />
+                    </resource>
+                </payload>
+            </oai_datacite>
+        </metadata>
+    </record>
+    <record xmln
+    <record xmlns="http://www.openarchives.org/OAI/2.0/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <header>
+            <identifier>oai:zenodo.org:valid_content_type</identifier>
+            <datestamp>2021-02-19T18:32:39Z</datestamp>
+        </header>
+        <metadata>
+            <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+                <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
+            </resource>
+        </metadata>
+    </record>
+</records>

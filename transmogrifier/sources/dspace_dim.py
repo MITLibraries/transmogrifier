@@ -272,7 +272,9 @@ class DspaceDim(Transformer):
     @classmethod
     def valid_content_types(cls, content_type_list: List[str]) -> bool:
         """
-        Validate a list content_type values from a Datacite XML record.
+        Validate a list of content_type values from a DSpace DIM XML record.
+
+        May be overridden by source subclasses that require content type validation.
 
         Args:
             content_type_list: A list of content_type values.
