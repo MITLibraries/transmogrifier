@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from bs4 import Tag
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Datacite(Transformer):
     """Datacite transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict:
+    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from a Datacite XML record.
 
@@ -38,12 +38,18 @@ class Datacite(Transformer):
 
         # content_type
         resource_type = xml.metadata.find("resourceType")
-        if resource_type and resource_type.string:
-            fields["notes"] = [
-                timdex.Note(value=[resource_type.string], kind="Datacite resource type")
-            ]
-            if resource_type["resourceTypeGeneral"]:
-                fields["content_type"] = [resource_type["resourceTypeGeneral"]]
+        if resource_type:
+            if resource_type.string:
+                fields["notes"] = [
+                    timdex.Note(
+                        value=[resource_type.string], kind="Datacite resource type"
+                    )
+                ]
+            if content_type := resource_type.get("resourceTypeGeneral"):
+                if self.valid_content_types([content_type]):
+                    fields["content_type"] = [content_type]
+                else:
+                    return None
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
@@ -148,15 +154,16 @@ class Datacite(Transformer):
                 fields.setdefault("funding_information", []).append(f)
 
         # identifiers
-        identifier_xml = xml.metadata.find("identifier")
-        fields["identifiers"] = [
-            timdex.Identifier(
-                value=identifier_xml.string,
-                kind=identifier_xml.get(
-                    "identifierType", "Identifier kind not specified"
+        identifier_xml = xml.metadata.find("identifier", string=True)
+        if identifier_xml:
+            fields["identifiers"] = [
+                timdex.Identifier(
+                    value=identifier_xml.string,
+                    kind=identifier_xml.get(
+                        "identifierType", "Identifier kind not specified"
+                    ),
                 ),
-            ),
-        ]
+            ]
         for alternate_identifier in [
             i for i in xml.metadata.find_all("alternateIdentifier") if i.string
         ]:
@@ -331,3 +338,15 @@ class Datacite(Transformer):
         else:
             base_url = ""
         return base_url + related_item_identifier.string
+
+    @classmethod
+    def valid_content_types(cls, content_type_list: List[str]) -> bool:
+        """
+        Validate a list of content_type values from a Datacite XML record.
+
+        May be overridden by source subclasses that require content type validation.
+
+        Args:
+            content_type_list: A list of content_type values.
+        """
+        return True

@@ -19,7 +19,10 @@ def test_transform_no_sentry_not_verbose(caplog, monkeypatch, runner, tmp_path):
     assert "Logger 'root' configured with level=INFO" in caplog.text
     assert "No Sentry DSN found, exceptions will not be sent to Sentry" in caplog.text
     assert "Running transform for source jpal" in caplog.text
-    assert "Completed transform, total record count: 38" in caplog.text
+    assert (
+        "Completed transform, total records processed: 38, transformed records: 38"
+        ", skipped records: 0"
+    ) in caplog.text
     assert "Total time to complete transform" in caplog.text
 
 
@@ -47,7 +50,10 @@ def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path
     )
     assert "Running transform for source jpal" in caplog.text
     assert "Status update: 30 records written to output file so far!" in caplog.text
-    assert "Completed transform, total record count: 38" in caplog.text
+    assert (
+        "Completed transform, total records processed: 38, transformed records: 38"
+        ", skipped records: 0"
+    ) in caplog.text
 
 
 def test_transform_no_records(caplog, runner, tmp_path):

@@ -206,7 +206,6 @@ def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
         title="Title not provided",
         format="electronic resource",
-        identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
         links=[
             Link(
                 url="https://example.com/doi:10.7910/DVN/19PPE7",
@@ -229,7 +228,6 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
         title="Title not provided",
         format="electronic resource",
-        identifiers=[Identifier(value="10.7910/DVN/19PPE7", kind="DOI")],
         links=[
             Link(
                 url="https://example.com/doi:10.7910/DVN/19PPE7",

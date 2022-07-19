@@ -1,7 +1,7 @@
 """Transformer module."""
 import logging
 from abc import ABCMeta, abstractmethod
-from typing import Iterator, final
+from typing import Iterator, Optional, final
 
 from bs4 import Tag
 
@@ -29,6 +29,9 @@ class Transformer(object):
         self.source_base_url = SOURCES[source]["base_url"]
         self.source_name = SOURCES[source]["name"]
         self.input_records = input_records
+        self.processed_record_count = 0
+        self.transformed_record_count = 0
+        self.skipped_record_count = 0
 
     def __iter__(self) -> Iterator[TimdexRecord]:
         """Iterate over transformed records."""
@@ -37,11 +40,17 @@ class Transformer(object):
     def __next__(self) -> TimdexRecord:
         """Return next transformed record."""
         xml = next(self.input_records)
+        self.processed_record_count += 1
         record = self.transform(xml)
-        return record
+        if record:
+            self.transformed_record_count += 1
+            return record
+        else:
+            self.skipped_record_count += 1
+            return self.__next__()
 
     @abstractmethod
-    def get_optional_fields(self, xml: Tag) -> dict:
+    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from an XML record.
 
@@ -98,7 +107,7 @@ class Transformer(object):
         }
 
     @final
-    def transform(self, xml: Tag) -> TimdexRecord:
+    def transform(self, xml: Tag) -> Optional[TimdexRecord]:
         """
         Transform an OAI-PMH XML record into a TIMDEX record.
 
@@ -107,14 +116,20 @@ class Transformer(object):
         Args:
             xml: A BeautifulSoup Tag representing a single OAI-PMH XML record.
         """
+        optional_fields = self.get_optional_fields(xml)
+        if optional_fields is None:
+            return None
+        else:
+            fields = {
+                **self.get_required_fields(xml),
+                **optional_fields,
+            }
 
-        fields = {**self.get_required_fields(xml), **self.get_optional_fields(xml)}
+            # If citation field was not present, generate citation from other fields
+            if fields.get("citation") is None:
+                fields["citation"] = generate_citation(fields)
 
-        # If citation field was not present, generate citation from other fields
-        if fields.get("citation") is None:
-            fields["citation"] = generate_citation(fields)
-
-        return TimdexRecord(**fields)
+            return TimdexRecord(**fields)
 
     @final
     @classmethod

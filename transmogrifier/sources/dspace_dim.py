@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from bs4 import Tag
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class DspaceDim(Transformer):
     """DSpace DIM transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict:
+    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from a DSpace DIM XML record.
 
@@ -41,9 +41,13 @@ class DspaceDim(Transformer):
         fields["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        fields["content_type"] = [
+        if content_type_list := [
             t.string for t in xml.find_all("dim:field", element="type") if t.string
-        ] or None
+        ]:
+            if self.valid_content_types(content_type_list):
+                fields["content_type"] = content_type_list
+            else:
+                return None
 
         # contents
         fields["contents"] = [
@@ -264,3 +268,15 @@ class DspaceDim(Transformer):
             xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
         """
         return xml.header.identifier.string.split(":")[2]
+
+    @classmethod
+    def valid_content_types(cls, content_type_list: List[str]) -> bool:
+        """
+        Validate a list of content_type values from a DSpace DIM XML record.
+
+        May be overridden by source subclasses that require content type validation.
+
+        Args:
+            content_type_list: A list of content_type values.
+        """
+        return True
