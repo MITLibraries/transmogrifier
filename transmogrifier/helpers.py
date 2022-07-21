@@ -61,7 +61,11 @@ def generate_citation(extracted_data: dict) -> str:
     publisher_string = f" {publisher_field[0]}." if publisher_field else ""
 
     resource_types = extracted_data.get("content_type")
-    resource_type_string = f" {(', ').join(resource_types)}." if resource_types else ""
+    resource_type_string = (
+        f" {(', ').join(resource_types)}."
+        if resource_types and resource_types != ["Not specified"]
+        else ""
+    )
 
     citation += publisher_string + resource_type_string + url_string
     return citation

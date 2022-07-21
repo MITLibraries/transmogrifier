@@ -48,6 +48,8 @@ class DspaceDim(Transformer):
                 fields["content_type"] = content_type_list
             else:
                 return None
+        else:
+            fields["content_type"] = ["Not specified"]
 
         # contents
         fields["contents"] = [
