@@ -17,7 +17,7 @@ update: install ## Update all Python dependencies
 
 ### Testing commands ###
 test: ## Run tests and print a coverage report
-	pipenv run coverage run --source=transmogrifier -m pytest
+	pipenv run coverage run --source=transmogrifier -m pytest -vv
 	pipenv run coverage report -m
 
 coveralls: test

@@ -213,6 +213,7 @@ def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
                 text="Digital object URL",
             )
         ],
+        content_type=["Not specified"],
     )
 
 
@@ -235,6 +236,7 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
                 text="Digital object URL",
             )
         ],
+        content_type=["Not specified"],
     )
 
 

@@ -15,6 +15,7 @@ def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly
         title="Title not provided",
         citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
         format="electronic resource",
+        content_type=["Not specified"],
     )
 
 
@@ -30,6 +31,7 @@ def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly()
         title="Title not provided",
         citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
         format="electronic resource",
+        content_type=["Not specified"],
     )
 
 

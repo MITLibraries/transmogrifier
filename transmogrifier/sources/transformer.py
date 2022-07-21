@@ -128,6 +128,8 @@ class Transformer(object):
             # If citation field was not present, generate citation from other fields
             if fields.get("citation") is None:
                 fields["citation"] = generate_citation(fields)
+            if fields.get("content_type") is None:
+                fields["content_type"] = ["Not specified"]
 
             return TimdexRecord(**fields)
 

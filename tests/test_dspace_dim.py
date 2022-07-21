@@ -144,6 +144,7 @@ def test_dspace_dim_transform_with_optional_fields_blank_transforms_correctly():
         title="Title not provided",
         citation="Title not provided. https://example.com/1912/2641",
         format="electronic resource",
+        content_type=["Not specified"],
     )
 
 
@@ -159,4 +160,5 @@ def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly(
         title="Title not provided",
         citation="Title not provided. https://example.com/1912/2641",
         format="electronic resource",
+        content_type=["Not specified"],
     )
