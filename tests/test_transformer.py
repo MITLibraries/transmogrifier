@@ -51,6 +51,7 @@ def test_transformer_transform_returns_timdex_record(oai_pmh_records):
         timdex_record_id="cool-repo:",
         title="Title not provided",
         citation="Title not provided. https://example.com/",
+        content_type=["Not specified"],
     )
 
 

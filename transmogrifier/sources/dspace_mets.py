@@ -47,7 +47,7 @@ class DspaceMets(Transformer):
             content_type.string
             for content_type in xml.find_all("mods:genre")
             if content_type.string
-        ] or ["Not specified"]
+        ] or None
 
         # contents: relevant field in DSpace (dc.description.tableofcontents) is not
         # mapped to the OAI-PMH METS output.

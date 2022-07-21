@@ -50,14 +50,11 @@ class Datacite(Transformer):
                     fields["content_type"] = [content_type]
                 else:
                     return None
-            else:
-                fields["content_type"] = ["Not specified"]
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
                 source_record_id,
             )
-            fields["content_type"] = ["Not specified"]
 
         # contributors
         for creator in xml.metadata.find_all("creator"):
