@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+        <identifier>doi:10.7910/DVN/19PPE7</identifier>
+        <datestamp>2022-03-26T06:04:55Z</datestamp>
+        <setSpec>Jameel_Poverty_Action_Lab</setSpec>
+        <setSpec>IQSS</setSpec>
+    </header>
+    <metadata>
+        <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+            <identifier identifierType="">ID-blank-type</identifier>
+            <creators>
+                <creator>
+                    <creatorName></creatorName>
+                </creator>
+                <creator>
+                    <creatorName>Creator, No affiliation no identifier</creatorName>
+                </creator>
+                <creator>
+                    <creatorName>Creator, Blank affiliation blank identifier</creatorName>
+                    <affiliation></affiliation>
+                    <nameIdentifier></nameIdentifier>
+                </creator>
+                <creator>
+                    <creatorName>Creator, Identifier no scheme</creatorName>
+                    <nameIdentifier>0000-0000-0000-0000</nameIdentifier>
+                </creator>
+                <creator>
+                    <creatorName>Creator, Identifier blank scheme</creatorName>
+                    <nameIdentifier nameIdentifierScheme="">0000-0000-0000-0000</nameIdentifier>
+                </creator>
+                <creator>
+                    <creatorName>Creator, No identifier with identifier scheme</creatorName>
+                    <nameIdentifier nameIdentifierScheme="ORCID"></nameIdentifier>
+                </creator>
+            </creators>
+            <titles>
+                <title></title>
+                <title titleType=""></title>
+                <title titleType="">Title with Blank titleType</title>
+                <title titleType="Alternative"></title>
+                <title titleType="">A Second Title with Blank titleType</title>
+            </titles>
+            <subjects>
+                <subject></subject>
+                <subject subjectScheme=""></subject>
+                <subject subjectScheme="">Subject One</subject>
+                <subject subjectScheme="LCSH"></subject>
+            </subjects>
+            <alternateIdentifiers>
+                <alternateIdentifier></alternateIdentifier>
+                <alternateIdentifier>alternate-ID-no-type</alternateIdentifier>
+                <alternateIdentifier alternateIdentifierType="">alternate-ID-blank-type</alternateIdentifier>
+                <alternateIdentifier alternateIdentifierType="Alternate identifier type without string"></alternateIdentifier>
+            </alternateIdentifiers>
+            <contributors>
+                <contributor>
+                    <contributorName></contributorName>
+                </contributor>
+                <contributor>
+                    <contributorName>Contributor, No affiliation no identifier no type</contributorName>
+                </contributor>
+                <contributor type="">
+                    <contributorName>Contributor, Blank affiliation blank identifier blank type</contributorName>
+                    <affiliation></affiliation>
+                    <nameIdentifier></nameIdentifier>
+                </contributor>
+                <contributor>
+                    <contributorName>Contributor, Identifier no scheme</contributorName>
+                    <nameIdentifier>0000-0000-0000-0000</nameIdentifier>
+                </contributor>
+                <contributor>
+                    <contributorName>Contributor, Identifier blank scheme</contributorName>
+                    <nameIdentifier nameIdentifierScheme="">0000-0000-0000-0000</nameIdentifier>
+                </contributor>
+                <contributor>
+                    <contributorName>Contributor, No identifier with identifier scheme</contributorName>
+                    <nameIdentifier nameIdentifierScheme="ORCID"></nameIdentifier>
+                </contributor>
+            </contributors>
+            <dates>
+                <date></date>
+                <date>2020-01-01</date>
+                <date dateInformation=""></date>
+                <date dateInformation="OTHER"></date>
+                <date dateType="">2020-01-02</date>
+            </dates>
+            <resourceType resourceTypeGeneral=""></resourceType>
+            <relatedIdentifiers>
+                <relatedIdentifier></relatedIdentifier>
+                <relatedIdentifier>Related ID no relationType no relatedIdentifierType</relatedIdentifier>
+                <relatedIdentifier relationType="" relatedIdentifierType="">Related ID blank relationType blank relatedIdentifierType</relatedIdentifier>
+                <relatedIdentifier relationType="IsIdenticalTo"></relatedIdentifier>
+                <relatedIdentifier relationType="IsIdenticalTo">Related ID relationType IsIdenticalTo no relationIdentifierType</relatedIdentifier>
+                <relatedIdentifier relationType="IsIdenticalTo" relatedIdentifierType="">Related ID relationType IsIdenticalTo blank relationIdentifierType</relatedIdentifier>
+            </relatedIdentifiers>
+            <sizes>
+                <size></size>
+            </sizes>
+            <formats>
+                <format></format>
+            </formats>
+            <version></version>
+            <rightsList>
+                <rights></rights>
+                <rights>Right no URI</rights>
+                <rights rightsURI=""></rights>
+                <rights rightsURI="">Right blank URI</rights>
+                <rights rightsURI="Right URI without string"></rights>
+            </rightsList>
+            <descriptions>
+                <description></description>
+                <description>Description no type</description>
+                <description descriptionType=""></description>
+                <description descriptionType="">Description blank type</description>
+                <description descriptionType="Other"></description>
+                <description descriptionType="Abstract"></description>
+            </descriptions>
+            <fundingReferences>
+                <fundingReference></fundingReference>
+                <fundingReference>
+                    <funderName></funderName>
+                    <funderIdentifier></funderIdentifier>
+                    <awardNumber></awardNumber>
+                </fundingReference>
+                <fundingReference>
+                    <funderName></funderName>
+                    <funderIdentifier funderIdentifierType=""></funderIdentifier>
+                    <awardNumber awardURI=""></awardNumber>
+                </fundingReference>
+                <fundingReference>
+                    <funderName>Funder name no identifier no award</funderName>
+                </fundingReference>
+                <fundingReference>
+                    <funderName>Funder name blank identifier blank award</funderName>
+                    <funderIdentifier></funderIdentifier>
+                    <awardNumber></awardNumber>
+                </fundingReference>
+                <fundingReference>
+                    <funderIdentifier>Funder identifier no type</funderIdentifier>
+                </fundingReference>
+                <fundingReference>
+                    <funderIdentifier funderIdentifierType="">Funder identifier blank type</funderIdentifier>
+                </fundingReference>
+                <fundingReference>
+                    <funderIdentifier funderIdentifierType="Funder identifier type without string"></funderIdentifier>
+                </fundingReference>
+                <fundingReference>
+                    <awardNumber>Funder award no uri</awardNumber>
+                </fundingReference>
+                <fundingReference>
+                    <awardNumber awardURI="">Funder award blank uri</awardNumber>
+                </fundingReference>
+                <fundingReference>
+                    <awardNumber awardURI="Funder award uri without string"></awardNumber>
+                </fundingReference>
+            </fundingReferences>
+        </resource>
+    </metadata>
+</record>

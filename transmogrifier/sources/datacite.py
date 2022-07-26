@@ -27,7 +27,7 @@ class Datacite(Transformer):
 
         # alternate_titles
         for alternate_title in [
-            t for t in xml.find_all("title") if "titleType" in t.attrs and t.string
+            t for t in xml.find_all("title", string=True) if t.get("titleType")
         ]:
             fields.setdefault("alternate_titles", []).append(
                 timdex.AlternateTitle(
@@ -35,10 +35,15 @@ class Datacite(Transformer):
                     kind=alternate_title["titleType"],
                 )
             )
+        # If the record has more than one main title, add extras to alternate_titles
+        for index, title in enumerate(self.get_main_titles(xml)):
+            if index > 0:
+                fields.setdefault("alternate_titles", []).append(
+                    timdex.AlternateTitle(value=title.string)
+                )
 
         # content_type
-        resource_type = xml.metadata.find("resourceType")
-        if resource_type:
+        if resource_type := xml.metadata.find("resourceType"):
             if resource_type.string:
                 fields["notes"] = [
                     timdex.Note(
@@ -58,16 +63,20 @@ class Datacite(Transformer):
 
         # contributors
         for creator in xml.metadata.find_all("creator"):
-            creator_name_element = creator.find("creatorName")
-            if creator_name_element and creator_name_element.string:
+            if creator_name := creator.find("creatorName", string=True):
                 fields.setdefault("contributors", []).append(
                     timdex.Contributor(
-                        value=creator_name_element.string,
-                        affiliation=[a.string for a in creator.find_all("affiliation")]
+                        value=creator_name.string,
+                        affiliation=[
+                            a.string
+                            for a in creator.find_all("affiliation", string=True)
+                        ]
                         or None,
                         identifier=[
                             self.generate_name_identifier_url(name_identifier)
-                            for name_identifier in creator.find_all("nameIdentifier")
+                            for name_identifier in creator.find_all(
+                                "nameIdentifier", string=True
+                            )
                         ]
                         or None,
                         kind="Creator",
@@ -75,60 +84,60 @@ class Datacite(Transformer):
                 )
 
         for contributor in xml.metadata.find_all("contributor"):
-            contributor_name_element = contributor.find("contributorName")
-            if contributor_name_element and contributor_name_element.string:
+            if contributor_name := contributor.find("contributorName", string=True):
                 fields.setdefault("contributors", []).append(
                     timdex.Contributor(
-                        value=contributor_name_element.string,
+                        value=contributor_name.string,
                         affiliation=[
-                            a.string for a in contributor.find_all("affiliation")
+                            a.string
+                            for a in contributor.find_all("affiliation", string=True)
                         ]
                         or None,
                         identifier=[
                             self.generate_name_identifier_url(name_identifier)
                             for name_identifier in contributor.find_all(
-                                "nameIdentifier"
+                                "nameIdentifier", string=True
                             )
                         ]
                         or None,
-                        kind=contributor["contributorType"],
+                        kind=contributor.get("contributorType") or "Not specified",
                     )
                 )
 
         # dates
-        publication_year = xml.metadata.find("publicationYear")
-        if not publication_year or not publication_year.string:
+        if publication_year := xml.metadata.find("publicationYear", string=True):
+            fields["dates"] = [
+                timdex.Date(kind="Publication date", value=publication_year.string)
+            ]
+        else:
             logger.warning(
                 "Datacite record %s missing required Datacite field publicationYear",
                 source_record_id,
             )
-        else:
-            fields["dates"] = [
-                timdex.Date(kind="Publication date", value=publication_year.string)
-            ]
 
-        for date in [d for d in xml.metadata.find_all("date") if d.string]:
-            if "/" in date.string:
-                d = timdex.Date(
-                    range=timdex.Date_Range(
-                        gte=date.string[: date.string.index("/")],
-                        lte=date.string[date.string.index("/") + 1 :],
+        for date in xml.metadata.find_all("date"):
+            d = timdex.Date()
+            if value := date.string:
+                if "/" in value:
+                    split = value.index("/")
+                    d.range = timdex.Date_Range(
+                        gte=value[:split],
+                        lte=value[split + 1 :],
                     )
-                )
-            else:
-                d = timdex.Date(value=date.string)
-            d.note = date.get("dateInformation")
-            d.kind = date.get("dateType")
-            fields.setdefault("dates", []).append(d)
+                else:
+                    d.value = value
+            d.note = date.get("dateInformation") or None
+            if any([d.note, d.range, d.value]):
+                d.kind = date.get("dateType") or None
+                fields.setdefault("dates", []).append(d)
 
         # edition
-        edition = xml.metadata.find("version")
-        if edition and edition.string:
+        if edition := xml.metadata.find("version", string=True):
             fields["edition"] = edition.string
 
         # file_formats
         fields["file_formats"] = [
-            f.string for f in xml.metadata.find_all("format") if f.string
+            f.string for f in xml.metadata.find_all("format", string=True)
         ] or None
 
         # format
@@ -139,60 +148,55 @@ class Datacite(Transformer):
             fr for fr in xml.metadata.find_all("fundingReference")
         ]:
             f = timdex.Funder()
-            funder_name = funding_reference.find("funderName")
-            if funder_name.string:
+            if funder_name := funding_reference.find("funderName", string=True):
                 f.funder_name = funder_name.string
-            award_number = funding_reference.find("awardNumber")
-            if award_number and award_number.string:
-                f.award_number = award_number.string
-                f.award_uri = award_number.get("awardURI")
-            funder_identifier = funding_reference.find("funderIdentifier")
-            if funder_identifier and funder_identifier.string:
+            if award_number := funding_reference.find("awardNumber"):
+                f.award_number = award_number.string or None
+                f.award_uri = award_number.get("awardURI") or None
+            if funder_identifier := funding_reference.find(
+                "funderIdentifier", string=True
+            ):
                 f.funder_identifier = funder_identifier.string
-                f.funder_identifier_type = funder_identifier.get("funderIdentifierType")
+                f.funder_identifier_type = (
+                    funder_identifier.get("funderIdentifierType") or None
+                )
             if f != timdex.Funder():
                 fields.setdefault("funding_information", []).append(f)
 
         # identifiers
-        identifier_xml = xml.metadata.find("identifier", string=True)
-        if identifier_xml:
-            fields["identifiers"] = [
+        if identifier_xml := xml.metadata.find("identifier", string=True):
+            fields.setdefault("identifiers", []).append(
                 timdex.Identifier(
                     value=identifier_xml.string,
-                    kind=identifier_xml.get(
-                        "identifierType", "Identifier kind not specified"
-                    ),
-                ),
-            ]
-        for alternate_identifier in [
-            i for i in xml.metadata.find_all("alternateIdentifier") if i.string
-        ]:
-            fields["identifiers"].append(
+                    kind=identifier_xml.get("identifierType") or "Not specified",
+                )
+            )
+        for alternate_identifier in xml.metadata.find_all(
+            "alternateIdentifier", string=True
+        ):
+            fields.setdefault("identifiers", []).append(
                 timdex.Identifier(
                     value=alternate_identifier.string,
-                    kind=alternate_identifier.get(
-                        "alternateIdentifierType", "Identifier kind not specified"
-                    ),
+                    kind=alternate_identifier.get("alternateIdentifierType")
+                    or "Not specified",
                 )
             )
 
-        related_identifiers = xml.metadata.find_all("relatedIdentifier")
+        related_identifiers = xml.metadata.find_all("relatedIdentifier", string=True)
         for related_identifier in [
-            i
-            for i in related_identifiers
-            if i.get("relationType") == "IsIdenticalTo" and i.string
+            ri
+            for ri in related_identifiers
+            if ri.get("relationType") == "IsIdenticalTo"
         ]:
-            i = timdex.Identifier(
-                value=self.generate_related_item_identifier_url(related_identifier),
-                kind=related_identifier.get(
-                    "relationType", "Identifier kind not specified"
-                ),
+            fields.setdefault("identifiers", []).append(
+                timdex.Identifier(
+                    value=self.generate_related_item_identifier_url(related_identifier),
+                    kind=related_identifier["relationType"],
+                )
             )
-            fields["identifiers"].append(i)
 
         # language
-        language = xml.metadata.find("language")
-        if language and language.string:
+        if language := xml.metadata.find("language", string=True):
             fields["languages"] = [language.string]
 
         # links
@@ -205,16 +209,14 @@ class Datacite(Transformer):
         ]
 
         # locations
-        for location in [
-            gl for gl in xml.metadata.find_all("geoLocationPlace") if gl.string
-        ]:
+        for location in xml.metadata.find_all("geoLocationPlace", string=True):
             fields.setdefault("locations", []).append(
                 timdex.Location(value=location.string)
             )
 
         # notes
-        descriptions = xml.metadata.find_all("description")
-        for description in [d for d in descriptions if d.string]:
+        descriptions = xml.metadata.find_all("description", string=True)
+        for description in descriptions:
             if "descriptionType" not in description.attrs:
                 logger.warning(
                     "Datacite record %s missing required Datacite attribute "
@@ -225,26 +227,30 @@ class Datacite(Transformer):
                 fields.setdefault("notes", []).append(
                     timdex.Note(
                         value=[description.string],
-                        kind=description.get("descriptionType"),
+                        kind=description.get("descriptionType") or None,
                     )
                 )
 
         # publication_information
-        publisher = xml.metadata.find("publisher")
-        if not publication_year or not publication_year.string:
+        if publisher := xml.metadata.find("publisher", string=True):
+            fields["publication_information"] = [publisher.string]
+        else:
             logger.warning(
                 "Datacite record %s missing required Datacite field publisher",
                 source_record_id,
             )
-        else:
-            fields["publication_information"] = [publisher.string]
 
         # related_items, uses related_identifiers retrieved for identifiers
-        for related_identifier in [i for i in related_identifiers if i.string]:
+        for related_identifier in [
+            ri
+            for ri in related_identifiers
+            if ri.get("relationType") != "IsIdenticalTo"
+        ]:
             fields.setdefault("related_items", []).append(
                 timdex.RelatedItem(
                     uri=self.generate_related_item_identifier_url(related_identifier),
-                    relationship=related_identifier.get("relationType"),
+                    relationship=related_identifier.get("relationType")
+                    or "Not specified",
                 )
             )
 
@@ -254,19 +260,19 @@ class Datacite(Transformer):
         ]:
             fields.setdefault("rights", []).append(
                 timdex.Rights(
-                    description=right.string or None, uri=right.get("rightsURI")
+                    description=right.string or None, uri=right.get("rightsURI") or None
                 )
             )
 
         # subjects
         subjects_dict: Dict[str, List[str]] = {}
-        for subject in [s for s in xml.metadata.find_all("subject") if s.string]:
-            if subject.get("subjectScheme") is None:
+        for subject in xml.metadata.find_all("subject", string=True):
+            if not subject.get("subjectScheme"):
                 subjects_dict.setdefault("Subject scheme not provided", []).append(
                     subject.string
                 )
             else:
-                subjects_dict.setdefault(subject.attrs["subjectScheme"], []).append(
+                subjects_dict.setdefault(subject["subjectScheme"], []).append(
                     subject.string
                 )
         fields["subjects"] = [
@@ -274,17 +280,15 @@ class Datacite(Transformer):
             for key, value in subjects_dict.items()
         ] or None
 
-        # summary, uses description list retrieved for notes field
+        # summary
         fields["summary"] = [
-            d.string
-            for d in descriptions
-            if d.get("descriptionType") == "Abstract" and d.string
+            d.string for d in descriptions if d.get("descriptionType") == "Abstract"
         ] or None
 
         return fields
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[str]:
+    def get_main_titles(cls, xml: Tag) -> list[Tag]:
         """
         Retrieve main title(s) from a Datacite XML record.
 
@@ -294,7 +298,11 @@ class Datacite(Transformer):
             xml: A BeautifulSoup Tag representing a single Datacite record in
                 oai_datacite XML.
         """
-        return [t for t in xml.metadata.find_all("title", titleType=False)]
+        return [
+            t
+            for t in xml.metadata.find_all("title", string=True)
+            if not t.get("titleType")
+        ]
 
     @classmethod
     def get_source_record_id(cls, xml: Tag) -> str:

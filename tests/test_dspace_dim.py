@@ -86,12 +86,11 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
         publication_information=["Woods Hole Oceanographic Institution"],
         related_items=[
             timdex.RelatedItem(
-                description=(
-                    "A low resolution version of this movie was published as supplemental"
-                    " material to: Rieder, C. L. and A. Khodjakov. Mitosis through the "
-                    "microscope: advances in seeing inside live dividing cells. Science "
-                    "300 (2003): 91-96, doi: 10.1126/science.1082177"
-                ),
+                description="A low resolution version of this movie was published as "
+                "supplemental material to: Rieder, C. L. and A. Khodjakov. Mitosis "
+                "through the microscope: advances in seeing inside live dividing "
+                "cells. Science 300 (2003): 91-96, doi: 10.1126/science.1082177",
+                relationship="Not specified",
             ),
             timdex.RelatedItem(
                 description="International Association of Aquatic and Marine Science "
@@ -100,6 +99,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
             ),
             timdex.RelatedItem(
                 uri="https://doi.org/10.1002/2016JB013228",
+                relationship="Not specified",
             ),
         ],
         rights=[
@@ -128,6 +128,61 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
                 "beginning at diakinesis through telophase to the near completion of "
                 "cytokinesis following meiosis I."
             )
+        ],
+    )
+
+
+def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
+    input_records = parse_xml_records(
+        "tests/fixtures/dspace/dspace_dim_record_attribute_variations.xml"
+    )
+    output_records = DspaceDim("cool-repo", input_records)
+    assert next(output_records) == timdex.TimdexRecord(
+        citation="Title with Blank Qualifier. https://example.com/1912/2641",
+        source="A Cool Repository",
+        source_link="https://example.com/1912/2641",
+        timdex_record_id="cool-repo:1912-2641",
+        title=("Title with Blank Qualifier"),
+        alternate_titles=[
+            timdex.AlternateTitle(value="Additional Title with No Qualifier")
+        ],
+        content_type=["Not specified"],
+        contributors=[
+            timdex.Contributor(kind="Not specified", value="Contributor, No Qualifier"),
+            timdex.Contributor(
+                kind="Not specified", value="Contributor, Blank Qualifier"
+            ),
+        ],
+        dates=[
+            timdex.Date(value="2020-01-01"),
+            timdex.Date(value="2020-01-02"),
+        ],
+        format="electronic resource",
+        identifiers=[
+            timdex.Identifier(kind="Not specified", value="Identifier no qualifier"),
+            timdex.Identifier(kind="Not specified", value="Identifier blank qualifier"),
+        ],
+        notes=[
+            timdex.Note(value=["Description no qualifier"]),
+            timdex.Note(value=["Description blank qualifier"]),
+        ],
+        related_items=[
+            timdex.RelatedItem(
+                description="Related item no qualifier", relationship="Not specified"
+            ),
+            timdex.RelatedItem(
+                description="Related item blank qualifier", relationship="Not specified"
+            ),
+        ],
+        rights=[
+            timdex.Rights(description="Right no qualifier"),
+            timdex.Rights(description="Right blank qualifier"),
+        ],
+        subjects=[
+            timdex.Subject(
+                value=["Subject no qualifier", "Subject blank qualifier"],
+                kind="Subject scheme not provided",
+            ),
         ],
     )
 

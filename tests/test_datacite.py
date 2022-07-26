@@ -127,7 +127,7 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
                 uri="10.5281/zenodo.5524464",
             ),
             RelatedItem(
-                relationship="IsIdenticalTo",
+                relationship="Other",
                 uri="1234567.5524464",
             ),
             RelatedItem(
@@ -237,6 +237,125 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
             )
         ],
         content_type=["Not specified"],
+    )
+
+
+def test_datacite_with_attribute_and_subfield_variations_transforms_correctly():
+    input_records = parse_xml_records(
+        "tests/fixtures/datacite/datacite_record_attribute_and_subfield_variations.xml"
+    )
+    output_records = Datacite("cool-repo", input_records)
+    assert next(output_records) == TimdexRecord(
+        citation=(
+            "Creator, No affiliation no identifier, Creator, Blank affiliation blank "
+            "identifier, Creator, Identifier no scheme, Creator, Identifier blank "
+            "scheme, Creator, No identifier with identifier scheme. Title with Blank "
+            "titleType. https://example.com/doi:10.7910/DVN/19PPE7"
+        ),
+        source="A Cool Repository",
+        source_link="https://example.com/doi:10.7910/DVN/19PPE7",
+        timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
+        title="Title with Blank titleType",
+        alternate_titles=[AlternateTitle(value="A Second Title with Blank titleType")],
+        content_type=["Not specified"],
+        contributors=[
+            Contributor(value="Creator, No affiliation no identifier", kind="Creator"),
+            Contributor(
+                value="Creator, Blank affiliation blank identifier", kind="Creator"
+            ),
+            Contributor(
+                value="Creator, Identifier no scheme",
+                identifier=["0000-0000-0000-0000"],
+                kind="Creator",
+            ),
+            Contributor(
+                value="Creator, Identifier blank scheme",
+                identifier=["0000-0000-0000-0000"],
+                kind="Creator",
+            ),
+            Contributor(
+                value="Creator, No identifier with identifier scheme",
+                kind="Creator",
+            ),
+            Contributor(
+                value="Contributor, No affiliation no identifier no type",
+                kind="Not specified",
+            ),
+            Contributor(
+                value="Contributor, Blank affiliation blank identifier blank type",
+                kind="Not specified",
+            ),
+            Contributor(
+                value="Contributor, Identifier no scheme",
+                identifier=["0000-0000-0000-0000"],
+                kind="Not specified",
+            ),
+            Contributor(
+                value="Contributor, Identifier blank scheme",
+                identifier=["0000-0000-0000-0000"],
+                kind="Not specified",
+            ),
+            Contributor(
+                value="Contributor, No identifier with identifier scheme",
+                kind="Not specified",
+            ),
+        ],
+        dates=[
+            Date(value="2020-01-01"),
+            Date(note="OTHER"),
+            Date(value="2020-01-02"),
+        ],
+        format="electronic resource",
+        funding_information=[
+            Funder(funder_name="Funder name no identifier no award"),
+            Funder(funder_name="Funder name blank identifier blank award"),
+            Funder(funder_identifier="Funder identifier no type"),
+            Funder(funder_identifier="Funder identifier blank type"),
+            Funder(award_number="Funder award no uri"),
+            Funder(award_number="Funder award blank uri"),
+            Funder(award_uri="Funder award uri without string"),
+        ],
+        identifiers=[
+            Identifier(value="ID-blank-type", kind="Not specified"),
+            Identifier(value="alternate-ID-no-type", kind="Not specified"),
+            Identifier(value="alternate-ID-blank-type", kind="Not specified"),
+            Identifier(
+                value="Related ID relationType IsIdenticalTo no relationIdentifierType",
+                kind="IsIdenticalTo",
+            ),
+            Identifier(
+                value="Related ID relationType IsIdenticalTo blank "
+                "relationIdentifierType",
+                kind="IsIdenticalTo",
+            ),
+        ],
+        links=[
+            Link(
+                url="https://example.com/doi:10.7910/DVN/19PPE7",
+                kind="Digital object URL",
+                text="Digital object URL",
+            )
+        ],
+        notes=[
+            Note(value=["Description no type"]),
+            Note(value=["Description blank type"]),
+        ],
+        related_items=[
+            RelatedItem(
+                relationship="Not specified",
+                uri="Related ID no relationType no relatedIdentifierType",
+            ),
+            RelatedItem(
+                relationship="Not specified",
+                uri="Related ID blank relationType blank relatedIdentifierType",
+            ),
+        ],
+        rights=[
+            Rights(description="Right no URI"),
+            Rights(description="Right blank URI"),
+            Rights(uri="Right URI without string"),
+        ],
+        subjects=[Subject(value=["Subject One"], kind="Subject scheme not provided")],
     )
 
 
