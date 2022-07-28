@@ -32,9 +32,15 @@ class DspaceDim(Transformer):
             fields.setdefault("alternate_titles", []).append(
                 timdex.AlternateTitle(
                     value=alternate_title.string,
-                    kind=alternate_title["qualifier"],
+                    kind=alternate_title["qualifier"] or None,
                 )
             )
+        # If the record has more than one main title, add extras to alternate_titles
+        for index, title in enumerate(self.get_main_titles(xml)):
+            if index > 0:
+                fields.setdefault("alternate_titles", []).append(
+                    timdex.AlternateTitle(value=title.string)
+                )
 
         # citation
         citation = xml.find("dim:field", element="identifier", qualifier="citation")
@@ -74,7 +80,8 @@ class DspaceDim(Transformer):
         ]:
             fields.setdefault("contributors", []).append(
                 timdex.Contributor(
-                    value=contributor.string, kind=contributor.get("qualifier")
+                    value=contributor.string,
+                    kind=contributor.get("qualifier") or "Not specified",
                 )
             )
 
@@ -83,7 +90,7 @@ class DspaceDim(Transformer):
             if date.get("qualifier") == "issued":
                 d = timdex.Date(value=date.string, kind="Publication date")
             else:
-                d = timdex.Date(value=date.string, kind=date.get("qualifier"))
+                d = timdex.Date(value=date.string, kind=date.get("qualifier") or None)
             fields.setdefault("dates", []).append(d)
 
         for coverage in [
@@ -135,7 +142,7 @@ class DspaceDim(Transformer):
             fields.setdefault("identifiers", []).append(
                 timdex.Identifier(
                     value=identifier.string,
-                    kind=identifier.get("qualifier", "Identifier kind not specified"),
+                    kind=identifier.get("qualifier") or "Not specified",
                 )
             )
 
@@ -181,7 +188,8 @@ class DspaceDim(Transformer):
         ]:
             fields.setdefault("notes", []).append(
                 timdex.Note(
-                    value=[description.string], kind=description.get("qualifier")
+                    value=[description.string],
+                    kind=description.get("qualifier") or None,
                 )
             )
 
@@ -195,11 +203,13 @@ class DspaceDim(Transformer):
             r for r in xml.find_all("dim:field", element="relation") if r.string
         ]:
             if related_item.get("qualifier") == "uri":
-                ri = timdex.RelatedItem(uri=related_item.string)
+                ri = timdex.RelatedItem(
+                    uri=related_item.string, relationship="Not specified"
+                )
             else:
                 ri = timdex.RelatedItem(
                     description=related_item.string,
-                    relationship=related_item.get("qualifier"),
+                    relationship=related_item.get("qualifier") or "Not specified",
                 )
             fields.setdefault("related_items", []).append(ri)
 
@@ -211,7 +221,7 @@ class DspaceDim(Transformer):
                 rg = timdex.Rights(uri=rights.string)
             else:
                 rg = timdex.Rights(
-                    description=rights.string, kind=rights.get("qualifier")
+                    description=rights.string, kind=rights.get("qualifier") or None
                 )
             fields.setdefault("rights", []).append(rg)
 
@@ -220,7 +230,7 @@ class DspaceDim(Transformer):
         for subject in [
             s for s in xml.find_all("dim:field", element="subject") if s.string
         ]:
-            if subject.get("qualifier") is None:
+            if not subject.get("qualifier"):
                 subjects_dict.setdefault("Subject scheme not provided", []).append(
                     subject.string
                 )
@@ -242,7 +252,7 @@ class DspaceDim(Transformer):
         return fields
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[str]:
+    def get_main_titles(cls, xml: Tag) -> list[Tag]:
         """
         Retrieve main title(s) from a DSpace DIM XML record.
 

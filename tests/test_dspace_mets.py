@@ -35,6 +35,55 @@ def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly()
     )
 
 
+def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly():
+    dspace_xml_records = parse_xml_records(
+        "tests/fixtures/dspace/dspace_mets_record_attribute_and_subfield_variations.xml"
+    )
+    output_records = DspaceMets("dspace", dspace_xml_records)
+    assert next(output_records) == timdex.TimdexRecord(
+        source="DSpace@MIT",
+        source_link="https://dspace.mit.edu/handle/1721.1/142832",
+        timdex_record_id="dspace:1721.1-142832",
+        title="Title with Blank Type",
+        citation="Title with Blank Type. 2021-09. Thesis. "
+        "https://dspace.mit.edu/handle/1721.1/142832",
+        alternate_titles=[timdex.AlternateTitle(value="Second Title with Blank Type")],
+        content_type=["Thesis"],
+        contributors=[
+            timdex.Contributor(value="One, Author", kind="Not specified"),
+            timdex.Contributor(value="Two, Author", kind="Not specified"),
+            timdex.Contributor(value="Three, Author", kind="Not specified"),
+        ],
+        dates=[timdex.Date(kind="Publication date", value="2021-09")],
+        file_formats=["application/pdf"],
+        format="electronic resource",
+        identifiers=[
+            timdex.Identifier(kind="Not specified", value="ID-no-type"),
+            timdex.Identifier(kind="Not specified", value="ID-blank-type"),
+            timdex.Identifier(kind="uri", value="https://link-to-item"),
+        ],
+        links=[
+            timdex.Link(
+                kind="Digital object URL",
+                text="Digital object URL",
+                url="https://link-to-item",
+            )
+        ],
+        related_items=[
+            timdex.RelatedItem(
+                description="Related item no type", relationship="Not specified"
+            ),
+            timdex.RelatedItem(
+                description="Related item blank type", relationship="Not specified"
+            ),
+        ],
+        rights=[
+            timdex.Rights(description="Access condition no type"),
+            timdex.Rights(description="Access condition blank type"),
+        ],
+    )
+
+
 def test_dspace_mets_transform_with_all_fields_transforms_correctly():
     dspace_xml_records = parse_xml_records(
         "tests/fixtures/dspace/dspace_mets_record_all_fields.xml"
@@ -56,22 +105,13 @@ def test_dspace_mets_transform_with_all_fields_transforms_correctly():
         "Institute of Technology © 2022.",
         content_type=["Thesis"],
         contributors=[
-            timdex.Contributor(
-                value="Checkelsky, Joseph",
-                kind="advisor",
-            ),
-            timdex.Contributor(
-                value="Tatsumi, Yuki",
-                kind="author",
-            ),
+            timdex.Contributor(value="Checkelsky, Joseph", kind="advisor"),
+            timdex.Contributor(value="Tatsumi, Yuki", kind="author"),
             timdex.Contributor(
                 value="Massachusetts Institute of Technology. Department of Physics",
                 kind="department",
             ),
-            timdex.Contributor(
-                value="Smith, Susie Q.",
-                kind="Contributor role not specified",
-            ),
+            timdex.Contributor(value="Smith, Susie Q.", kind="Not specified"),
         ],
         dates=[timdex.Date(kind="Publication date", value="2021-09")],
         file_formats=["application/pdf"],

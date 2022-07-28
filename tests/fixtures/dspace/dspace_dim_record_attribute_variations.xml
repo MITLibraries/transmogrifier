@@ -1,0 +1,33 @@
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:darchive.mblwhoilibrary.org:1912/2641</identifier>
+      <datestamp>2020-01-28T19:30:01Z</datestamp>
+      <setSpec>com_1912_3</setSpec>
+      <setSpec>col_1912_534</setSpec>
+    </header>
+    <metadata>
+      <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"
+        xmlns:doc="http://www.lyncode.com/xoai"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field element="contributor">Contributor, No Qualifier</dim:field>
+        <dim:field element="contributor" qualifier="">Contributor, Blank Qualifier</dim:field>
+        <dim:field element="date" note="Date no qualifier">2020-01-01</dim:field>
+        <dim:field element="date" qualifier="" note="Date blank qualifier">2020-01-02</dim:field>
+        <dim:field element="identifier">Identifier no qualifier</dim:field>
+        <dim:field element="identifier" qualifier="">Identifier blank qualifier</dim:field>
+        <dim:field element="description">Description no qualifier</dim:field>
+        <dim:field element="description" qualifier="">Description blank qualifier</dim:field>
+        <dim:field element="relation">Related item no qualifier</dim:field>
+        <dim:field element="relation" qualifier="">Related item blank qualifier</dim:field>
+        <dim:field element="rights">Right no qualifier</dim:field>
+        <dim:field element="rights" qualifier="">Right blank qualifier</dim:field>
+        <dim:field element="subject">Subject no qualifier</dim:field>
+        <dim:field element="subject" qualifier="">Subject blank qualifier</dim:field>
+        <dim:field element="title" qualitier="">Title with Blank Qualifier</dim:field>
+        <dim:field element="title">Additional Title with No Qualifier</dim:field>
+      </dim:dim>
+    </metadata>
+  </record>
+</records>
