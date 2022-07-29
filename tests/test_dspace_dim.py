@@ -20,7 +20,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
         alternate_titles=[
             timdex.AlternateTitle(value="An Alternative Title", kind="alternative"),
         ],
-        content_type=["Moving Image"],
+        content_type=["Moving Image", "Dataset"],
         contents=["Chapter 1"],
         contributors=[
             timdex.Contributor(
