@@ -47,11 +47,9 @@ class DspaceDim(Transformer):
         fields["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        if content_type_list := [
-            t.string for t in xml.find_all("dim:field", element="type") if t.string
-        ]:
-            if self.valid_content_types(content_type_list):
-                fields["content_type"] = content_type_list
+        if content_types := self.get_content_types(xml):
+            if self.valid_content_types(content_types):
+                fields["content_type"] = content_types
             else:
                 return None
 
@@ -250,6 +248,21 @@ class DspaceDim(Transformer):
             fields.setdefault("summary", []).append(description.string)
 
         return fields
+
+    @classmethod
+    def get_content_types(cls, xml: Tag) -> Optional[list[str]]:
+        """
+        Retrieve content types from a DSpace DIM XML record.
+
+        May be overridden by source subclasses that retrieve content type values
+        differently.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
+        """
+        return [
+            t.string for t in xml.find_all("dim:field", element="type", string=True)
+        ] or None
 
     @classmethod
     def get_main_titles(cls, xml: Tag) -> list[Tag]:

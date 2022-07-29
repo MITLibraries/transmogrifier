@@ -4,7 +4,20 @@ from bs4 import Tag
 
 from transmogrifier.sources.datacite import Datacite
 
-INVALID_CONTENT_TYPES = ["lesson", "poster", "presentation", "publication"]
+VALID_CONTENT_TYPES = [
+    "dataset",
+    "diagram",
+    "drawing",
+    "figure",
+    "image",
+    "other",
+    "photo",
+    "physicalobject",
+    "plot",
+    "software",
+    "taxonomictreatment",
+    "video",
+]
 
 
 class Zenodo(Datacite):
@@ -33,7 +46,7 @@ class Zenodo(Datacite):
         Args:
             content_type_list: A list of content_type values.
         """
-        if all(item in INVALID_CONTENT_TYPES for item in content_type_list):
-            return False
-        else:
+        if any(item.lower() in VALID_CONTENT_TYPES for item in content_type_list):
             return True
+        else:
+            return False

@@ -11,7 +11,7 @@ def test_zenodo_create_source_record_id_generates_correct_id():
 
 
 def test_valid_content_types_with_all_invalid():
-    content_types = ["lesson", "poster"]
+    content_types = ["journalarticle", "poster"]
     assert Zenodo.valid_content_types(content_types) is False
 
 
@@ -21,7 +21,20 @@ def test_valid_content_types_with_some_invalid():
 
 
 def test_valid_content_types_with_all_valid():
-    content_types = ["dataset", "image"]
+    content_types = [
+        "dataset",
+        "diagram",
+        "drawing",
+        "figure",
+        "image",
+        "other",
+        "photo",
+        "physicalobject",
+        "plot",
+        "software",
+        "taxonomictreatment",
+        "video",
+    ]
     assert Zenodo.valid_content_types(content_types) is True
 
 
