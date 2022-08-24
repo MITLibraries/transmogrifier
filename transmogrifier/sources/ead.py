@@ -26,14 +26,14 @@ class Ead(Transformer):
 
         # If the record has more than one main title, add extras to alternate_titles
         for index, title in enumerate(self.get_main_titles(xml)):
-            if index > 0:
+            if index > 0 and title:
                 fields.setdefault("alternate_titles", []).append(
                     timdex.AlternateTitle(value=title)
                 )
         return fields
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[Tag]:
+    def get_main_titles(cls, xml: Tag) -> list[str]:
         """
         Retrieve main title(s) from an EAD XML record.
 
@@ -43,7 +43,7 @@ class Ead(Transformer):
             xml: A BeautifulSoup Tag representing a single EAD XML record.
         """
         return [
-            ",".join(string for string in titleproper.stripped_strings)
+            ", ".join(string for string in titleproper.stripped_strings)
             for titleproper in xml.find_all("titleproper")
         ]
 
@@ -57,4 +57,4 @@ class Ead(Transformer):
         Args:
             xml: A BeautifulSoup Tag representing a single EAD XML record.
         """
-        return xml.header.identifier.string.replace("oai:mit//", "")
+        return xml.header.identifier.string.split("//")[1]

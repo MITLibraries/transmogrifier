@@ -6,7 +6,7 @@ from importlib import import_module
 import sentry_sdk
 
 SOURCES = {
-    "archivesspace": {
+    "aspace": {
         "name": "MIT ArchivesSpace",
         "base_url": "https://archivesspace.mit.edu/",
         "transform-class": "transmogrifier.sources.ead.Ead",

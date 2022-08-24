@@ -19,6 +19,10 @@
                                 Title 2
                                 <num>VC.0002</num>
                             </titleproper>
+                            <titleproper>
+                                Title 3
+                            </titleproper>
+                            <titleproper></titleproper>
                         </titlestmt>
                     </filedesc>
                 </eadheader>
