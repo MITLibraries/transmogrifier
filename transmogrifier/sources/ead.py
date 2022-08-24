@@ -2,6 +2,7 @@ import logging
 
 from bs4 import Tag
 
+import transmogrifier.models as timdex
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -9,6 +10,27 @@ logger = logging.getLogger(__name__)
 
 class Ead(Transformer):
     """EAD transformer."""
+
+    def get_optional_fields(self, xml: Tag) -> dict:
+        """
+        Retrieve optional TIMDEX fields from an EAD XML record.
+
+        Overrides metaclass get_optional_fields() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single EAD XML record.
+        """
+        fields: dict = {}
+
+        # alternate_titles
+
+        # If the record has more than one main title, add extras to alternate_titles
+        for index, title in enumerate(self.get_main_titles(xml)):
+            if index > 0:
+                fields.setdefault("alternate_titles", []).append(
+                    timdex.AlternateTitle(value=title)
+                )
+        return fields
 
     @classmethod
     def get_main_titles(cls, xml: Tag) -> list[Tag]:
@@ -20,22 +42,10 @@ class Ead(Transformer):
         Args:
             xml: A BeautifulSoup Tag representing a single EAD XML record.
         """
-        main_titles = []
-        for titlestmt in xml.find_all("titlestmt"):
-            titles = " ".join(
-                string
-                for titleproper in titlestmt.find_all("titleproper")
-                for string in titleproper.stripped_strings
-            )
-            subtitles = " ".join(
-                string
-                for subtitle in titlestmt.find_all("subtitle")
-                for string in subtitle.stripped_strings
-            )
-            if subtitles:
-                subtitles = ": " + subtitles
-            main_titles.append(titles + subtitles)
-        return main_titles
+        return [
+            ",".join(string for string in titleproper.stripped_strings)
+            for titleproper in xml.find_all("titleproper")
+        ]
 
     @classmethod
     def get_source_record_id(cls, xml: Tag) -> str:
