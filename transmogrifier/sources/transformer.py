@@ -157,7 +157,9 @@ class Transformer(object):
                 source_record_id,
                 all_titles,
             )
-        if all_titles and all_titles[0].string:
+        if all_titles and type(all_titles[0]) == str:
+            title = all_titles[0]
+        elif all_titles and all_titles[0].string:
             title = all_titles[0].string
         else:
             logger.warning(
