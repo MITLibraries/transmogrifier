@@ -1,4 +1,5 @@
 """transmogrifier.config module."""
+import json
 import logging
 import os
 from importlib import import_module
@@ -72,3 +73,12 @@ def get_transformer(source: str) -> type:
     module_name, class_name = SOURCES[source]["transform-class"].rsplit(".", 1)
     source_module = import_module(module_name)
     return getattr(source_module, class_name)
+
+
+def load_external_config(path: str) -> dict:
+    """
+    Return dict from JSON config file.
+
+    """
+    with open(path, "rb") as json_file:
+        return json.load(json_file)

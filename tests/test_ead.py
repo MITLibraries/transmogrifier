@@ -1,3 +1,5 @@
+import pytest
+
 import transmogrifier.models as timdex
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.ead import Ead
@@ -142,7 +144,7 @@ def test_ead_record_all_fields_transform_correctly():
                     "collection was processed over three years from March 2009 to May "
                     "2012."
                 ],
-                kind="Biographical and Historical Note",
+                kind="Biography or History",
             ),
             timdex.Note(
                 value=[
@@ -296,6 +298,14 @@ def test_ead_record_all_fields_transform_correctly():
             "Orange County, with the addition of some topographical details."
         ],
     )
+
+
+def test_ead_record_with_missing_archdesc_raises_error():
+    with pytest.raises(ValueError):
+        ead_xml_records = parse_xml_records(
+            "tests/fixtures/ead/ead_record_missing_archdesc.xml"
+        )
+        next(Ead("aspace", ead_xml_records))
 
 
 def test_ead_record_with_missing_optional_fields_transforms_correctly():
