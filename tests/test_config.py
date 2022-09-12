@@ -2,7 +2,12 @@ import logging
 
 import pytest
 
-from transmogrifier.config import configure_logger, configure_sentry, get_transformer
+from transmogrifier.config import (
+    configure_logger,
+    configure_sentry,
+    get_transformer,
+    load_external_config,
+)
 from transmogrifier.sources.datacite import Datacite
 
 
@@ -55,3 +60,34 @@ def test_get_transformer_source_wrong_class_name_raises_error(bad_config):
 def test_get_transformer_source_wrong_module_path_raises_error(bad_config):
     with pytest.raises(ImportError):
         get_transformer("bad-module-path")
+
+
+def test_load_external_config():
+    assert load_external_config("config/type_crosswalk.json") == {
+        "aat": "Art & Architecture Thesaurus",
+        "accessrestrict": "Conditions Governing Access",
+        "altformavail": "Alternative Form Available",
+        "acqinfo": "Acquisition Information",
+        "appraisal": "Appraisal",
+        "bibliography": "Bibliography",
+        "bioghist": "Biography or History",
+        "custodhist": "Custodial History",
+        "gmgpc": (
+            "Thesaurus for Graphic Materials II: Genre and Physical Characteristic "
+            "Terms"
+        ),
+        "lcnaf": "Library of Congress Name Authority File",
+        "lcsh": "Library of Congress Subject Headings",
+        "legalstatus": "Legal Status",
+        "naf": "Library of Congress Name Authority File",
+        "otherfindaid": "Other Finding Aid",
+        "processinfo": "Processing Information",
+        "relatedmaterial": "Related Material",
+        "relation": "Relation",
+        "separatedmaterial": "Separated Material",
+        "scopecontent": "Scope and Contents Note",
+        "snac": "Social Networks and Archival Context",
+        "tucua": "Thesaurus for Use in College and University Archives",
+        "userestrict": "Conditions Governing Use",
+        "viaf": "Virtual International Authority File",
+    }
