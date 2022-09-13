@@ -19,7 +19,7 @@ def test_env():
 def test_config():
     SOURCES["cool-repo"] = {
         "name": "A Cool Repository",
-        "base_url": "https://example.com/",
+        "base-url": "https://example.com/",
     }
     yield
 
@@ -28,12 +28,12 @@ def test_config():
 def bad_config():
     SOURCES["bad-class-name"] = {
         "name": "Some Repository",
-        "base_url": "https://example.com/",
+        "base-url": "https://example.com/",
         "transform-class": "transmogrifier.sources.datacite.WrongClass",
     }
     SOURCES["bad-module-path"] = {
         "name": "Some Repository",
-        "base_url": "https://example.com/",
+        "base-url": "https://example.com/",
         "transform-class": "wrong.module.Datacite",
     }
     yield

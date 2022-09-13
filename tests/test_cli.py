@@ -1,6 +1,31 @@
 from transmogrifier.cli import main
 
 
+def test_transform_alma_records(caplog, monkeypatch, runner, tmp_path):
+    monkeypatch.delenv("SENTRY_DSN", raising=False)
+    outfile = tmp_path / "timdex_alma_records.json"
+    result = runner.invoke(
+        main,
+        [
+            "-i",
+            "tests/fixtures/marc/marc_records.xml",
+            "-o",
+            outfile,
+            "-s",
+            "alma",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Logger 'root' configured with level=INFO" in caplog.text
+    assert "No Sentry DSN found, exceptions will not be sent to Sentry" in caplog.text
+    assert "Running transform for source alma" in caplog.text
+    assert (
+        "Completed transform, total records processed: 11, transformed records: 11"
+        ", skipped records: 0"
+    ) in caplog.text
+    assert "Total time to complete transform" in caplog.text
+
+
 def test_transform_no_sentry_not_verbose(caplog, monkeypatch, runner, tmp_path):
     monkeypatch.delenv("SENTRY_DSN", raising=False)
     outfile = tmp_path / "timdex_jpal_records.json"
