@@ -1,5 +1,5 @@
 import logging
-from typing import Generator, Optional
+from typing import Generator, Optional, Union
 
 from bs4 import NavigableString, Tag
 
@@ -23,18 +23,21 @@ class Ead(Transformer):
         """
         fields: dict = {}
 
-        try:
-            collection_description = xml.metadata.find("archdesc", level="collection")
-            collection_description.find_all(True)
-        except AttributeError:
-            logger.error("Record is missing archdesc element")
+        if collection_description := xml.metadata.find("archdesc", level="collection"):
+            pass
+        else:
+            logger.error(
+                f"Record ID {self.get_source_record_id(xml)} is missing archdesc element"
+            )
             return None
 
-        try:
-            collection_description_did = collection_description.did
-            collection_description_did.find_all(True)
-        except AttributeError:
-            logger.error("Record is missing archdesc > did element")
+        if collection_description_did := collection_description.did:
+            pass
+        else:
+            logger.error(
+                f"Record ID {self.get_source_record_id(xml)} is missing archdesc > did "
+                "element"
+            )
             return None
 
         # alternate_titles
@@ -49,11 +52,11 @@ class Ead(Transformer):
         # contributors
         for origination_element in collection_description_did.find_all("origination"):
             for name_element in origination_element.find_all(True, recursive=False):
-                if name_value := self.create_string_from_mixed_value(name_element):
+                if name_value := self.create_string_from_mixed_value(name_element, " "):
                     fields.setdefault("contributors", []).append(
                         timdex.Contributor(
                             value=name_value,
-                            kind=origination_element.get("label"),
+                            kind=origination_element.get("label") or None,
                             identifier=self.generate_name_identifier_url(name_element),
                         )
                     )
@@ -62,12 +65,11 @@ class Ead(Transformer):
 
     @classmethod
     def create_list_from_mixed_value(
-        cls, xml_element: Tag, skipped_elements: list = []
+        cls, xml_element: Tag, skipped_elements: Optional[list[str]] = None
     ) -> list:
         """
         Create a list of strings from an XML element value that contains a mix of strings
-        and XML elements. This method is used for fields where .stripped_strings
-        pulls in unnecessary formatting.
+        and XML elements.
 
         Args:
             xml_element: An XML element that may contain a value consisting of
@@ -75,21 +77,24 @@ class Ead(Transformer):
             skipped_elements: Elements that should be skipped when parsing the mixed
             value.
         """
-
+        if skipped_elements is None:
+            skipped_elements = []
         value_list = []
-        for contents_child in xml_element.contents:
+        for contents_child in xml_element.children:
             for value in cls.parse_mixed_value(contents_child, skipped_elements):
                 value_list.append(value)
         return value_list
 
     @classmethod
     def create_string_from_mixed_value(
-        cls, xml_element: Tag, separator: str = "", skipped_elements: list = []
+        cls,
+        xml_element: Tag,
+        separator: str = "",
+        skipped_elements: Optional[list[str]] = None,
     ) -> str:
         """
         Create a joined string from a list of strings from an XML element value
-        that contains a mix of strings and XML elements. This method is used for
-        fields where .stripped_strings pulls in unnecessary formatting.
+        that contains a mix of strings and XML elements.
 
         Args:
             xml_element: An XML element that may contain a value consisting of
@@ -111,7 +116,7 @@ class Ead(Transformer):
             name_element: A BeautifulSoup Tag representing an EAD
                 name XML field.
         """
-        if name_element.get("authfilenumber"):
+        if identifier := name_element.get("authfilenumber"):
             source = name_element.get("source")
             if source in ["lcnaf", "naf"]:
                 base_url = "https://lccn.loc.gov/"
@@ -121,7 +126,7 @@ class Ead(Transformer):
                 base_url = "http://viaf.org/viaf/"
             else:
                 base_url = ""
-            return [base_url + name_element["authfilenumber"]]
+            return [base_url + identifier]
         else:
             return None
 
@@ -142,9 +147,9 @@ class Ead(Transformer):
         except AttributeError:
             return []
         return [
-            title.strip()
+            title
             for unit_title in unit_titles
-            if (title := cls.create_string_from_mixed_value(unit_title, "", ["num"]))
+            if (title := cls.create_string_from_mixed_value(unit_title, " ", ["num"]))
         ]
 
     @classmethod
@@ -160,7 +165,11 @@ class Ead(Transformer):
         return xml.header.identifier.string.split("//")[1]
 
     @classmethod
-    def parse_mixed_value(cls, item: type, skipped_elements: list) -> Generator:
+    def parse_mixed_value(
+        cls,
+        item: Union[NavigableString, Tag],
+        skipped_elements: Optional[list[str]] = None,
+    ) -> Generator:
         """
         Parse an item in a mixed value of XML elements and strings according to its type.
         Recursive given the unpredictable structure of EAD values.
@@ -171,11 +180,10 @@ class Ead(Transformer):
             skipped_elements: Elements that should be skipped when parsing the mixed
             value.
         """
-        if type(item) == NavigableString and item:
-            yield item
+        if skipped_elements is None:
+            skipped_elements = []
+        if type(item) == NavigableString and item.strip():
+            yield str(item.strip())
         elif type(item) == Tag and item.name not in skipped_elements:
-            for contents_item in item.contents:
-                for contents_item in cls.parse_mixed_value(
-                    contents_item, skipped_elements
-                ):
-                    yield contents_item
+            for child in item.children:
+                yield from cls.parse_mixed_value(child, skipped_elements)
