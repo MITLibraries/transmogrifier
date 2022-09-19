@@ -56,7 +56,7 @@ def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path
     ) in caplog.text
 
 
-def test_transform_no_records(caplog, runner, tmp_path):
+def test_transform_no_records(runner, tmp_path):
     outfile = tmp_path / "no_records.json"
     result = runner.invoke(
         main,

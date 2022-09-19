@@ -2,7 +2,12 @@ import logging
 
 import pytest
 
-from transmogrifier.config import configure_logger, configure_sentry, get_transformer
+from transmogrifier.config import (
+    configure_logger,
+    configure_sentry,
+    get_transformer,
+    load_external_config,
+)
 from transmogrifier.sources.datacite import Datacite
 
 
@@ -55,3 +60,17 @@ def test_get_transformer_source_wrong_class_name_raises_error(bad_config):
 def test_get_transformer_source_wrong_module_path_raises_error(bad_config):
     with pytest.raises(ImportError):
         get_transformer("bad-module-path")
+
+
+def test_load_external_config(tmp_path):
+    tmp_dir = tmp_path / "config"
+    tmp_dir.mkdir()
+    config_file = tmp_dir / "config.json"
+    config_file.write_text(
+        '{"aat": "Art & Architecture Thesaurus", '
+        '"accessrestrict": "Conditions Governing Access"}'
+    )
+    assert load_external_config(config_file) == {
+        "aat": "Art & Architecture Thesaurus",
+        "accessrestrict": "Conditions Governing Access",
+    }
