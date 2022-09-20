@@ -49,14 +49,17 @@ def test_ead_record_all_fields_transform_correctly():
         ],
         content_type=["Archival materials", "Correspondence"],
         contents=[
-            "This collection is organized into ten series: Series 1. Charles J. Connick "
-            "and Connick Studio documents Series 2. Charles J. Connick Studio and "
-            "Associates job information Series 3. Charles J. Connick Stained Glass "
-            "Foundation documents"
+            "This collection is organized into ten series:",
+            "Series 1. Charles J. Connick and Connick Studio documents",
+            "Series 2. Charles J. Connick Studio and Associates job information",
+            "Series 3. Charles J. Connick Stained Glass Foundation documents",
         ],
         dates=[
-            timdex.Date(kind="inclusive", value="1905-2012"),
-            timdex.Date(kind="inclusive", value="1962 1968"),
+            timdex.Date(
+                kind="creation",
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            )
         ],
     )
 
@@ -105,17 +108,11 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             "with blank authfilenumber, Name with blank source, Name with authfile and "
             "source, Name with blank authfile and source, Name with authfile and blank "
             "source, Name with blank authfile and blank source, Contributor with X M L. "
-            "Title string. Archival materials, Correspondence, Correspondence, "
-            "Correspondence, Correspondence, Correspondence, Correspondence. "
+            "Title string. Archival materials, Correspondence. "
             "https://archivesspace.mit.edu/repositories/2/resources/6"
         ),
         content_type=[
             "Archival materials",
-            "Correspondence",
-            "Correspondence",
-            "Correspondence",
-            "Correspondence",
-            "Correspondence",
             "Correspondence",
         ],
         contributors=[
@@ -232,24 +229,46 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
                 kind="Creator",
             ),
         ],
-        contents=[
-            "This collection is organized into ten series: Series 1. Charles J. Connick "
-            "and Connick Studio documents Series 2. Charles J. Connick Studio and "
-            "Associates job information Series 3. Charles J. Connick Stained Glass "
-            "Foundation documents",
-            "This collection is organized into ten series: Series 1. Charles J. Connick "
-            "and Connick Studio documents Series 2. Charles J. Connick Studio and "
-            "Associates job information Series 3. Charles J. Connick Stained Glass "
-            "Foundation documents",
-        ],
+        contents=["Data not enclosed in subelement"],
         dates=[
-            timdex.Date(value="1905-2012"),
-            timdex.Date(value="1905-2012"),
-            timdex.Date(kind="inclusive", value="1905-2012"),
-            timdex.Date(value="1962 1968"),
-            timdex.Date(value="1962 1968"),
-            timdex.Date(kind="inclusive", value="1962 1968"),
-            timdex.Date(kind="inclusive", value="1962 1968"),
+            timdex.Date(
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(value="1905"),
+            timdex.Date(
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(value="1905"),
+            timdex.Date(
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(value="1905"),
+            timdex.Date(
+                kind="creation",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(kind="creation", value="1905"),
+            timdex.Date(
+                kind="creation",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(kind="creation", value="1905"),
+            timdex.Date(
+                kind="creation",
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(kind="creation", note="approximate", value="1905"),
+            timdex.Date(
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(note="approximate", value="1905"),
+            timdex.Date(
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(note="approximate", value="1905"),
         ],
     )
 

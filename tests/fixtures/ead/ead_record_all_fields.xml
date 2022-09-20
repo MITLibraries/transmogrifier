@@ -25,13 +25,7 @@
                             <num>VC.0002</num>
                         </unittitle>
                         <unittitle>Title 3</unittitle>
-                        <unitdate normal="1905/2012" type="inclusive">1905-2012</unitdate>
-                        <unitdatestructured unitdatetype="inclusive">
-                            <daterange>
-                                <fromdate notafter="1962">1962</fromdate>
-                                <todate notafter="1968">1968</todate>
-                            </daterange>
-                        </unitdatestructured>
+                        <unitdate certainty="approximate" datechar="creation">1905-2012</unitdate>
                         <origination label="Creator">
                             <persname authfilenumber="nr99025157" rules="rda" source="naf">
                                 Connick, Charles J.

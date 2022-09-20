@@ -52,26 +52,30 @@ class Ead(Transformer):
         # call_numbers field not used in EAD
 
         # citation
-        if citation_elem := collection_description.find("prefercite"):
+        if citation_element := collection_description.find(
+            "prefercite", recursive=False
+        ):
             if citation_value := self.create_string_from_mixed_value(
-                citation_elem, " ", ["head"]
+                citation_element, " ", ["head"]
             ):
                 fields["citation"] = citation_value
 
         # content_type
         fields["content_type"] = ["Archival materials"]
-        for content_type_elem in collection_description.find_all("genreform"):
-            if content_type_value := self.create_string_from_mixed_value(
-                content_type_elem, " ", ["head"]
-            ):
-                fields["content_type"].append(content_type_value)
+        for control_access_element in collection_description.find_all("controlaccess"):
+            for content_type_element in control_access_element.find_all("genreform"):
+                if content_type_value := self.create_string_from_mixed_value(
+                    content_type_element,
+                    " ",
+                ):
+                    fields["content_type"].append(content_type_value)
 
         # contents
-        for arrangement_elem in collection_description.find_all(
+        for arrangement_element in collection_description.find_all(
             "arrangement", recursive=False
         ):
-            if arrangement_value := self.create_string_from_mixed_value(
-                arrangement_elem, " ", ["head"]
+            for arrangement_value in self.create_list_from_mixed_value(
+                arrangement_element, ["head"]
             ):
                 fields.setdefault("contents", []).append(arrangement_value)
 
@@ -87,28 +91,23 @@ class Ead(Transformer):
                         )
                     )
         # dates
-        for date_elem in collection_description_did.find_all("unitdate"):
+        for date_element in collection_description_did.find_all("unitdate"):
             if date_value := self.create_string_from_mixed_value(
-                date_elem,
+                date_element,
                 " ",
             ):
-                fields.setdefault("dates", []).append(
-                    timdex.Date(
-                        value=date_value,
-                        kind=date_elem.get("type") or None,
+                date_instance = timdex.Date()
+                if "-" in date_value:
+                    split = date_value.index("-")
+                    date_instance.range = timdex.Date_Range(
+                        gte=date_value[:split],
+                        lte=date_value[split + 1 :],
                     )
-                )
-        for date_elem in collection_description_did.find_all("unitdatestructured"):
-            if date_value := self.create_string_from_mixed_value(
-                date_elem,
-                " ",
-            ):
-                fields.setdefault("dates", []).append(
-                    timdex.Date(
-                        value=date_value,
-                        kind=date_elem.get("unitdatetype") or None,
-                    )
-                )
+                else:
+                    date_instance.value = date_value
+                date_instance.kind = date_element.get("datechar") or None
+                date_instance.note = date_element.get("certainty") or None
+                fields.setdefault("dates", []).append(date_instance)
 
         # edition field not used in EAD
 
@@ -137,7 +136,8 @@ class Ead(Transformer):
         value_list = []
         for contents_child in xml_element.children:
             for value in cls.parse_mixed_value(contents_child, skipped_elements):
-                value_list.append(value)
+                if value not in value_list:
+                    value_list.append(value)
         return value_list
 
     @classmethod
