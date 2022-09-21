@@ -62,7 +62,9 @@ class Ead(Transformer):
 
         # content_type
         fields["content_type"] = ["Archival materials"]
-        for control_access_element in collection_description.find_all("controlaccess"):
+        for control_access_element in collection_description.find_all(
+            "controlaccess", recursive=False
+        ):
             for content_type_element in control_access_element.find_all("genreform"):
                 if content_type_value := self.create_string_from_mixed_value(
                     content_type_element,

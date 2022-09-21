@@ -12,12 +12,6 @@
                     <did>
                         <unittitle></unittitle>
                         <unitdate></unitdate>
-                        <unitdatestructured>
-                            <daterange>
-                                <fromdate></fromdate>
-                                <todate></todate>
-                            </daterange>
-                        </unitdatestructured>
                         <origination>
                             <persname></persname>
                         </origination>
