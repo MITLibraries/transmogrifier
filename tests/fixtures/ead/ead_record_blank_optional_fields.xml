@@ -12,15 +12,27 @@
                     <did>
                         <unittitle></unittitle>
                         <unitdate></unitdate>
+                        <unitid></unitid>
                         <origination>
                             <persname></persname>
                         </origination>
                     </did>
+                    <acqinfo></acqinfo>
+                    <appraisal></appraisal>
                     <arrangement></arrangement>
+                    <bibliography></bibliography>
+                    <bioghist></bioghist>
                     <controlaccess>
                         <genreform></genreform>
+                        <geogname></geogname>
                     </controlaccess>
+                    <custodhist></custodhist>
+                    <langmaterial></langmaterial>
+                    <originalsloc></originalsloc>
+                    <physloc></physloc>
                     <prefercite></prefercite>
+                    <processinfo></processinfo>
+                    <scopecontent></scopecontent>
                 </archdesc>
             </ead>
         </metadata>

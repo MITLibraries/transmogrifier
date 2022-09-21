@@ -47,6 +47,9 @@
                         <unitdate datechar="" certainty="approximate"></unitdate>
                         <unitdate datechar="" certainty="approximate">1905-2012</unitdate>
                         <unitdate datechar="" certainty="approximate">1905</unitdate>
+                        <unitid>
+                            <emph>Data enclosed in subelement</emph>
+                        </unitid>
                         <origination></origination>
                         <origination>
                             <persname></persname>
@@ -118,6 +121,22 @@
                             </persname>
                         </origination>
                     </did>
+                    <acqinfo>
+                        <head>
+                            <p></p>
+                        </head>
+                    </acqinfo>
+                    <acqinfo>
+                        <head>Head tag but no other data</head>
+                    </acqinfo>
+                    <appraisal>
+                        <head>
+                            <p></p>
+                        </head>
+                    </appraisal>
+                    <appraisal>
+                        <head>Head tag but no other data</head>
+                    </appraisal>
                     <arrangement>
                         <head></head>
                         <p></p>
@@ -128,13 +147,68 @@
                     <arrangement>
                         Data not enclosed in subelement
                     </arrangement>
+                    <bibliography>
+                        <head>Head tag but no other data</head>
+                    </bibliography>
+                    <bibliography>
+                        <bibref>
+                            <title>
+                                <part></part>
+                            </title>
+                        </bibref>
+                    </bibliography>
+                    <bioghist>
+                        <head></head>
+                        <p></p>
+                    </bioghist>
+                    <bioghist>
+                        <head>Head tag but no other data</head>
+                    </bioghist>
                     <controlaccess>
                         <genreform>Correspondence</genreform>
+                        <geogname>
+                            <emph>Data enclosed in subelement</emph>
+                        </geogname>
                     </controlaccess>
+                    <custodhist>
+                        <head></head>
+                        <p></p>
+                    </custodhist>
+                    <custodhist></custodhist>
+                    <langmaterial>
+                        <language></language>
+                    </langmaterial>
+                    <originalsloc>
+                        <head></head>
+                        <p></p>
+                    </originalsloc>
+                    <originalsloc>
+                        <head></head>
+                    </originalsloc>
+                    <originalsloc>
+                        <head>Head tag but no other data</head>
+                    </originalsloc>
+                    <physloc>
+                        <emph>Data enclosed in subelement</emph>
+                    </physloc>
                     <prefercite>
                         <head></head>
                         <p></p>
                     </prefercite>
+                    <processinfo>
+                        <head></head>
+                        <p></p>
+                    </processinfo>
+                    <processinfo>
+                        <head>Head tag but no other data</head>
+                    </processinfo>
+                    <scopecontent>
+                        <head></head>
+                        <p></p>
+                    </scopecontent>
+                    <scopecontent>
+                        <head>Head tag but no other data</head>
+                    </scopecontent>
                 </archdesc>
             </ead>
         </metadata>

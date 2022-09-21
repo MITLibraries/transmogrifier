@@ -1,9 +1,11 @@
 import logging
+from itertools import chain
 from typing import Generator, Optional, Union
 
 from bs4 import NavigableString, Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.config import load_external_config
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -117,6 +119,80 @@ class Ead(Transformer):
 
         # format field not used in EAD
 
+        # holdings
+        for holding_element in chain(
+            collection_description.find_all("originalsloc", recursive=False),
+            collection_description.find_all("physloc", recursive=False),
+        ):
+            if holding_value := self.create_string_from_mixed_value(
+                holding_element, " ", ["head"]
+            ):
+                fields.setdefault("holdings", []).append(
+                    timdex.Holding(note=holding_value)
+                )
+
+        # identifiers
+        for id_element in collection_description_did.find_all("unitid"):
+            if id_value := self.create_string_from_mixed_value(
+                id_element,
+                " ",
+            ):
+                fields.setdefault("identifiers", []).append(
+                    timdex.Identifier(
+                        value=id_value,
+                    )
+                )
+
+        # languages
+        for language_element in collection_description.find_all(
+            "langmaterial", recursive=False
+        ):
+            if language_value := self.create_string_from_mixed_value(
+                language_element,
+                ", ",
+            ):
+                fields.setdefault("languages", []).append(language_value)
+
+        # links, omitted pending decision on duplicating source_link
+
+        # literary_form field not used in EAD
+
+        # locations
+        for control_access_element in collection_description.find_all(
+            "controlaccess", recursive=False
+        ):
+            for location_element in control_access_element.find_all("geogname"):
+                if location_value := self.create_string_from_mixed_value(
+                    location_element,
+                    " ",
+                ):
+                    fields.setdefault("locations", []).append(
+                        timdex.Location(value=location_value)
+                    )
+
+        # notes
+        for note_elem in [
+            note_elem
+            for note_elem in chain(
+                collection_description.find_all("acqinfo", recursive=False),
+                collection_description.find_all("appraisal", recursive=False),
+                collection_description.find_all("bibliography", recursive=False),
+                collection_description.find_all("bioghist", recursive=False),
+                collection_description.find_all("custodhist", recursive=False),
+                collection_description.find_all("processinfo", recursive=False),
+                collection_description.find_all("scopecontent", recursive=False),
+            )
+        ]:
+            if note_value := self.create_string_from_mixed_value(
+                note_elem, " ", ["head"]
+            ):
+                fields.setdefault("notes", []).append(
+                    timdex.Note(
+                        value=[note_value],
+                        kind=self.crosswalk_type_value(note_elem.name),
+                    )
+                )
+
         return fields
 
     @classmethod
@@ -163,6 +239,18 @@ class Ead(Transformer):
         return separator.join(
             cls.create_list_from_mixed_value(xml_element, skipped_elements)
         )
+
+    @classmethod
+    def crosswalk_type_value(cls, type_value: str) -> str:
+        """
+        Crosswalk type code to human-readable label.
+        Args:
+            type_value: A type value to be crosswalked.
+        """
+        type_crosswalk = load_external_config("config/aspace_type_crosswalk.json")
+        if type_value in type_crosswalk:
+            type_value = type_crosswalk[type_value]
+        return type_value
 
     @classmethod
     def generate_name_identifier_url(cls, name_element: Tag) -> Optional[list]:

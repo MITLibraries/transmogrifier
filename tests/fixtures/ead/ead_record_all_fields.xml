@@ -26,6 +26,9 @@
                         </unittitle>
                         <unittitle>Title 3</unittitle>
                         <unitdate certainty="approximate" datechar="creation">1905-2012</unitdate>
+                        <unitid>
+                            1234
+                        </unitid>
                         <origination label="Creator">
                             <persname authfilenumber="nr99025157" rules="rda" source="naf">
                                 Connick, Charles J.
@@ -49,6 +52,15 @@
                             <persname authfilenumber="nr99025435" source="viaf">Name 5</persname>
                         </origination>
                     </did>
+                    <acqinfo>
+                        <p>
+                            Source unknown. Originally deposited in University Library, transferred to Department of Palaeography,
+                            <date normal="19580424">24 April 1958</date>
+                        </p>
+                    </acqinfo>
+                    <appraisal>
+                        <p>The records of the Mid-Ocean Dynamics Experiment came to the Institute Archives in two accessions in 1980 and 1982. During processing the collection was reduced from fifteen cubic feet to four by discarding duplicate materials, financial records, and publications not authored by MODE participants. Forty charts and six inches of raw data presented the primary appraisal issues. The raw data consisted of bulletins and reports referring to float positions, moorings, isotherms, geostrophic velocity calculations, ships' summaries, and work proposed and work carried out during the MODE-I experiment. </p>
+                    </appraisal>
                     <arrangement>
                         <head>Arrangement</head>
                         <p>This collection is organized into ten series: </p>
@@ -56,15 +68,54 @@
                         <p>Series 2. Charles J. Connick Studio and Associates job information</p>
                         <p>Series 3. Charles J. Connick Stained Glass Foundation documents</p>
                     </arrangement>
+                    <bibliography>
+                        <head>Monographs</head>
+                        <bibref>
+                            <title>
+                                <part>Affiches americaines</part>
+                            </title>
+                            San Domingo: Imprimerie royale du Cap, 1782. Nos. 30, 35.
+                        </bibref>
+                    </bibliography>
+                    <bioghist>
+                        <head>Biographical Note</head>
+                        <p>Charles J. Connick (1875-1945) was an American stained glass artist whose work may be found in cities all across the United States. Connick's works in the Arts and Crafts movement and beyond uniquely combined ancient and modern techniques and also sparked a revival of medieval European stained glass craftsmanship. Connick studied symbols and the interaction between light, color and glass, as well as the crucial connection between the stained glass window and its surrounding architecture.</p>
+                        <p>Connick founded his own studio in 1912 in Boston. </p>
+                    </bioghist>
                     <controlaccess>
-                        <genreform source="gmgpc">
+                        <genreform>
                             <part>Correspondence</part>
                         </genreform>
+                        <geogname>Boston, MA</geogname>
                     </controlaccess>
+                    <custodhist>
+                        <p>The George Franklin Papers were maintained by the staff of the Mayor's Office, City of Irvine, California, in the records storage facility at City Hall from the time of Franklin's death in 1972 until they were transferred, at his family's request, to Special Collections and Archives, The UC Irvine Libraries, in 1988.</p>
+                    </custodhist>
+                    <langmaterial>
+                        <language>English</language>
+                        <language>French</language>
+                    </langmaterial>
+                    <originalsloc>
+                        <head>Originals Location</head>
+                        <p>Some originals are here</p>
+                    </originalsloc>
+                    <originalsloc>
+                        <p>Some originals are there</p>
+                    </originalsloc>
+                    <physloc>Yet more originals are here</physloc>
                     <prefercite>
                         <head>Preferred Citation</head>
                         <p>Charles J. Connick Stained Glass Foundation Collection, VC-0002, box X. Massachusetts Institute of Technology, Department of Distinctive Collections, Cambridge, Massachusetts.</p>
                     </prefercite>
+                    <processinfo>
+                        <head>Processing Information note</head>
+                        <p>Some collection descriptions are based on legacy data and may be incomplete or contain inaccuracies. Description may change pending verification. Please contact the MIT Department of Distinctive Collections if you notice any errors or discrepancies.</p>
+                    </processinfo>
+                    <scopecontent>
+                        <head>Scope and Contents</head>
+                        <p>The Charles J. Connick Stained Glass Foundation Collection contains documents, photographs, slides, film, periodicals, articles, clippings, lecture transcripts, tools, sketches, designs and cartoons (full size stained glass window designs), stained glass, and ephemera.  </p>
+                        <p>The primary reference material is the job information.  In particular, the job files (boxes 7-9) are used most often in research.  Job files list specific information for each job performed by the studio.  </p>
+                    </scopecontent>
                 </archdesc>
             </ead>
         </metadata>
