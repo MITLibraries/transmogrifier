@@ -23,6 +23,30 @@
                             <emph></emph>
                             <num></num>
                         </unittitle>
+                        <unitdate datechar=""></unitdate>
+                        <unitdate datechar="">1905-2012</unitdate>
+                        <unitdate datechar="">1905</unitdate>
+                        <unitdate certainty=""></unitdate>
+                        <unitdate certainty="">1905-2012</unitdate>
+                        <unitdate certainty="">1905</unitdate>
+                        <unitdate datechar="" certainty=""></unitdate>
+                        <unitdate datechar="" certainty="">1905-2012</unitdate>
+                        <unitdate datechar="" certainty="">1905</unitdate>
+                        <unitdate datechar="creation"></unitdate>
+                        <unitdate datechar="creation">1905-2012</unitdate>
+                        <unitdate datechar="creation">1905</unitdate>
+                        <unitdate datechar="creation" certainty=""></unitdate>
+                        <unitdate datechar="creation" certainty="">1905-2012</unitdate>
+                        <unitdate datechar="creation" certainty="">1905</unitdate>
+                        <unitdate datechar="creation" certainty="approximate"></unitdate>
+                        <unitdate datechar="creation" certainty="approximate">1905-2012</unitdate>
+                        <unitdate datechar="creation" certainty="approximate">1905</unitdate>
+                        <unitdate certainty="approximate"></unitdate>
+                        <unitdate certainty="approximate">1905-2012</unitdate>
+                        <unitdate certainty="approximate">1905</unitdate>
+                        <unitdate datechar="" certainty="approximate"></unitdate>
+                        <unitdate datechar="" certainty="approximate">1905-2012</unitdate>
+                        <unitdate datechar="" certainty="approximate">1905</unitdate>
                         <origination></origination>
                         <origination>
                             <persname></persname>
@@ -94,6 +118,23 @@
                             </persname>
                         </origination>
                     </did>
+                    <arrangement>
+                        <head></head>
+                        <p></p>
+                    </arrangement>
+                    <arrangement>
+                        <head>Head tag but no other data</head>
+                    </arrangement>
+                    <arrangement>
+                        Data not enclosed in subelement
+                    </arrangement>
+                    <controlaccess>
+                        <genreform>Correspondence</genreform>
+                    </controlaccess>
+                    <prefercite>
+                        <head></head>
+                        <p></p>
+                    </prefercite>
                 </archdesc>
             </ead>
         </metadata>

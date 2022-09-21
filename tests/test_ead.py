@@ -18,9 +18,9 @@ def test_ead_record_all_fields_transform_correctly():
             timdex.AlternateTitle(value="Title 3"),
         ],
         citation=(
-            "Connick, Charles J. ( Charles Jay ), Name 2, Name 3, Name 4. "
-            "Charles J. Connick Stained Glass Foundation Collection. "
-            "https://archivesspace.mit.edu/repositories/2/resources/1"
+            "Charles J. Connick Stained Glass Foundation Collection, VC-0002, box X. "
+            "Massachusetts Institute of Technology, Department of Distinctive "
+            "Collections, Cambridge, Massachusetts."
         ),
         contributors=[
             timdex.Contributor(
@@ -47,7 +47,20 @@ def test_ead_record_all_fields_transform_correctly():
                 identifier=["http://viaf.org/viaf/nr99025435"],
             ),
         ],
-        content_type=["Not specified"],
+        content_type=["Archival materials", "Correspondence"],
+        contents=[
+            "This collection is organized into ten series:",
+            "Series 1. Charles J. Connick and Connick Studio documents",
+            "Series 2. Charles J. Connick Studio and Associates job information",
+            "Series 3. Charles J. Connick Stained Glass Foundation documents",
+        ],
+        dates=[
+            timdex.Date(
+                kind="creation",
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            )
+        ],
     )
 
 
@@ -95,10 +108,13 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             "with blank authfilenumber, Name with blank source, Name with authfile and "
             "source, Name with blank authfile and source, Name with authfile and blank "
             "source, Name with blank authfile and blank source, Contributor with X M L. "
-            "Title string. "
+            "Title string. Archival materials, Correspondence. "
             "https://archivesspace.mit.edu/repositories/2/resources/6"
         ),
-        content_type=["Not specified"],
+        content_type=[
+            "Archival materials",
+            "Correspondence",
+        ],
         contributors=[
             timdex.Contributor(
                 value="Name with no attributes",
@@ -213,6 +229,47 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
                 kind="Creator",
             ),
         ],
+        contents=["Data not enclosed in subelement"],
+        dates=[
+            timdex.Date(
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(value="1905"),
+            timdex.Date(
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(value="1905"),
+            timdex.Date(
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(value="1905"),
+            timdex.Date(
+                kind="creation",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(kind="creation", value="1905"),
+            timdex.Date(
+                kind="creation",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(kind="creation", value="1905"),
+            timdex.Date(
+                kind="creation",
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(kind="creation", note="approximate", value="1905"),
+            timdex.Date(
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(note="approximate", value="1905"),
+            timdex.Date(
+                note="approximate",
+                range=timdex.Date_Range(gte="1905", lte="2012"),
+            ),
+            timdex.Date(note="approximate", value="1905"),
+        ],
     )
 
 
@@ -227,9 +284,10 @@ def test_ead_record_with_blank_optional_fields_transforms_correctly():
         timdex_record_id="aspace:repositories-2-resources-2",
         title="Title not provided",
         citation=(
-            "Title not provided. https://archivesspace.mit.edu/repositories/2/resources/2"
+            "Title not provided. Archival materials. "
+            "https://archivesspace.mit.edu/repositories/2/resources/2"
         ),
-        content_type=["Not specified"],
+        content_type=["Archival materials"],
     )
 
 
@@ -244,7 +302,8 @@ def test_ead_record_with_missing_optional_fields_transforms_correctly():
         timdex_record_id="aspace:repositories-2-resources-5",
         title="Title not provided",
         citation=(
-            "Title not provided. https://archivesspace.mit.edu/repositories/2/resources/5"
+            "Title not provided. Archival materials. "
+            "https://archivesspace.mit.edu/repositories/2/resources/5"
         ),
-        content_type=["Not specified"],
+        content_type=["Archival materials"],
     )

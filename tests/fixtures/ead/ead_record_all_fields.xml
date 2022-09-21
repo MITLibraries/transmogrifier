@@ -25,6 +25,7 @@
                             <num>VC.0002</num>
                         </unittitle>
                         <unittitle>Title 3</unittitle>
+                        <unitdate certainty="approximate" datechar="creation">1905-2012</unitdate>
                         <origination label="Creator">
                             <persname authfilenumber="nr99025157" rules="rda" source="naf">
                                 Connick, Charles J.
@@ -48,6 +49,22 @@
                             <persname authfilenumber="nr99025435" source="viaf">Name 5</persname>
                         </origination>
                     </did>
+                    <arrangement>
+                        <head>Arrangement</head>
+                        <p>This collection is organized into ten series: </p>
+                        <p>Series 1. Charles J. Connick and Connick Studio documents</p>
+                        <p>Series 2. Charles J. Connick Studio and Associates job information</p>
+                        <p>Series 3. Charles J. Connick Stained Glass Foundation documents</p>
+                    </arrangement>
+                    <controlaccess>
+                        <genreform source="gmgpc">
+                            <part>Correspondence</part>
+                        </genreform>
+                    </controlaccess>
+                    <prefercite>
+                        <head>Preferred Citation</head>
+                        <p>Charles J. Connick Stained Glass Foundation Collection, VC-0002, box X. Massachusetts Institute of Technology, Department of Distinctive Collections, Cambridge, Massachusetts.</p>
+                    </prefercite>
                 </archdesc>
             </ead>
         </metadata>

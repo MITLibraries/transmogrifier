@@ -11,10 +11,16 @@
                 <archdesc level="collection">
                     <did>
                         <unittitle></unittitle>
+                        <unitdate></unitdate>
                         <origination>
                             <persname></persname>
                         </origination>
                     </did>
+                    <arrangement></arrangement>
+                    <controlaccess>
+                        <genreform></genreform>
+                    </controlaccess>
+                    <prefercite></prefercite>
                 </archdesc>
             </ead>
         </metadata>
