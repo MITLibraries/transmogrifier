@@ -68,10 +68,10 @@ def test_ead_record_all_fields_transform_correctly():
             timdex.Holding(
                 note="Some originals are there",
             ),
-            timdex.Holding(note="Yet more originals are here"),
+            timdex.Holding(location="Yet more originals are here"),
         ],
         identifiers=[timdex.Identifier(value="1234")],
-        languages=["English, French"],
+        languages=["English", "French"],
         locations=[timdex.Location(value="Boston, MA")],
         notes=[
             timdex.Note(
@@ -360,7 +360,7 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             timdex.Date(note="approximate", value="1905"),
         ],
         holdings=[
-            timdex.Holding(note="Data enclosed in subelement"),
+            timdex.Holding(location="Data enclosed in subelement"),
         ],
         identifiers=[timdex.Identifier(value="Data enclosed in subelement")],
         locations=[timdex.Location(value="Data enclosed in subelement")],
@@ -401,3 +401,15 @@ def test_ead_record_with_missing_optional_fields_transforms_correctly():
         ),
         content_type=["Archival materials"],
     )
+
+
+def test_crosswalk_type_value_blank_value():
+    assert Ead.crosswalk_type_value("") == ""
+
+
+def test_crosswalk_type_value_invalid_value():
+    assert Ead.crosswalk_type_value("abcd") == "abcd"
+
+
+def test_crosswalk_type_value_valid_value():
+    assert Ead.crosswalk_type_value("acqinfo") == "Acquisition Information"

@@ -1,5 +1,4 @@
 import logging
-from itertools import chain
 from typing import Generator, Optional, Union
 
 from bs4 import NavigableString, Tag
@@ -120,15 +119,23 @@ class Ead(Transformer):
         # format field not used in EAD
 
         # holdings
-        for holding_element in chain(
-            collection_description.find_all("originalsloc", recursive=False),
-            collection_description.find_all("physloc", recursive=False),
+        for holding_element in collection_description.find_all(
+            "originalsloc", recursive=False
         ):
             if holding_value := self.create_string_from_mixed_value(
                 holding_element, " ", ["head"]
             ):
                 fields.setdefault("holdings", []).append(
                     timdex.Holding(note=holding_value)
+                )
+        for holding_element in collection_description_did.find_all(
+            "physloc", recursive=False
+        ):
+            if holding_value := self.create_string_from_mixed_value(
+                holding_element, " ", ["head"]
+            ):
+                fields.setdefault("holdings", []).append(
+                    timdex.Holding(location=holding_value)
                 )
 
         # identifiers
@@ -144,14 +151,12 @@ class Ead(Transformer):
                 )
 
         # languages
-        for language_element in collection_description.find_all(
+        for language_element in collection_description_did.find_all(
             "langmaterial", recursive=False
         ):
-            if language_value := self.create_string_from_mixed_value(
-                language_element,
-                ", ",
-            ):
-                fields.setdefault("languages", []).append(language_value)
+            for language_value in self.create_list_from_mixed_value(language_element):
+                if language_value not in ",.":
+                    fields.setdefault("languages", []).append(language_value)
 
         # links, omitted pending decision on duplicating source_link
 
@@ -171,25 +176,25 @@ class Ead(Transformer):
                     )
 
         # notes
-        for note_elem in [
-            note_elem
-            for note_elem in chain(
-                collection_description.find_all("acqinfo", recursive=False),
-                collection_description.find_all("appraisal", recursive=False),
-                collection_description.find_all("bibliography", recursive=False),
-                collection_description.find_all("bioghist", recursive=False),
-                collection_description.find_all("custodhist", recursive=False),
-                collection_description.find_all("processinfo", recursive=False),
-                collection_description.find_all("scopecontent", recursive=False),
-            )
-        ]:
+        for note_element in collection_description.find_all(
+            [
+                "acqinfo",
+                "appraisal",
+                "bibliography",
+                "bioghist",
+                "custodhist",
+                "processinfo",
+                "scopecontent",
+            ],
+            recursive=False,
+        ):
             if note_value := self.create_string_from_mixed_value(
-                note_elem, " ", ["head"]
+                note_element, " ", ["head"]
             ):
                 fields.setdefault("notes", []).append(
                     timdex.Note(
                         value=[note_value],
-                        kind=self.crosswalk_type_value(note_elem.name),
+                        kind=self.crosswalk_type_value(note_element.name),
                     )
                 )
 
@@ -240,8 +245,8 @@ class Ead(Transformer):
             cls.create_list_from_mixed_value(xml_element, skipped_elements)
         )
 
-    @classmethod
-    def crosswalk_type_value(cls, type_value: str) -> str:
+    @staticmethod
+    def crosswalk_type_value(type_value: str) -> str:
         """
         Crosswalk type code to human-readable label.
         Args:

@@ -29,6 +29,12 @@
                         <unitid>
                             1234
                         </unitid>
+                        <langmaterial>
+                            <language>English</language>
+                            ,
+                            <language>French</language>
+                            .
+                        </langmaterial>
                         <origination label="Creator">
                             <persname authfilenumber="nr99025157" rules="rda" source="naf">
                                 Connick, Charles J.
@@ -51,6 +57,7 @@
                         <origination>
                             <persname authfilenumber="nr99025435" source="viaf">Name 5</persname>
                         </origination>
+                        <physloc>Yet more originals are here</physloc>
                     </did>
                     <acqinfo>
                         <p>
@@ -91,10 +98,6 @@
                     <custodhist>
                         <p>The George Franklin Papers were maintained by the staff of the Mayor's Office, City of Irvine, California, in the records storage facility at City Hall from the time of Franklin's death in 1972 until they were transferred, at his family's request, to Special Collections and Archives, The UC Irvine Libraries, in 1988.</p>
                     </custodhist>
-                    <langmaterial>
-                        <language>English</language>
-                        <language>French</language>
-                    </langmaterial>
                     <originalsloc>
                         <head>Originals Location</head>
                         <p>Some originals are here</p>
@@ -102,7 +105,6 @@
                     <originalsloc>
                         <p>Some originals are there</p>
                     </originalsloc>
-                    <physloc>Yet more originals are here</physloc>
                     <prefercite>
                         <head>Preferred Citation</head>
                         <p>Charles J. Connick Stained Glass Foundation Collection, VC-0002, box X. Massachusetts Institute of Technology, Department of Distinctive Collections, Cambridge, Massachusetts.</p>

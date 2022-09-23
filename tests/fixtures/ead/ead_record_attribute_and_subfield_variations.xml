@@ -50,6 +50,9 @@
                         <unitid>
                             <emph>Data enclosed in subelement</emph>
                         </unitid>
+                        <langmaterial>
+                            <language></language>
+                        </langmaterial>
                         <origination></origination>
                         <origination>
                             <persname></persname>
@@ -120,6 +123,9 @@
                                 </part>
                             </persname>
                         </origination>
+                        <physloc>
+                            <emph>Data enclosed in subelement</emph>
+                        </physloc>
                     </did>
                     <acqinfo>
                         <head>
@@ -175,9 +181,6 @@
                         <p></p>
                     </custodhist>
                     <custodhist></custodhist>
-                    <langmaterial>
-                        <language></language>
-                    </langmaterial>
                     <originalsloc>
                         <head></head>
                         <p></p>
@@ -188,9 +191,6 @@
                     <originalsloc>
                         <head>Head tag but no other data</head>
                     </originalsloc>
-                    <physloc>
-                        <emph>Data enclosed in subelement</emph>
-                    </physloc>
                     <prefercite>
                         <head></head>
                         <p></p>

@@ -13,9 +13,11 @@
                         <unittitle></unittitle>
                         <unitdate></unitdate>
                         <unitid></unitid>
+                        <langmaterial></langmaterial>
                         <origination>
                             <persname></persname>
                         </origination>
+                        <physloc></physloc>
                     </did>
                     <acqinfo></acqinfo>
                     <appraisal></appraisal>
@@ -27,9 +29,7 @@
                         <geogname></geogname>
                     </controlaccess>
                     <custodhist></custodhist>
-                    <langmaterial></langmaterial>
                     <originalsloc></originalsloc>
-                    <physloc></physloc>
                     <prefercite></prefercite>
                     <processinfo></processinfo>
                     <scopecontent></scopecontent>
