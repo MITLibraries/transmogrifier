@@ -127,22 +127,6 @@
                             <emph>Data enclosed in subelement</emph>
                         </physloc>
                     </did>
-                    <acqinfo>
-                        <head>
-                            <p></p>
-                        </head>
-                    </acqinfo>
-                    <acqinfo>
-                        <head>Head tag but no other data</head>
-                    </acqinfo>
-                    <appraisal>
-                        <head>
-                            <p></p>
-                        </head>
-                    </appraisal>
-                    <appraisal>
-                        <head>Head tag but no other data</head>
-                    </appraisal>
                     <arrangement>
                         <head></head>
                         <p></p>
@@ -159,6 +143,13 @@
                     <bibliography>
                         <bibref>
                             <title>
+                                <part>Data with no head element</part>
+                            </title>
+                        </bibref>
+                    </bibliography>
+                    <bibliography>
+                        <bibref>
+                            <title>
                                 <part></part>
                             </title>
                         </bibref>
@@ -170,17 +161,19 @@
                     <bioghist>
                         <head>Head tag but no other data</head>
                     </bioghist>
+                    <bioghist>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </bioghist>
+                    <bioghist>
+                        <p>Data with no head tag</p>
+                    </bioghist>
                     <controlaccess>
                         <genreform>Correspondence</genreform>
                         <geogname>
                             <emph>Data enclosed in subelement</emph>
                         </geogname>
                     </controlaccess>
-                    <custodhist>
-                        <head></head>
-                        <p></p>
-                    </custodhist>
-                    <custodhist></custodhist>
                     <originalsloc>
                         <head></head>
                         <p></p>
@@ -195,19 +188,19 @@
                         <head></head>
                         <p></p>
                     </prefercite>
-                    <processinfo>
-                        <head></head>
-                        <p></p>
-                    </processinfo>
-                    <processinfo>
-                        <head>Head tag but no other data</head>
-                    </processinfo>
                     <scopecontent>
                         <head></head>
                         <p></p>
                     </scopecontent>
                     <scopecontent>
                         <head>Head tag but no other data</head>
+                    </scopecontent>
+                    <scopecontent>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </scopecontent>
+                    <scopecontent>
+                        <p>Data with no head tag</p>
                     </scopecontent>
                 </archdesc>
             </ead>

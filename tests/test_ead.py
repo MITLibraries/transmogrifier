@@ -70,39 +70,10 @@ def test_ead_record_all_fields_transform_correctly():
             ),
             timdex.Holding(location="Yet more originals are here"),
         ],
-        identifiers=[timdex.Identifier(value="1234")],
+        identifiers=[timdex.Identifier(value="1234", kind="Collection Identifier")],
         languages=["English", "French"],
         locations=[timdex.Location(value="Boston, MA")],
         notes=[
-            timdex.Note(
-                value=[
-                    "Source unknown. Originally deposited in University Library, "
-                    "transferred to Department of Palaeography, 24 April 1958"
-                ],
-                kind="Acquisition Information",
-            ),
-            timdex.Note(
-                value=[
-                    "The records of the Mid-Ocean Dynamics Experiment came to the "
-                    "Institute Archives in two accessions in 1980 and 1982. During "
-                    "processing the collection was reduced from fifteen cubic feet to "
-                    "four by discarding duplicate materials, financial records, and "
-                    "publications not authored by MODE participants. Forty charts and "
-                    "six inches of raw data presented the primary appraisal issues. The "
-                    "raw data consisted of bulletins and reports referring to float "
-                    "positions, moorings, isotherms, geostrophic velocity calculations, "
-                    "ships' summaries, and work proposed and work carried out during the "
-                    "MODE-I experiment."
-                ],
-                kind="Appraisal",
-            ),
-            timdex.Note(
-                value=[
-                    "Affiches americaines San Domingo: Imprimerie royale du Cap, "
-                    "1782. Nos. 30, 35."
-                ],
-                kind="Bibliography",
-            ),
             timdex.Note(
                 value=[
                     "Charles J. Connick (1875-1945) was an American stained glass artist "
@@ -112,29 +83,10 @@ def test_ead_record_all_fields_transform_correctly():
                     "of medieval European stained glass craftsmanship. Connick studied "
                     "symbols and the interaction between light, color and glass, as well "
                     "as the crucial connection between the stained glass window and its "
-                    "surrounding architecture. Connick founded his own studio in 1912 in "
-                    "Boston."
+                    "surrounding architecture.",
+                    "Connick founded his own studio in 1912 in Boston.",
                 ],
-                kind="Biography or History",
-            ),
-            timdex.Note(
-                value=[
-                    "The George Franklin Papers were maintained by the staff of the "
-                    "Mayor's Office, City of Irvine, California, in the records storage "
-                    "facility at City Hall from the time of Franklin's death in 1972 "
-                    "until they were transferred, at his family's request, to Special "
-                    "Collections and Archives, The UC Irvine Libraries, in 1988."
-                ],
-                kind="Custodial History",
-            ),
-            timdex.Note(
-                value=[
-                    "Some collection descriptions are based on legacy data and may be "
-                    "incomplete or contain inaccuracies. Description may change pending "
-                    "verification. Please contact the MIT Department of Distinctive "
-                    "Collections if you notice any errors or discrepancies."
-                ],
-                kind="Processing Information",
+                kind="Biographical Note",
             ),
             timdex.Note(
                 value=[
@@ -142,12 +94,22 @@ def test_ead_record_all_fields_transform_correctly():
                     "documents, photographs, slides, film, periodicals, articles, "
                     "clippings, lecture transcripts, tools, sketches, designs and "
                     "cartoons (full size stained glass window designs), stained glass, "
-                    "and ephemera. The primary reference material is the job "
-                    "information.  In particular, the job files (boxes 7-9) are used "
-                    "most often in research.  Job files list specific information for "
-                    "each job performed by the studio."
+                    "and ephemera.",
+                    "The primary reference material is the job information.  In "
+                    "particular, the job files (boxes 7-9) are used most often in "
+                    "research.  Job files list specific information for each job "
+                    "performed by the studio.",
                 ],
-                kind="Scope and Contents Note",
+                kind="Scope and Contents",
+            ),
+            timdex.Note(
+                value=[
+                    "Affiches americaines",
+                    "San Domingo:",
+                    "Imprimerie",
+                    "royale du Cap, 1782. Nos. 30, 35.",
+                ],
+                kind="Bibliography",
             ),
         ],
     )
@@ -362,8 +324,19 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
         holdings=[
             timdex.Holding(location="Data enclosed in subelement"),
         ],
-        identifiers=[timdex.Identifier(value="Data enclosed in subelement")],
+        identifiers=[
+            timdex.Identifier(
+                value="Data enclosed in subelement", kind="Collection Identifier"
+            )
+        ],
         locations=[timdex.Location(value="Data enclosed in subelement")],
+        notes=[
+            timdex.Note(value=["Data with blank head tag"]),
+            timdex.Note(value=["Data with no head tag"]),
+            timdex.Note(value=["Data with blank head tag"]),
+            timdex.Note(value=["Data with no head tag"]),
+            timdex.Note(value=["Data with no head element"]),
+        ],
     )
 
 

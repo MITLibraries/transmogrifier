@@ -41,6 +41,10 @@ class Ead(Transformer):
             )
             return None
 
+        controlaccess = collection_description.find_all(
+            "controlaccess", recursive=False
+        )
+
         # alternate_titles
 
         # If the record has more than one main title, add extras to alternate_titles
@@ -63,9 +67,7 @@ class Ead(Transformer):
 
         # content_type
         fields["content_type"] = ["Archival materials"]
-        for control_access_element in collection_description.find_all(
-            "controlaccess", recursive=False
-        ):
+        for control_access_element in controlaccess:
             for content_type_element in control_access_element.find_all("genreform"):
                 if content_type_value := self.create_string_from_mixed_value(
                     content_type_element,
@@ -118,6 +120,9 @@ class Ead(Transformer):
 
         # format field not used in EAD
 
+        # funding_information field not used in EAD. titlestmt > sponsor was considered
+        # but did not fit the usage of this field in other sources.
+
         # holdings
         for holding_element in collection_description.find_all(
             "originalsloc", recursive=False
@@ -132,30 +137,33 @@ class Ead(Transformer):
             "physloc", recursive=False
         ):
             if holding_value := self.create_string_from_mixed_value(
-                holding_element, " ", ["head"]
+                holding_element,
+                " ",
             ):
                 fields.setdefault("holdings", []).append(
                     timdex.Holding(location=holding_value)
                 )
 
         # identifiers
-        for id_element in collection_description_did.find_all("unitid"):
+        for id_element in collection_description_did.find_all(
+            "unitid", recursive=False
+        ):
             if id_value := self.create_string_from_mixed_value(
                 id_element,
                 " ",
             ):
                 fields.setdefault("identifiers", []).append(
-                    timdex.Identifier(
-                        value=id_value,
-                    )
+                    timdex.Identifier(value=id_value, kind="Collection Identifier")
                 )
 
         # languages
-        for language_element in collection_description_did.find_all(
+        for langmaterial_element in collection_description_did.find_all(
             "langmaterial", recursive=False
         ):
-            for language_value in self.create_list_from_mixed_value(language_element):
-                if language_value not in ",.":
+            for language_element in langmaterial_element.find_all("language"):
+                if language_value := self.create_string_from_mixed_value(
+                    language_element
+                ):
                     fields.setdefault("languages", []).append(language_value)
 
         # links, omitted pending decision on duplicating source_link
@@ -163,9 +171,7 @@ class Ead(Transformer):
         # literary_form field not used in EAD
 
         # locations
-        for control_access_element in collection_description.find_all(
-            "controlaccess", recursive=False
-        ):
+        for control_access_element in controlaccess:
             for location_element in control_access_element.find_all("geogname"):
                 if location_value := self.create_string_from_mixed_value(
                     location_element,
@@ -178,25 +184,32 @@ class Ead(Transformer):
         # notes
         for note_element in collection_description.find_all(
             [
-                "acqinfo",
-                "appraisal",
-                "bibliography",
                 "bioghist",
-                "custodhist",
-                "processinfo",
                 "scopecontent",
             ],
             recursive=False,
         ):
-            if note_value := self.create_string_from_mixed_value(
-                note_element, " ", ["head"]
-            ):
-                fields.setdefault("notes", []).append(
-                    timdex.Note(
-                        value=[note_value],
-                        kind=self.crosswalk_type_value(note_element.name),
-                    )
-                )
+            note_value = []
+            for p_element in note_element.find_all("p", recursive=False):
+                if p_value := self.create_string_from_mixed_value(
+                    p_element,
+                    " ",
+                ):
+                    note_value.append(p_value)
+            if note_value:
+                note = timdex.Note(value=note_value)
+                note_head_element = note_element.find("head")
+                if note_head_element and note_head_element.string:
+                    note.kind = note_head_element.string
+                fields.setdefault("notes", []).append(note)
+
+        for note_element in collection_description.find_all("bibliography"):
+            if note_value := self.create_list_from_mixed_value(note_element, ["head"]):
+                note = timdex.Note(value=note_value)
+                note_head_element = note_element.find("head")
+                if note_head_element and note_head_element.string:
+                    note.kind = note_head_element.string
+                fields.setdefault("notes", []).append(note)
 
         return fields
 
