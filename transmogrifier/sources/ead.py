@@ -123,26 +123,7 @@ class Ead(Transformer):
         # funding_information field not used in EAD. titlestmt > sponsor was considered
         # but did not fit the usage of this field in other sources.
 
-        # holdings
-        for holding_element in collection_description.find_all(
-            "originalsloc", recursive=False
-        ):
-            if holding_value := self.create_string_from_mixed_value(
-                holding_element, " ", ["head"]
-            ):
-                fields.setdefault("holdings", []).append(
-                    timdex.Holding(note=holding_value)
-                )
-        for holding_element in collection_description_did.find_all(
-            "physloc", recursive=False
-        ):
-            if holding_value := self.create_string_from_mixed_value(
-                holding_element,
-                " ",
-            ):
-                fields.setdefault("holdings", []).append(
-                    timdex.Holding(location=holding_value)
-                )
+        # holdings omitted pending discussion on how to map originalsloc and physloc
 
         # identifiers
         for id_element in collection_description_did.find_all(
@@ -184,31 +165,33 @@ class Ead(Transformer):
         # notes
         for note_element in collection_description.find_all(
             [
+                "bibliography",
                 "bioghist",
                 "scopecontent",
             ],
             recursive=False,
         ):
+            if note_element.name == "bibliography":
+                subelement_tag = "bibref"
+            else:
+                subelement_tag = "p"
             note_value = []
-            for p_element in note_element.find_all("p", recursive=False):
-                if p_value := self.create_string_from_mixed_value(
-                    p_element,
+            for subelement in note_element.find_all(subelement_tag, recursive=False):
+                if subelement_value := self.create_string_from_mixed_value(
+                    subelement,
                     " ",
                 ):
-                    note_value.append(p_value)
+                    note_value.append(subelement_value)
             if note_value:
-                note = timdex.Note(value=note_value)
-                note_head_element = note_element.find("head")
-                if note_head_element and note_head_element.string:
-                    note.kind = note_head_element.string
-                fields.setdefault("notes", []).append(note)
-
-        for note_element in collection_description.find_all("bibliography"):
-            if note_value := self.create_list_from_mixed_value(note_element, ["head"]):
-                note = timdex.Note(value=note_value)
-                note_head_element = note_element.find("head")
-                if note_head_element and note_head_element.string:
-                    note.kind = note_head_element.string
+                note_head_element = note_element.find("head", string=True)
+                note = timdex.Note(
+                    value=note_value,
+                    kind=(
+                        note_head_element.string
+                        if note_head_element
+                        else self.crosswalk_type_value(note_element.name)
+                    ),
+                )
                 fields.setdefault("notes", []).append(note)
 
         return fields

@@ -17,7 +17,6 @@
                         <origination>
                             <persname></persname>
                         </origination>
-                        <physloc></physloc>
                     </did>
                     <acqinfo></acqinfo>
                     <appraisal></appraisal>
@@ -29,7 +28,6 @@
                         <geogname></geogname>
                     </controlaccess>
                     <custodhist></custodhist>
-                    <originalsloc></originalsloc>
                     <prefercite></prefercite>
                     <processinfo></processinfo>
                     <scopecontent></scopecontent>

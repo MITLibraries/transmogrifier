@@ -123,9 +123,6 @@
                                 </part>
                             </persname>
                         </origination>
-                        <physloc>
-                            <emph>Data enclosed in subelement</emph>
-                        </physloc>
                     </did>
                     <arrangement>
                         <head></head>
@@ -139,6 +136,14 @@
                     </arrangement>
                     <bibliography>
                         <head>Head tag but no other data</head>
+                    </bibliography>
+                    <bibliography>
+                        <head></head>
+                        <bibref>
+                            <title>
+                                <part>Data with blank head element</part>
+                            </title>
+                        </bibref>
                     </bibliography>
                     <bibliography>
                         <bibref>
@@ -174,16 +179,6 @@
                             <emph>Data enclosed in subelement</emph>
                         </geogname>
                     </controlaccess>
-                    <originalsloc>
-                        <head></head>
-                        <p></p>
-                    </originalsloc>
-                    <originalsloc>
-                        <head></head>
-                    </originalsloc>
-                    <originalsloc>
-                        <head>Head tag but no other data</head>
-                    </originalsloc>
                     <prefercite>
                         <head></head>
                         <p></p>

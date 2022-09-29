@@ -57,7 +57,6 @@
                         <origination>
                             <persname authfilenumber="nr99025435" source="viaf">Name 5</persname>
                         </origination>
-                        <physloc>Yet more originals are here</physloc>
                     </did>
                     <arrangement>
                         <head>Arrangement</head>
@@ -92,13 +91,6 @@
                         </genreform>
                         <geogname>Boston, MA</geogname>
                     </controlaccess>
-                    <originalsloc>
-                        <head>Originals Location</head>
-                        <p>Some originals are here</p>
-                    </originalsloc>
-                    <originalsloc>
-                        <p>Some originals are there</p>
-                    </originalsloc>
                     <prefercite>
                         <head>Preferred Citation</head>
                         <p>Charles J. Connick Stained Glass Foundation Collection, VC-0002, box X. Massachusetts Institute of Technology, Department of Distinctive Collections, Cambridge, Massachusetts.</p>

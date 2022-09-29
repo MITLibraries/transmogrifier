@@ -61,19 +61,17 @@ def test_ead_record_all_fields_transform_correctly():
                 range=timdex.Date_Range(gte="1905", lte="2012"),
             )
         ],
-        holdings=[
-            timdex.Holding(
-                note="Some originals are here",
-            ),
-            timdex.Holding(
-                note="Some originals are there",
-            ),
-            timdex.Holding(location="Yet more originals are here"),
-        ],
         identifiers=[timdex.Identifier(value="1234", kind="Collection Identifier")],
         languages=["English", "French"],
         locations=[timdex.Location(value="Boston, MA")],
         notes=[
+            timdex.Note(
+                value=[
+                    "Affiches americaines San Domingo: Imprimerie royale du Cap, 1782. "
+                    "Nos. 30, 35.",
+                ],
+                kind="Bibliography",
+            ),
             timdex.Note(
                 value=[
                     "Charles J. Connick (1875-1945) was an American stained glass artist "
@@ -101,15 +99,6 @@ def test_ead_record_all_fields_transform_correctly():
                     "performed by the studio.",
                 ],
                 kind="Scope and Contents",
-            ),
-            timdex.Note(
-                value=[
-                    "Affiches americaines",
-                    "San Domingo:",
-                    "Imprimerie",
-                    "royale du Cap, 1782. Nos. 30, 35.",
-                ],
-                kind="Bibliography",
             ),
         ],
     )
@@ -321,9 +310,6 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             ),
             timdex.Date(note="approximate", value="1905"),
         ],
-        holdings=[
-            timdex.Holding(location="Data enclosed in subelement"),
-        ],
         identifiers=[
             timdex.Identifier(
                 value="Data enclosed in subelement", kind="Collection Identifier"
@@ -331,11 +317,18 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
         ],
         locations=[timdex.Location(value="Data enclosed in subelement")],
         notes=[
-            timdex.Note(value=["Data with blank head tag"]),
-            timdex.Note(value=["Data with no head tag"]),
-            timdex.Note(value=["Data with blank head tag"]),
-            timdex.Note(value=["Data with no head tag"]),
-            timdex.Note(value=["Data with no head element"]),
+            timdex.Note(value=["Data with blank head element"], kind="Bibliography"),
+            timdex.Note(value=["Data with no head element"], kind="Bibliography"),
+            timdex.Note(
+                value=["Data with blank head tag"], kind="Biography or History"
+            ),
+            timdex.Note(value=["Data with no head tag"], kind="Biography or History"),
+            timdex.Note(
+                value=["Data with blank head tag"], kind="Scope and Contents Note"
+            ),
+            timdex.Note(
+                value=["Data with no head tag"], kind="Scope and Contents Note"
+            ),
         ],
     )
 
