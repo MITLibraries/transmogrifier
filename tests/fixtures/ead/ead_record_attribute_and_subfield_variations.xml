@@ -47,6 +47,12 @@
                         <unitdate datechar="" certainty="approximate"></unitdate>
                         <unitdate datechar="" certainty="approximate">1905-2012</unitdate>
                         <unitdate datechar="" certainty="approximate">1905</unitdate>
+                        <unitid>
+                            <emph>Data enclosed in subelement</emph>
+                        </unitid>
+                        <langmaterial>
+                            <language></language>
+                        </langmaterial>
                         <origination></origination>
                         <origination>
                             <persname></persname>
@@ -128,13 +134,69 @@
                     <arrangement>
                         Data not enclosed in subelement
                     </arrangement>
+                    <bibliography>
+                        <head>Head tag but no other data</head>
+                    </bibliography>
+                    <bibliography>
+                        <head></head>
+                        <bibref>
+                            <title>
+                                <part>Data with blank head element</part>
+                            </title>
+                        </bibref>
+                    </bibliography>
+                    <bibliography>
+                        <bibref>
+                            <title>
+                                <part>Data with no head element</part>
+                            </title>
+                        </bibref>
+                    </bibliography>
+                    <bibliography>
+                        <bibref>
+                            <title>
+                                <part></part>
+                            </title>
+                        </bibref>
+                    </bibliography>
+                    <bioghist>
+                        <head></head>
+                        <p></p>
+                    </bioghist>
+                    <bioghist>
+                        <head>Head tag but no other data</head>
+                    </bioghist>
+                    <bioghist>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </bioghist>
+                    <bioghist>
+                        <p>Data with no head tag</p>
+                    </bioghist>
                     <controlaccess>
                         <genreform>Correspondence</genreform>
+                        <geogname>
+                            <emph>Data enclosed in subelement</emph>
+                        </geogname>
                     </controlaccess>
                     <prefercite>
                         <head></head>
                         <p></p>
                     </prefercite>
+                    <scopecontent>
+                        <head></head>
+                        <p></p>
+                    </scopecontent>
+                    <scopecontent>
+                        <head>Head tag but no other data</head>
+                    </scopecontent>
+                    <scopecontent>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </scopecontent>
+                    <scopecontent>
+                        <p>Data with no head tag</p>
+                    </scopecontent>
                 </archdesc>
             </ead>
         </metadata>

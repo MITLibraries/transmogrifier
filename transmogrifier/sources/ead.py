@@ -4,6 +4,7 @@ from typing import Generator, Optional, Union
 from bs4 import NavigableString, Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.config import load_external_config
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,10 @@ class Ead(Transformer):
             )
             return None
 
+        controlaccess = collection_description.find_all(
+            "controlaccess", recursive=False
+        )
+
         # alternate_titles
 
         # If the record has more than one main title, add extras to alternate_titles
@@ -62,9 +67,7 @@ class Ead(Transformer):
 
         # content_type
         fields["content_type"] = ["Archival materials"]
-        for control_access_element in collection_description.find_all(
-            "controlaccess", recursive=False
-        ):
+        for control_access_element in controlaccess:
             for content_type_element in control_access_element.find_all("genreform"):
                 if content_type_value := self.create_string_from_mixed_value(
                     content_type_element,
@@ -117,6 +120,80 @@ class Ead(Transformer):
 
         # format field not used in EAD
 
+        # funding_information field not used in EAD. titlestmt > sponsor was considered
+        # but did not fit the usage of this field in other sources.
+
+        # holdings omitted pending discussion on how to map originalsloc and physloc
+
+        # identifiers
+        for id_element in collection_description_did.find_all(
+            "unitid", recursive=False
+        ):
+            if id_value := self.create_string_from_mixed_value(
+                id_element,
+                " ",
+            ):
+                fields.setdefault("identifiers", []).append(
+                    timdex.Identifier(value=id_value, kind="Collection Identifier")
+                )
+
+        # languages
+        for langmaterial_element in collection_description_did.find_all(
+            "langmaterial", recursive=False
+        ):
+            for language_element in langmaterial_element.find_all("language"):
+                if language_value := self.create_string_from_mixed_value(
+                    language_element
+                ):
+                    fields.setdefault("languages", []).append(language_value)
+
+        # links, omitted pending decision on duplicating source_link
+
+        # literary_form field not used in EAD
+
+        # locations
+        for control_access_element in controlaccess:
+            for location_element in control_access_element.find_all("geogname"):
+                if location_value := self.create_string_from_mixed_value(
+                    location_element,
+                    " ",
+                ):
+                    fields.setdefault("locations", []).append(
+                        timdex.Location(value=location_value)
+                    )
+
+        # notes
+        for note_element in collection_description.find_all(
+            [
+                "bibliography",
+                "bioghist",
+                "scopecontent",
+            ],
+            recursive=False,
+        ):
+            if note_element.name == "bibliography":
+                subelement_tag = "bibref"
+            else:
+                subelement_tag = "p"
+            note_value = []
+            for subelement in note_element.find_all(subelement_tag, recursive=False):
+                if subelement_value := self.create_string_from_mixed_value(
+                    subelement,
+                    " ",
+                ):
+                    note_value.append(subelement_value)
+            if note_value:
+                note_head_element = note_element.find("head", string=True)
+                note = timdex.Note(
+                    value=note_value,
+                    kind=(
+                        note_head_element.string
+                        if note_head_element
+                        else self.crosswalk_type_value(note_element.name)
+                    ),
+                )
+                fields.setdefault("notes", []).append(note)
+
         return fields
 
     @classmethod
@@ -163,6 +240,18 @@ class Ead(Transformer):
         return separator.join(
             cls.create_list_from_mixed_value(xml_element, skipped_elements)
         )
+
+    @staticmethod
+    def crosswalk_type_value(type_value: str) -> str:
+        """
+        Crosswalk type code to human-readable label.
+        Args:
+            type_value: A type value to be crosswalked.
+        """
+        type_crosswalk = load_external_config("config/aspace_type_crosswalk.json")
+        if type_value in type_crosswalk:
+            type_value = type_crosswalk[type_value]
+        return type_value
 
     @classmethod
     def generate_name_identifier_url(cls, name_element: Tag) -> Optional[list]:

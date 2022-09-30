@@ -12,15 +12,25 @@
                     <did>
                         <unittitle></unittitle>
                         <unitdate></unitdate>
+                        <unitid></unitid>
+                        <langmaterial></langmaterial>
                         <origination>
                             <persname></persname>
                         </origination>
                     </did>
+                    <acqinfo></acqinfo>
+                    <appraisal></appraisal>
                     <arrangement></arrangement>
+                    <bibliography></bibliography>
+                    <bioghist></bioghist>
                     <controlaccess>
                         <genreform></genreform>
+                        <geogname></geogname>
                     </controlaccess>
+                    <custodhist></custodhist>
                     <prefercite></prefercite>
+                    <processinfo></processinfo>
+                    <scopecontent></scopecontent>
                 </archdesc>
             </ead>
         </metadata>

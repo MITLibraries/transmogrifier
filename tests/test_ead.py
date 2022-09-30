@@ -61,6 +61,46 @@ def test_ead_record_all_fields_transform_correctly():
                 range=timdex.Date_Range(gte="1905", lte="2012"),
             )
         ],
+        identifiers=[timdex.Identifier(value="1234", kind="Collection Identifier")],
+        languages=["English", "French"],
+        locations=[timdex.Location(value="Boston, MA")],
+        notes=[
+            timdex.Note(
+                value=[
+                    "Affiches americaines San Domingo: Imprimerie royale du Cap, 1782. "
+                    "Nos. 30, 35.",
+                ],
+                kind="Bibliography",
+            ),
+            timdex.Note(
+                value=[
+                    "Charles J. Connick (1875-1945) was an American stained glass artist "
+                    "whose work may be found in cities all across the United States. "
+                    "Connick's works in the Arts and Crafts movement and beyond uniquely "
+                    "combined ancient and modern techniques and also sparked a revival "
+                    "of medieval European stained glass craftsmanship. Connick studied "
+                    "symbols and the interaction between light, color and glass, as well "
+                    "as the crucial connection between the stained glass window and its "
+                    "surrounding architecture.",
+                    "Connick founded his own studio in 1912 in Boston.",
+                ],
+                kind="Biographical Note",
+            ),
+            timdex.Note(
+                value=[
+                    "The Charles J. Connick Stained Glass Foundation Collection contains "
+                    "documents, photographs, slides, film, periodicals, articles, "
+                    "clippings, lecture transcripts, tools, sketches, designs and "
+                    "cartoons (full size stained glass window designs), stained glass, "
+                    "and ephemera.",
+                    "The primary reference material is the job information.  In "
+                    "particular, the job files (boxes 7-9) are used most often in "
+                    "research.  Job files list specific information for each job "
+                    "performed by the studio.",
+                ],
+                kind="Scope and Contents",
+            ),
+        ],
     )
 
 
@@ -270,6 +310,26 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             ),
             timdex.Date(note="approximate", value="1905"),
         ],
+        identifiers=[
+            timdex.Identifier(
+                value="Data enclosed in subelement", kind="Collection Identifier"
+            )
+        ],
+        locations=[timdex.Location(value="Data enclosed in subelement")],
+        notes=[
+            timdex.Note(value=["Data with blank head element"], kind="Bibliography"),
+            timdex.Note(value=["Data with no head element"], kind="Bibliography"),
+            timdex.Note(
+                value=["Data with blank head tag"], kind="Biography or History"
+            ),
+            timdex.Note(value=["Data with no head tag"], kind="Biography or History"),
+            timdex.Note(
+                value=["Data with blank head tag"], kind="Scope and Contents Note"
+            ),
+            timdex.Note(
+                value=["Data with no head tag"], kind="Scope and Contents Note"
+            ),
+        ],
     )
 
 
@@ -307,3 +367,15 @@ def test_ead_record_with_missing_optional_fields_transforms_correctly():
         ),
         content_type=["Archival materials"],
     )
+
+
+def test_crosswalk_type_value_blank_value():
+    assert Ead.crosswalk_type_value("") == ""
+
+
+def test_crosswalk_type_value_invalid_value():
+    assert Ead.crosswalk_type_value("abcd") == "abcd"
+
+
+def test_crosswalk_type_value_valid_value():
+    assert Ead.crosswalk_type_value("acqinfo") == "Acquisition Information"
