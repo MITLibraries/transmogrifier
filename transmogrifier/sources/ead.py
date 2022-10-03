@@ -184,15 +184,59 @@ class Ead(Transformer):
                     note_value.append(subelement_value)
             if note_value:
                 note_head_element = note_element.find("head", string=True)
-                note = timdex.Note(
-                    value=note_value,
-                    kind=(
-                        note_head_element.string
-                        if note_head_element
-                        else self.crosswalk_type_value(note_element.name)
-                    ),
+                fields.setdefault("notes", []).append(
+                    timdex.Note(
+                        value=note_value,
+                        kind=(
+                            note_head_element.string
+                            if note_head_element
+                            else self.crosswalk_type_value(note_element.name)
+                        ),
+                    )
                 )
-                fields.setdefault("notes", []).append(note)
+
+        # numbering field not used in EAD
+
+        # physical_description
+        physical_descriptions = []
+        for physical_description_element in collection_description_did.find_all(
+            "physdesc", recursive=False
+        ):
+            if physical_description_value := self.create_string_from_mixed_value(
+                physical_description_element
+            ):
+                physical_descriptions.append(physical_description_value)
+        if physical_descriptions:
+            fields["physical_description"] = ". ".join(physical_descriptions)
+
+        # publication_frequency field not used in EAD
+
+        # publication_information
+        if publication_element := collection_description_did.find("repository"):
+            if publication_value := self.create_string_from_mixed_value(
+                publication_element, " "
+            ):
+                fields["publication_information"] = [publication_value]
+
+        # related_items
+        for related_item_element in collection_description.find_all(
+            ["altformavail", "otherfindaid", "relatedmaterial", "separatedmaterial"],
+            recursive=False,
+        ):
+            if related_item_value := self.create_string_from_mixed_value(
+                related_item_element, " ", ["head"]
+            ):
+                related_item_head_element = related_item_element.find(
+                    "head", string=True
+                )
+                fields.setdefault("related_items", []).append(
+                    timdex.RelatedItem(
+                        description=related_item_value,
+                        relationship=related_item_head_element.string
+                        if related_item_head_element
+                        else self.crosswalk_type_value(related_item_element.name),
+                    )
+                )
 
         return fields
 
@@ -242,7 +286,7 @@ class Ead(Transformer):
         )
 
     @staticmethod
-    def crosswalk_type_value(type_value: str) -> str:
+    def crosswalk_type_value(type_value: Optional[str]) -> Optional[str]:
         """
         Crosswalk type code to human-readable label.
         Args:

@@ -101,6 +101,46 @@ def test_ead_record_all_fields_transform_correctly():
                 kind="Scope and Contents",
             ),
         ],
+        physical_description="31 box(es)",
+        publication_information=[
+            "Massachusetts Institute of Technology. Libraries. Department of Distinctive "
+            "Collections"
+        ],
+        related_items=[
+            timdex.RelatedItem(
+                description=(
+                    "A use copy of photographic plates in box 4 can be found in "
+                    "the Institute Archives and Special Collections reading room."
+                ),
+                relationship="Location of Copies",
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "A more detailed collection inventory is available to staff "
+                    "in the MIT ArchivesSpace staff interface."
+                ),
+                relationship="Other Finding Aids",
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "The Charles J. Connick and Associates Archives are located "
+                    "at the Boston Public Library's Fine Arts Department "
+                    "(http://www.bpl.org/research/finearts.htm). The Charles J. Connick "
+                    "papers, 1901-1949 are located at the Smithsonian Archives of "
+                    "American Art "
+                    "(http://www.aaa.si.edu/collections/charles-j-connick-papers-7235). "
+                    "Information on the Charles J. Connick Stained Glass Foundation may "
+                    "be found at their website (http://www.cjconnick.org/)."
+                ),
+                relationship="Related Materials",
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "Issues of Twilight Zine were separated for library cataloging."
+                ),
+                relationship="Separated Materials",
+            ),
+        ],
     )
 
 
@@ -148,8 +188,8 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             "with blank authfilenumber, Name with blank source, Name with authfile and "
             "source, Name with blank authfile and source, Name with authfile and blank "
             "source, Name with blank authfile and blank source, Contributor with X M L. "
-            "Title string. Archival materials, Correspondence. "
-            "https://archivesspace.mit.edu/repositories/2/resources/6"
+            "Title string. Data not enclosed in subelement. Archival materials, "
+            "Correspondence. https://archivesspace.mit.edu/repositories/2/resources/6"
         ),
         content_type=[
             "Archival materials",
@@ -328,6 +368,42 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             ),
             timdex.Note(
                 value=["Data with no head tag"], kind="Scope and Contents Note"
+            ),
+        ],
+        physical_description="Data not enclosed in subelement",
+        publication_information=["Data not enclosed in subelement"],
+        related_items=[
+            timdex.RelatedItem(
+                description="Data with blank head tag",
+                relationship="Alternative Form Available",
+            ),
+            timdex.RelatedItem(
+                description="Data with no head tag",
+                relationship="Alternative Form Available",
+            ),
+            timdex.RelatedItem(
+                description="Data with blank head tag",
+                relationship="Other Finding Aid",
+            ),
+            timdex.RelatedItem(
+                description="Data with no head tag",
+                relationship="Other Finding Aid",
+            ),
+            timdex.RelatedItem(
+                description="Data with blank head tag",
+                relationship="Related Material",
+            ),
+            timdex.RelatedItem(
+                description="Data with no head tag",
+                relationship="Related Material",
+            ),
+            timdex.RelatedItem(
+                description="Data with blank head tag",
+                relationship="Separated Material",
+            ),
+            timdex.RelatedItem(
+                description="Data with no head tag",
+                relationship="Separated Material",
             ),
         ],
     )

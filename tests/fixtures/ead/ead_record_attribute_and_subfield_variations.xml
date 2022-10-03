@@ -12,6 +12,9 @@
                 </eadheader>
                 <archdesc level="collection">
                     <did>
+                        <repository>
+                            Data not enclosed in subelement
+                        </repository>
                         <unittitle></unittitle>
                         <unittitle>Title string</unittitle>
                         <unittitle>
@@ -123,7 +126,27 @@
                                 </part>
                             </persname>
                         </origination>
+                        <physdesc>
+                            <extent></extent>
+                        </physdesc>
+                        <physdesc>
+                            Data not enclosed in subelement
+                        </physdesc>
                     </did>
+                    <altformavail>
+                        <head></head>
+                        <p></p>
+                    </altformavail>
+                    <altformavail>
+                        <head>Head tag but no other data</head>
+                    </altformavail>
+                    <altformavail>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </altformavail>
+                    <altformavail>
+                        <p>Data with no head tag</p>
+                    </altformavail>
                     <arrangement>
                         <head></head>
                         <p></p>
@@ -179,10 +202,38 @@
                             <emph>Data enclosed in subelement</emph>
                         </geogname>
                     </controlaccess>
+                    <otherfindaid>
+                        <head></head>
+                        <p></p>
+                    </otherfindaid>
+                    <otherfindaid>
+                        <head>Head tag but no other data</head>
+                    </otherfindaid>
+                    <otherfindaid>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </otherfindaid>
+                    <otherfindaid>
+                        <p>Data with no head tag</p>
+                    </otherfindaid>
                     <prefercite>
                         <head></head>
                         <p></p>
                     </prefercite>
+                    <relatedmaterial>
+                        <head></head>
+                        <p></p>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <head>Head tag but no other data</head>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <p>Data with no head tag</p>
+                    </relatedmaterial>
                     <scopecontent>
                         <head></head>
                         <p></p>
@@ -197,6 +248,20 @@
                     <scopecontent>
                         <p>Data with no head tag</p>
                     </scopecontent>
+                    <separatedmaterial>
+                        <head></head>
+                        <p></p>
+                    </separatedmaterial>
+                    <separatedmaterial>
+                        <head>Head tag but no other data</head>
+                    </separatedmaterial>
+                    <separatedmaterial>
+                        <head></head>
+                        <p>Data with blank head tag</p>
+                    </separatedmaterial>
+                    <separatedmaterial>
+                        <p>Data with no head tag</p>
+                    </separatedmaterial>
                 </archdesc>
             </ead>
         </metadata>

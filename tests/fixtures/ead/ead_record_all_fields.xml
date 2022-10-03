@@ -12,6 +12,13 @@
                 </eadheader>
                 <archdesc level="collection">
                     <did>
+                        <repository>
+                            <corpname>
+                                Massachusetts
+                                <emph>Institute</emph>
+                                of Technology. Libraries. Department of Distinctive Collections
+                            </corpname>
+                        </repository>
                         <unittitle>
                             Charles J. Connick Stained Glass
                             <emph>
@@ -57,7 +64,14 @@
                         <origination>
                             <persname authfilenumber="nr99025435" source="viaf">Name 5</persname>
                         </origination>
+                        <physdesc>
+                            <extent>31 box(es)</extent>
+                        </physdesc>
                     </did>
+                    <altformavail>
+                        <head>Location of Copies</head>
+                        <p>A use copy of photographic plates in box 4 can be found in the Institute Archives and Special Collections reading room.</p>
+                    </altformavail>
                     <arrangement>
                         <head>Arrangement</head>
                         <p>This collection is organized into ten series: </p>
@@ -91,10 +105,20 @@
                         </genreform>
                         <geogname>Boston, MA</geogname>
                     </controlaccess>
+                    <otherfindaid>
+                        <head>Other Finding Aids</head>
+                        <p>A more detailed collection inventory is available to staff in the MIT ArchivesSpace staff interface.</p>
+                    </otherfindaid>
                     <prefercite>
                         <head>Preferred Citation</head>
                         <p>Charles J. Connick Stained Glass Foundation Collection, VC-0002, box X. Massachusetts Institute of Technology, Department of Distinctive Collections, Cambridge, Massachusetts.</p>
                     </prefercite>
+                    <relatedmaterial>
+                        <head>Related Materials</head>
+                        <p>The Charles J. Connick and Associates Archives are located at the Boston Public Library's Fine Arts Department (http://www.bpl.org/research/finearts.htm).</p>
+                        <p>The Charles J. Connick papers, 1901-1949 are located at the Smithsonian Archives of American Art (http://www.aaa.si.edu/collections/charles-j-connick-papers-7235).</p>
+                        <p>Information on the Charles J. Connick Stained Glass Foundation may be found at their website (http://www.cjconnick.org/).</p>
+                    </relatedmaterial>
                     <scopecontent>
                         <head>Scope and Contents</head>
                         <p>
@@ -104,6 +128,10 @@
                         </p>
                         <p>The primary reference material is the job information.  In particular, the job files (boxes 7-9) are used most often in research.  Job files list specific information for each job performed by the studio.  </p>
                     </scopecontent>
+                    <separatedmaterial>
+                        <head>Separated Materials</head>
+                        <p>Issues of Twilight Zine were separated for library cataloging.</p>
+                    </separatedmaterial>
                 </archdesc>
             </ead>
         </metadata>
