@@ -102,8 +102,8 @@ def test_ead_record_all_fields_transform_correctly():
             ),
         ],
         physical_description=(
-            "4.5 Cubic Feet. (10 manuscript boxes, 1 legal manuscript "
-            "box, 1 cassette box)"
+            "4.5 Cubic Feet (10 manuscript boxes, 1 legal manuscript "
+            "box, 1 cassette box); 1.5 Cubic Feet (2 manuscript boxes)"
         ),
         publication_information=[
             "Massachusetts Institute of Technology. Libraries. Department of Distinctive "

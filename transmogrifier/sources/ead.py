@@ -203,11 +203,11 @@ class Ead(Transformer):
             "physdesc", recursive=False
         ):
             if physical_description_value := self.create_string_from_mixed_value(
-                physical_description_element, ". "
+                physical_description_element, " "
             ):
                 physical_descriptions.append(physical_description_value)
         if physical_descriptions:
-            fields["physical_description"] = ". ".join(physical_descriptions)
+            fields["physical_description"] = "; ".join(physical_descriptions)
 
         # publication_frequency field not used in EAD
 
