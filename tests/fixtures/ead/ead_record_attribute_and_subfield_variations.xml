@@ -202,30 +202,16 @@
                             <emph>Data enclosed in subelement</emph>
                         </geogname>
                     </controlaccess>
-                    <otherfindaid>
-                        <head></head>
-                        <p></p>
-                    </otherfindaid>
-                    <otherfindaid>
-                        <head>Head tag but no other data</head>
-                    </otherfindaid>
-                    <otherfindaid>
-                        <head></head>
-                        <p>Data with blank head tag</p>
-                    </otherfindaid>
-                    <otherfindaid>
-                        <p>Data with no head tag</p>
-                    </otherfindaid>
                     <prefercite>
                         <head></head>
                         <p></p>
                     </prefercite>
                     <relatedmaterial>
-                        <head></head>
-                        <p></p>
+                        <head>Head tag but no other data</head>
                     </relatedmaterial>
                     <relatedmaterial>
-                        <head>Head tag but no other data</head>
+                        <head></head>
+                        <p></p>
                     </relatedmaterial>
                     <relatedmaterial>
                         <head></head>
@@ -233,6 +219,33 @@
                     </relatedmaterial>
                     <relatedmaterial>
                         <p>Data with no head tag</p>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <list></list>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <list>
+                            <head></head>
+                            <defitem>
+                                <label></label>
+                                <item></item>
+                            </defitem>
+                        </list>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <list>
+                            <head></head>
+                            <defitem>
+                                <label>List data with blank head tag</label>
+                            </defitem>
+                        </list>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <list>
+                            <defitem>
+                                <label>List data with no head tag</label>
+                            </defitem>
+                        </list>
                     </relatedmaterial>
                     <scopecontent>
                         <head></head>

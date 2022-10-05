@@ -203,7 +203,7 @@ class Ead(Transformer):
             "physdesc", recursive=False
         ):
             if physical_description_value := self.create_string_from_mixed_value(
-                physical_description_element
+                physical_description_element, ". "
             ):
                 physical_descriptions.append(physical_description_value)
         if physical_descriptions:
@@ -220,23 +220,37 @@ class Ead(Transformer):
 
         # related_items
         for related_item_element in collection_description.find_all(
-            ["altformavail", "otherfindaid", "relatedmaterial", "separatedmaterial"],
+            ["altformavail", "separatedmaterial"],
             recursive=False,
         ):
             if related_item_value := self.create_string_from_mixed_value(
                 related_item_element, " ", ["head"]
             ):
-                related_item_head_element = related_item_element.find(
-                    "head", string=True
-                )
                 fields.setdefault("related_items", []).append(
                     timdex.RelatedItem(
                         description=related_item_value,
-                        relationship=related_item_head_element.string
-                        if related_item_head_element
-                        else self.crosswalk_type_value(related_item_element.name),
+                        relationship=self.crosswalk_type_value(
+                            related_item_element.name
+                        ),
                     )
                 )
+        for related_item_element in collection_description.find_all(
+            ["relatedmaterial"],
+            recursive=False,
+        ):
+            if list_element := related_item_element.find("list"):
+                subelements = list_element.find_all("defitem")
+            else:
+                subelements = related_item_element.find_all("p", recursive=False)
+            for subelement in subelements:
+                if related_item_value := self.create_string_from_mixed_value(
+                    subelement, " ", ["head"]
+                ):
+                    fields.setdefault("related_items", []).append(
+                        timdex.RelatedItem(
+                            description=related_item_value,
+                        )
+                    )
 
         return fields
 

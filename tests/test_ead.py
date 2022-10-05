@@ -101,7 +101,10 @@ def test_ead_record_all_fields_transform_correctly():
                 kind="Scope and Contents",
             ),
         ],
-        physical_description="31 box(es)",
+        physical_description=(
+            "4.5 Cubic Feet. (10 manuscript boxes, 1 legal manuscript "
+            "box, 1 cassette box)"
+        ),
         publication_information=[
             "Massachusetts Institute of Technology. Libraries. Department of Distinctive "
             "Collections"
@@ -112,33 +115,61 @@ def test_ead_record_all_fields_transform_correctly():
                     "A use copy of photographic plates in box 4 can be found in "
                     "the Institute Archives and Special Collections reading room."
                 ),
-                relationship="Location of Copies",
-            ),
-            timdex.RelatedItem(
-                description=(
-                    "A more detailed collection inventory is available to staff "
-                    "in the MIT ArchivesSpace staff interface."
-                ),
-                relationship="Other Finding Aids",
-            ),
-            timdex.RelatedItem(
-                description=(
-                    "The Charles J. Connick and Associates Archives are located "
-                    "at the Boston Public Library's Fine Arts Department "
-                    "(http://www.bpl.org/research/finearts.htm). The Charles J. Connick "
-                    "papers, 1901-1949 are located at the Smithsonian Archives of "
-                    "American Art "
-                    "(http://www.aaa.si.edu/collections/charles-j-connick-papers-7235). "
-                    "Information on the Charles J. Connick Stained Glass Foundation may "
-                    "be found at their website (http://www.cjconnick.org/)."
-                ),
-                relationship="Related Materials",
+                relationship="Alternate Format",
             ),
             timdex.RelatedItem(
                 description=(
                     "Issues of Twilight Zine were separated for library cataloging."
                 ),
-                relationship="Separated Materials",
+                relationship="Separated Material",
+            ),
+            timdex.RelatedItem(
+                description="MC-0423 James R. Killian Papers",
+            ),
+            timdex.RelatedItem(
+                description="MC-0416 Karl T. Compton Papers",
+            ),
+            timdex.RelatedItem(
+                description="MC-0029 Carroll Wilson Papers",
+            ),
+            timdex.RelatedItem(
+                description="MC-0060 George Russell Harrison Papers",
+            ),
+            timdex.RelatedItem(
+                description="MC-0351 Margaret Compton Papers",
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "AC-0132 Office of the Chancellor; Records of Provost Julius "
+                    "A. Stratton, Vice President and Provost Julius A. Stratton, and "
+                    "Chancellor Julius A. Stratton"
+                )
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "AC-0333 Office of the Vice President, Records of Vannevar Bush"
+                ),
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "The Charles J. Connick and Associates Archives are located "
+                    "at the Boston Public Library's Fine Arts Department "
+                    "(http://www.bpl.org/research/finearts.htm)."
+                ),
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "The Charles J. Connick papers, 1901-1949 are located at the "
+                    "Smithsonian Archives of American Art "
+                    "(http://www.aaa.si.edu/collections/charles-j-connick-papers-7235)."
+                ),
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "Information on the Charles J. Connick Stained Glass "
+                    "Foundation may be found at their website "
+                    "(http://www.cjconnick.org/)."
+                ),
             ),
         ],
     )
@@ -375,27 +406,11 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
         related_items=[
             timdex.RelatedItem(
                 description="Data with blank head tag",
-                relationship="Alternative Form Available",
+                relationship="Alternate Format",
             ),
             timdex.RelatedItem(
                 description="Data with no head tag",
-                relationship="Alternative Form Available",
-            ),
-            timdex.RelatedItem(
-                description="Data with blank head tag",
-                relationship="Other Finding Aid",
-            ),
-            timdex.RelatedItem(
-                description="Data with no head tag",
-                relationship="Other Finding Aid",
-            ),
-            timdex.RelatedItem(
-                description="Data with blank head tag",
-                relationship="Related Material",
-            ),
-            timdex.RelatedItem(
-                description="Data with no head tag",
-                relationship="Related Material",
+                relationship="Alternate Format",
             ),
             timdex.RelatedItem(
                 description="Data with blank head tag",
@@ -404,6 +419,18 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             timdex.RelatedItem(
                 description="Data with no head tag",
                 relationship="Separated Material",
+            ),
+            timdex.RelatedItem(
+                description="Data with blank head tag",
+            ),
+            timdex.RelatedItem(
+                description="Data with no head tag",
+            ),
+            timdex.RelatedItem(
+                description="List data with blank head tag",
+            ),
+            timdex.RelatedItem(
+                description="List data with no head tag",
             ),
         ],
     )
