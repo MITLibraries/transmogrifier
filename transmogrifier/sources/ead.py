@@ -41,7 +41,7 @@ class Ead(Transformer):
             )
             return None
 
-        controlaccess = collection_description.find_all(
+        control_access_elements = collection_description.find_all(
             "controlaccess", recursive=False
         )
 
@@ -67,7 +67,7 @@ class Ead(Transformer):
 
         # content_type
         fields["content_type"] = ["Archival materials"]
-        for control_access_element in controlaccess:
+        for control_access_element in control_access_elements:
             for content_type_element in control_access_element.find_all("genreform"):
                 if content_type_value := self.create_string_from_mixed_value(
                     content_type_element,
@@ -152,7 +152,7 @@ class Ead(Transformer):
         # literary_form field not used in EAD
 
         # locations
-        for control_access_element in controlaccess:
+        for control_access_element in control_access_elements:
             for location_element in control_access_element.find_all("geogname"):
                 if location_value := self.create_string_from_mixed_value(
                     location_element,
@@ -251,6 +251,48 @@ class Ead(Transformer):
                             description=related_item_value,
                         )
                     )
+
+        # rights
+        for rights_element in collection_description.find_all(
+            ["accessrestrict", "userestrict"], recursive=False
+        ):
+            if rights_value := self.create_string_from_mixed_value(
+                rights_element, " ", ["head"]
+            ):
+                fields.setdefault("rights", []).append(
+                    timdex.Rights(
+                        description=rights_value,
+                        kind=self.crosswalk_type_value(rights_element.name),
+                    )
+                )
+
+        # subjects
+        for control_access_element in control_access_elements:
+            for subject_element in control_access_element.find_all(
+                True, recursive=False
+            ):
+                if subject_value := self.create_string_from_mixed_value(
+                    subject_element, " "
+                ):
+                    fields.setdefault("subjects", []).append(
+                        timdex.Subject(
+                            value=[subject_value],
+                            kind=self.crosswalk_type_value(
+                                subject_element.get("source") or None
+                            ),
+                        )
+                    )
+
+        # summary
+        abstract_values = []
+        for abstract_element in collection_description_did.find_all(
+            "abstract", recursive=False
+        ):
+            if abstract_value := self.create_string_from_mixed_value(
+                abstract_element, " "
+            ):
+                abstract_values.append(abstract_value)
+        fields["summary"] = abstract_values or None
 
         return fields
 
