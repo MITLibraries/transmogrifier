@@ -10,6 +10,7 @@
                 <eadheader></eadheader>
                 <archdesc level="collection">
                     <did>
+                        <repository></repository>
                         <unittitle></unittitle>
                         <unitdate></unitdate>
                         <unitid></unitid>
@@ -17,9 +18,9 @@
                         <origination>
                             <persname></persname>
                         </origination>
+                        <physdesc></physdesc>
                     </did>
-                    <acqinfo></acqinfo>
-                    <appraisal></appraisal>
+                    <altformavailable></altformavailable>
                     <arrangement></arrangement>
                     <bibliography></bibliography>
                     <bioghist></bioghist>
@@ -27,10 +28,10 @@
                         <genreform></genreform>
                         <geogname></geogname>
                     </controlaccess>
-                    <custodhist></custodhist>
                     <prefercite></prefercite>
-                    <processinfo></processinfo>
+                    <relatedmaterial></relatedmaterial>
                     <scopecontent></scopecontent>
+                    <separatedmaterial></separatedmaterial>
                 </archdesc>
             </ead>
         </metadata>

@@ -1,7 +1,7 @@
 {
     "aat": "Art & Architecture Thesaurus",
     "accessrestrict": "Conditions Governing Access",
-    "altformavail": "Alternative Form Available",
+    "altformavail": "Alternate Format",
     "acqinfo": "Acquisition Information",
     "appraisal": "Appraisal",
     "bibliography": "Bibliography",
@@ -14,7 +14,6 @@
     "naf": "Library of Congress Name Authority File",
     "otherfindaid": "Other Finding Aid",
     "processinfo": "Processing Information",
-    "relatedmaterial": "Related Material",
     "relation": "Relation",
     "separatedmaterial": "Separated Material",
     "scopecontent": "Scope and Contents Note",

@@ -12,6 +12,13 @@
                 </eadheader>
                 <archdesc level="collection">
                     <did>
+                        <repository>
+                            <corpname>
+                                Massachusetts
+                                <emph>Institute</emph>
+                                of Technology. Libraries. Department of Distinctive Collections
+                            </corpname>
+                        </repository>
                         <unittitle>
                             Charles J. Connick Stained Glass
                             <emph>
@@ -57,7 +64,19 @@
                         <origination>
                             <persname authfilenumber="nr99025435" source="viaf">Name 5</persname>
                         </origination>
+                        <physdesc>
+                            <extent>4.5 Cubic Feet</extent>
+                            <extent>(10 manuscript boxes, 1 legal manuscript box, 1 cassette box)</extent>
+                        </physdesc>
+                        <physdesc>
+                            <extent>1.5 Cubic Feet</extent>
+                            <extent>(2 manuscript boxes)</extent>
+                        </physdesc>
                     </did>
+                    <altformavail>
+                        <head>Location of Copies</head>
+                        <p>A use copy of photographic plates in box 4 can be found in the Institute Archives and Special Collections reading room.</p>
+                    </altformavail>
                     <arrangement>
                         <head>Arrangement</head>
                         <p>This collection is organized into ten series: </p>
@@ -95,6 +114,46 @@
                         <head>Preferred Citation</head>
                         <p>Charles J. Connick Stained Glass Foundation Collection, VC-0002, box X. Massachusetts Institute of Technology, Department of Distinctive Collections, Cambridge, Massachusetts.</p>
                     </prefercite>
+                    <relatedmaterial>
+                        <head>Related Materials</head>
+                        <list>
+                            <head>Collections at the Institute Archives and Special Collections, Massachusetts Institute of Technology</head>
+                            <defitem>
+                                <label>MC-0423</label>
+                                <item>James R. Killian Papers</item>
+                            </defitem>
+                            <defitem>
+                                <label>MC-0416</label>
+                                <item>Karl T. Compton Papers</item>
+                            </defitem>
+                            <defitem>
+                                <label>MC-0029</label>
+                                <item>Carroll Wilson Papers</item>
+                            </defitem>
+                            <defitem>
+                                <label>MC-0060</label>
+                                <item>George Russell Harrison Papers</item>
+                            </defitem>
+                            <defitem>
+                                <label>MC-0351</label>
+                                <item>Margaret Compton Papers</item>
+                            </defitem>
+                            <defitem>
+                                <label>AC-0132</label>
+                                <item>Office of the Chancellor; Records of Provost Julius A. Stratton, Vice President and Provost Julius A. Stratton, and Chancellor Julius A. Stratton</item>
+                            </defitem>
+                            <defitem>
+                                <label>AC-0333</label>
+                                <item>Office of the Vice President, Records of Vannevar Bush</item>
+                            </defitem>
+                        </list>
+                    </relatedmaterial>
+                    <relatedmaterial>
+                        <head>Related Materials</head>
+                        <p>The Charles J. Connick and Associates Archives are located at the Boston Public Library's Fine Arts Department (http://www.bpl.org/research/finearts.htm).</p>
+                        <p>The Charles J. Connick papers, 1901-1949 are located at the Smithsonian Archives of American Art (http://www.aaa.si.edu/collections/charles-j-connick-papers-7235).</p>
+                        <p>Information on the Charles J. Connick Stained Glass Foundation may be found at their website (http://www.cjconnick.org/).</p>
+                    </relatedmaterial>
                     <scopecontent>
                         <head>Scope and Contents</head>
                         <p>
@@ -104,6 +163,10 @@
                         </p>
                         <p>The primary reference material is the job information.  In particular, the job files (boxes 7-9) are used most often in research.  Job files list specific information for each job performed by the studio.  </p>
                     </scopecontent>
+                    <separatedmaterial>
+                        <head>Separated Materials</head>
+                        <p>Issues of Twilight Zine were separated for library cataloging.</p>
+                    </separatedmaterial>
                 </archdesc>
             </ead>
         </metadata>
