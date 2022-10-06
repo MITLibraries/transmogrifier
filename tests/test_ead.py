@@ -172,6 +172,46 @@ def test_ead_record_all_fields_transform_correctly():
                 ),
             ),
         ],
+        rights=[
+            timdex.Rights(
+                description="This collection is open.",
+                kind="Conditions Governing Access",
+            ),
+            timdex.Rights(
+                description=(
+                    "Access to collections in the Department of Distinctive "
+                    "Collections is not authorization to publish. Please see the MIT "
+                    "Libraries Permissions Policy for permission information. Copyright "
+                    "of some items in this collection may be held by respective "
+                    "creators, not by the donor of the collection or MIT."
+                ),
+                kind="Conditions Governing Use",
+            ),
+        ],
+        subjects=[
+            timdex.Subject(value=["Correspondence"]),
+            timdex.Subject(value=["Boston, MA"]),
+            timdex.Subject(
+                value=["Letters (Correspondence)"], kind="Art & Architecture Thesaurus"
+            ),
+            timdex.Subject(value=["Hutchinson Family"], kind="local"),
+            timdex.Subject(value=["Hutchinson, John C."], kind="local"),
+            timdex.Subject(
+                value=["University of Minnesota"],
+                kind="Library of Congress Name Authority File",
+            ),
+        ],
+        summary=[
+            "A record of the MIT faculty begins with the minutes of the September 25, "
+            "1865, meeting and continues to the present day. Among the topics discussed "
+            "at faculty meetings are proposed degree programs, disciplinary actions, "
+            "admission and graduation requirements, enrollment and diversity, and issues "
+            "concerning student life. This collection includes biographical material in "
+            "Killian Award and Edgerton Award announcements and resolutions on the death "
+            "of individual faculty members written by faculty peers. Minutes may also "
+            "contain reports produced by committees and task forces as their results are "
+            "reported and discussed at faculty meetings."
+        ],
     )
 
 
@@ -433,6 +473,16 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
                 description="List data with no head tag",
             ),
         ],
+        subjects=[
+            timdex.Subject(value=["Correspondence"]),
+            timdex.Subject(value=["Data enclosed in subelement"]),
+            timdex.Subject(value=["Subject with blank source attribute"]),
+            timdex.Subject(value=["Data enclosed in subelement"]),
+            timdex.Subject(
+                value=["Data enclosed in subelement with blank source attribute"]
+            ),
+        ],
+        summary=["Data enclosed in subelement"],
     )
 
 

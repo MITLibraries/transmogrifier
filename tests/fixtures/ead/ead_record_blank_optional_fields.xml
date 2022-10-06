@@ -14,12 +14,14 @@
                         <unittitle></unittitle>
                         <unitdate></unitdate>
                         <unitid></unitid>
+                        <abstract></abstract>
                         <langmaterial></langmaterial>
                         <origination>
                             <persname></persname>
                         </origination>
                         <physdesc></physdesc>
                     </did>
+                    <accessrestrict></accessrestrict>
                     <altformavailable></altformavailable>
                     <arrangement></arrangement>
                     <bibliography></bibliography>
@@ -27,11 +29,16 @@
                     <controlaccess>
                         <genreform></genreform>
                         <geogname></geogname>
+                        <subject></subject>
+                        <famname></famname>
+                        <corpname></corpname>
+                        <persname></persname>
                     </controlaccess>
                     <prefercite></prefercite>
                     <relatedmaterial></relatedmaterial>
                     <scopecontent></scopecontent>
                     <separatedmaterial></separatedmaterial>
+                    <userestrict></userestrict>
                 </archdesc>
             </ead>
         </metadata>

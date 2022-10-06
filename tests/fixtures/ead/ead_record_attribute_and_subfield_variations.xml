@@ -53,6 +53,9 @@
                         <unitid>
                             <emph>Data enclosed in subelement</emph>
                         </unitid>
+                        <abstract>
+                            <emph>Data enclosed in subelement</emph>
+                        </abstract>
                         <langmaterial>
                             <language></language>
                         </langmaterial>
@@ -133,6 +136,13 @@
                             Data not enclosed in subelement
                         </physdesc>
                     </did>
+                    <accessrestrict>
+                        <head></head>
+                        <p></p>
+                    </accessrestrict>
+                    <accessrestrict>
+                        <head>Head tag but no other data</head>
+                    </accessrestrict>
                     <altformavail>
                         <head></head>
                         <p></p>
@@ -201,6 +211,14 @@
                         <geogname>
                             <emph>Data enclosed in subelement</emph>
                         </geogname>
+                        <subject source=""></subject>
+                        <subject source="">Subject with blank source attribute</subject>
+                        <subject>
+                            <emph>Data enclosed in subelement</emph>
+                        </subject>
+                        <subject source="">
+                            <emph>Data enclosed in subelement with blank source attribute</emph>
+                        </subject>
                     </controlaccess>
                     <prefercite>
                         <head></head>
@@ -275,6 +293,13 @@
                     <separatedmaterial>
                         <p>Data with no head tag</p>
                     </separatedmaterial>
+                    <userestrict>
+                        <head></head>
+                        <p></p>
+                    </userestrict>
+                    <userestrict>
+                        <head>Head tag but no other data</head>
+                    </userestrict>
                 </archdesc>
             </ead>
         </metadata>

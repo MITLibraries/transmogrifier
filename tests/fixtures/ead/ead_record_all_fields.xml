@@ -36,6 +36,11 @@
                         <unitid>
                             1234
                         </unitid>
+                        <abstract>
+                            A record of the
+                            <emph>MIT</emph>
+                            faculty begins with the minutes of the September 25, 1865, meeting and continues to the present day. Among the topics discussed at faculty meetings are proposed degree programs, disciplinary actions, admission and graduation requirements, enrollment and diversity, and issues concerning student life. This collection includes biographical material in Killian Award and Edgerton Award announcements and resolutions on the death of individual faculty members written by faculty peers. Minutes may also contain reports produced by committees and task forces as their results are reported and discussed at faculty meetings.
+                        </abstract>
                         <langmaterial>
                             <language>English</language>
                             ,
@@ -73,6 +78,10 @@
                             <extent>(2 manuscript boxes)</extent>
                         </physdesc>
                     </did>
+                    <accessrestrict>
+                        <head>Conditions Governing Access</head>
+                        <p>This collection is open.</p>
+                    </accessrestrict>
                     <altformavail>
                         <head>Location of Copies</head>
                         <p>A use copy of photographic plates in box 4 can be found in the Institute Archives and Special Collections reading room.</p>
@@ -109,6 +118,10 @@
                             <part>Correspondence</part>
                         </genreform>
                         <geogname>Boston, MA</geogname>
+                        <subject source="aat">Letters (Correspondence)</subject>
+                        <famname source="local">Hutchinson Family</famname>
+                        <persname source="local">Hutchinson, John C.</persname>
+                        <corpname source="naf">University of Minnesota</corpname>
                     </controlaccess>
                     <prefercite>
                         <head>Preferred Citation</head>
@@ -167,6 +180,12 @@
                         <head>Separated Materials</head>
                         <p>Issues of Twilight Zine were separated for library cataloging.</p>
                     </separatedmaterial>
+                    <userestrict>
+                        <head>Conditions Governing Use</head>
+                        <p>
+                            Access to collections in the Department of Distinctive Collections is not authorization to publish. Please see the MIT Libraries Permissions Policy for permission information. Copyright of some items in this collection may be held by respective creators, not by the donor of the collection or MIT.
+                        </p>
+                    </userestrict>
                 </archdesc>
             </ead>
         </metadata>
