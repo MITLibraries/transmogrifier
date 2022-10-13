@@ -23,39 +23,69 @@ class Marc(Transformer):
         fields: dict = {}
 
         # alternate_titles
-        alternate_title_marc_data = {
-            "130": ("adfghklmnoprst", "Main Entry - Uniform Title"),
-            "240": ("adfghklmnoprs", "Uniform Title"),
-            "246": ("abfghinp", "Varying Form of Title"),
-            "730": ("adfghiklmnoprst", "Added Entry - Uniform Title"),
-            "740": ("anp", "Added Entry - Uncontrolled Related/Analytical Title"),
-        }
-        for marc_tag, marc_field_data in alternate_title_marc_data.items():
-            for datafield in xml.find_all("datafield", tag=marc_tag):
+        alternate_title_marc_fields = [
+            {
+                "tag": "130",
+                "subfields": "adfghklmnoprst",
+                "kind": "Main Entry - Uniform Title",
+            },
+            {
+                "tag": "240",
+                "subfields": "adfghklmnoprs",
+                "kind": "Uniform Title",
+            },
+            {
+                "tag": "246",
+                "subfields": "abfghinp",
+                "kind": "Varying Form of Title",
+            },
+            {
+                "tag": "730",
+                "subfields": "adfghiklmnoprst",
+                "kind": "Added Entry - Uniform Title",
+            },
+            {
+                "tag": "740",
+                "subfields": "anp",
+                "kind": "Added Entry - Uncontrolled Related/Analytical Title",
+            },
+        ]
+        for alternate_title_marc_field in alternate_title_marc_fields:
+            for datafield in xml.find_all(
+                "datafield", tag=alternate_title_marc_field["tag"]
+            ):
                 if alternate_title_value := (
                     self.create_subfield_value_string_from_datafield(
                         datafield,
-                        marc_field_data[0],
+                        alternate_title_marc_field["subfields"],
                         " ",
                     )
                 ):
                     fields.setdefault("alternate_titles", []).append(
                         timdex.AlternateTitle(
-                            value=alternate_title_value,
-                            kind=marc_field_data[1],
+                            value=alternate_title_value.rstrip(".,/"),
+                            kind=alternate_title_marc_field["kind"],
                         )
                     )
 
         # call_numbers
-        call_numbers_marc_data = {
-            "050": ("a", ""),
-            "082": ("a", ""),
-        }
-        for marc_tag, marc_field_data in call_numbers_marc_data.items():
-            for datafield in xml.find_all("datafield", tag=marc_tag):
-                if call_number_value := self.create_subfield_value_string_from_datafield(
+        call_number_marc_fields = [
+            {
+                "tag": "050",
+                "subfields": "a",
+            },
+            {
+                "tag": "082",
+                "subfields": "a",
+            },
+        ]
+        for call_number_marc_field in call_number_marc_fields:
+            for datafield in xml.find_all(
+                "datafield", tag=call_number_marc_field["tag"]
+            ):
+                for call_number_value in self.create_subfield_value_list_from_datafield(
                     datafield,
-                    marc_field_data[0],
+                    call_number_marc_field["subfields"],
                 ):
                     fields.setdefault("call_numbers", []).append(call_number_value)
 
@@ -132,18 +162,17 @@ class Marc(Transformer):
         Args:
             xml: A BeautifulSoup Tag representing a single MARC XML record.
         """
-        main_title_values = [
-            title
-            for datafield in xml.find_all("datafield", tag="245")
-            if (
-                title := Marc.create_subfield_value_string_from_datafield(
-                    datafield, "abfgknps", " "
-                )
-            )
-        ]
-        if main_title_values:
+        try:
+            main_title_values = []
+            if main_title_value := Marc.create_subfield_value_string_from_datafield(
+                xml.find("datafield", tag="245"), "abfgknps", " "
+            ):
+                main_title_values.append(main_title_value.rstrip(".,/"))
             return main_title_values
-        else:
+        except AttributeError:
+            logger.error(
+                f"Record ID {Marc.get_source_record_id(xml)} is missing a 245 field"
+            )
             return []
 
     @staticmethod
@@ -172,12 +201,8 @@ class Marc(Transformer):
             subfield_codes: The codes of the subfields to extract.
         """
         value_list = []
-        for subfield in xml_element.children:
-            if (
-                type(subfield) == Tag
-                and subfield.get("code", "") in subfield_codes
-                and subfield.string
-            ):
+        for subfield in xml_element.find_all(True, string=True):
+            if subfield.get("code", "") in subfield_codes:
                 value_list.append(subfield.string)
         return value_list
 

@@ -46,7 +46,7 @@ def main(source, input_file, output_file, verbose):
     logger.info("Running transform for source %s", source)
 
     if source == "alma":
-        input_records = parse_xml_records(input_file, "record")
+        input_records = parse_xml_records(input_file)
     else:
         input_records = parse_xml_records(input_file)
     transformer_class = get_transformer(source)

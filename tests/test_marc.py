@@ -5,7 +5,7 @@ from transmogrifier.sources.marc import Marc
 
 def test_marc_record_all_fields_transform_correctly():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_all_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
@@ -15,27 +15,45 @@ def test_marc_record_all_fields_transform_correctly():
             "01MIT_INST:MIT&docid=alma990027185640106761"
         ),
         timdex_record_id="alma:990027185640106761",
-        title="Célébration : 10 siècles de musique de noël.",
+        title="Célébration : 10 siècles de musique de noël",
         alternate_titles=[
             timdex.AlternateTitle(
-                value="Main Entry Uniform Title.", kind="Main Entry - Uniform Title"
+                value="Main Entry Date 1 Date 2", kind="Main Entry - Uniform Title"
             ),
-            timdex.AlternateTitle(value="Uniform Title.", kind="Uniform Title"),
+            timdex.AlternateTitle(value="Uniform Date 1 Date 2", kind="Uniform Title"),
             timdex.AlternateTitle(
-                value="Varying Form Of Title.", kind="Varying Form of Title"
+                value="Varying Form Of Title 1", kind="Varying Form of Title"
             ),
             timdex.AlternateTitle(
-                value="Added Entry Uniform Title.",
+                value="Varying Form Of Title 2", kind="Varying Form of Title"
+            ),
+            timdex.AlternateTitle(
+                value="Added Entry 1 Part 1 Part 2",
                 kind="Added Entry - Uniform Title",
             ),
             timdex.AlternateTitle(
-                value="Added Entry Uncontrolled Related/Analytical Title.",
+                value="Added Entry 2 Part 1 Part 2",
+                kind="Added Entry - Uniform Title",
+            ),
+            timdex.AlternateTitle(
+                value="Added Entry 1 Part 1 Part 2",
+                kind="Added Entry - Uncontrolled Related/Analytical Title",
+            ),
+            timdex.AlternateTitle(
+                value="Added Entry 2 Part 1 Part 2",
                 kind="Added Entry - Uncontrolled Related/Analytical Title",
             ),
         ],
-        call_numbers=["MA123.4", "123.45"],
+        call_numbers=[
+            "MA123.4",
+            "LC Call Number 2",
+            "LC Call Number 3",
+            "123.45",
+            "Dewey Call Number 2",
+            "Dewey Call Number 3",
+        ],
         citation=(
-            "Célébration : 10 siècles de musique de noël.. "
+            "Célébration : 10 siècles de musique de noël. "
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
             "01MIT_INST:MIT&docid=alma990027185640106761"
         ),
@@ -47,7 +65,6 @@ def test_marc_record_all_fields_transform_correctly():
 def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
     marc_xml_records = parse_xml_records(
         "tests/fixtures/marc/marc_record_attribute_and_subfield_variations.xml",
-        "record",
     )
     output_records = Marc("alma", marc_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
@@ -89,7 +106,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
 
 def test_marc_record_with_blank_optional_fields_transforms_correctly():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_blank_optional_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
@@ -110,7 +127,7 @@ def test_marc_record_with_blank_optional_fields_transforms_correctly():
 
 def test_marc_record_with_missing_optional_fields_transforms_correctly():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_missing_optional_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
@@ -129,48 +146,49 @@ def test_marc_record_with_missing_optional_fields_transforms_correctly():
 
 def test_get_main_titles_record_with_title():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_all_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_main_titles(next(marc_xml_records)) == [
-        "Célébration : 10 siècles de musique de noël."
+        "Célébration : 10 siècles de musique de noël"
     ]
 
 
 def test_get_main_titles_record_with_blank_title():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_blank_optional_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     assert Marc.get_main_titles(next(marc_xml_records)) == []
 
 
 def test_get_main_titles_record_without_title():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_missing_optional_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
     )
     assert Marc.get_main_titles(next(marc_xml_records)) == []
 
 
 def test_get_source_record_id():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_all_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
 
 
 def test_create_subfield_value_list_from_datafield_with_values():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_all_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert Marc.create_subfield_value_list_from_datafield(datafield, "ad") == [
         "Main Entry",
-        "Uniform Title.",
+        "Date 1",
+        "Date 2",
     ]
 
 
 def test_create_subfield_value_list_from_datafield_with_blank_values():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_blank_optional_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert Marc.create_subfield_value_list_from_datafield(datafield, "ad") == []
@@ -178,18 +196,18 @@ def test_create_subfield_value_list_from_datafield_with_blank_values():
 
 def test_create_subfield_value_string_from_datafield_with_values():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_all_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert (
         Marc.create_subfield_value_string_from_datafield(datafield, "ad", " ")
-        == "Main Entry Uniform Title."
+        == "Main Entry Date 1 Date 2"
     )
 
 
 def test_create_subfield_value_string_from_datafield_with_blank_values():
     marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_blank_optional_fields.xml", "record"
+        "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert Marc.create_subfield_value_string_from_datafield(datafield, "ad") == ""

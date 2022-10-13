@@ -69,12 +69,11 @@ def generate_citation(extracted_data: dict) -> str:
 
 def parse_xml_records(
     input_file_path: str,
-    xml_record_tag: str = "{http://www.openarchives.org/OAI/2.0/}record",
 ) -> Iterator[Tag]:
     with open(input_file_path, "rb") as file:
         for _, element in etree.iterparse(
             file,
-            tag=xml_record_tag,
+            tag="{*}record",
             encoding="utf-8",
             recover=True,
         ):
