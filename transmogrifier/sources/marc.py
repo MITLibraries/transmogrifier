@@ -63,7 +63,7 @@ class Marc(Transformer):
                 ):
                     fields.setdefault("alternate_titles", []).append(
                         timdex.AlternateTitle(
-                            value=alternate_title_value.rstrip(".,/"),
+                            value=alternate_title_value.rstrip(" .,/"),
                             kind=alternate_title_marc_field["kind"],
                         )
                     )
@@ -167,11 +167,11 @@ class Marc(Transformer):
             if main_title_value := Marc.create_subfield_value_string_from_datafield(
                 xml.find("datafield", tag="245"), "abfgknps", " "
             ):
-                main_title_values.append(main_title_value.rstrip(".,/"))
+                main_title_values.append(main_title_value.rstrip(" .,/"))
             return main_title_values
         except AttributeError:
             logger.error(
-                f"Record ID {Marc.get_source_record_id(xml)} is missing a 245 field"
+                "Record ID %s is missing a 245 field", Marc.get_source_record_id(xml)
             )
             return []
 

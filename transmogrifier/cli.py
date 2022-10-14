@@ -45,10 +45,7 @@ def main(source, input_file, output_file, verbose):
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    if source == "alma":
-        input_records = parse_xml_records(input_file)
-    else:
-        input_records = parse_xml_records(input_file)
+    input_records = parse_xml_records(input_file)
     transformer_class = get_transformer(source)
     transformer_instance = transformer_class(source, input_records)
     write_timdex_records_to_json(transformer_instance, output_file)

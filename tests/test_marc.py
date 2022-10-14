@@ -101,6 +101,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             "fulldisplay?vid=01MIT_INST:MIT&docid=alma990027185640106761"
         ),
         content_type=["Not specified"],
+        literary_form="Fiction",
     )
 
 
