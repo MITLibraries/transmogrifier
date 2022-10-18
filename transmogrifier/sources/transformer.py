@@ -26,7 +26,7 @@ class Transformer(object):
                 config.SOURCES
         """
         self.source = source
-        self.source_base_url = SOURCES[source]["base_url"]
+        self.source_base_url = SOURCES[source]["base-url"]
         self.source_name = SOURCES[source]["name"]
         self.input_records = input_records
         self.processed_record_count = 0

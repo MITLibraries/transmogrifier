@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<collection>
+    <record>
+        <controlfield tag="001">990027185640106761</controlfield>
+        <leader>03282nam  2200721Ki 4500</leader>
+        <controlfield></controlfield>
+        <controlfield tag="008">170906s2016    fr mun| o         p zxx </controlfield>
+        <datafield></datafield>
+        <datafield tag="050">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="a">a</subfield>
+        </datafield>
+        <datafield tag="082">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="a">a</subfield>
+        </datafield>
+        <datafield tag="130">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="h"></subfield>
+            <subfield code="k"></subfield>
+            <subfield code="l"></subfield>
+            <subfield code="m"></subfield>
+            <subfield code="n"></subfield>
+            <subfield code="o"></subfield>
+            <subfield code="p"></subfield>
+            <subfield code="r"></subfield>
+            <subfield code="s"></subfield>
+            <subfield code="t"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="h">h</subfield>
+            <subfield code="k">k</subfield>
+            <subfield code="l">l</subfield>
+            <subfield code="m">m</subfield>
+            <subfield code="n">n</subfield>
+            <subfield code="o">o</subfield>
+            <subfield code="p">p</subfield>
+            <subfield code="r">r</subfield>
+            <subfield code="s">s</subfield>
+            <subfield code="t">t</subfield>
+        </datafield>
+        <datafield tag="240">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="h"></subfield>
+            <subfield code="k"></subfield>
+            <subfield code="l"></subfield>
+            <subfield code="m"></subfield>
+            <subfield code="n"></subfield>
+            <subfield code="o"></subfield>
+            <subfield code="p"></subfield>
+            <subfield code="r"></subfield>
+            <subfield code="s"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="h">h</subfield>
+            <subfield code="k">k</subfield>
+            <subfield code="l">l</subfield>
+            <subfield code="m">m</subfield>
+            <subfield code="n">n</subfield>
+            <subfield code="o">o</subfield>
+            <subfield code="p">p</subfield>
+            <subfield code="r">r</subfield>
+            <subfield code="s">s</subfield>
+        </datafield>
+        <datafield tag="245">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="b"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="k"></subfield>
+            <subfield code="n"></subfield>
+            <subfield code="p"></subfield>
+            <subfield code="s"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="k">k</subfield>
+            <subfield code="n">n</subfield>
+            <subfield code="p">p</subfield>
+            <subfield code="s">s</subfield>
+        </datafield>
+        <datafield tag="246">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="b"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="h"></subfield>
+            <subfield code="i"></subfield>
+            <subfield code="n"></subfield>
+            <subfield code="p"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="h">h</subfield>
+            <subfield code="i">i</subfield>
+            <subfield code="n">n</subfield>
+            <subfield code="p">p</subfield>
+        </datafield>
+        <datafield tag="730">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="h"></subfield>
+            <subfield code="i"></subfield>
+            <subfield code="k"></subfield>
+            <subfield code="l"></subfield>
+            <subfield code="m"></subfield>
+            <subfield code="n"></subfield>
+            <subfield code="o"></subfield>
+            <subfield code="p"></subfield>
+            <subfield code="r"></subfield>
+            <subfield code="s"></subfield>
+            <subfield code="t"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="h">h</subfield>
+            <subfield code="i">i</subfield>
+            <subfield code="k">k</subfield>
+            <subfield code="l">l</subfield>
+            <subfield code="m">m</subfield>
+            <subfield code="n">n</subfield>
+            <subfield code="o">o</subfield>
+            <subfield code="p">p</subfield>
+            <subfield code="r">r</subfield>
+            <subfield code="s">s</subfield>
+            <subfield code="t">t</subfield>
+        </datafield>
+        <datafield tag="740">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="n"></subfield>
+            <subfield code="p"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="n">n</subfield>
+            <subfield code="p">p</subfield>
+        </datafield>
+    </record>
+</collection>

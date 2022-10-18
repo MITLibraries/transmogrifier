@@ -7,29 +7,37 @@ from importlib import import_module
 import sentry_sdk
 
 SOURCES = {
+    "alma": {
+        "name": "MIT Alma",
+        "base-url": (
+            "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?"
+            "vid=01MIT_INST:MIT&docid=alma"
+        ),
+        "transform-class": "transmogrifier.sources.marc.Marc",
+    },
     "aspace": {
         "name": "MIT ArchivesSpace",
-        "base_url": "https://archivesspace.mit.edu/",
+        "base-url": "https://archivesspace.mit.edu/",
         "transform-class": "transmogrifier.sources.ead.Ead",
     },
     "dspace": {
         "name": "DSpace@MIT",
-        "base_url": "https://dspace.mit.edu/handle/",
+        "base-url": "https://dspace.mit.edu/handle/",
         "transform-class": "transmogrifier.sources.dspace_mets.DspaceMets",
     },
     "jpal": {
         "name": "Abdul Latif Jameel Poverty Action Lab Dataverse",
-        "base_url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
+        "base-url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
         "transform-class": "transmogrifier.sources.datacite.Datacite",
     },
     "whoas": {
         "name": "Woods Hole Open Access Server",
-        "base_url": "https://darchive.mblwhoilibrary.org/handle/",
+        "base-url": "https://darchive.mblwhoilibrary.org/handle/",
         "transform-class": "transmogrifier.sources.whoas.Whoas",
     },
     "zenodo": {
         "name": "Zenodo",
-        "base_url": "https://zenodo.org/record/",
+        "base-url": "https://zenodo.org/record/",
         "transform-class": "transmogrifier.sources.zenodo.Zenodo",
     },
 }
