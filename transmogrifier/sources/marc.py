@@ -3,6 +3,7 @@ import logging
 from bs4 import Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.helpers import crosswalk_value
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,8 @@ class Marc(Transformer):
             xml: A BeautifulSoup Tag representing a single MARC XML record.
         """
         fields: dict = {}
+
+        leader = xml.find("leader", string=True)
 
         # alternate_titles
         alternate_title_marc_fields = [
@@ -89,13 +92,73 @@ class Marc(Transformer):
                 ):
                     fields.setdefault("call_numbers", []).append(call_number_value)
 
-        # citation
+        # citation not used in MARC
 
         # content_type
+        if leader:
+            fields["content_type"] = [
+                crosswalk_value(
+                    "config/marc_content_type_crosswalk.json", leader.string[6:7]
+                )
+            ]
 
         # contents
+        for datafield in xml.find_all("datafield", tag="505"):
+            if contents_value := self.create_subfield_value_string_from_datafield(
+                datafield, "agrt", " "
+            ):
+                fields.setdefault("contents", []).append(contents_value)
 
         # contributors
+        contributor_marc_fields = [
+            {
+                "tag": "100",
+                "subfields": "abcdeq",
+                "kind": "Main Entry - Personal Name",
+            },
+            {
+                "tag": "110",
+                "subfields": "abcde",
+                "kind": "Main Entry - Corporate Name",
+            },
+            {
+                "tag": "111",
+                "subfields": "acdefgjq",
+                "kind": "Main Entry - Meeting Name",
+            },
+            {
+                "tag": "700",
+                "subfields": "abcdeq",
+                "kind": "Added Entry - Personal Name",
+            },
+            {
+                "tag": "710",
+                "subfields": "abcde",
+                "kind": "Added Entry - Corporate Name",
+            },
+            {
+                "tag": "711",
+                "subfields": "acdefgjq",
+                "kind": "Added Entry - Meeting Name",
+            },
+        ]
+        for contributor_marc_field in contributor_marc_fields:
+            for datafield in xml.find_all(
+                "datafield", tag=contributor_marc_field["tag"]
+            ):
+                if contributor_value := (
+                    self.create_subfield_value_string_from_datafield(
+                        datafield,
+                        contributor_marc_field["subfields"],
+                        " ",
+                    )
+                ):
+                    fields.setdefault("contributors", []).append(
+                        timdex.Contributor(
+                            value=contributor_value.rstrip(" .,/)"),
+                            kind=contributor_marc_field["kind"],
+                        )
+                    )
 
         # dates
 
@@ -120,7 +183,7 @@ class Marc(Transformer):
         # by leader "Type of Record" position = "Language Material" or "Manuscript
         # language material" and "Bibliographic level" position =
         # "Monographic component part," "Collection," "Subunit," or "Monograph/Item."
-        if leader := xml.find("leader", string=True):
+        if leader:
             if leader.string[6:7] in "at" and leader.string[7:8] in "acdm":
                 if fixed_length_data := xml.find(
                     "controlfield", tag="008", string=True
@@ -151,41 +214,6 @@ class Marc(Transformer):
         # summary
 
         return fields
-
-    @staticmethod
-    def get_main_titles(xml: Tag) -> list[str]:
-        """
-        Retrieve main title(s) from a MARC XML record.
-
-        Overrides metaclass get_main_titles() method.
-
-        Args:
-            xml: A BeautifulSoup Tag representing a single MARC XML record.
-        """
-        try:
-            main_title_values = []
-            if main_title_value := Marc.create_subfield_value_string_from_datafield(
-                xml.find("datafield", tag="245"), "abfgknps", " "
-            ):
-                main_title_values.append(main_title_value.rstrip(" .,/"))
-            return main_title_values
-        except AttributeError:
-            logger.error(
-                "Record ID %s is missing a 245 field", Marc.get_source_record_id(xml)
-            )
-            return []
-
-    @staticmethod
-    def get_source_record_id(xml: Tag) -> str:
-        """
-        Get the source record ID from a MARC XML record.
-
-        Overrides metaclass get_source_record_id() method.
-
-        Args:
-            xml: A BeautifulSoup Tag representing a single MARC XML record.
-        """
-        return xml.find("controlfield", tag="001", string=True).string
 
     @staticmethod
     def create_subfield_value_list_from_datafield(
@@ -223,3 +251,38 @@ class Marc(Transformer):
         return separator.join(
             Marc.create_subfield_value_list_from_datafield(xml_element, subfield_codes)
         )
+
+    @staticmethod
+    def get_main_titles(xml: Tag) -> list[str]:
+        """
+        Retrieve main title(s) from a MARC XML record.
+
+        Overrides metaclass get_main_titles() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single MARC XML record.
+        """
+        try:
+            main_title_values = []
+            if main_title_value := Marc.create_subfield_value_string_from_datafield(
+                xml.find("datafield", tag="245"), "abfgknps", " "
+            ):
+                main_title_values.append(main_title_value.rstrip(" .,/"))
+            return main_title_values
+        except AttributeError:
+            logger.error(
+                "Record ID %s is missing a 245 field", Marc.get_source_record_id(xml)
+            )
+            return []
+
+    @staticmethod
+    def get_source_record_id(xml: Tag) -> str:
+        """
+        Get the source record ID from a MARC XML record.
+
+        Overrides metaclass get_source_record_id() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single MARC XML record.
+        """
+        return xml.find("controlfield", tag="001", string=True).string

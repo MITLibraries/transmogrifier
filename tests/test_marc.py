@@ -53,11 +53,55 @@ def test_marc_record_all_fields_transform_correctly():
             "Dewey Call Number 3",
         ],
         citation=(
-            "Célébration : 10 siècles de musique de noël. "
+            "Célébration : 10 siècles de musique de noël. Language material. "
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
             "01MIT_INST:MIT&docid=alma990027185640106761"
         ),
-        content_type=["Not specified"],
+        content_type=["Language material"],
+        contents=[
+            "Die Seejungfrau : sinfonische Dichtung : (Fantasie nach Hans Christian "
+            "Andersen) (44:29) -- Sinfonietta, op. 23 (22:05).",
+            "Wesendonck-Lieder WWV 91 / Richard Wagner (20:45) -- Rückert-Lieder / "
+            "Gustav Mahler (19:33).",
+        ],
+        contributors=[
+            timdex.Contributor(
+                value="Tran, Phong, composer, performer",
+                kind="Main Entry - Personal Name",
+            ),
+            timdex.Contributor(
+                value="Ceeys (Musical group), composer, performer",
+                kind="Main Entry - Corporate Name",
+            ),
+            timdex.Contributor(
+                value="Theory of Cryptography Conference 2008 : New York, N.Y",
+                kind="Main Entry - Meeting Name",
+            ),
+            timdex.Contributor(
+                value="Binelli, Daniel, arranger of music, composer, instrumentalist",
+                kind="Added Entry - Personal Name",
+            ),
+            timdex.Contributor(
+                value="Isaac, Eduardo Elias, arranger of music, instrumentalist",
+                kind="Added Entry - Personal Name",
+            ),
+            timdex.Contributor(
+                value="Divinerinnen (Musical group), arranger of music, instrumentalist",
+                kind="Added Entry - Corporate Name",
+            ),
+            timdex.Contributor(
+                value="Motörhead (Musical group), arranger of music, instrumentalist",
+                kind="Added Entry - Corporate Name",
+            ),
+            timdex.Contributor(
+                value="Bayreuther Festspiele. Orchester, instrumentalist",
+                kind="Added Entry - Meeting Name",
+            ),
+            timdex.Contributor(
+                value="Bayreuther Festspiele. Chor, singer",
+                kind="Added Entry - Meeting Name",
+            ),
+        ],
         literary_form="Nonfiction",
     )
 
@@ -97,10 +141,38 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         call_numbers=["a", "a"],
         citation=(
-            "a b f g k n p s. https://mit.primo.exlibrisgroup.com/discovery/"
+            "a b f g k n p s. Manuscript language material. "
+            "https://mit.primo.exlibrisgroup.com/discovery/"
             "fulldisplay?vid=01MIT_INST:MIT&docid=alma990027185640106761"
         ),
-        content_type=["Not specified"],
+        content_type=["Manuscript language material"],
+        contents=["a g r t"],
+        contributors=[
+            timdex.Contributor(
+                value="a b c d e q",
+                kind="Main Entry - Personal Name",
+            ),
+            timdex.Contributor(
+                value="a b c d e",
+                kind="Main Entry - Corporate Name",
+            ),
+            timdex.Contributor(
+                value="a c d e f g j q",
+                kind="Main Entry - Meeting Name",
+            ),
+            timdex.Contributor(
+                value="a b c d e q",
+                kind="Added Entry - Personal Name",
+            ),
+            timdex.Contributor(
+                value="a b c d e",
+                kind="Added Entry - Corporate Name",
+            ),
+            timdex.Contributor(
+                value="a c d e f g j q",
+                kind="Added Entry - Meeting Name",
+            ),
+        ],
         literary_form="Fiction",
     )
 
@@ -145,36 +217,6 @@ def test_marc_record_with_missing_optional_fields_transforms_correctly():
     )
 
 
-def test_get_main_titles_record_with_title():
-    marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_all_fields.xml"
-    )
-    assert Marc.get_main_titles(next(marc_xml_records)) == [
-        "Célébration : 10 siècles de musique de noël"
-    ]
-
-
-def test_get_main_titles_record_with_blank_title():
-    marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
-    )
-    assert Marc.get_main_titles(next(marc_xml_records)) == []
-
-
-def test_get_main_titles_record_without_title():
-    marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
-    )
-    assert Marc.get_main_titles(next(marc_xml_records)) == []
-
-
-def test_get_source_record_id():
-    marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_all_fields.xml"
-    )
-    assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
-
-
 def test_create_subfield_value_list_from_datafield_with_values():
     marc_xml_records = parse_xml_records(
         "tests/fixtures/marc/marc_record_all_fields.xml"
@@ -212,3 +254,33 @@ def test_create_subfield_value_string_from_datafield_with_blank_values():
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert Marc.create_subfield_value_string_from_datafield(datafield, "ad") == ""
+
+
+def test_get_main_titles_record_with_title():
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_all_fields.xml"
+    )
+    assert Marc.get_main_titles(next(marc_xml_records)) == [
+        "Célébration : 10 siècles de musique de noël"
+    ]
+
+
+def test_get_main_titles_record_with_blank_title():
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
+    )
+    assert Marc.get_main_titles(next(marc_xml_records)) == []
+
+
+def test_get_main_titles_record_without_title():
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
+    )
+    assert Marc.get_main_titles(next(marc_xml_records)) == []
+
+
+def test_get_source_record_id():
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_all_fields.xml"
+    )
+    assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"

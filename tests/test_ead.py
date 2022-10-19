@@ -520,15 +520,3 @@ def test_ead_record_with_missing_optional_fields_transforms_correctly():
         ),
         content_type=["Archival materials"],
     )
-
-
-def test_crosswalk_type_value_blank_value():
-    assert Ead.crosswalk_type_value("") == ""
-
-
-def test_crosswalk_type_value_invalid_value():
-    assert Ead.crosswalk_type_value("abcd") == "abcd"
-
-
-def test_crosswalk_type_value_valid_value():
-    assert Ead.crosswalk_type_value("acqinfo") == "Acquisition Information"

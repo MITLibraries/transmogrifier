@@ -2,7 +2,7 @@
 <collection>
     <record>
         <controlfield tag="001">990027185640106761</controlfield>
-        <leader>03282nam  2200721Ki 4500</leader>
+        <leader>03282ntm  2200721Ki 4500</leader>
         <controlfield></controlfield>
         <controlfield tag="008">170906s2016    fr mun| o         p zxx </controlfield>
         <datafield></datafield>
@@ -17,6 +17,48 @@
             <subfield code=""></subfield>
             <subfield code="a"></subfield>
             <subfield code="a">a</subfield>
+        </datafield>
+        <datafield tag="100">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="e">e</subfield>
+            <subfield code="q">q</subfield>
+        </datafield>
+        <datafield tag="110">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="b"></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="e">e</subfield>
+        </datafield>
+        <datafield tag="111">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="j"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="e">e</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="j">j</subfield>
+            <subfield code="q">q</subfield>
         </datafield>
         <datafield tag="130">
             <subfield></subfield>
@@ -119,6 +161,59 @@
             <subfield code="i">i</subfield>
             <subfield code="n">n</subfield>
             <subfield code="p">p</subfield>
+        </datafield>
+        <datafield tag="505">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="r"></subfield>
+            <subfield code="t"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="r">r</subfield>
+            <subfield code="t">t</subfield>
+        </datafield>
+        <datafield tag="700">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="e">e</subfield>
+            <subfield code="q">q</subfield>
+        </datafield>
+        <datafield tag="710">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="b"></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="e">e</subfield>
+        </datafield>
+        <datafield tag="711">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="j"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="e">e</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="j">j</subfield>
+            <subfield code="q">q</subfield>
         </datafield>
         <datafield tag="730">
             <subfield></subfield>
