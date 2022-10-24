@@ -3,10 +3,16 @@ import logging
 from bs4 import Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.config import load_external_config
 from transmogrifier.helpers import crosswalk_value
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
+
+
+marc_content_type_crosswalk = load_external_config(
+    "config/marc_content_type_crosswalk.json"
+)
 
 
 class Marc(Transformer):
@@ -30,7 +36,7 @@ class Marc(Transformer):
             {
                 "tag": "130",
                 "subfields": "adfghklmnoprst",
-                "kind": "Main Entry - Uniform Title",
+                "kind": "Uniform Title",
             },
             {
                 "tag": "240",
@@ -45,12 +51,12 @@ class Marc(Transformer):
             {
                 "tag": "730",
                 "subfields": "adfghiklmnoprst",
-                "kind": "Added Entry - Uniform Title",
+                "kind": "Uniform Title",
             },
             {
                 "tag": "740",
                 "subfields": "anp",
-                "kind": "Added Entry - Uncontrolled Related/Analytical Title",
+                "kind": "Uncontrolled Related/Analytical Title",
             },
         ]
         for alternate_title_marc_field in alternate_title_marc_fields:
@@ -97,49 +103,50 @@ class Marc(Transformer):
         # content_type
         if leader:
             fields["content_type"] = [
-                crosswalk_value(
-                    "config/marc_content_type_crosswalk.json", leader.string[6:7]
-                )
+                crosswalk_value(marc_content_type_crosswalk, leader.string[6:7])
             ]
 
         # contents
         for datafield in xml.find_all("datafield", tag="505"):
-            if contents_value := self.create_subfield_value_string_from_datafield(
-                datafield, "agrt", " "
+            for contents_value in self.create_subfield_value_list_from_datafield(
+                datafield,
+                "agrt",
             ):
-                fields.setdefault("contents", []).append(contents_value)
+                if " -- " in contents_value:
+                    for contents_item in contents_value.split(" -- "):
+                        fields.setdefault("contents", []).append(
+                            contents_item.rstrip(" ./-")
+                        )
+                else:
+                    fields.setdefault("contents", []).append(
+                        contents_value.rstrip(" ./-")
+                    )
 
         # contributors
         contributor_marc_fields = [
             {
                 "tag": "100",
-                "subfields": "abcdeq",
-                "kind": "Main Entry - Personal Name",
+                "subfields": "abcq",
             },
             {
                 "tag": "110",
-                "subfields": "abcde",
-                "kind": "Main Entry - Corporate Name",
+                "subfields": "abc",
             },
             {
                 "tag": "111",
-                "subfields": "acdefgjq",
-                "kind": "Main Entry - Meeting Name",
+                "subfields": "acdfgjq",
             },
             {
                 "tag": "700",
-                "subfields": "abcdeq",
-                "kind": "Added Entry - Personal Name",
+                "subfields": "abcq",
             },
             {
                 "tag": "710",
-                "subfields": "abcde",
-                "kind": "Added Entry - Corporate Name",
+                "subfields": "abc",
             },
             {
                 "tag": "711",
-                "subfields": "acdefgjq",
-                "kind": "Added Entry - Meeting Name",
+                "subfields": "acdfgjq",
             },
         ]
         for contributor_marc_field in contributor_marc_fields:
@@ -153,10 +160,17 @@ class Marc(Transformer):
                         " ",
                     )
                 ):
+                    kind_value = []
+                    for subfield in datafield.find_all(
+                        "subfield", code="e", string=True
+                    ):
+                        kind_value.append(subfield.string)
                     fields.setdefault("contributors", []).append(
                         timdex.Contributor(
-                            value=contributor_value.rstrip(" .,/)"),
-                            kind=contributor_marc_field["kind"],
+                            value=contributor_value.rstrip(" .,"),
+                            kind=" ".join(kind_value).rstrip(" .")
+                            if kind_value
+                            else "contributor",
                         )
                     )
 

@@ -4,7 +4,7 @@ import pytest
 from click.testing import CliRunner
 
 import transmogrifier.models as timdex
-from transmogrifier.config import SOURCES
+from transmogrifier.config import SOURCES, load_external_config
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.datacite import Datacite
 
@@ -57,6 +57,11 @@ def datacite_record_all_fields():
         "tests/fixtures/datacite/datacite_record_all_fields.xml"
     )
     return Datacite("cool-repo", input_records)
+
+
+@pytest.fixture()
+def marc_content_type_crosswalk():
+    return load_external_config("config/marc_content_type_crosswalk.json")
 
 
 @pytest.fixture()

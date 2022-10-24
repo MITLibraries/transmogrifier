@@ -2,19 +2,16 @@ import transmogrifier.models as timdex
 from transmogrifier.helpers import crosswalk_value, generate_citation, parse_xml_records
 
 
-def test_crosswalk_type_value_blank_value():
-    assert crosswalk_value("config/marc_content_type_crosswalk.json", "") == ""
+def test_crosswalk_type_value_blank_value(marc_content_type_crosswalk):
+    assert crosswalk_value(marc_content_type_crosswalk, "") == ""
 
 
-def test_crosswalk_type_value_invalid_value():
-    assert crosswalk_value("config/marc_content_type_crosswalk.json", "abcd") == "abcd"
+def test_crosswalk_type_value_invalid_value(marc_content_type_crosswalk):
+    assert crosswalk_value(marc_content_type_crosswalk, "abcd") == "abcd"
 
 
-def test_crosswalk_type_value_valid_value():
-    assert (
-        crosswalk_value("config/marc_content_type_crosswalk.json", "a")
-        == "Language material"
-    )
+def test_crosswalk_type_value_valid_value(marc_content_type_crosswalk):
+    assert crosswalk_value(marc_content_type_crosswalk, "a") == "Language material"
 
 
 def test_generate_citation_with_required_fields_only():

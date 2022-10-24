@@ -4,10 +4,14 @@ from typing import Generator, Optional, Union
 from bs4 import NavigableString, Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.config import load_external_config
 from transmogrifier.helpers import crosswalk_value
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
+
+
+aspace_type_crosswalk = load_external_config("config/aspace_type_crosswalk.json")
 
 
 class Ead(Transformer):
@@ -191,7 +195,7 @@ class Ead(Transformer):
                             note_head_element.string
                             if note_head_element
                             else crosswalk_value(
-                                "config/aspace_type_crosswalk.json", note_element.name
+                                aspace_type_crosswalk, note_element.name
                             )
                         ),
                     )
@@ -232,7 +236,7 @@ class Ead(Transformer):
                     timdex.RelatedItem(
                         description=related_item_value,
                         relationship=crosswalk_value(
-                            "config/aspace_type_crosswalk.json",
+                            aspace_type_crosswalk,
                             related_item_element.name,
                         ),
                     )
@@ -266,7 +270,7 @@ class Ead(Transformer):
                     timdex.Rights(
                         description=rights_value,
                         kind=crosswalk_value(
-                            "config/aspace_type_crosswalk.json", rights_element.name
+                            aspace_type_crosswalk, rights_element.name
                         ),
                     )
                 )
@@ -283,7 +287,7 @@ class Ead(Transformer):
                         timdex.Subject(
                             value=[subject_value],
                             kind=crosswalk_value(
-                                "config/aspace_type_crosswalk.json",
+                                aspace_type_crosswalk,
                                 subject_element.get("source") or None,
                             ),
                         )

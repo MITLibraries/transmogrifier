@@ -18,7 +18,7 @@ def test_marc_record_all_fields_transform_correctly():
         title="Célébration : 10 siècles de musique de noël",
         alternate_titles=[
             timdex.AlternateTitle(
-                value="Main Entry Date 1 Date 2", kind="Main Entry - Uniform Title"
+                value="Main Entry Date 1 Date 2", kind="Uniform Title"
             ),
             timdex.AlternateTitle(value="Uniform Date 1 Date 2", kind="Uniform Title"),
             timdex.AlternateTitle(
@@ -29,19 +29,19 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.AlternateTitle(
                 value="Added Entry 1 Part 1 Part 2",
-                kind="Added Entry - Uniform Title",
+                kind="Uniform Title",
             ),
             timdex.AlternateTitle(
                 value="Added Entry 2 Part 1 Part 2",
-                kind="Added Entry - Uniform Title",
+                kind="Uniform Title",
             ),
             timdex.AlternateTitle(
                 value="Added Entry 1 Part 1 Part 2",
-                kind="Added Entry - Uncontrolled Related/Analytical Title",
+                kind="Uncontrolled Related/Analytical Title",
             ),
             timdex.AlternateTitle(
                 value="Added Entry 2 Part 1 Part 2",
-                kind="Added Entry - Uncontrolled Related/Analytical Title",
+                kind="Uncontrolled Related/Analytical Title",
             ),
         ],
         call_numbers=[
@@ -59,47 +59,54 @@ def test_marc_record_all_fields_transform_correctly():
         ),
         content_type=["Language material"],
         contents=[
-            "Die Seejungfrau : sinfonische Dichtung : (Fantasie nach Hans Christian "
-            "Andersen) (44:29) -- Sinfonietta, op. 23 (22:05).",
-            "Wesendonck-Lieder WWV 91 / Richard Wagner (20:45) -- Rückert-Lieder / "
-            "Gustav Mahler (19:33).",
+            (
+                "Die Seejungfrau : sinfonische Dichtung : (Fantasie nach Hans Christian "
+                "Andersen) (44:29)"
+            ),
+            "Sinfonietta, op. 23 (22:05)",
+            "Wesendonck-Lieder WWV 91",
+            "Richard Wagner",
+            "(20:45)",
+            "Rückert-Lieder",
+            "Gustav Mahler",
+            "(19:33)",
         ],
         contributors=[
             timdex.Contributor(
-                value="Tran, Phong, composer, performer",
-                kind="Main Entry - Personal Name",
+                value="Tran, Phong",
+                kind="composer, performer",
             ),
             timdex.Contributor(
-                value="Ceeys (Musical group), composer, performer",
-                kind="Main Entry - Corporate Name",
+                value="Ceeys (Musical group)",
+                kind="composer, performer",
             ),
             timdex.Contributor(
-                value="Theory of Cryptography Conference 2008 : New York, N.Y",
-                kind="Main Entry - Meeting Name",
+                value="Theory of Cryptography Conference 2008 : New York, N.Y.)",
+                kind="contributor",
             ),
             timdex.Contributor(
-                value="Binelli, Daniel, arranger of music, composer, instrumentalist",
-                kind="Added Entry - Personal Name",
+                value="Binelli, Daniel",
+                kind="arranger of music, composer, instrumentalist",
             ),
             timdex.Contributor(
-                value="Isaac, Eduardo Elias, arranger of music, instrumentalist",
-                kind="Added Entry - Personal Name",
+                value="Isaac, Eduardo Elias",
+                kind="arranger of music, instrumentalist",
             ),
             timdex.Contributor(
-                value="Divinerinnen (Musical group), arranger of music, instrumentalist",
-                kind="Added Entry - Corporate Name",
+                value="Divinerinnen (Musical group)",
+                kind="arranger of music, instrumentalist",
             ),
             timdex.Contributor(
-                value="Motörhead (Musical group), arranger of music, instrumentalist",
-                kind="Added Entry - Corporate Name",
+                value="Motörhead (Musical group)",
+                kind="arranger of music, instrumentalist",
             ),
             timdex.Contributor(
-                value="Bayreuther Festspiele. Orchester, instrumentalist",
-                kind="Added Entry - Meeting Name",
+                value="Bayreuther Festspiele",
+                kind="Orchester, instrumentalist",
             ),
             timdex.Contributor(
-                value="Bayreuther Festspiele. Chor, singer",
-                kind="Added Entry - Meeting Name",
+                value="Bayreuther Festspiele",
+                kind="Chor, singer",
             ),
         ],
         literary_form="Nonfiction",
@@ -122,7 +129,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         alternate_titles=[
             timdex.AlternateTitle(
                 value="a d f g h k l m n o p r s t",
-                kind="Main Entry - Uniform Title",
+                kind="Uniform Title",
             ),
             timdex.AlternateTitle(
                 value="a d f g h k l m n o p r s", kind="Uniform Title"
@@ -132,11 +139,11 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             ),
             timdex.AlternateTitle(
                 value="a d f g h i k l m n o p r s t",
-                kind="Added Entry - Uniform Title",
+                kind="Uniform Title",
             ),
             timdex.AlternateTitle(
                 value="a n p",
-                kind="Added Entry - Uncontrolled Related/Analytical Title",
+                kind="Uncontrolled Related/Analytical Title",
             ),
         ],
         call_numbers=["a", "a"],
@@ -146,31 +153,31 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             "fulldisplay?vid=01MIT_INST:MIT&docid=alma990027185640106761"
         ),
         content_type=["Manuscript language material"],
-        contents=["a g r t"],
+        contents=["a", "g", "r", "t"],
         contributors=[
             timdex.Contributor(
-                value="a b c d e q",
-                kind="Main Entry - Personal Name",
+                value="a b c q",
+                kind="e",
             ),
             timdex.Contributor(
-                value="a b c d e",
-                kind="Main Entry - Corporate Name",
+                value="a b c",
+                kind="e",
             ),
             timdex.Contributor(
-                value="a c d e f g j q",
-                kind="Main Entry - Meeting Name",
+                value="a c d f g j q",
+                kind="e",
             ),
             timdex.Contributor(
-                value="a b c d e q",
-                kind="Added Entry - Personal Name",
+                value="a b c q",
+                kind="e",
             ),
             timdex.Contributor(
-                value="a b c d e",
-                kind="Added Entry - Corporate Name",
+                value="a b c",
+                kind="e",
             ),
             timdex.Contributor(
-                value="a c d e f g j q",
-                kind="Added Entry - Meeting Name",
+                value="a c d f g j q",
+                kind="e",
             ),
         ],
         literary_form="Fiction",
