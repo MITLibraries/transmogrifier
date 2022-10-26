@@ -4,7 +4,6 @@ from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
-from transmogrifier.helpers import crosswalk_value
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -36,12 +35,12 @@ class Marc(Transformer):
             {
                 "tag": "130",
                 "subfields": "adfghklmnoprst",
-                "kind": "Uniform Title",
+                "kind": "Preferred Title",
             },
             {
                 "tag": "240",
                 "subfields": "adfghklmnoprs",
-                "kind": "Uniform Title",
+                "kind": "Preferred Title",
             },
             {
                 "tag": "246",
@@ -51,7 +50,7 @@ class Marc(Transformer):
             {
                 "tag": "730",
                 "subfields": "adfghiklmnoprst",
-                "kind": "Uniform Title",
+                "kind": "Preferred Title",
             },
             {
                 "tag": "740",
@@ -103,7 +102,7 @@ class Marc(Transformer):
         # content_type
         if leader:
             fields["content_type"] = [
-                crosswalk_value(marc_content_type_crosswalk, leader.string[6:7])
+                marc_content_type_crosswalk.get(leader.string[6:7], leader.string[6:7])
             ]
 
         # contents
@@ -112,14 +111,9 @@ class Marc(Transformer):
                 datafield,
                 "agrt",
             ):
-                if " -- " in contents_value:
-                    for contents_item in contents_value.split(" -- "):
-                        fields.setdefault("contents", []).append(
-                            contents_item.rstrip(" ./-")
-                        )
-                else:
+                for contents_item in contents_value.split(" -- "):
                     fields.setdefault("contents", []).append(
-                        contents_value.rstrip(" ./-")
+                        contents_item.rstrip(" ./-")
                     )
 
         # contributors
@@ -149,6 +143,7 @@ class Marc(Transformer):
                 "subfields": "acdfgjq",
             },
         ]
+        contributor_values = []
         for contributor_marc_field in contributor_marc_fields:
             for datafield in xml.find_all(
                 "datafield", tag=contributor_marc_field["tag"]
@@ -160,19 +155,27 @@ class Marc(Transformer):
                         " ",
                     )
                 ):
-                    kind_value = []
+                    kind_values = []
                     for subfield in datafield.find_all(
                         "subfield", code="e", string=True
                     ):
-                        kind_value.append(subfield.string)
-                    fields.setdefault("contributors", []).append(
-                        timdex.Contributor(
+                        kind_values.append(subfield.string)
+                    if kind_values:
+                        for kind_value in kind_values:
+                            contributor_instance = timdex.Contributor(
+                                value=contributor_value.rstrip(" .,"),
+                                kind=kind_value.rstrip(" .,"),
+                            )
+                            if contributor_instance not in contributor_values:
+                                contributor_values.append(contributor_instance)
+                    else:
+                        contributor_instance = timdex.Contributor(
                             value=contributor_value.rstrip(" .,"),
-                            kind=" ".join(kind_value).rstrip(" .")
-                            if kind_value
-                            else "contributor",
+                            kind="contributor",
                         )
-                    )
+                        if contributor_instance not in contributor_values:
+                            contributor_values.append(contributor_instance)
+        fields["contributors"] = contributor_values or None
 
         # dates
 

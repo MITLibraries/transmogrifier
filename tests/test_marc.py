@@ -18,9 +18,11 @@ def test_marc_record_all_fields_transform_correctly():
         title="Célébration : 10 siècles de musique de noël",
         alternate_titles=[
             timdex.AlternateTitle(
-                value="Main Entry Date 1 Date 2", kind="Uniform Title"
+                value="Main Entry Date 1 Date 2", kind="Preferred Title"
             ),
-            timdex.AlternateTitle(value="Uniform Date 1 Date 2", kind="Uniform Title"),
+            timdex.AlternateTitle(
+                value="Uniform Date 1 Date 2", kind="Preferred Title"
+            ),
             timdex.AlternateTitle(
                 value="Varying Form Of Title 1", kind="Varying Form of Title"
             ),
@@ -29,11 +31,11 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.AlternateTitle(
                 value="Added Entry 1 Part 1 Part 2",
-                kind="Uniform Title",
+                kind="Preferred Title",
             ),
             timdex.AlternateTitle(
                 value="Added Entry 2 Part 1 Part 2",
-                kind="Uniform Title",
+                kind="Preferred Title",
             ),
             timdex.AlternateTitle(
                 value="Added Entry 1 Part 1 Part 2",
@@ -74,11 +76,19 @@ def test_marc_record_all_fields_transform_correctly():
         contributors=[
             timdex.Contributor(
                 value="Tran, Phong",
-                kind="composer, performer",
+                kind="composer",
+            ),
+            timdex.Contributor(
+                value="Tran, Phong",
+                kind="performer",
             ),
             timdex.Contributor(
                 value="Ceeys (Musical group)",
-                kind="composer, performer",
+                kind="composer",
+            ),
+            timdex.Contributor(
+                value="Ceeys (Musical group)",
+                kind="performer",
             ),
             timdex.Contributor(
                 value="Theory of Cryptography Conference 2008 : New York, N.Y.)",
@@ -86,27 +96,55 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Contributor(
                 value="Binelli, Daniel",
-                kind="arranger of music, composer, instrumentalist",
+                kind="arranger of music",
+            ),
+            timdex.Contributor(
+                value="Binelli, Daniel",
+                kind="composer",
+            ),
+            timdex.Contributor(
+                value="Binelli, Daniel",
+                kind="instrumentalist",
             ),
             timdex.Contributor(
                 value="Isaac, Eduardo Elias",
-                kind="arranger of music, instrumentalist",
+                kind="arranger of music",
+            ),
+            timdex.Contributor(
+                value="Isaac, Eduardo Elias",
+                kind="instrumentalist",
             ),
             timdex.Contributor(
                 value="Divinerinnen (Musical group)",
-                kind="arranger of music, instrumentalist",
+                kind="arranger of music",
+            ),
+            timdex.Contributor(
+                value="Divinerinnen (Musical group)",
+                kind="instrumentalist",
             ),
             timdex.Contributor(
                 value="Motörhead (Musical group)",
-                kind="arranger of music, instrumentalist",
+                kind="arranger of music",
+            ),
+            timdex.Contributor(
+                value="Motörhead (Musical group)",
+                kind="instrumentalist",
             ),
             timdex.Contributor(
                 value="Bayreuther Festspiele",
-                kind="Orchester, instrumentalist",
+                kind="Orchester",
             ),
             timdex.Contributor(
                 value="Bayreuther Festspiele",
-                kind="Chor, singer",
+                kind="instrumentalist",
+            ),
+            timdex.Contributor(
+                value="Bayreuther Festspiele",
+                kind="Chor",
+            ),
+            timdex.Contributor(
+                value="Bayreuther Festspiele",
+                kind="singer",
             ),
         ],
         literary_form="Nonfiction",
@@ -129,17 +167,17 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         alternate_titles=[
             timdex.AlternateTitle(
                 value="a d f g h k l m n o p r s t",
-                kind="Uniform Title",
+                kind="Preferred Title",
             ),
             timdex.AlternateTitle(
-                value="a d f g h k l m n o p r s", kind="Uniform Title"
+                value="a d f g h k l m n o p r s", kind="Preferred Title"
             ),
             timdex.AlternateTitle(
                 value="a b f g h i n p", kind="Varying Form of Title"
             ),
             timdex.AlternateTitle(
                 value="a d f g h i k l m n o p r s t",
-                kind="Uniform Title",
+                kind="Preferred Title",
             ),
             timdex.AlternateTitle(
                 value="a n p",
@@ -155,18 +193,6 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         content_type=["Manuscript language material"],
         contents=["a", "g", "r", "t"],
         contributors=[
-            timdex.Contributor(
-                value="a b c q",
-                kind="e",
-            ),
-            timdex.Contributor(
-                value="a b c",
-                kind="e",
-            ),
-            timdex.Contributor(
-                value="a c d f g j q",
-                kind="e",
-            ),
             timdex.Contributor(
                 value="a b c q",
                 kind="e",

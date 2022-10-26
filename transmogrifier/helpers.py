@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Any, Dict, Iterator, Optional
+from typing import Iterator
 
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
@@ -15,21 +15,6 @@ from smart_open import open
 from transmogrifier.models import TimdexRecord
 
 logger = logging.getLogger(__name__)
-
-
-def crosswalk_value(
-    crosswalk_dict: Dict[Any, Any], value: Optional[str]
-) -> Optional[str]:
-    """
-    Crosswalk code to human-readable label based on the specified JSON crosswalk.
-
-    Args:
-        crosswalk_dict: A crosswalk dict of codes and replacement values.
-        value: A value to be crosswalked.
-    """
-    if value in crosswalk_dict:
-        value = crosswalk_dict[value]
-    return value
 
 
 def generate_citation(extracted_data: dict) -> str:

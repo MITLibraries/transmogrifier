@@ -5,7 +5,6 @@ from bs4 import NavigableString, Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
-from transmogrifier.helpers import crosswalk_value
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -194,8 +193,8 @@ class Ead(Transformer):
                         kind=(
                             note_head_element.string
                             if note_head_element
-                            else crosswalk_value(
-                                aspace_type_crosswalk, note_element.name
+                            else aspace_type_crosswalk.get(
+                                note_element.name, note_element.name
                             )
                         ),
                     )
@@ -235,9 +234,8 @@ class Ead(Transformer):
                 fields.setdefault("related_items", []).append(
                     timdex.RelatedItem(
                         description=related_item_value,
-                        relationship=crosswalk_value(
-                            aspace_type_crosswalk,
-                            related_item_element.name,
+                        relationship=aspace_type_crosswalk.get(
+                            related_item_element.name, related_item_element.name
                         ),
                     )
                 )
@@ -269,8 +267,8 @@ class Ead(Transformer):
                 fields.setdefault("rights", []).append(
                     timdex.Rights(
                         description=rights_value,
-                        kind=crosswalk_value(
-                            aspace_type_crosswalk, rights_element.name
+                        kind=aspace_type_crosswalk.get(
+                            rights_element.name, rights_element.name
                         ),
                     )
                 )
@@ -283,14 +281,15 @@ class Ead(Transformer):
                 if subject_value := self.create_string_from_mixed_value(
                     subject_element, " "
                 ):
+                    subject_source = subject_element.get("source")
                     fields.setdefault("subjects", []).append(
                         timdex.Subject(
                             value=[subject_value],
-                            kind=crosswalk_value(
-                                aspace_type_crosswalk,
-                                subject_element.get("source") or None,
-                            ),
-                        )
+                            kind=aspace_type_crosswalk.get(
+                                subject_source, subject_source
+                            )
+                            or None,
+                        ),
                     )
 
         # summary
