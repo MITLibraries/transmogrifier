@@ -171,9 +171,12 @@ class Marc(Transformer):
                     else:
                         contributor_instance = timdex.Contributor(
                             value=contributor_value.rstrip(" .,"),
-                            kind="contributor",
+                            kind="Not specified",
                         )
-                        if contributor_instance not in contributor_values:
+                        if contributor_instance.value not in [
+                            existing_contributor.value
+                            for existing_contributor in contributor_values
+                        ]:
                             contributor_values.append(contributor_instance)
         fields["contributors"] = contributor_values or None
 

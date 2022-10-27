@@ -92,7 +92,7 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Contributor(
                 value="Theory of Cryptography Conference 2008 : New York, N.Y.)",
-                kind="contributor",
+                kind="Not specified",
             ),
             timdex.Contributor(
                 value="Binelli, Daniel",
