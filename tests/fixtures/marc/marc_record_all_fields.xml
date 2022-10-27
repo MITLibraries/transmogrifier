@@ -18,6 +18,22 @@
         <datafield tag="082" ind1="0" ind2=" ">
             <subfield code="a">Dewey Call Number 3</subfield>
         </datafield>
+        <datafield tag="100" ind1="1" ind2=" ">
+            <subfield code="a">Tran, Phong,</subfield>
+            <subfield code="e">composer,</subfield>
+            <subfield code="e">performer.</subfield>
+        </datafield>
+        <datafield tag="110" ind1="2" ind2=" ">
+            <subfield code="a">Ceeys (Musical group),</subfield>
+            <subfield code="e">composer,</subfield>
+            <subfield code="e">performer.</subfield>
+        </datafield>
+        <datafield tag="111" ind1="2" ind2=" ">
+            <subfield code="a">Theory of Cryptography Conference</subfield>
+            <subfield code="n">(5th :</subfield>
+            <subfield code="d">2008 :</subfield>
+            <subfield code="c">New York, N.Y.)</subfield>
+        </datafield>
         <datafield tag="130" ind1="0" ind2="0">
             <subfield code="a">Main Entry</subfield>
             <subfield code="d">Date 1</subfield>
@@ -44,6 +60,51 @@
             <subfield code="a">France :</subfield>
             <subfield code="b">Aparte,</subfield>
             <subfield code="c">[2016]</subfield>
+        </datafield>
+        <datafield tag="505" ind1="0" ind2=" ">
+            <subfield code="a">Die Seejungfrau : sinfonische Dichtung : (Fantasie nach Hans Christian Andersen) (44:29) -- Sinfonietta, op. 23 (22:05).</subfield>
+        </datafield>
+        <datafield tag="505" ind1="0" ind2="0">
+            <subfield code="t">Wesendonck-Lieder WWV 91 /</subfield>
+            <subfield code="r">Richard Wagner</subfield>
+            <subfield code="g">(20:45) --</subfield>
+            <subfield code="t">Rückert-Lieder /</subfield>
+            <subfield code="r">Gustav Mahler</subfield>
+            <subfield code="g">(19:33).</subfield>
+        </datafield>
+        <datafield tag="700" ind1="1" ind2=" ">
+            <subfield code="a">Binelli, Daniel,</subfield>
+            <subfield code="e">arranger of music,</subfield>
+            <subfield code="e">composer,</subfield>
+            <subfield code="e">instrumentalist.</subfield>
+        </datafield>
+        <datafield tag="700" ind1="1" ind2=" ">
+            <subfield code="a">Isaac, Eduardo Elias,</subfield>
+            <subfield code="e">arranger of music,</subfield>
+            <subfield code="e">instrumentalist.</subfield>
+        </datafield>
+        <datafield tag="700" ind1="1" ind2=" ">
+            <subfield code="a">Isaac, Eduardo Elias,</subfield>
+        </datafield>
+        <datafield tag="710" ind1="2" ind2=" ">
+            <subfield code="a">Divinerinnen (Musical group),</subfield>
+            <subfield code="e">arranger of music,</subfield>
+            <subfield code="e">instrumentalist.</subfield>
+        </datafield>
+        <datafield tag="710" ind1="2" ind2=" ">
+            <subfield code="a">Motörhead (Musical group),</subfield>
+            <subfield code="e">arranger of music,</subfield>
+            <subfield code="e">instrumentalist.</subfield>
+        </datafield>
+        <datafield tag="711" ind1="2" ind2=" ">
+            <subfield code="a">Bayreuther Festspiele.</subfield>
+            <subfield code="e">Orchester,</subfield>
+            <subfield code="e">instrumentalist.</subfield>
+        </datafield>
+        <datafield tag="711" ind1="2" ind2=" ">
+            <subfield code="a">Bayreuther Festspiele.</subfield>
+            <subfield code="e">Chor,</subfield>
+            <subfield code="e">singer.</subfield>
         </datafield>
         <datafield tag="730" ind1="0" ind2="0">
             <subfield code="a">Added Entry 1</subfield>

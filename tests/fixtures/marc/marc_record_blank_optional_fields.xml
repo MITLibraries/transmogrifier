@@ -6,10 +6,17 @@
         <controlfield tag="001">990027185640106761</controlfield>
         <datafield tag="050"></datafield>
         <datafield tag="082"></datafield>
+        <datafield tag="100"></datafield>
+        <datafield tag="110"></datafield>
+        <datafield tag="111"></datafield>
         <datafield tag="130"></datafield>
         <datafield tag="240"></datafield>
         <datafield tag="245"></datafield>
         <datafield tag="246"></datafield>
+        <datafield tag="505"></datafield>
+        <datafield tag="700"></datafield>
+        <datafield tag="710"></datafield>
+        <datafield tag="711"></datafield>
         <datafield tag="730"></datafield>
         <datafield tag="740"></datafield>
     </record>

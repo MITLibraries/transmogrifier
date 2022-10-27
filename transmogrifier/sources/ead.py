@@ -10,6 +10,9 @@ from transmogrifier.sources.transformer import Transformer
 logger = logging.getLogger(__name__)
 
 
+aspace_type_crosswalk = load_external_config("config/aspace_type_crosswalk.json")
+
+
 class Ead(Transformer):
     """EAD transformer."""
 
@@ -190,7 +193,9 @@ class Ead(Transformer):
                         kind=(
                             note_head_element.string
                             if note_head_element
-                            else self.crosswalk_type_value(note_element.name)
+                            else aspace_type_crosswalk.get(
+                                note_element.name, note_element.name
+                            )
                         ),
                     )
                 )
@@ -229,8 +234,8 @@ class Ead(Transformer):
                 fields.setdefault("related_items", []).append(
                     timdex.RelatedItem(
                         description=related_item_value,
-                        relationship=self.crosswalk_type_value(
-                            related_item_element.name
+                        relationship=aspace_type_crosswalk.get(
+                            related_item_element.name, related_item_element.name
                         ),
                     )
                 )
@@ -262,7 +267,9 @@ class Ead(Transformer):
                 fields.setdefault("rights", []).append(
                     timdex.Rights(
                         description=rights_value,
-                        kind=self.crosswalk_type_value(rights_element.name),
+                        kind=aspace_type_crosswalk.get(
+                            rights_element.name, rights_element.name
+                        ),
                     )
                 )
 
@@ -274,13 +281,15 @@ class Ead(Transformer):
                 if subject_value := self.create_string_from_mixed_value(
                     subject_element, " "
                 ):
+                    subject_source = subject_element.get("source")
                     fields.setdefault("subjects", []).append(
                         timdex.Subject(
                             value=[subject_value],
-                            kind=self.crosswalk_type_value(
-                                subject_element.get("source") or None
-                            ),
-                        )
+                            kind=aspace_type_crosswalk.get(
+                                subject_source, subject_source
+                            )
+                            or None,
+                        ),
                     )
 
         # summary
@@ -340,18 +349,6 @@ class Ead(Transformer):
         return separator.join(
             cls.create_list_from_mixed_value(xml_element, skipped_elements)
         )
-
-    @staticmethod
-    def crosswalk_type_value(type_value: Optional[str]) -> Optional[str]:
-        """
-        Crosswalk type code to human-readable label.
-        Args:
-            type_value: A type value to be crosswalked.
-        """
-        type_crosswalk = load_external_config("config/aspace_type_crosswalk.json")
-        if type_value in type_crosswalk:
-            type_value = type_crosswalk[type_value]
-        return type_value
 
     @classmethod
     def generate_name_identifier_url(cls, name_element: Tag) -> Optional[list]:
