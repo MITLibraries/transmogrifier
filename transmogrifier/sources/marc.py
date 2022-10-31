@@ -183,8 +183,15 @@ class Marc(Transformer):
         # dates
 
         # edition
+        edition_values = []
+        for datafield in xml.find_all("datafield", tag="250"):
+            if edition_value := self.create_subfield_value_string_from_datafield(
+                datafield, "ab", " "
+            ):
+                edition_values.append(edition_value)
+        fields["edition"] = " ".join(edition_values) or None
 
-        # file_formats
+        # file_formats not used in MARC
 
         # format
 
@@ -227,11 +234,53 @@ class Marc(Transformer):
 
         # related_items
 
-        # rights
+        # rights not used in MARC
 
         # subjects
+        subject_marc_fields = [
+            {
+                "tag": "600",
+                "subfields": "0abcdefghjklmnopqrstuvxyz",
+                "kind": "Personal Name",
+            },
+            {
+                "tag": "610",
+                "subfields": "0abcdefghklmnoprstuvxyz",
+                "kind": "Corporate Name",
+            },
+            {
+                "tag": "650",
+                "subfields": "0avxyz",
+                "kind": "Topical Term",
+            },
+            {
+                "tag": "651",
+                "subfields": "0avxyz",
+                "kind": "Geographic Name",
+            },
+        ]
+        for subject_marc_field in subject_marc_fields:
+            for datafield in xml.find_all("datafield", tag=subject_marc_field["tag"]):
+                if subject_value := (
+                    self.create_subfield_value_string_from_datafield(
+                        datafield,
+                        subject_marc_field["subfields"],
+                        " ",
+                    )
+                ):
+                    fields.setdefault("subjects", []).append(
+                        timdex.Subject(
+                            value=[subject_value.rstrip(" .")],
+                            kind=subject_marc_field["kind"],
+                        )
+                    )
 
         # summary
+        for datafield in xml.find_all("datafield", tag="520"):
+            if summary_value := self.create_subfield_value_string_from_datafield(
+                datafield, "a", " "
+            ):
+                fields.setdefault("summary", []).append(summary_value)
 
         return fields
 

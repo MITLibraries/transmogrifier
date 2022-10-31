@@ -13,7 +13,13 @@
         <datafield tag="240"></datafield>
         <datafield tag="245"></datafield>
         <datafield tag="246"></datafield>
+        <datafield tag="250"></datafield>
         <datafield tag="505"></datafield>
+        <datafield tag="520"></datafield>
+        <datafield tag="600"></datafield>
+        <datafield tag="610"></datafield>
+        <datafield tag="650"></datafield>
+        <datafield tag="651"></datafield>
         <datafield tag="700"></datafield>
         <datafield tag="710"></datafield>
         <datafield tag="711"></datafield>

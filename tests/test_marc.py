@@ -147,7 +147,72 @@ def test_marc_record_all_fields_transform_correctly():
                 kind="singer",
             ),
         ],
+        edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
         literary_form="Nonfiction",
+        subjects=[
+            timdex.Subject(
+                value=[
+                    "Renoir, Jean, 1894-1979 (DLC)n  79018203 Bibliography. "
+                    "(DLC)sh 99001362"
+                ],
+                kind="Personal Name",
+            ),
+            timdex.Subject(
+                value=["Renoir, Jean, 1894-1979. (OCoLC)fst00031256"],
+                kind="Personal Name",
+            ),
+            timdex.Subject(
+                value=[
+                    "United States. Federal Bureau of Investigation (DLC)n  78095617 "
+                    "History. (DLC)sh 99005024"
+                ],
+                kind="Corporate Name",
+            ),
+            timdex.Subject(
+                value=[
+                    "United States. Federal Bureau of Investigation. (OCoLC)fst00528882"
+                ],
+                kind="Corporate Name",
+            ),
+            timdex.Subject(
+                value=[
+                    "Musique vocale sacrée (CaQQLa)201-0004748 France "
+                    "(CaQQLa)201-0452039 500-1400. (CaQQLa)201-0373671"
+                ],
+                kind="Topical Term",
+            ),
+            timdex.Subject(value=["Sacred songs, Unaccompanied"], kind="Topical Term"),
+            timdex.Subject(
+                value=["Great Plains (DLC)sh 85056998 Climate. (DLC)sh 00007747"],
+                kind="Geographic Name",
+            ),
+            timdex.Subject(
+                value=["Great Plains. (OCoLC)fst01240567"], kind="Geographic Name"
+            ),
+        ],
+        summary=[
+            "This safety guide provides guidance on meeting the requirements for the "
+            "establishment of radiation protection programs (RPPs) for the transport of "
+            "radioactive material, to optimize radiation protection in order to meet the "
+            "requirements for radiation protection that underlie the Regulations for the "
+            "Safe Transport of Radioactive Material. It covers general aspects of "
+            "meeting the requirements for radiation protection, but does not cover "
+            "criticality safety or other possible hazardous properties of radioactive "
+            "material. The annexes of this guide include examples of RPPs, relevant "
+            "excerpts from the Transport Regulations, examples of total dose per "
+            "transport index handled, a checklist for road transport, specific "
+            "segregation distances and emergency instructions for vehicle operators."
+            "--Publisher's description.",
+            "It is only since the bel canto era in the 19th century that the tenor voice "
+            "really took off as a leading character in operatic roles, often playing the "
+            "heroic figure against a love-interest soprano and a villain baritone. This "
+            "collection of some of opera's most iconic arias takes us from the dark "
+            "emotional crises of Leoncavallo's Pagliacci and Puccini's Tosca, to the "
+            "seductive Rodolfo in La Bohème and Donizetti's show-stopping hich Cs in La "
+            "Fille du régiment. Tenor showpieces that are so famous they have taken on "
+            "a life of their own include 'Nessun dorma', made immortal by The Three "
+            "Tenors at the 1990 World Cup.",
+        ],
     )
 
 
@@ -206,7 +271,21 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 kind="e",
             ),
         ],
+        edition="a b",
         literary_form="Fiction",
+        subjects=[
+            timdex.Subject(
+                value=["0 a b c d e f g h j k l m n o p q r s t u v x y z"],
+                kind="Personal Name",
+            ),
+            timdex.Subject(
+                value=["0 a b c d e f g h k l m n o p r s t u v x y z"],
+                kind="Corporate Name",
+            ),
+            timdex.Subject(value=["0 a v x y z"], kind="Topical Term"),
+            timdex.Subject(value=["0 a v x y z"], kind="Geographic Name"),
+        ],
+        summary=["a"],
     )
 
 

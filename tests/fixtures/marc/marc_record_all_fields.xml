@@ -56,6 +56,13 @@
             <subfield code="a">Varying Form</subfield>
             <subfield code="b">Of Title 2.</subfield>
         </datafield>
+        <datafield tag="250" ind1=" " ind2=" ">
+            <subfield code="a">9th ed. /</subfield>
+            <subfield code="b">Nick Ray ... [et al.].</subfield>
+        </datafield>
+        <datafield tag="250" ind1=" " ind2=" ">
+            <subfield code="a">Unabridged.</subfield>
+        </datafield>
         <datafield tag="264" ind1=" " ind2="1">
             <subfield code="a">France :</subfield>
             <subfield code="b">Aparte,</subfield>
@@ -71,6 +78,60 @@
             <subfield code="t">Rückert-Lieder /</subfield>
             <subfield code="r">Gustav Mahler</subfield>
             <subfield code="g">(19:33).</subfield>
+        </datafield>
+        <datafield tag="520" ind1=" " ind2=" ">
+            <subfield code="a">This safety guide provides guidance on meeting the requirements for the establishment of radiation protection programs (RPPs) for the transport of radioactive material, to optimize radiation protection in order to meet the requirements for radiation protection that underlie the Regulations for the Safe Transport of Radioactive Material. It covers general aspects of meeting the requirements for radiation protection, but does not cover criticality safety or other possible hazardous properties of radioactive material. The annexes of this guide include examples of RPPs, relevant excerpts from the Transport Regulations, examples of total dose per transport index handled, a checklist for road transport, specific segregation distances and emergency instructions for vehicle operators.--Publisher's description.</subfield>
+        </datafield>
+        <datafield tag="520" ind1=" " ind2=" ">
+            <subfield code="a">It is only since the bel canto era in the 19th century that the tenor voice really took off as a leading character in operatic roles, often playing the heroic figure against a love-interest soprano and a villain baritone. This collection of some of opera's most iconic arias takes us from the dark emotional crises of Leoncavallo's Pagliacci and Puccini's Tosca, to the seductive Rodolfo in La Bohème and Donizetti's show-stopping hich Cs in La Fille du régiment. Tenor showpieces that are so famous they have taken on a life of their own include 'Nessun dorma', made immortal by The Three Tenors at the 1990 World Cup.</subfield>
+        </datafield>
+        <datafield tag="600" ind1="1" ind2="0">
+            <subfield code="a">Renoir, Jean,</subfield>
+            <subfield code="d">1894-1979</subfield>
+            <subfield code="0">(DLC)n  79018203</subfield>
+            <subfield code="v">Bibliography.</subfield>
+            <subfield code="0">(DLC)sh 99001362</subfield>
+        </datafield>
+        <datafield tag="600" ind1="1" ind2="7">
+            <subfield code="a">Renoir, Jean,</subfield>
+            <subfield code="d">1894-1979.</subfield>
+            <subfield code="2">fast</subfield>
+            <subfield code="0">(OCoLC)fst00031256</subfield>
+        </datafield>
+        <datafield tag="610" ind1="1" ind2="0">
+            <subfield code="a">United States.</subfield>
+            <subfield code="b">Federal Bureau of Investigation</subfield>
+            <subfield code="0">(DLC)n  78095617</subfield>
+            <subfield code="x">History.</subfield>
+            <subfield code="0">(DLC)sh 99005024</subfield>
+        </datafield>
+        <datafield tag="610" ind1="1" ind2="7">
+            <subfield code="a">United States.</subfield>
+            <subfield code="b">Federal Bureau of Investigation.</subfield>
+            <subfield code="2">fast</subfield>
+            <subfield code="0">(OCoLC)fst00528882</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="6">
+            <subfield code="a">Musique vocale sacrée</subfield>
+            <subfield code="0">(CaQQLa)201-0004748</subfield>
+            <subfield code="z">France</subfield>
+            <subfield code="0">(CaQQLa)201-0452039</subfield>
+            <subfield code="y">500-1400.</subfield>
+            <subfield code="0">(CaQQLa)201-0373671</subfield>
+        </datafield>
+        <datafield tag="650" ind1=" " ind2="0">
+            <subfield code="a">Sacred songs, Unaccompanied.</subfield>
+        </datafield>
+        <datafield tag="651" ind1=" " ind2="0">
+            <subfield code="a">Great Plains</subfield>
+            <subfield code="0">(DLC)sh 85056998</subfield>
+            <subfield code="x">Climate.</subfield>
+            <subfield code="0">(DLC)sh 00007747</subfield>
+        </datafield>
+        <datafield tag="651" ind1=" " ind2="7">
+            <subfield code="a">Great Plains.</subfield>
+            <subfield code="2">fast</subfield>
+            <subfield code="0">(OCoLC)fst01240567</subfield>
         </datafield>
         <datafield tag="700" ind1="1" ind2=" ">
             <subfield code="a">Binelli, Daniel,</subfield>
