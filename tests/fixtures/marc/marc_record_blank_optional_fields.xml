@@ -14,6 +14,9 @@
         <datafield tag="245"></datafield>
         <datafield tag="246"></datafield>
         <datafield tag="250"></datafield>
+        <datafield tag="300"></datafield>
+        <datafield tag="310"></datafield>
+        <datafield tag="362"></datafield>
         <datafield tag="505"></datafield>
         <datafield tag="520"></datafield>
         <datafield tag="600"></datafield>
@@ -25,5 +28,7 @@
         <datafield tag="711"></datafield>
         <datafield tag="730"></datafield>
         <datafield tag="740"></datafield>
+        <datafield tag="751"></datafield>
+        <datafield tag="752"></datafield>
     </record>
 </collection>

@@ -149,6 +149,21 @@ def test_marc_record_all_fields_transform_correctly():
         ],
         edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
         literary_form="Nonfiction",
+        locations=[
+            timdex.Location(value="Germany", kind="Geographic Name"),
+            timdex.Location(value="Austria", kind="Geographic Name"),
+            timdex.Location(
+                value="Africa - Nile River - Sixth Cataract",
+                kind="Hierarchical Place Name",
+            ),
+            timdex.Location(value="Austria - Vienna", kind="Hierarchical Place Name"),
+        ],
+        numbering="-Bd. 148, 4 (dez. 1997). Began in 1902.",
+        physical_description=(
+            "484 p. : ill. ; 30 cm. + 1 CD-ROM (4 3/4 in.). 1 DVD-ROM "
+            "(4 3/4 in.). 1 vocal score (248 p.) ; 31 cm."
+        ),
+        publication_frequency=["Six no. a year", "Three times a year"],
         subjects=[
             timdex.Subject(
                 value=["Renoir, Jean, - 1894-1979 - Bibliography"],
@@ -260,6 +275,13 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         edition="a b",
         literary_form="Fiction",
+        locations=[
+            timdex.Location(
+                value="a - b - c - d - e - f - g - h",
+                kind="Hierarchical Place Name",
+            )
+        ],
+        physical_description="a b c e f g",
         subjects=[
             timdex.Subject(
                 value=[

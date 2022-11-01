@@ -221,14 +221,64 @@ class Marc(Transformer):
                         fields["literary_form"] = "Fiction"
 
         # locations
+        location_marc_fields = [
+            {
+                "tag": "751",
+                "subfields": "a",
+                "kind": "Geographic Name",
+            },
+            {
+                "tag": "752",
+                "subfields": "abcdefgh",
+                "kind": "Hierarchical Place Name",
+            },
+        ]
+        for location_marc_field in location_marc_fields:
+            for datafield in xml.find_all("datafield", tag=location_marc_field["tag"]):
+                if location_value := (
+                    self.create_subfield_value_string_from_datafield(
+                        datafield,
+                        location_marc_field["subfields"],
+                        " - ",
+                    )
+                ):
+                    fields.setdefault("locations", []).append(
+                        timdex.Location(
+                            value=location_value.rstrip(" .,/)"),
+                            kind=location_marc_field["kind"],
+                        )
+                    )
 
         # notes
 
         # numbering
+        numbering_values = []
+        for datafield in xml.find_all("datafield", tag="362"):
+            if numbering_value := self.create_subfield_value_string_from_datafield(
+                datafield, "a", " "
+            ):
+                numbering_values.append(numbering_value)
+        fields["numbering"] = " ".join(numbering_values) or None
 
         # physical_description
+        physical_description_values = []
+        for datafield in xml.find_all("datafield", tag="300"):
+            if physical_description_value := (
+                self.create_subfield_value_string_from_datafield(
+                    datafield, "abcefg", " "
+                )
+            ):
+                physical_description_values.append(physical_description_value)
+        fields["physical_description"] = " ".join(physical_description_values) or None
 
         # publication_frequency
+        for datafield in xml.find_all("datafield", tag="310"):
+            if publication_frequency_value := (
+                self.create_subfield_value_string_from_datafield(datafield, "a", " ")
+            ):
+                fields.setdefault("publication_frequency", []).append(
+                    publication_frequency_value
+                )
 
         # publication_information
 

@@ -172,6 +172,27 @@
             <subfield code="a">a</subfield>
             <subfield code="b">b</subfield>
         </datafield>
+        <datafield tag="300" ind1=" " ind2=" ">
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="e">e</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+        </datafield>
+        <datafield tag="310" ind1=" " ind2=" ">
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+        </datafield>
+        <datafield tag="362" ind1="1" ind2=" ">
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+        </datafield>
         <datafield tag="505">
             <subfield></subfield>
             <subfield code=""></subfield>
@@ -378,6 +399,29 @@
             <subfield code="a">a</subfield>
             <subfield code="n">n</subfield>
             <subfield code="p">p</subfield>
+        </datafield>
+        <datafield tag="751">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+        </datafield>
+        <datafield tag="752">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="a"></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="g"></subfield>
+            <subfield code="h"></subfield>
+            <subfield code="a">a</subfield>
+            <subfield code="b">b</subfield>
+            <subfield code="c">c</subfield>
+            <subfield code="d">d</subfield>
+            <subfield code="e">e</subfield>
+            <subfield code="f">f</subfield>
+            <subfield code="g">g</subfield>
+            <subfield code="h">h</subfield>
         </datafield>
     </record>
 </collection>
