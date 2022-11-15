@@ -240,22 +240,22 @@ class Marc(Transformer):
         subject_marc_fields = [
             {
                 "tag": "600",
-                "subfields": "0abcdefghjklmnopqrstuvxyz",
+                "subfields": "abcdefghjklmnopqrstuvxyz",
                 "kind": "Personal Name",
             },
             {
                 "tag": "610",
-                "subfields": "0abcdefghklmnoprstuvxyz",
+                "subfields": "abcdefghklmnoprstuvxyz",
                 "kind": "Corporate Name",
             },
             {
                 "tag": "650",
-                "subfields": "0avxyz",
+                "subfields": "avxyz",
                 "kind": "Topical Term",
             },
             {
                 "tag": "651",
-                "subfields": "0avxyz",
+                "subfields": "avxyz",
                 "kind": "Geographic Name",
             },
         ]
@@ -265,7 +265,7 @@ class Marc(Transformer):
                     self.create_subfield_value_string_from_datafield(
                         datafield,
                         subject_marc_field["subfields"],
-                        " ",
+                        " - ",
                     )
                 ):
                     fields.setdefault("subjects", []).append(

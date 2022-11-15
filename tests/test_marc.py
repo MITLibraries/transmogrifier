@@ -151,44 +151,31 @@ def test_marc_record_all_fields_transform_correctly():
         literary_form="Nonfiction",
         subjects=[
             timdex.Subject(
-                value=[
-                    "Renoir, Jean, 1894-1979 (DLC)n  79018203 Bibliography. "
-                    "(DLC)sh 99001362"
-                ],
+                value=["Renoir, Jean, - 1894-1979 - Bibliography"],
                 kind="Personal Name",
             ),
             timdex.Subject(
-                value=["Renoir, Jean, 1894-1979. (OCoLC)fst00031256"],
+                value=["Renoir, Jean, - 1894-1979"],
                 kind="Personal Name",
             ),
             timdex.Subject(
-                value=[
-                    "United States. Federal Bureau of Investigation (DLC)n  78095617 "
-                    "History. (DLC)sh 99005024"
-                ],
+                value=["United States. - Federal Bureau of Investigation - History"],
                 kind="Corporate Name",
             ),
             timdex.Subject(
-                value=[
-                    "United States. Federal Bureau of Investigation. (OCoLC)fst00528882"
-                ],
+                value=["United States. - Federal Bureau of Investigation"],
                 kind="Corporate Name",
             ),
             timdex.Subject(
-                value=[
-                    "Musique vocale sacrée (CaQQLa)201-0004748 France "
-                    "(CaQQLa)201-0452039 500-1400. (CaQQLa)201-0373671"
-                ],
+                value=["Musique vocale sacrée - France - 500-1400"],
                 kind="Topical Term",
             ),
             timdex.Subject(value=["Sacred songs, Unaccompanied"], kind="Topical Term"),
             timdex.Subject(
-                value=["Great Plains (DLC)sh 85056998 Climate. (DLC)sh 00007747"],
+                value=["Great Plains - Climate"],
                 kind="Geographic Name",
             ),
-            timdex.Subject(
-                value=["Great Plains. (OCoLC)fst01240567"], kind="Geographic Name"
-            ),
+            timdex.Subject(value=["Great Plains"], kind="Geographic Name"),
         ],
         summary=[
             "This safety guide provides guidance on meeting the requirements for the "
@@ -275,15 +262,21 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         literary_form="Fiction",
         subjects=[
             timdex.Subject(
-                value=["0 a b c d e f g h j k l m n o p q r s t u v x y z"],
+                value=[
+                    "a - b - c - d - e - f - g - h - j - k - l - m - n - o - p - q - r - "
+                    "s - t - u - v - x - y - z"
+                ],
                 kind="Personal Name",
             ),
             timdex.Subject(
-                value=["0 a b c d e f g h k l m n o p r s t u v x y z"],
+                value=[
+                    "a - b - c - d - e - f - g - h - k - l - m - n - o - p - r - s - t - "
+                    "u - v - x - y - z"
+                ],
                 kind="Corporate Name",
             ),
-            timdex.Subject(value=["0 a v x y z"], kind="Topical Term"),
-            timdex.Subject(value=["0 a v x y z"], kind="Geographic Name"),
+            timdex.Subject(value=["a - v - x - y - z"], kind="Topical Term"),
+            timdex.Subject(value=["a - v - x - y - z"], kind="Geographic Name"),
         ],
         summary=["a"],
     )

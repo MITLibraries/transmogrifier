@@ -204,7 +204,6 @@
             <subfield code="x"></subfield>
             <subfield code="y"></subfield>
             <subfield code="z"></subfield>
-            <subfield code="0">0</subfield>
             <subfield code="a">a</subfield>
             <subfield code="b">b</subfield>
             <subfield code="c">c</subfield>
@@ -247,7 +246,6 @@
             <subfield code="x"></subfield>
             <subfield code="y"></subfield>
             <subfield code="z"></subfield>
-            <subfield code="0">0</subfield>
             <subfield code="a">a</subfield>
             <subfield code="b">b</subfield>
             <subfield code="c">c</subfield>
@@ -274,12 +272,10 @@
         <datafield tag="650">
             <subfield></subfield>
             <subfield code=""></subfield>
-            <subfield code="0"></subfield>
             <subfield code="v"></subfield>
             <subfield code="x"></subfield>
             <subfield code="y"></subfield>
             <subfield code="z"></subfield>
-            <subfield code="0">0</subfield>
             <subfield code="a">a</subfield>
             <subfield code="v">v</subfield>
             <subfield code="x">x</subfield>
@@ -289,12 +285,10 @@
         <datafield tag="651">
             <subfield></subfield>
             <subfield code=""></subfield>
-            <subfield code="0"></subfield>
             <subfield code="v"></subfield>
             <subfield code="x"></subfield>
             <subfield code="y"></subfield>
             <subfield code="z"></subfield>
-            <subfield code="0">0</subfield>
             <subfield code="a">a</subfield>
             <subfield code="v">v</subfield>
             <subfield code="x">x</subfield>
