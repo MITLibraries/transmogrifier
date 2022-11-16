@@ -68,6 +68,29 @@
             <subfield code="b">Aparte,</subfield>
             <subfield code="c">[2016]</subfield>
         </datafield>
+        <datafield tag="300" ind1=" " ind2=" ">
+            <subfield code="a">484 p. :</subfield>
+            <subfield code="b">ill. ;</subfield>
+            <subfield code="c">30 cm. +</subfield>
+            <subfield code="e">1 CD-ROM (4 3/4 in.).</subfield>
+            <subfield code="e">1 DVD-ROM (4 3/4 in.).</subfield>
+        </datafield>
+        <datafield tag="300" ind1=" " ind2=" ">
+            <subfield code="a">1 vocal score (248 p.) ;</subfield>
+            <subfield code="c">31 cm.</subfield>
+        </datafield>
+        <datafield tag="310" ind1=" " ind2=" ">
+            <subfield code="a">Six no. a year</subfield>
+        </datafield>
+        <datafield tag="310" ind1=" " ind2=" ">
+            <subfield code="a">Three times a year</subfield>
+        </datafield>
+        <datafield tag="362" ind1="0" ind2=" ">
+            <subfield code="a">-Bd. 148, 4 (dez. 1997).</subfield>
+        </datafield>
+        <datafield tag="362" ind1="1" ind2=" ">
+            <subfield code="a">Began in 1902.</subfield>
+        </datafield>
         <datafield tag="505" ind1="0" ind2=" ">
             <subfield code="a">Die Seejungfrau : sinfonische Dichtung : (Fantasie nach Hans Christian Andersen) (44:29) -- Sinfonietta, op. 23 (22:05).</subfield>
         </datafield>
@@ -171,6 +194,21 @@
             <subfield code="a">Added Entry 2</subfield>
             <subfield code="n">Part 1</subfield>
             <subfield code="n">Part 2</subfield>
+        </datafield>
+        <datafield tag="751" ind1=" " ind2=" ">
+            <subfield code="a">Germany</subfield>
+        </datafield>
+        <datafield tag="751" ind1=" " ind2=" ">
+            <subfield code="a">Austria</subfield>
+        </datafield>
+        <datafield tag="752" ind1=" " ind2=" ">
+            <subfield code="a">Africa</subfield>
+            <subfield code="g">Nile River</subfield>
+            <subfield code="g">Sixth Cataract.</subfield>
+        </datafield>
+        <datafield tag="752" ind1=" " ind2=" ">
+            <subfield code="a">Austria</subfield>
+            <subfield code="d">Vienna</subfield>
         </datafield>
     </record>
 </collection>
