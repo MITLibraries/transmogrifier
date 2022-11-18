@@ -4,6 +4,11 @@
         <leader></leader>
         <controlfield tag="008"></controlfield>
         <controlfield tag="001">990027185640106761</controlfield>
+        <datafield tag="010"></datafield>
+        <datafield tag="020"></datafield>
+        <datafield tag="022"></datafield>
+        <datafield tag="024"></datafield>
+        <datafield tag="035"></datafield>
         <datafield tag="050"></datafield>
         <datafield tag="082"></datafield>
         <datafield tag="100"></datafield>
@@ -17,8 +22,20 @@
         <datafield tag="300"></datafield>
         <datafield tag="310"></datafield>
         <datafield tag="362"></datafield>
+        <datafield tag="500"></datafield>
+        <datafield tag="502"></datafield>
+        <datafield tag="504"></datafield>
         <datafield tag="505"></datafield>
+        <datafield tag="508"></datafield>
+        <datafield tag="510"></datafield>
+        <datafield tag="511"></datafield>
+        <datafield tag="515"></datafield>
         <datafield tag="520"></datafield>
+        <datafield tag="522"></datafield>
+        <datafield tag="533"></datafield>
+        <datafield tag="534"></datafield>
+        <datafield tag="588"></datafield>
+        <datafield tag="590"></datafield>
         <datafield tag="600"></datafield>
         <datafield tag="610"></datafield>
         <datafield tag="650"></datafield>
@@ -30,5 +47,13 @@
         <datafield tag="740"></datafield>
         <datafield tag="751"></datafield>
         <datafield tag="752"></datafield>
+        <datafield tag="765"></datafield>
+        <datafield tag="770"></datafield>
+        <datafield tag="772"></datafield>
+        <datafield tag="780"></datafield>
+        <datafield tag="785"></datafield>
+        <datafield tag="787"></datafield>
+        <datafield tag="830"></datafield>
+        <datafield tag="856"></datafield>
     </record>
 </collection>

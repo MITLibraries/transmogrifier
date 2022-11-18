@@ -148,6 +148,33 @@ def test_marc_record_all_fields_transform_correctly():
             ),
         ],
         edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
+        identifiers=[
+            timdex.Identifier(value="2005022317", kind="LCCN"),
+            timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
+            timdex.Identifier(
+                value="0878426914. paperback. alkaline paper", kind="ISBN"
+            ),
+            timdex.Identifier(value="0033-0736", kind="ISSN"),
+            timdex.Identifier(value="0095-9014", kind="ISSN"),
+            timdex.Identifier(
+                value="10.1596/978-0-8213-7468-9. doi", kind="Other Identifier"
+            ),
+            timdex.Identifier(value="1234567890. score. sewn", kind="Other Identifier"),
+            timdex.Identifier(value="(OCoLC)1312285564", kind="OCLC Number"),
+            timdex.Identifier(value="(OCoLC)on1312285564", kind="OCLC Number"),
+        ],
+        links=[
+            timdex.Link(
+                url="http://catalog.hathitrust.org/api/volumes/oclc/1606890.html",
+                kind="Hathi Trust",
+            ),
+            timdex.Link(
+                url="http://www.rsc.org/Publishing/Journals/cb/PreviousIssue.asp",
+                restrictions="Access available on website of subsequent title: "
+                "Highlights in chemical biology",
+                text="Display text",
+            ),
+        ],
         literary_form="Nonfiction",
         locations=[
             timdex.Location(value="Germany", kind="Geographic Name"),
@@ -158,12 +185,179 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Location(value="Austria - Vienna", kind="Hierarchical Place Name"),
         ],
+        notes=[
+            timdex.Note(
+                value=["arranged by the Arts Council of Great Britain"],
+                kind="Title Statement of Responsibility",
+            ),
+            timdex.Note(value=["Opera in 5 acts"], kind="General Note"),
+            timdex.Note(
+                value=[
+                    "Libretto based on: A midsummer night's dream by William Shakespeare"
+                ],
+                kind="General Note",
+            ),
+            timdex.Note(
+                value=["Thesis (D.SC.)--University of London"], kind="Dissertation Note"
+            ),
+            timdex.Note(
+                value=[
+                    "M. Eng. Massachusetts Institute of Technology, Department of "
+                    "Electrical Engineering and Computer Science 2004"
+                ],
+                kind="Dissertation Note",
+            ),
+            timdex.Note(
+                value=["Includes bibliographical references and index"],
+                kind="Bibliography Note",
+            ),
+            timdex.Note(value=["Bibliography: p. 186-202"], kind="Bibliography Note"),
+            timdex.Note(
+                value=["Producer, Toygun Kirali"],
+                kind="Creation/Production Credits Note",
+            ),
+            timdex.Note(
+                value=["Producer : Monika Feszler"],
+                kind="Creation/Production Credits Note",
+            ),
+            timdex.Note(
+                value=["Lamoureux Concerts Orchestra ; Igor Markevitch, conductor"],
+                kind="Participant or Performer Note",
+            ),
+            timdex.Note(
+                value=["Berlin Symphony Orchestra ; Kurt Sanderling, conductor"],
+                kind="Participant or Performer Note",
+            ),
+            timdex.Note(
+                value=["Suspended publication 1944-52"],
+                kind="Numbering Peculiarities Note",
+            ),
+            timdex.Note(
+                value=["Some numbers combined"], kind="Numbering Peculiarities Note"
+            ),
+            timdex.Note(value=["Canada"], kind="Geographic Coverage Note"),
+            timdex.Note(value=["Mexico"], kind="Geographic Coverage Note"),
+            timdex.Note(
+                value=[
+                    "Electronic reproduction. New York : Springer, 2008. Mode of access: "
+                    "World Wide Web. System requirements: Web browser. Title from title "
+                    "screen (viewed on June 27, 2008). Access may be restricted to users "
+                    "at subscribing institutions"
+                ],
+                kind="Reproduction Note",
+            ),
+            timdex.Note(
+                value=[
+                    "Microfiche. Washington : U.S. Govt. Print. Off., 1981. 1 microfiche "
+                    "; 11 x 15 cm"
+                ],
+                kind="Reproduction Note",
+            ),
+            timdex.Note(
+                value=[
+                    "First published in United States New York : Ballantine Books, an "
+                    "imprint of Random House, a division of Penguin Random House, 2021"
+                ],
+                kind="Original Version Note",
+            ),
+            timdex.Note(
+                value=[
+                    "Originally published New York : Garland, 1987. Series statement 1 "
+                    "Series statement 2"
+                ],
+                kind="Original Version Note",
+            ),
+            timdex.Note(
+                value=["Hard copy version record"],
+                kind="Source of Description Note",
+            ),
+            timdex.Note(
+                value=["Paper copy version record"],
+                kind="Source of Description Note",
+            ),
+            timdex.Note(
+                value=["Rare Book copy: Advance copy notice inserted"],
+                kind="Local Note",
+            ),
+            timdex.Note(value=["Advance copy notice inserted"], kind="Local Note"),
+        ],
         numbering="-Bd. 148, 4 (dez. 1997). Began in 1902.",
         physical_description=(
             "484 p. : ill. ; 30 cm. + 1 CD-ROM (4 3/4 in.). 1 DVD-ROM "
             "(4 3/4 in.). 1 vocal score (248 p.) ; 31 cm."
         ),
         publication_frequency=["Six no. a year", "Three times a year"],
+        related_items=[
+            timdex.RelatedItem(
+                description="Java 2 in plain English",
+                relationship="Original Language Version",
+            ),
+            timdex.RelatedItem(
+                description="Java 3; 1, 2",
+                relationship="Original Language Version",
+            ),
+            timdex.RelatedItem(
+                description="Geological Society of America data repository (DLC)sn "
+                "86025915 (OCoLC)13535209",
+                relationship="Has Supplement",
+            ),
+            timdex.RelatedItem(
+                description="Biological Society of America data repository (DLC)sn "
+                "86025915 (OCoLC)13535209",
+                relationship="Has Supplement",
+            ),
+            timdex.RelatedItem(
+                description="Earthquake engineering and structural dynamics",
+                relationship="Supplement To",
+            ),
+            timdex.RelatedItem(
+                description="Earthquake engineering and structural dynamics Vol. 13 "
+                "(1985), p. 297-315 Vol. 14 (1986), p. 297-315",
+                relationship="Supplement To",
+            ),
+            timdex.RelatedItem(
+                description="Entertainment design 1520-5150",
+                relationship="Previous Title",
+            ),
+            timdex.RelatedItem(
+                description="Lighting dimensions 0191-541X (DLC) 79649241 "
+                "(OCoLC)3662625",
+                relationship="Previous Title",
+            ),
+            timdex.RelatedItem(
+                description="Protist (DLC)sn 98050216 (OCoLC)39018023 1434-4610",
+                relationship="Subsequent Title",
+            ),
+            timdex.RelatedItem(
+                description="Protestant 1434-4610",
+                relationship="Subsequent Title",
+            ),
+            timdex.RelatedItem(
+                description="Part of: De historien des Ouden en Nieuwen Testaments",
+                relationship="Related Item",
+            ),
+            timdex.RelatedItem(
+                description="Part of: A Small Part of: Nieuwen Testaments",
+                relationship="Related Item",
+            ),
+            timdex.RelatedItem(
+                description="Map and chart series (New York State Geological Survey) ; "
+                "no. 53. 0097-3793",
+                relationship="In Series",
+            ),
+            timdex.RelatedItem(
+                description="Duo",
+                relationship="In Series",
+            ),
+            timdex.RelatedItem(
+                description="Predicasts",
+                relationship="In Bibliography",
+            ),
+            timdex.RelatedItem(
+                description="Predicasts Jan. 13, 1975- 13",
+                relationship="In Bibliography",
+            ),
+        ],
         subjects=[
             timdex.Subject(
                 value=["Renoir, Jean, - 1894-1979 - Bibliography"],
@@ -274,6 +468,14 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             ),
         ],
         edition="a b",
+        identifiers=[
+            timdex.Identifier(value="q", kind="ISBN"),
+            timdex.Identifier(value="q", kind="Other Identifier"),
+        ],
+        links=[
+            timdex.Link(url="u", kind="3", restrictions="z", text="y"),
+            timdex.Link(url="u", kind="3", restrictions="z", text="y"),
+        ],
         literary_form="Fiction",
         locations=[
             timdex.Location(
@@ -281,7 +483,57 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 kind="Hierarchical Place Name",
             )
         ],
+        notes=[
+            timdex.Note(value=["c"], kind="Title Statement of Responsibility"),
+            timdex.Note(value=["a"], kind="General Note"),
+            timdex.Note(value=["a b c d g"], kind="Dissertation Note"),
+            timdex.Note(value=["a"], kind="Bibliography Note"),
+            timdex.Note(value=["a"], kind="Creation/Production Credits Note"),
+            timdex.Note(value=["a"], kind="Participant or Performer Note"),
+            timdex.Note(value=["a"], kind="Numbering Peculiarities Note"),
+            timdex.Note(value=["a"], kind="Geographic Coverage Note"),
+            timdex.Note(value=["a b c d e f m n"], kind="Reproduction Note"),
+            timdex.Note(
+                value=["a b c e f k l m n o p t x z"], kind="Original Version Note"
+            ),
+            timdex.Note(value=["a"], kind="Source of Description Note"),
+            timdex.Note(value=["a"], kind="Local Note"),
+        ],
         physical_description="a b c e f g",
+        related_items=[
+            timdex.RelatedItem(
+                description="a b c d g h i k m n o r s t u w x y z",
+                relationship="Original Language Version",
+            ),
+            timdex.RelatedItem(
+                description="a b c d g h i k m n o r s t u w x y z",
+                relationship="Has Supplement",
+            ),
+            timdex.RelatedItem(
+                description="a b c d g h i k m n o r s t u w x y z",
+                relationship="Supplement To",
+            ),
+            timdex.RelatedItem(
+                description="a b c d g h i k m n o r s t u w x y z",
+                relationship="Previous Title",
+            ),
+            timdex.RelatedItem(
+                description="a b c d g h i k m n o r s t u w x y z",
+                relationship="Subsequent Title",
+            ),
+            timdex.RelatedItem(
+                description="a b c d g h i k m n o r s t u w x y z",
+                relationship="Related Item",
+            ),
+            timdex.RelatedItem(
+                description="a d f g h k l m n o p r s t v w x",
+                relationship="In Series",
+            ),
+            timdex.RelatedItem(
+                description="a b c x",
+                relationship="In Bibliography",
+            ),
+        ],
         subjects=[
             timdex.Subject(
                 value=[
