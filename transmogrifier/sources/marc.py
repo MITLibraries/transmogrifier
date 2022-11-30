@@ -240,7 +240,7 @@ class Marc(Transformer):
                 ):
                     fields.setdefault("identifiers", []).append(
                         timdex.Identifier(
-                            value=identifier_value.strip(" "),
+                            value=identifier_value.strip().replace("(OCoLC)", ""),
                             kind=identifier_marc_field["kind"],
                         )
                     )
@@ -269,7 +269,7 @@ class Marc(Transformer):
                 fields.setdefault("links", []).append(
                     timdex.Link(
                         url=". ".join(url_value),
-                        kind=kind_value or None,
+                        kind=kind_value or "Digital object URL",
                         restrictions=". ".join(restrictions_value) or None,
                         text=". ".join(text_value) or None,
                     )
@@ -459,7 +459,7 @@ class Marc(Transformer):
             {
                 "tag": "787",
                 "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Related Item",
+                "relationship": "Not Specified",
             },
             {
                 "tag": "830",

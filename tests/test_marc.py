@@ -160,8 +160,8 @@ def test_marc_record_all_fields_transform_correctly():
                 value="10.1596/978-0-8213-7468-9. doi", kind="Other Identifier"
             ),
             timdex.Identifier(value="1234567890. score. sewn", kind="Other Identifier"),
-            timdex.Identifier(value="(OCoLC)1312285564", kind="OCLC Number"),
-            timdex.Identifier(value="(OCoLC)on1312285564", kind="OCLC Number"),
+            timdex.Identifier(value="1312285564", kind="OCLC Number"),
+            timdex.Identifier(value="on1312285564", kind="OCLC Number"),
         ],
         links=[
             timdex.Link(
@@ -170,6 +170,7 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Link(
                 url="http://www.rsc.org/Publishing/Journals/cb/PreviousIssue.asp",
+                kind="Digital object URL",
                 restrictions="Access available on website of subsequent title: "
                 "Highlights in chemical biology",
                 text="Display text",
@@ -334,11 +335,11 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.RelatedItem(
                 description="Part of: De historien des Ouden en Nieuwen Testaments",
-                relationship="Related Item",
+                relationship="Not Specified",
             ),
             timdex.RelatedItem(
                 description="Part of: A Small Part of: Nieuwen Testaments",
-                relationship="Related Item",
+                relationship="Not Specified",
             ),
             timdex.RelatedItem(
                 description="Map and chart series (New York State Geological Survey) ; "
@@ -523,7 +524,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             ),
             timdex.RelatedItem(
                 description="a b c d g h i k m n o r s t u w x y z",
-                relationship="Related Item",
+                relationship="Not Specified",
             ),
             timdex.RelatedItem(
                 description="a d f g h k l m n o p r s t v w x",
