@@ -17,6 +17,9 @@ def test_transformer_initializes_with_expected_attributes(oai_pmh_records):
 def test_transformer_iterates_through_all_records(oai_pmh_records):
     output_records = Transformer("cool-repo", oai_pmh_records)
     assert len(list(output_records)) == 2
+    assert output_records.processed_record_count == 3
+    assert output_records.skipped_record_count == 1
+    assert output_records.transformed_record_count == 2
 
 
 def test_transformer_iterates_successfully_if_get_optional_fields_returns_none(
@@ -28,9 +31,16 @@ def test_transformer_iterates_successfully_if_get_optional_fields_returns_none(
         m.return_value = None
         output_records = Transformer("cool-repo", oai_pmh_records)
         assert len(list(output_records)) == 0
-        assert output_records.processed_record_count == 2
-        assert output_records.skipped_record_count == 2
+        assert output_records.processed_record_count == 3
+        assert output_records.skipped_record_count == 3
         assert output_records.transformed_record_count == 0
+
+
+def test_transformer_record_is_deleted_returns_true_if_deleted(caplog):
+    input_records = parse_xml_records("tests/fixtures/record_deleted.xml")
+    output_records = Datacite("cool-repo", input_records)
+    assert len(list(output_records)) == 0
+    assert "Skipping record 123456 with header status deleted" in caplog.text
 
 
 def test_transformer_get_required_fields_returns_expected_values(oai_pmh_records):
