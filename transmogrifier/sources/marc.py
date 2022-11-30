@@ -200,10 +200,80 @@ class Marc(Transformer):
         # holdings
 
         # identifiers
+        identifier_marc_fields = [
+            {
+                "tag": "010",
+                "subfields": "a",
+                "kind": "LCCN",
+            },
+            {
+                "tag": "020",
+                "subfields": "aq",
+                "kind": "ISBN",
+            },
+            {
+                "tag": "022",
+                "subfields": "a",
+                "kind": "ISSN",
+            },
+            {
+                "tag": "024",
+                "subfields": "aq2",
+                "kind": "Other Identifier",
+            },
+            {
+                "tag": "035",
+                "subfields": "a",
+                "kind": "OCLC Number",
+            },
+        ]
+        for identifier_marc_field in identifier_marc_fields:
+            for datafield in xml.find_all(
+                "datafield", tag=identifier_marc_field["tag"]
+            ):
+                if identifier_value := (
+                    self.create_subfield_value_string_from_datafield(
+                        datafield,
+                        identifier_marc_field["subfields"],
+                        ". ",
+                    )
+                ):
+                    fields.setdefault("identifiers", []).append(
+                        timdex.Identifier(
+                            value=identifier_value.strip().replace("(OCoLC)", ""),
+                            kind=identifier_marc_field["kind"],
+                        )
+                    )
 
         # languages
 
         # links
+        # If indicator 1 is 4 and indicator 2 is 0 or 1, take the URL from subfield u,
+        # the kind from subfield 3, link text from subfield y, and restrictions from
+        # subfield z."
+        for datafield in xml.find_all(
+            "datafield", tag="856", ind1="4", ind2=["0", "1"]
+        ):
+            url_value = []
+            for url in datafield.find_all("subfield", code="u", string=True):
+                url_value.append(url.string)
+            text_value = []
+            for text in datafield.find_all("subfield", code="y", string=True):
+                text_value.append(text.string)
+            restrictions_value = []
+            for restriction in datafield.find_all("subfield", code="z", string=True):
+                restrictions_value.append(restriction.string)
+            if kind_value := datafield.find("subfield", code="3", string=True):
+                kind_value = kind_value.string
+            if url_value:
+                fields.setdefault("links", []).append(
+                    timdex.Link(
+                        url=". ".join(url_value),
+                        kind=kind_value or "Digital object URL",
+                        restrictions=". ".join(restrictions_value) or None,
+                        text=". ".join(text_value) or None,
+                    )
+                )
 
         # literary_form
         # Literary form is applicable to Book (BK) material configurations and indicated
@@ -250,6 +320,83 @@ class Marc(Transformer):
                     )
 
         # notes
+        note_marc_fields = [
+            {
+                "tag": "245",
+                "subfields": "c",
+                "kind": "Title Statement of Responsibility",
+            },
+            {
+                "tag": "500",
+                "subfields": "a",
+                "kind": "General Note",
+            },
+            {
+                "tag": "502",
+                "subfields": "abcdg",
+                "kind": "Dissertation Note",
+            },
+            {
+                "tag": "504",
+                "subfields": "a",
+                "kind": "Bibliography Note",
+            },
+            {
+                "tag": "508",
+                "subfields": "a",
+                "kind": "Creation/Production Credits Note",
+            },
+            {
+                "tag": "511",
+                "subfields": "a",
+                "kind": "Participant or Performer Note",
+            },
+            {
+                "tag": "515",
+                "subfields": "a",
+                "kind": "Numbering Peculiarities Note",
+            },
+            {
+                "tag": "522",
+                "subfields": "a",
+                "kind": "Geographic Coverage Note",
+            },
+            {
+                "tag": "533",
+                "subfields": "abcdefmn",
+                "kind": "Reproduction Note",
+            },
+            {
+                "tag": "534",
+                "subfields": "abcefklmnoptxz",
+                "kind": "Original Version Note",
+            },
+            {
+                "tag": "588",
+                "subfields": "a",
+                "kind": "Source of Description Note",
+            },
+            {
+                "tag": "590",
+                "subfields": "a",
+                "kind": "Local Note",
+            },
+        ]
+        for note_marc_field in note_marc_fields:
+            for datafield in xml.find_all("datafield", tag=note_marc_field["tag"]):
+                if note_value := (
+                    self.create_subfield_value_string_from_datafield(
+                        datafield,
+                        note_marc_field["subfields"],
+                        " ",
+                    )
+                ):
+                    fields.setdefault("notes", []).append(
+                        timdex.Note(
+                            value=[note_value.rstrip(" .")],
+                            kind=note_marc_field["kind"],
+                        )
+                    )
 
         # numbering
         numbering_values = []
@@ -283,6 +430,65 @@ class Marc(Transformer):
         # publication_information
 
         # related_items
+        related_item_marc_fields = [
+            {
+                "tag": "765",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Original Language Version",
+            },
+            {
+                "tag": "770",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Has Supplement",
+            },
+            {
+                "tag": "772",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Supplement To",
+            },
+            {
+                "tag": "780",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Previous Title",
+            },
+            {
+                "tag": "785",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Subsequent Title",
+            },
+            {
+                "tag": "787",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Not Specified",
+            },
+            {
+                "tag": "830",
+                "subfields": "adfghklmnoprstvwx",
+                "relationship": "In Series",
+            },
+            {
+                "tag": "510",
+                "subfields": "abcx",
+                "relationship": "In Bibliography",
+            },
+        ]
+        for related_item_marc_field in related_item_marc_fields:
+            for datafield in xml.find_all(
+                "datafield", tag=related_item_marc_field["tag"]
+            ):
+                if related_item_value := (
+                    self.create_subfield_value_string_from_datafield(
+                        datafield,
+                        related_item_marc_field["subfields"],
+                        " ",
+                    )
+                ):
+                    fields.setdefault("related_items", []).append(
+                        timdex.RelatedItem(
+                            description=related_item_value.rstrip(" ."),
+                            relationship=related_item_marc_field["relationship"],
+                        )
+                    )
 
         # rights not used in MARC
 
