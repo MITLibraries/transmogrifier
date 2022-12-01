@@ -87,6 +87,25 @@ class Transformer(object):
         """
         return ""
 
+    @classmethod
+    @abstractmethod
+    def record_is_deleted(cls, xml: Tag) -> bool:
+        """
+        Determine whether record has a status of deleted.
+
+        May be overridden by source subclasses if needed.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single XML record
+        """
+        if xml.find("header", status="deleted"):
+            logger.debug(
+                f"Skipping record {cls.get_source_record_id(xml)} with header status "
+                "deleted"
+            )
+            return True
+        return False
+
     @final
     def get_required_fields(self, xml: Tag) -> dict:
         """
@@ -116,6 +135,8 @@ class Transformer(object):
         Args:
             xml: A BeautifulSoup Tag representing a single OAI-PMH XML record.
         """
+        if self.record_is_deleted(xml):
+            return None
         optional_fields = self.get_optional_fields(xml)
         if optional_fields is None:
             return None
