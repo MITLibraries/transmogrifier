@@ -5,6 +5,7 @@ import os
 from importlib import import_module
 
 import sentry_sdk
+from bs4 import BeautifulSoup
 
 SOURCES = {
     "alma": {
@@ -83,10 +84,25 @@ def get_transformer(source: str) -> type:
     return getattr(source_module, class_name)
 
 
-def load_external_config(path: str) -> dict:
+def load_external_json_config(file_path: str) -> dict:
     """
     Return dict from JSON config file.
 
     """
-    with open(path, "rb") as json_file:
+    with open(file_path, "rb") as json_file:
         return json.load(json_file)
+
+
+def load_external_xml_config(
+    file_path: str, element_name: str, key_tag: str, value_tag: str
+) -> dict:
+    """
+    Return dict from XML config file.
+
+    """
+    with open(file_path, "rb") as xml_file:
+        xml_content = BeautifulSoup(xml_file, "xml")
+        config_dict = {}
+        for element in xml_content.find_all(element_name):
+            config_dict[element.find(key_tag).string] = element.find(value_tag).string
+        return config_dict

@@ -3,13 +3,21 @@ import logging
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.config import load_external_config
+from transmogrifier.config import load_external_json_config, load_external_xml_config
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-marc_content_type_crosswalk = load_external_config(
+country_code_crosswalk = load_external_xml_config(
+    "config/loc-countries.xml", "country", "code", "name"
+)
+
+language_code_crosswalk = load_external_xml_config(
+    "config/loc-languages.xml", "language", "code", "name"
+)
+
+marc_content_type_crosswalk = load_external_json_config(
     "config/marc_content_type_crosswalk.json"
 )
 
@@ -27,6 +35,8 @@ class Marc(Transformer):
             xml: A BeautifulSoup Tag representing a single MARC XML record.
         """
         fields: dict = {}
+
+        fixed_length_data = xml.find("controlfield", tag="008", string=True)
 
         leader = xml.find("leader", string=True)
 
@@ -181,6 +191,12 @@ class Marc(Transformer):
         fields["contributors"] = contributor_values or None
 
         # dates
+        if fixed_length_data:
+            fields["dates"] = [
+                timdex.Date(
+                    kind="Publication date", value=fixed_length_data.string[7:11]
+                )
+            ]
 
         # edition
         edition_values = []
@@ -246,6 +262,72 @@ class Marc(Transformer):
                     )
 
         # languages
+        language_marc_fields = [
+            {
+                "tag": "041",
+                "subfields": "a",
+            },
+            {
+                "tag": "041",
+                "subfields": "b",
+            },
+            {
+                "tag": "041",
+                "subfields": "d",
+            },
+            {
+                "tag": "041",
+                "subfields": "e",
+            },
+            {
+                "tag": "041",
+                "subfields": "f",
+            },
+            {
+                "tag": "041",
+                "subfields": "g",
+            },
+            {
+                "tag": "041",
+                "subfields": "h",
+            },
+            {
+                "tag": "041",
+                "subfields": "j",
+            },
+            {
+                "tag": "041",
+                "subfields": "k",
+            },
+            {
+                "tag": "041",
+                "subfields": "m",
+            },
+            {
+                "tag": "041",
+                "subfields": "n",
+            },
+            {
+                "tag": "546",
+                "subfields": "a",
+            },
+        ]
+        language_values = []
+        if fixed_length_data:
+            if fixed_language_value := fixed_length_data.string[35:38]:
+                language_values.append(fixed_language_value)
+        for language_marc_field in language_marc_fields:
+            for datafield in xml.find_all("datafield", tag=language_marc_field["tag"]):
+                for language_value in self.create_subfield_value_list_from_datafield(
+                    datafield,
+                    language_marc_field["subfields"],
+                ):
+                    if language_value not in language_values:
+                        language_values.append(language_value)
+        for language_value in language_values:
+            fields.setdefault("languages", []).append(
+                language_code_crosswalk.get(language_value, language_value.rstrip(" ."))
+            )
 
         # links
         # If indicator 1 is 4 and indicator 2 is 0 or 1, take the URL from subfield u,
@@ -303,6 +385,16 @@ class Marc(Transformer):
                 "kind": "Hierarchical Place Name",
             },
         ]
+        if fixed_length_data:
+            if fixed_location_value := fixed_length_data.string[15:17]:
+                fields.setdefault("locations", []).append(
+                    timdex.Location(
+                        value=country_code_crosswalk.get(
+                            fixed_location_value, fixed_location_value
+                        ),
+                        kind="Place of Publication",
+                    )
+                )
         for location_marc_field in location_marc_fields:
             for datafield in xml.find_all("datafield", tag=location_marc_field["tag"]):
                 if location_value := (
@@ -428,6 +520,28 @@ class Marc(Transformer):
                 )
 
         # publication_information
+        publication_information_marc_fields = [
+            {
+                "tag": "260",
+                "subfields": "abcdef",
+            },
+            {
+                "tag": "264",
+                "subfields": "abc",
+            },
+        ]
+        for publication_information_marc_field in publication_information_marc_fields:
+            for datafield in xml.find_all(
+                "datafield", tag=publication_information_marc_field["tag"]
+            ):
+                if publication_information_value := (
+                    self.create_subfield_value_string_from_datafield(
+                        datafield, publication_information_marc_field["subfields"], " "
+                    )
+                ):
+                    fields.setdefault("publication_information", []).append(
+                        publication_information_value.rstrip(" .")
+                    )
 
         # related_items
         related_item_marc_fields = [

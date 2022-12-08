@@ -6,7 +6,8 @@ from transmogrifier.config import (
     configure_logger,
     configure_sentry,
     get_transformer,
-    load_external_config,
+    load_external_json_config,
+    load_external_xml_config,
 )
 from transmogrifier.sources.datacite import Datacite
 
@@ -62,7 +63,7 @@ def test_get_transformer_source_wrong_module_path_raises_error(bad_config):
         get_transformer("bad-module-path")
 
 
-def test_load_external_config(tmp_path):
+def test_load_external_json_config(tmp_path):
     tmp_dir = tmp_path / "config"
     tmp_dir.mkdir()
     config_file = tmp_dir / "config.json"
@@ -70,7 +71,22 @@ def test_load_external_config(tmp_path):
         '{"aat": "Art & Architecture Thesaurus", '
         '"accessrestrict": "Conditions Governing Access"}'
     )
-    assert load_external_config(config_file) == {
+    assert load_external_json_config(config_file) == {
         "aat": "Art & Architecture Thesaurus",
         "accessrestrict": "Conditions Governing Access",
+    }
+
+
+def test_load_external_xml_config(tmp_path):
+    tmp_dir = tmp_path / "config"
+    tmp_dir.mkdir()
+    config_file = tmp_dir / "config.xml"
+    config_file.write_text(
+        "<codelist><countries><country><name>Afghanistan</name>"
+        "<code>af</code></country><country><name>Alabama</name>"
+        "<code>alu</code></country></codelist>",
+    )
+    assert load_external_xml_config(config_file, "country", "code", "name") == {
+        "af": "Afghanistan",
+        "alu": "Alabama",
     }

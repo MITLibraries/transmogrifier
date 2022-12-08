@@ -4,13 +4,13 @@ from typing import Generator, Optional, Union
 from bs4 import NavigableString, Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.config import load_external_config
+from transmogrifier.config import load_external_json_config
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-aspace_type_crosswalk = load_external_config("config/aspace_type_crosswalk.json")
+aspace_type_crosswalk = load_external_json_config("config/aspace_type_crosswalk.json")
 
 
 class Ead(Transformer):

@@ -37,6 +37,17 @@
         <datafield tag="035" ind1=" " ind2=" ">
             <subfield code="a">(OCoLC)on1312285564</subfield>
         </datafield>
+        <datafield tag="041" ind1="0" ind2=" ">
+            <subfield code="d">eng</subfield>
+            <subfield code="d">spa</subfield>
+            <subfield code="d">fre</subfield>
+            <subfield code="d">fin</subfield>
+            <subfield code="d">lat</subfield>
+        </datafield>
+        <datafield tag="041" ind1="1" ind2=" ">
+            <subfield code="a">eng</subfield>
+            <subfield code="h">ger</subfield>
+        </datafield>
         <datafield tag="050" ind1=" " ind2="0">
             <subfield code="a">MA123.4</subfield>
             <subfield code="a">LC Call Number 2</subfield>
@@ -97,10 +108,25 @@
         <datafield tag="250" ind1=" " ind2=" ">
             <subfield code="a">Unabridged.</subfield>
         </datafield>
+        <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="a">New York :</subfield>
+            <subfield code="b">New Press :</subfield>
+            <subfield code="b">Distributed by W.W. Norton,</subfield>
+            <subfield code="c">2005.</subfield>
+        </datafield>
+        <datafield tag="260" ind1=" " ind2=" ">
+            <subfield code="a">New York :</subfield>
+            <subfield code="b">Wiley,</subfield>
+            <subfield code="c">c1992.</subfield>
+        </datafield>
         <datafield tag="264" ind1=" " ind2="1">
             <subfield code="a">France :</subfield>
-            <subfield code="b">Aparte,</subfield>
-            <subfield code="c">[2016]</subfield>
+            <subfield code="b">Alpha,</subfield>
+            <subfield code="c">[2022]</subfield>
+        </datafield>
+        <datafield tag="264" ind1=" " ind2="4">
+            <subfield code="c">℗2022,</subfield>
+            <subfield code="c">©2022</subfield>
         </datafield>
         <datafield tag="300" ind1=" " ind2=" ">
             <subfield code="a">484 p. :</subfield>
@@ -220,6 +246,12 @@
             <subfield code="c">New York : Garland, 1987.</subfield>
             <subfield code="f">Series statement 1</subfield>
             <subfield code="f">Series statement 2</subfield>
+        </datafield>
+        <datafield tag="546" ind1=" " ind2=" ">
+            <subfield code="a">Sung in French or Latin.</subfield>
+        </datafield>
+        <datafield tag="546" ind1=" " ind2=" ">
+            <subfield code="a">Sung in French.</subfield>
         </datafield>
         <datafield tag="588" ind1="0" ind2=" ">
             <subfield code="a">Hard copy version record.</subfield>
