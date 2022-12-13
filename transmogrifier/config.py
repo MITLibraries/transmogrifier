@@ -3,9 +3,10 @@ import json
 import logging
 import os
 from importlib import import_module
+from typing import Union
 
 import sentry_sdk
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 SOURCES = {
     "alma": {
@@ -84,25 +85,30 @@ def get_transformer(source: str) -> type:
     return getattr(source_module, class_name)
 
 
-def load_external_json_config(file_path: str) -> dict:
+def load_external_config(file_path: str, file_type: str) -> Union[dict, Tag]:
     """
-    Return dict from JSON config file.
+    Return dict from a config file.
 
     """
-    with open(file_path, "rb") as json_file:
-        return json.load(json_file)
+    if file_type == "json":
+        with open(file_path, "rb") as json_file:
+            return json.load(json_file)
+    elif file_type == "xml":
+        with open(file_path, "rb") as xml_file:
+            return BeautifulSoup(xml_file, "xml")
+    else:
+        return {}
 
 
-def load_external_xml_config(
-    file_path: str, element_name: str, key_tag: str, value_tag: str
+def create_dict_from_xml_config(
+    xml_content: Tag, element_name: str, key_tag: str, value_tag: str
 ) -> dict:
     """
-    Return dict from XML config file.
+    Return dict from XML object that is formatted like the country and language code
+    XML files hosted by Library of Congress.
 
     """
-    with open(file_path, "rb") as xml_file:
-        xml_content = BeautifulSoup(xml_file, "xml")
-        config_dict = {}
-        for element in xml_content.find_all(element_name):
-            config_dict[element.find(key_tag).string] = element.find(value_tag).string
-        return config_dict
+    config_dict = {}
+    for element in xml_content.find_all(element_name):
+        config_dict[element.find(key_tag).string] = element.find(value_tag).string
+    return config_dict

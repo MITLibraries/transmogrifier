@@ -3,22 +3,22 @@ import logging
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.config import load_external_json_config, load_external_xml_config
+from transmogrifier.config import create_dict_from_xml_config, load_external_config
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-country_code_crosswalk = load_external_xml_config(
-    "config/loc-countries.xml", "country", "code", "name"
+country_code_crosswalk = create_dict_from_xml_config(
+    load_external_config("config/loc-countries.xml", "xml"), "country", "code", "name"
 )
 
-language_code_crosswalk = load_external_xml_config(
-    "config/loc-languages.xml", "language", "code", "name"
+language_code_crosswalk = create_dict_from_xml_config(
+    load_external_config("config/loc-languages.xml", "xml"), "language", "code", "name"
 )
 
-marc_content_type_crosswalk = load_external_json_config(
-    "config/marc_content_type_crosswalk.json"
+marc_content_type_crosswalk = load_external_config(
+    "config/marc_content_type_crosswalk.json", "json"
 )
 
 
@@ -265,47 +265,7 @@ class Marc(Transformer):
         language_marc_fields = [
             {
                 "tag": "041",
-                "subfields": "a",
-            },
-            {
-                "tag": "041",
-                "subfields": "b",
-            },
-            {
-                "tag": "041",
-                "subfields": "d",
-            },
-            {
-                "tag": "041",
-                "subfields": "e",
-            },
-            {
-                "tag": "041",
-                "subfields": "f",
-            },
-            {
-                "tag": "041",
-                "subfields": "g",
-            },
-            {
-                "tag": "041",
-                "subfields": "h",
-            },
-            {
-                "tag": "041",
-                "subfields": "j",
-            },
-            {
-                "tag": "041",
-                "subfields": "k",
-            },
-            {
-                "tag": "041",
-                "subfields": "m",
-            },
-            {
-                "tag": "041",
-                "subfields": "n",
+                "subfields": "abdefghjkmn",
             },
             {
                 "tag": "546",
