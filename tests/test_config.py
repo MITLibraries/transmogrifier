@@ -63,7 +63,7 @@ def test_get_transformer_source_wrong_module_path_raises_error(bad_config):
         get_transformer("bad-module-path")
 
 
-def test_load_external_config_invalid_file_type_raises_warning(tmp_path, caplog):
+def test_load_external_config_invalid_file_type_raises_error(tmp_path, caplog):
     tmp_dir = tmp_path / "config"
     tmp_dir.mkdir()
     config_file = tmp_dir / "config.zxr"

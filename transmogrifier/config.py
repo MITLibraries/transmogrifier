@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from importlib import import_module
-from typing import Union
+from typing import Literal, Union
 
 import sentry_sdk
 from bs4 import BeautifulSoup, Tag
@@ -87,7 +87,9 @@ def get_transformer(source: str) -> type:
     return getattr(source_module, class_name)
 
 
-def load_external_config(file_path: str, file_type: str) -> Union[dict, Tag]:
+def load_external_config(
+    file_path: str, file_type: Literal["json", "xml"]
+) -> Union[dict, Tag]:
     """
     Return dict from a JSON or XML config file. Logs a warning if a different file_type
     parameter is passed.
@@ -99,7 +101,7 @@ def load_external_config(file_path: str, file_type: str) -> Union[dict, Tag]:
         elif file_type == "xml":
             return BeautifulSoup(config_file, "xml")
         else:
-            logger.warning("Unrecognized file_type parameter: %s", file_type)
+            logger.error("Unrecognized file_type parameter: %s", file_type)
             return {}
 
 
