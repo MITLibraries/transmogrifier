@@ -170,3 +170,17 @@ def timdex_record_all_fields_and_subfields():
         subjects=[timdex.Subject(value=["Stuff"], kind="LCSH")],
         summary=["This is data."],
     )
+
+
+@pytest.fixture()
+def xml_config(tmp_path):
+    tmp_dir = tmp_path / "config"
+    tmp_dir.mkdir()
+    config_file = tmp_dir / "config.xml"
+    config_file.write_text(
+        "<codelist><countries><country><name>Afghanistan</name>"
+        "<code>af</code></country><country><name>Vietnam</name>"
+        "<code>vm</code><note><name>Vietnam, North</name>"
+        "<code>vn</code></note></codelist>"
+    )
+    return config_file

@@ -3,17 +3,17 @@ import logging
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.config import create_dict_from_xml_config, load_external_config
+from transmogrifier.config import create_dict_from_loc_xml_config, load_external_config
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-country_code_crosswalk = create_dict_from_xml_config(
+country_code_crosswalk = create_dict_from_loc_xml_config(
     load_external_config("config/loc-countries.xml", "xml"), "country", "code", "name"
 )
 
-language_code_crosswalk = create_dict_from_xml_config(
+language_code_crosswalk = create_dict_from_loc_xml_config(
     load_external_config("config/loc-languages.xml", "xml"), "language", "code", "name"
 )
 
