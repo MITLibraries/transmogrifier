@@ -507,6 +507,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             "k",
             "m",
             "n",
+            "Aljamía",
         ],
         links=[
             timdex.Link(url="u", kind="3", restrictions="z", text="y"),
@@ -514,7 +515,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         literary_form="Fiction",
         locations=[
-            timdex.Location(value="France", kind="Place of Publication"),
+            timdex.Location(value="Vietnam, North", kind="Place of Publication"),
             timdex.Location(
                 value="a - b - c - d - e - f - g - h",
                 kind="Hierarchical Place Name",
@@ -701,3 +702,23 @@ def test_get_source_record_id():
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
+
+
+def test_invalid_country_code_logs_warning(caplog):
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_attribute_and_subfield_variations.xml",
+    )
+    next(Marc("alma", marc_xml_records))
+    assert (
+        "Record # 990027185640106761 uses an obsolete location code: vn" in caplog.text
+    )
+
+
+def test_invalid_language_code_logs_warning(caplog):
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_attribute_and_subfield_variations.xml",
+    )
+    next(Marc("alma", marc_xml_records))
+    assert (
+        "Record # 990027185640106761 uses an obsolete language code: ajm" in caplog.text
+    )

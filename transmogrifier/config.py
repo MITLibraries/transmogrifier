@@ -101,29 +101,38 @@ def load_external_config(
         elif file_type == "xml":
             return BeautifulSoup(config_file, "xml")
         else:
-            logger.error("Unrecognized file_type parameter: %s", file_type)
-            return {}
+            raise ValueError("Unrecognized file_type parameter: %s", file_type)
 
 
 def create_dict_from_loc_xml_config(
     xml: Tag, element_tag: str, code_tag: str, label_tag: str
 ) -> dict:
     """
-    Return dict from XML object that is formatted like the country and language code
-    XML files hosted by Library of Congress. It captures all authorized and obsolete
-    codes in a file.
+    Return dict from an XML object formatted like the country and language code
+    XML files hosted by Library of Congress. It captures all current and obsolete
+    codes in the file, noting obsolete codes in the dict structure to log a
+    warning to be passed on to the catalogers for correction.
 
-     Args:
-            xml: A BeautifulSoup Tag representing an XML config file.
-            element_tag: The element representing an item in the crosswalk, e.g.
-            language, country.
-            code_tag: The element containing a code for the item.
-            label_tag: The element containing the preferred label for the item.
+    Args:
+        xml: A BeautifulSoup Tag representing an XML config file.
+        element_tag: The element representing an item in the crosswalk, e.g.
+        language, country.
+        code_tag: The element containing a code for the item.
+        label_tag: The element containing the preferred label for the item.
     """
     config_dict = {}
     for code_element in xml.find_all(code_tag):
-        for parent in [
-            parent for parent in code_element.parents if parent.name == element_tag
-        ]:
-            config_dict[str(code_element.string)] = str(parent.find(label_tag).string)
+        if (
+            "status" in code_element.attrs
+            and code_element.attrs["status"] == "obsolete"
+        ):
+            config_dict[str(code_element.string)] = {
+                "name": str(code_element.parent.find(label_tag).string),
+                "obsolete": True,
+            }
+        else:
+            config_dict[str(code_element.string)] = {
+                "name": str(code_element.parent.find(label_tag).string),
+                "obsolete": False,
+            }
     return config_dict

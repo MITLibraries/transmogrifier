@@ -64,12 +64,12 @@ def test_get_transformer_source_wrong_module_path_raises_error(bad_config):
 
 
 def test_load_external_config_invalid_file_type_raises_error(tmp_path, caplog):
-    tmp_dir = tmp_path / "config"
-    tmp_dir.mkdir()
-    config_file = tmp_dir / "config.zxr"
-    config_file.write_text("<>")
-    load_external_config(config_file, "zxr")
-    assert ("Unrecognized file_type parameter: zxr") in caplog.text
+    with pytest.raises(ValueError):
+        tmp_dir = tmp_path / "config"
+        tmp_dir.mkdir()
+        config_file = tmp_dir / "config.zxr"
+        config_file.write_text("<>")
+        load_external_config(config_file, "zxr")
 
 
 def test_load_external_config_json(tmp_path):
@@ -94,4 +94,8 @@ def test_load_external_config_xml(xml_config):
 def test_create_dict_from_loc_xml_config(xml_config):
     assert create_dict_from_loc_xml_config(
         load_external_config(xml_config, "xml"), "country", "code", "name"
-    ) == {"af": "Afghanistan", "vm": "Vietnam", "vn": "Vietnam"}
+    ) == {
+        "af": {"name": "Afghanistan", "obsolete": False},
+        "vm": {"name": "Vietnam", "obsolete": False},
+        "vn": {"name": "Vietnam, North", "obsolete": True},
+    }

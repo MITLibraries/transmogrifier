@@ -179,8 +179,8 @@ def xml_config(tmp_path):
     config_file = tmp_dir / "config.xml"
     config_file.write_text(
         "<codelist><countries><country><name>Afghanistan</name>"
-        "<code>af</code></country><country><name>Vietnam</name>"
-        "<code>vm</code><note><name>Vietnam, North</name>"
-        "<code>vn</code></note></codelist>"
+        '<code status="authorized">af</code></country><country><name>Vietnam</name>'
+        '<code status="authorized">vm</code><note><name>Vietnam, North</name>'
+        '<code status="obsolete">vn</code></note></codelist>'
     )
     return config_file

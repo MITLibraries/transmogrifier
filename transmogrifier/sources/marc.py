@@ -285,8 +285,19 @@ class Marc(Transformer):
                     if language_value not in language_values:
                         language_values.append(language_value)
         for language_value in language_values:
+            crosswalked_language_value = language_code_crosswalk.get(
+                language_value, language_value
+            )
+            if type(crosswalked_language_value) == dict:
+                if crosswalked_language_value["obsolete"]:
+                    logger.warning(
+                        "Record # %s uses an obsolete language code: %s",
+                        Marc.get_source_record_id(xml),
+                        language_value,
+                    )
+                crosswalked_language_value = crosswalked_language_value["name"]
             fields.setdefault("languages", []).append(
-                language_code_crosswalk.get(language_value, language_value.rstrip(" ."))
+                crosswalked_language_value.rstrip(" .")
             )
 
         # links
@@ -346,12 +357,22 @@ class Marc(Transformer):
             },
         ]
         if fixed_length_data:
-            if fixed_location_value := fixed_length_data.string[15:17]:
+            if fixed_location_code := fixed_length_data.string[15:17]:
+                crosswalked_location_value = country_code_crosswalk.get(
+                    fixed_location_code, fixed_location_code
+                )
+
+                if type(crosswalked_location_value) == dict:
+                    if crosswalked_location_value["obsolete"]:
+                        logger.warning(
+                            "Record # %s uses an obsolete location code: %s",
+                            Marc.get_source_record_id(xml),
+                            fixed_location_code,
+                        )
+                    crosswalked_location_value = crosswalked_location_value["name"]
                 fields.setdefault("locations", []).append(
                     timdex.Location(
-                        value=country_code_crosswalk.get(
-                            fixed_location_value, fixed_location_value
-                        ),
+                        value=crosswalked_location_value,
                         kind="Place of Publication",
                     )
                 )

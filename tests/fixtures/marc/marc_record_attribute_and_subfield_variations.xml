@@ -4,7 +4,7 @@
         <controlfield tag="001">990027185640106761</controlfield>
         <leader>03282ntm  2200721Ki 4500</leader>
         <controlfield></controlfield>
-        <controlfield tag="008">170906s2016    fr mun| o         p zxx </controlfield>
+        <controlfield tag="008">170906s2016    vn mun| o         p zxx </controlfield>
         <datafield></datafield>
         <datafield tag="010">
             <subfield></subfield>
@@ -61,6 +61,7 @@
             <subfield code="k">k</subfield>
             <subfield code="m">m</subfield>
             <subfield code="n">n</subfield>
+            <subfield code="n">ajm</subfield>
         </datafield>
         <datafield tag="050">
             <subfield></subfield>
