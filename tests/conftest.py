@@ -60,6 +60,11 @@ def datacite_record_all_fields():
 
 
 @pytest.fixture()
+def loc_country_crosswalk():
+    return load_external_config("config/loc-countries.xml", "xml")
+
+
+@pytest.fixture()
 def marc_content_type_crosswalk():
     return load_external_config("config/marc_content_type_crosswalk.json", "json")
 
@@ -170,17 +175,3 @@ def timdex_record_all_fields_and_subfields():
         subjects=[timdex.Subject(value=["Stuff"], kind="LCSH")],
         summary=["This is data."],
     )
-
-
-@pytest.fixture()
-def xml_config(tmp_path):
-    tmp_dir = tmp_path / "config"
-    tmp_dir.mkdir()
-    config_file = tmp_dir / "config.xml"
-    config_file.write_text(
-        "<codelist><countries><country><name>Afghanistan</name>"
-        '<code status="authorized">af</code></country><country><name>Vietnam</name>'
-        '<code status="authorized">vm</code><note><name>Vietnam, North</name>'
-        '<code status="obsolete">vn</code></note></codelist>'
-    )
-    return config_file

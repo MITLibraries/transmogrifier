@@ -496,17 +496,15 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         languages=[
             "No linguistic content",
-            "a",
-            "b",
-            "d",
-            "e",
-            "f",
-            "g",
-            "h",
-            "j",
-            "k",
-            "m",
-            "n",
+            "English",
+            "French",
+            "Spanish",
+            "German",
+            "Russian",
+            "Chinese",
+            "Artificial (Other)",
+            "Abkhaz",
+            "Achinese",
             "Aljamía",
         ],
         links=[
@@ -674,6 +672,39 @@ def test_create_subfield_value_string_from_datafield_with_blank_values():
     assert Marc.create_subfield_value_string_from_datafield(datafield, "ad") == ""
 
 
+def test_loc_crosswalk_code_to_name_returns_none_if_invalid(
+    caplog, loc_country_crosswalk
+):
+    assert (
+        Marc.loc_crosswalk_code_to_name(
+            "wrong", loc_country_crosswalk, "record-01", "country"
+        )
+        is None
+    )
+    assert "Record #record-01 uses an invalid country code: wrong" in caplog.text
+
+
+def test_loc_crosswalk_code_to_name_returns_name_and_logs_warning_if_obsolete(
+    caplog, loc_country_crosswalk
+):
+    assert (
+        Marc.loc_crosswalk_code_to_name(
+            "bwr", loc_country_crosswalk, "record-01", "country"
+        )
+        == "Byelorussian S.S.R"
+    )
+    assert "Record #record-01 uses an obsolete country code: bwr" in caplog.text
+
+
+def test_loc_crosswalk_code_to_name_returns_name(caplog, loc_country_crosswalk):
+    assert (
+        Marc.loc_crosswalk_code_to_name(
+            "xxu", loc_country_crosswalk, "record-01", "country"
+        )
+        == "United States"
+    )
+
+
 def test_get_main_titles_record_with_title():
     marc_xml_records = parse_xml_records(
         "tests/fixtures/marc/marc_record_all_fields.xml"
@@ -702,23 +733,3 @@ def test_get_source_record_id():
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
-
-
-def test_invalid_country_code_logs_warning(caplog):
-    marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_attribute_and_subfield_variations.xml",
-    )
-    next(Marc("alma", marc_xml_records))
-    assert (
-        "Record # 990027185640106761 uses an obsolete location code: vn" in caplog.text
-    )
-
-
-def test_invalid_language_code_logs_warning(caplog):
-    marc_xml_records = parse_xml_records(
-        "tests/fixtures/marc/marc_record_attribute_and_subfield_variations.xml",
-    )
-    next(Marc("alma", marc_xml_records))
-    assert (
-        "Record # 990027185640106761 uses an obsolete language code: ajm" in caplog.text
-    )

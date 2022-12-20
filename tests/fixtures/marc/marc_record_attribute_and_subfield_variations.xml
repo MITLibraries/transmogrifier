@@ -39,7 +39,7 @@
         <datafield tag="041">
             <subfield></subfield>
             <subfield code=""></subfield>
-            <subfield code="a"></subfield>
+            <subfield code=""></subfield>
             <subfield code="b"></subfield>
             <subfield code="d"></subfield>
             <subfield code="e"></subfield>
@@ -50,17 +50,17 @@
             <subfield code="k"></subfield>
             <subfield code="m"></subfield>
             <subfield code="n"></subfield>
-            <subfield code="a">a</subfield>
-            <subfield code="b">b</subfield>
-            <subfield code="d">d</subfield>
-            <subfield code="e">e</subfield>
-            <subfield code="f">f</subfield>
-            <subfield code="g">g</subfield>
-            <subfield code="h">h</subfield>
-            <subfield code="j">j</subfield>
-            <subfield code="k">k</subfield>
-            <subfield code="m">m</subfield>
-            <subfield code="n">n</subfield>
+            <subfield code="a">eng</subfield>
+            <subfield code="b">fre</subfield>
+            <subfield code="d">spa</subfield>
+            <subfield code="e">ger</subfield>
+            <subfield code="f">rus</subfield>
+            <subfield code="g">chi</subfield>
+            <subfield code="h">noo</subfield>
+            <subfield code="j">an</subfield>
+            <subfield code="k">art</subfield>
+            <subfield code="m">abk</subfield>
+            <subfield code="n">ace</subfield>
             <subfield code="n">ajm</subfield>
         </datafield>
         <datafield tag="050">

@@ -1,21 +1,18 @@
 import logging
+from typing import Optional
 
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.config import create_dict_from_loc_xml_config, load_external_config
+from transmogrifier.config import load_external_config
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
-country_code_crosswalk = create_dict_from_loc_xml_config(
-    load_external_config("config/loc-countries.xml", "xml"), "country", "code", "name"
-)
+country_code_crosswalk = load_external_config("config/loc-countries.xml", "xml")
 
-language_code_crosswalk = create_dict_from_loc_xml_config(
-    load_external_config("config/loc-languages.xml", "xml"), "language", "code", "name"
-)
+language_code_crosswalk = load_external_config("config/loc-languages.xml", "xml")
 
 marc_content_type_crosswalk = load_external_config(
     "config/marc_content_type_crosswalk.json", "json"
@@ -39,6 +36,8 @@ class Marc(Transformer):
         fixed_length_data = xml.find("controlfield", tag="008", string=True)
 
         leader = xml.find("leader", string=True)
+
+        record_id = Marc.get_source_record_id(xml)
 
         # alternate_titles
         alternate_title_marc_fields = [
@@ -262,43 +261,31 @@ class Marc(Transformer):
                     )
 
         # languages
-        language_marc_fields = [
-            {
-                "tag": "041",
-                "subfields": "abdefghjkmn",
-            },
-            {
-                "tag": "546",
-                "subfields": "a",
-            },
-        ]
-        language_values = []
+        languages = []
+
+        # Get language codes
+        language_codes = []
         if fixed_length_data:
             if fixed_language_value := fixed_length_data.string[35:38]:
-                language_values.append(fixed_language_value)
-        for language_marc_field in language_marc_fields:
-            for datafield in xml.find_all("datafield", tag=language_marc_field["tag"]):
-                for language_value in self.create_subfield_value_list_from_datafield(
-                    datafield,
-                    language_marc_field["subfields"],
-                ):
-                    if language_value not in language_values:
-                        language_values.append(language_value)
-        for language_value in language_values:
-            crosswalked_language_value = language_code_crosswalk.get(
-                language_value, language_value
+                language_codes.append(fixed_language_value)
+        for field_041 in xml.find_all("datafield", tag="041"):
+            language_codes.extend(
+                self.create_subfield_value_list_from_datafield(field_041, "abdefghjkmn")
             )
-            if type(crosswalked_language_value) == dict:
-                if crosswalked_language_value["obsolete"]:
-                    logger.warning(
-                        "Record # %s uses an obsolete language code: %s",
-                        Marc.get_source_record_id(xml),
-                        language_value,
-                    )
-                crosswalked_language_value = crosswalked_language_value["name"]
-            fields.setdefault("languages", []).append(
-                crosswalked_language_value.rstrip(" .")
-            )
+
+        # Crosswalk codes to names
+        for code in list(dict.fromkeys(language_codes)):
+            if name := Marc.loc_crosswalk_code_to_name(
+                code, language_code_crosswalk, record_id, "language"
+            ):
+                languages.append(name)
+
+        # Add language notes
+        for field_546 in xml.find_all("datafield", tag="546"):
+            if language_note := field_546.find("subfield", code="a", string=True):
+                languages.append(language_note.string.rstrip(" ."))
+
+        fields["languages"] = list(dict.fromkeys(languages)) or None
 
         # links
         # If indicator 1 is 4 and indicator 2 is 0 or 1, take the URL from subfield u,
@@ -344,6 +331,18 @@ class Marc(Transformer):
                         fields["literary_form"] = "Fiction"
 
         # locations
+
+        # Get place of publication from 008 field code
+        if fixed_length_data:
+            if fixed_location_code := fixed_length_data.string[15:17]:
+                if name := Marc.loc_crosswalk_code_to_name(
+                    fixed_location_code, country_code_crosswalk, record_id, "country"
+                ):
+                    fields.setdefault("locations", []).append(
+                        timdex.Location(value=name, kind="Place of Publication")
+                    )
+
+        # Get other locations
         location_marc_fields = [
             {
                 "tag": "751",
@@ -356,26 +355,6 @@ class Marc(Transformer):
                 "kind": "Hierarchical Place Name",
             },
         ]
-        if fixed_length_data:
-            if fixed_location_code := fixed_length_data.string[15:17]:
-                crosswalked_location_value = country_code_crosswalk.get(
-                    fixed_location_code, fixed_location_code
-                )
-
-                if type(crosswalked_location_value) == dict:
-                    if crosswalked_location_value["obsolete"]:
-                        logger.warning(
-                            "Record # %s uses an obsolete location code: %s",
-                            Marc.get_source_record_id(xml),
-                            fixed_location_code,
-                        )
-                    crosswalked_location_value = crosswalked_location_value["name"]
-                fields.setdefault("locations", []).append(
-                    timdex.Location(
-                        value=crosswalked_location_value,
-                        kind="Place of Publication",
-                    )
-                )
         for location_marc_field in location_marc_fields:
             for datafield in xml.find_all("datafield", tag=location_marc_field["tag"]):
                 if location_value := (
@@ -671,6 +650,33 @@ class Marc(Transformer):
         return separator.join(
             Marc.create_subfield_value_list_from_datafield(xml_element, subfield_codes)
         )
+
+    @staticmethod
+    def loc_crosswalk_code_to_name(
+        code: str, crosswalk: Tag, record_id: str, code_type: str
+    ) -> Optional[str]:
+        """
+        Retrieve the name associated with a given code from a Library of Congress XML
+        code crosswalk. Logs a warning and returns None if the code isn't found in the
+        crosswalk. Logs a warning and returns the name if the code is obsolete.
+
+        Args:
+            code: The code from a MARC record.
+            crosswalk: The crosswalked bs4 Tag to use, loaded from a config file.
+            record_id: The MMS ID of the MARC record.
+            code_type: The type of code, e.g. country or language.
+        """
+        code_element = crosswalk.find("code", string=code)
+        if code_element is None:
+            logger.warning(
+                "Record #%s uses an invalid %s code: %s", record_id, code_type, code
+            )
+            return None
+        if code_element.get("status") == "obsolete":
+            logger.warning(
+                "Record #%s uses an obsolete %s code: %s", record_id, code_type, code
+            )
+        return str(code_element.parent.find("name").string)
 
     @staticmethod
     def get_main_titles(xml: Tag) -> list[str]:
