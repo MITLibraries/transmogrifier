@@ -10,7 +10,9 @@ from transmogrifier.sources.transformer import Transformer
 logger = logging.getLogger(__name__)
 
 
-aspace_type_crosswalk = load_external_config("config/aspace_type_crosswalk.json")
+aspace_type_crosswalk = load_external_config(
+    "config/aspace_type_crosswalk.json", "json"
+)
 
 
 class Ead(Transformer):

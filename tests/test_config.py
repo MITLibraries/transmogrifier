@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+from bs4 import BeautifulSoup
 
 from transmogrifier.config import (
     configure_logger,
@@ -62,15 +63,19 @@ def test_get_transformer_source_wrong_module_path_raises_error(bad_config):
         get_transformer("bad-module-path")
 
 
-def test_load_external_config(tmp_path):
-    tmp_dir = tmp_path / "config"
-    tmp_dir.mkdir()
-    config_file = tmp_dir / "config.json"
-    config_file.write_text(
-        '{"aat": "Art & Architecture Thesaurus", '
-        '"accessrestrict": "Conditions Governing Access"}'
+def test_load_external_config_invalid_file_type_raises_error():
+    with pytest.raises(ValueError):
+        load_external_config("config/loc-countries.xml", "zxr")
+
+
+def test_load_external_config_json():
+    assert (
+        type(load_external_config("config/marc_content_type_crosswalk.json", "json"))
+        == dict
     )
-    assert load_external_config(config_file) == {
-        "aat": "Art & Architecture Thesaurus",
-        "accessrestrict": "Conditions Governing Access",
-    }
+
+
+def test_load_external_config_xml():
+    assert (
+        type(load_external_config("config/loc-countries.xml", "xml")) == BeautifulSoup
+    )

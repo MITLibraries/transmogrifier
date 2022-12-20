@@ -60,8 +60,13 @@ def datacite_record_all_fields():
 
 
 @pytest.fixture()
+def loc_country_crosswalk():
+    return load_external_config("config/loc-countries.xml", "xml")
+
+
+@pytest.fixture()
 def marc_content_type_crosswalk():
-    return load_external_config("config/marc_content_type_crosswalk.json")
+    return load_external_config("config/marc_content_type_crosswalk.json", "json")
 
 
 @pytest.fixture()

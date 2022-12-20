@@ -55,7 +55,8 @@ def test_marc_record_all_fields_transform_correctly():
             "Dewey Call Number 3",
         ],
         citation=(
-            "Célébration : 10 siècles de musique de noël. Language material. "
+            "Célébration : 10 siècles de musique de noël. 2016. "
+            "New York : New Press : Distributed by W.W. Norton, 2005. Language material. "
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
             "01MIT_INST:MIT&docid=alma990027185640106761"
         ),
@@ -147,6 +148,7 @@ def test_marc_record_all_fields_transform_correctly():
                 kind="singer",
             ),
         ],
+        dates=[timdex.Date(kind="Publication date", value="2016")],
         edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
         identifiers=[
             timdex.Identifier(value="2005022317", kind="LCCN"),
@@ -163,6 +165,17 @@ def test_marc_record_all_fields_transform_correctly():
             timdex.Identifier(value="1312285564", kind="OCLC Number"),
             timdex.Identifier(value="on1312285564", kind="OCLC Number"),
         ],
+        languages=[
+            "No linguistic content",
+            "English",
+            "Spanish",
+            "French",
+            "Finnish",
+            "Latin",
+            "German",
+            "Sung in French or Latin",
+            "Sung in French",
+        ],
         links=[
             timdex.Link(
                 url="http://catalog.hathitrust.org/api/volumes/oclc/1606890.html",
@@ -178,6 +191,7 @@ def test_marc_record_all_fields_transform_correctly():
         ],
         literary_form="Nonfiction",
         locations=[
+            timdex.Location(value="France", kind="Place of Publication"),
             timdex.Location(value="Germany", kind="Geographic Name"),
             timdex.Location(value="Austria", kind="Geographic Name"),
             timdex.Location(
@@ -288,6 +302,12 @@ def test_marc_record_all_fields_transform_correctly():
             "(4 3/4 in.). 1 vocal score (248 p.) ; 31 cm."
         ),
         publication_frequency=["Six no. a year", "Three times a year"],
+        publication_information=[
+            "New York : New Press : Distributed by W.W. Norton, 2005",
+            "New York : Wiley, c1992",
+            "France : Alpha, [2022]",
+            "℗2022, ©2022",
+        ],
         related_items=[
             timdex.RelatedItem(
                 description="Java 2 in plain English",
@@ -448,7 +468,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         call_numbers=["a", "a"],
         citation=(
-            "a b f g k n p s. Manuscript language material. "
+            "a b f g k n p s. 2016. a b c d e f. Manuscript language material. "
             "https://mit.primo.exlibrisgroup.com/discovery/"
             "fulldisplay?vid=01MIT_INST:MIT&docid=alma990027185640106761"
         ),
@@ -468,10 +488,24 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 kind="e",
             ),
         ],
+        dates=[timdex.Date(kind="Publication date", value="2016")],
         edition="a b",
         identifiers=[
             timdex.Identifier(value="q", kind="ISBN"),
             timdex.Identifier(value="q", kind="Other Identifier"),
+        ],
+        languages=[
+            "No linguistic content",
+            "English",
+            "French",
+            "Spanish",
+            "German",
+            "Russian",
+            "Chinese",
+            "Artificial (Other)",
+            "Abkhaz",
+            "Achinese",
+            "Aljamía",
         ],
         links=[
             timdex.Link(url="u", kind="3", restrictions="z", text="y"),
@@ -479,10 +513,11 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         literary_form="Fiction",
         locations=[
+            timdex.Location(value="Vietnam, North", kind="Place of Publication"),
             timdex.Location(
                 value="a - b - c - d - e - f - g - h",
                 kind="Hierarchical Place Name",
-            )
+            ),
         ],
         notes=[
             timdex.Note(value=["c"], kind="Title Statement of Responsibility"),
@@ -501,6 +536,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             timdex.Note(value=["a"], kind="Local Note"),
         ],
         physical_description="a b c e f g",
+        publication_information=["a b c d e f", "a b c"],
         related_items=[
             timdex.RelatedItem(
                 description="a b c d g h i k m n o r s t u w x y z",
@@ -634,6 +670,39 @@ def test_create_subfield_value_string_from_datafield_with_blank_values():
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert Marc.create_subfield_value_string_from_datafield(datafield, "ad") == ""
+
+
+def test_loc_crosswalk_code_to_name_returns_none_if_invalid(
+    caplog, loc_country_crosswalk
+):
+    assert (
+        Marc.loc_crosswalk_code_to_name(
+            "wrong", loc_country_crosswalk, "record-01", "country"
+        )
+        is None
+    )
+    assert "Record #record-01 uses an invalid country code: wrong" in caplog.text
+
+
+def test_loc_crosswalk_code_to_name_returns_name_and_logs_warning_if_obsolete(
+    caplog, loc_country_crosswalk
+):
+    assert (
+        Marc.loc_crosswalk_code_to_name(
+            "bwr", loc_country_crosswalk, "record-01", "country"
+        )
+        == "Byelorussian S.S.R"
+    )
+    assert "Record #record-01 uses an obsolete country code: bwr" in caplog.text
+
+
+def test_loc_crosswalk_code_to_name_returns_name(caplog, loc_country_crosswalk):
+    assert (
+        Marc.loc_crosswalk_code_to_name(
+            "xxu", loc_country_crosswalk, "record-01", "country"
+        )
+        == "United States"
+    )
 
 
 def test_get_main_titles_record_with_title():

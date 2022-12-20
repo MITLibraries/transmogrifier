@@ -3,8 +3,12 @@ import json
 import logging
 import os
 from importlib import import_module
+from typing import Literal, Union
 
 import sentry_sdk
+from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 SOURCES = {
     "alma": {
@@ -83,10 +87,20 @@ def get_transformer(source: str) -> type:
     return getattr(source_module, class_name)
 
 
-def load_external_config(path: str) -> dict:
+def load_external_config(
+    file_path: str, file_type: Literal["json", "xml"]
+) -> Union[dict, BeautifulSoup]:
     """
-    Return dict from JSON config file.
+    Load a configuration file into a Python object. JSON files are parsed into dicts
+    and XML files are parsed into BeautifulSoup objects.
+
+    Raises an error if an unhandled file_type parameter is passed.
 
     """
-    with open(path, "rb") as json_file:
-        return json.load(json_file)
+    with open(file_path, "rb") as config_file:
+        if file_type == "json":
+            return json.load(config_file)
+        elif file_type == "xml":
+            return BeautifulSoup(config_file, "xml")
+        else:
+            raise ValueError("Unrecognized file_type parameter: %s", file_type)

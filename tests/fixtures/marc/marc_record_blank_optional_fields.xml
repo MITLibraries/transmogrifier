@@ -9,6 +9,7 @@
         <datafield tag="022"></datafield>
         <datafield tag="024"></datafield>
         <datafield tag="035"></datafield>
+        <datafield tag="041"></datafield>
         <datafield tag="050"></datafield>
         <datafield tag="082"></datafield>
         <datafield tag="100"></datafield>
@@ -19,6 +20,8 @@
         <datafield tag="245"></datafield>
         <datafield tag="246"></datafield>
         <datafield tag="250"></datafield>
+        <datafield tag="260"></datafield>
+        <datafield tag="264"></datafield>
         <datafield tag="300"></datafield>
         <datafield tag="310"></datafield>
         <datafield tag="362"></datafield>
@@ -34,6 +37,7 @@
         <datafield tag="522"></datafield>
         <datafield tag="533"></datafield>
         <datafield tag="534"></datafield>
+        <datafield tag="546"></datafield>
         <datafield tag="588"></datafield>
         <datafield tag="590"></datafield>
         <datafield tag="600"></datafield>
