@@ -274,11 +274,11 @@ class Marc(Transformer):
             )
 
         # Crosswalk codes to names
-        for code in list(dict.fromkeys(language_codes)):
-            if name := Marc.loc_crosswalk_code_to_name(
-                code, language_code_crosswalk, record_id, "language"
+        for language_code in list(dict.fromkeys(language_codes)):
+            if language_name := Marc.loc_crosswalk_code_to_name(
+                language_code, language_code_crosswalk, record_id, "language"
             ):
-                languages.append(name)
+                languages.append(language_name)
 
         # Add language notes
         for field_546 in xml.find_all("datafield", tag="546"):
