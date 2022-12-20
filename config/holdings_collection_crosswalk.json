@@ -1,0 +1,22 @@
+{
+    "HUM": "Hayden Library",
+    "RBR": "Hayden Library",
+    "SCI": "Hayden Library",
+    "MIT50": "MIT Administrative Library",
+    "ARC": "Institute Archives",
+    "ACQ": "Institute Archives",
+    "ENG": "Barker Library",
+    "CAT": "Cataloging and Metadata Services",
+    "DEW": "Dewey Library",
+    "DIR": "Director's Office",
+    "DOC": "Document Services",
+    "ILB": "Interlibrary Borrowing",
+    "LSA": "Library Storage Annex",
+    "NET": "Internet Resource",
+    "MUS": "Lewis Music Library",
+    "PHY": "Physics Department Reading Room",
+    "RTC": "Rotch Library",
+    "RVC": "Rotch Visual Collections",
+    "SPC": "Space Cntr: Ask library staff",
+    "OFFIC": "Office delivery"
+}

@@ -443,5 +443,29 @@
             <subfield code="z">Access available on website of subsequent title: Highlights in chemical biology</subfield>
             <subfield code="y">Display text</subfield>
         </datafield>
+        <datafield tag="985" ind1=" " ind2=" ">
+            <subfield code="aa">STACK</subfield>
+            <subfield code="t">BOOK</subfield>
+            <subfield code="bb">PL2687.L8.A28 1994</subfield>
+            <subfield code="i">HUM</subfield>
+            <subfield code="i">ACQ</subfield>
+        </datafield>
+        <datafield tag="985" ind1=" " ind2=" ">
+            <subfield code="aa">OCC</subfield>
+            <subfield code="t">BOOK</subfield>
+            <subfield code="g">pt.A</subfield>
+            <subfield code="bb">QD79.C4.C485 1983</subfield>
+            <subfield code="i">LSA</subfield>
+        </datafield>
+        <datafield tag="986" ind1=" " ind2=" ">
+            <subfield code="i">Available from 06/01/2001 volume: 1 issue: 1.</subfield>
+            <subfield code="j">HeinOnline U.S. Congressional Documents Library</subfield>
+            <subfield code="k">HeinOnline</subfield>
+        </datafield>
+        <datafield tag="986" ind1=" " ind2=" ">
+            <subfield code="k">Alexander Street Press Parent Record</subfield>
+            <subfield code="j">Music Online: Classical Music Library - United States</subfield>
+            <subfield code="j">Music Online: Classical Music Library</subfield>
+        </datafield>
     </record>
 </collection>
