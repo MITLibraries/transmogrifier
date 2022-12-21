@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 from bs4 import Tag
 
@@ -223,7 +223,7 @@ class Marc(Transformer):
         # holdings
         for datafield in xml.find_all("datafield", tag="985"):
             holding_call_number_value = (
-                self.create_subfield_value_string_from_datafield(datafield, "bb")
+                self.create_subfield_value_string_from_datafield(datafield, ["bb"])
             )
             holding_collection_value = ", ".join(
                 [
@@ -251,7 +251,9 @@ class Marc(Transformer):
                         holding_location_value, holding_location_value
                     )
                     for holding_location_value in (
-                        self.create_subfield_value_list_from_datafield(datafield, "aa")
+                        self.create_subfield_value_list_from_datafield(
+                            datafield, ["aa"]
+                        )
                     )
                 ]
             )
@@ -690,7 +692,7 @@ class Marc(Transformer):
     @staticmethod
     def create_subfield_value_list_from_datafield(
         xml_element: Tag,
-        subfield_codes: str,
+        subfield_codes: Union[list, str],
     ) -> list:
         """
         Create a list of values from the specified subfields of a
@@ -709,7 +711,7 @@ class Marc(Transformer):
     @staticmethod
     def create_subfield_value_string_from_datafield(
         xml_element: Tag,
-        subfield_codes: str,
+        subfield_codes: Union[list, str],
         separator: str = "",
     ) -> str:
         """
