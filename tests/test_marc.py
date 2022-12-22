@@ -166,12 +166,20 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Holding(
                 collection="HeinOnline U.S. Congressional Documents Library",
+                format="electronic resource",
+                location=(
+                    "http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383"
+                ),
                 note="Available from 06/01/2001 volume: 1 issue: 1., HeinOnline",
             ),
             timdex.Holding(
                 collection=(
                     "Music Online: Classical Music Library - United States, Music "
                     "Online: Classical Music Library"
+                ),
+                format="electronic resource",
+                location=(
+                    "http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=19029653"
                 ),
                 note="Alexander Street Press Parent Record",
             ),
@@ -522,6 +530,8 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             ),
             timdex.Holding(
                 collection="j",
+                format="electronic resource",
+                location="f",
                 note="i, k",
             ),
         ],

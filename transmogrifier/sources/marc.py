@@ -280,13 +280,18 @@ class Marc(Transformer):
             holding_collection_value = self.create_subfield_value_string_from_datafield(
                 datafield, "j", ", "
             )
+            holding_location_value = self.create_subfield_value_string_from_datafield(
+                datafield, "f", ", "
+            )
             holding_note_value = self.create_subfield_value_string_from_datafield(
                 datafield, "ik", ", "
             )
-            if holding_collection_value or holding_note_value:
+            if holding_collection_value or holding_location_value or holding_note_value:
                 fields.setdefault("holdings", []).append(
                     timdex.Holding(
                         collection=holding_collection_value or None,
+                        format="electronic resource",
+                        location=holding_location_value or None,
                         note=holding_note_value or None,
                     )
                 )

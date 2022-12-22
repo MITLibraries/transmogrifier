@@ -461,11 +461,13 @@
             <subfield code="i">Available from 06/01/2001 volume: 1 issue: 1.</subfield>
             <subfield code="j">HeinOnline U.S. Congressional Documents Library</subfield>
             <subfield code="k">HeinOnline</subfield>
+            <subfield code="f">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383</subfield>
         </datafield>
         <datafield tag="986" ind1=" " ind2=" ">
             <subfield code="k">Alexander Street Press Parent Record</subfield>
             <subfield code="j">Music Online: Classical Music Library - United States</subfield>
             <subfield code="j">Music Online: Classical Music Library</subfield>
+            <subfield code="f">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=19029653</subfield>
         </datafield>
     </record>
 </collection>

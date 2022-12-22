@@ -857,9 +857,11 @@
         <datafield tag="986" ind1=" " ind2=" ">
             <subfield></subfield>
             <subfield code=""></subfield>
+            <subfield code="f"></subfield>
             <subfield code="i"></subfield>
             <subfield code="j"></subfield>
             <subfield code="k"></subfield>
+            <subfield code="f">f</subfield>
             <subfield code="i">i</subfield>
             <subfield code="j">j</subfield>
             <subfield code="k">k</subfield>
