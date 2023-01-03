@@ -1,0 +1,23 @@
+{
+    "BOOK": "Print volume",
+    "REGULAR": "Print volume",
+    "ATLAS": "Atlas",
+    "AUDIO": "Audio tape",
+    "AUDTAPE": "Audio tape",
+    "CD": "Compact disc",
+    "CDROM": "CD-ROM",
+    "DSKETTE": "Diskette",
+    "DVD": "DVD-ROM",
+    "FICHE": "Microfiche",
+    "FOLIO": "Oversized print volume",
+    "OVRSIZE": "Oversized print volume",
+    "MAP": "Map sheet",
+    "MFILM": "Microfilm",
+    "RECORD": "Audio record",
+    "SCORE": "Musical score",
+    "SMALL": "Undersized print volume",
+    "VDISC": "Videodisc",
+    "VHS": "VHS",
+    "ISSUE": "Issue",
+    "ISSBD": "Bound issue"
+}

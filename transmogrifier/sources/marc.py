@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 from bs4 import Tag
 
@@ -11,6 +11,16 @@ logger = logging.getLogger(__name__)
 
 
 country_code_crosswalk = load_external_config("config/loc-countries.xml", "xml")
+
+holdings_collection_crosswalk = load_external_config(
+    "config/holdings_collection_crosswalk.json", "json"
+)
+holdings_format_crosswalk = load_external_config(
+    "config/holdings_format_crosswalk.json", "json"
+)
+holdings_location_crosswalk = load_external_config(
+    "config/holdings_location_crosswalk.json", "json"
+)
 
 language_code_crosswalk = load_external_config("config/loc-languages.xml", "xml")
 
@@ -164,11 +174,9 @@ class Marc(Transformer):
                         " ",
                     )
                 ):
-                    kind_values = []
-                    for subfield in datafield.find_all(
-                        "subfield", code="e", string=True
-                    ):
-                        kind_values.append(subfield.string)
+                    kind_values = self.create_subfield_value_list_from_datafield(
+                        datafield, "e"
+                    )
                     if kind_values:
                         for kind_value in kind_values:
                             contributor_instance = timdex.Contributor(
@@ -206,13 +214,87 @@ class Marc(Transformer):
                 edition_values.append(edition_value)
         fields["edition"] = " ".join(edition_values) or None
 
-        # file_formats not used in MARC
+        # file_formats
 
         # format
 
         # funding_information
 
         # holdings
+        for datafield in xml.find_all("datafield", tag="985"):
+            holding_call_number_value = (
+                self.create_subfield_value_string_from_datafield(datafield, ["bb"])
+            )
+            holding_collection_value = ", ".join(
+                [
+                    holdings_collection_crosswalk.get(
+                        holding_collection_value, holding_collection_value
+                    )
+                    for holding_collection_value in (
+                        self.create_subfield_value_list_from_datafield(datafield, "i")
+                    )
+                ]
+            )
+            holding_format_value = ", ".join(
+                [
+                    holdings_format_crosswalk.get(
+                        holding_format_value, holding_format_value
+                    )
+                    for holding_format_value in (
+                        self.create_subfield_value_list_from_datafield(datafield, "t")
+                    )
+                ]
+            )
+            holding_location_value = ", ".join(
+                [
+                    holdings_location_crosswalk.get(
+                        holding_location_value, holding_location_value
+                    )
+                    for holding_location_value in (
+                        self.create_subfield_value_list_from_datafield(
+                            datafield, ["aa"]
+                        )
+                    )
+                ]
+            )
+            holding_note_value = self.create_subfield_value_string_from_datafield(
+                datafield, "g", ", "
+            )
+            if (
+                holding_call_number_value
+                or holding_collection_value
+                or holding_format_value
+                or holding_location_value
+                or holding_note_value
+            ):
+                fields.setdefault("holdings", []).append(
+                    timdex.Holding(
+                        call_number=holding_call_number_value or None,
+                        collection=holding_collection_value or None,
+                        format=holding_format_value or None,
+                        location=holding_location_value or None,
+                        note=holding_note_value or None,
+                    )
+                )
+        for datafield in xml.find_all("datafield", tag="986"):
+            holding_collection_value = self.create_subfield_value_string_from_datafield(
+                datafield, "j", ", "
+            )
+            holding_location_value = self.create_subfield_value_string_from_datafield(
+                datafield, "f", ", "
+            )
+            holding_note_value = self.create_subfield_value_string_from_datafield(
+                datafield, "ik", ", "
+            )
+            if holding_collection_value or holding_location_value or holding_note_value:
+                fields.setdefault("holdings", []).append(
+                    timdex.Holding(
+                        collection=holding_collection_value or None,
+                        format="electronic resource",
+                        location=holding_location_value or None,
+                        note=holding_note_value or None,
+                    )
+                )
 
         # identifiers
         identifier_marc_fields = [
@@ -294,15 +376,11 @@ class Marc(Transformer):
         for datafield in xml.find_all(
             "datafield", tag="856", ind1="4", ind2=["0", "1"]
         ):
-            url_value = []
-            for url in datafield.find_all("subfield", code="u", string=True):
-                url_value.append(url.string)
-            text_value = []
-            for text in datafield.find_all("subfield", code="y", string=True):
-                text_value.append(text.string)
-            restrictions_value = []
-            for restriction in datafield.find_all("subfield", code="z", string=True):
-                restrictions_value.append(restriction.string)
+            url_value = self.create_subfield_value_list_from_datafield(datafield, "u")
+            text_value = self.create_subfield_value_list_from_datafield(datafield, "y")
+            restrictions_value = self.create_subfield_value_list_from_datafield(
+                datafield, "z"
+            )
             if kind_value := datafield.find("subfield", code="3", string=True):
                 kind_value = kind_value.string
             if url_value:
@@ -335,11 +413,13 @@ class Marc(Transformer):
         # Get place of publication from 008 field code
         if fixed_length_data:
             if fixed_location_code := fixed_length_data.string[15:17]:
-                if name := Marc.loc_crosswalk_code_to_name(
+                if location_name := Marc.loc_crosswalk_code_to_name(
                     fixed_location_code, country_code_crosswalk, record_id, "country"
                 ):
                     fields.setdefault("locations", []).append(
-                        timdex.Location(value=name, kind="Place of Publication")
+                        timdex.Location(
+                            value=location_name, kind="Place of Publication"
+                        )
                     )
 
         # Get other locations
@@ -617,7 +697,7 @@ class Marc(Transformer):
     @staticmethod
     def create_subfield_value_list_from_datafield(
         xml_element: Tag,
-        subfield_codes: str,
+        subfield_codes: Union[list, str],
     ) -> list:
         """
         Create a list of values from the specified subfields of a
@@ -636,7 +716,7 @@ class Marc(Transformer):
     @staticmethod
     def create_subfield_value_string_from_datafield(
         xml_element: Tag,
-        subfield_codes: str,
+        subfield_codes: Union[list, str],
         separator: str = "",
     ) -> str:
         """

@@ -150,6 +150,40 @@ def test_marc_record_all_fields_transform_correctly():
         ],
         dates=[timdex.Date(kind="Publication date", value="2016")],
         edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
+        holdings=[
+            timdex.Holding(
+                call_number="PL2687.L8.A28 1994",
+                collection="Hayden Library, Institute Archives",
+                format="Print volume",
+                location="Stacks",
+            ),
+            timdex.Holding(
+                call_number="QD79.C4.C485 1983",
+                collection="Library Storage Annex",
+                format="Print volume",
+                location="Off Campus Collection",
+                note="pt.A",
+            ),
+            timdex.Holding(
+                collection="HeinOnline U.S. Congressional Documents Library",
+                format="electronic resource",
+                location=(
+                    "http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383"
+                ),
+                note="Available from 06/01/2001 volume: 1 issue: 1., HeinOnline",
+            ),
+            timdex.Holding(
+                collection=(
+                    "Music Online: Classical Music Library - United States, Music "
+                    "Online: Classical Music Library"
+                ),
+                format="electronic resource",
+                location=(
+                    "http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=19029653"
+                ),
+                note="Alexander Street Press Parent Record",
+            ),
+        ],
         identifiers=[
             timdex.Identifier(value="2005022317", kind="LCCN"),
             timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
@@ -490,6 +524,17 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         dates=[timdex.Date(kind="Publication date", value="2016")],
         edition="a b",
+        holdings=[
+            timdex.Holding(
+                call_number="bb", collection="i", format="t", location="aa", note="g"
+            ),
+            timdex.Holding(
+                collection="j",
+                format="electronic resource",
+                location="f",
+                note="i, k",
+            ),
+        ],
         identifiers=[
             timdex.Identifier(value="q", kind="ISBN"),
             timdex.Identifier(value="q", kind="Other Identifier"),
