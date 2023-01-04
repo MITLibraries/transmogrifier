@@ -788,7 +788,6 @@
             <subfield code="y">y</subfield>
             <subfield code="z">z</subfield>
         </datafield>
-        "adfghklmnoprstvwx"
         <datafield tag="830">
             <subfield></subfield>
             <subfield code=""></subfield>
@@ -865,6 +864,151 @@
             <subfield code="i">i</subfield>
             <subfield code="j">j</subfield>
             <subfield code="k">k</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield></subfield>
+            <subfield code=""></subfield>
+            <subfield code="b"></subfield>
+            <subfield code="bb"></subfield>
+            <subfield code="c"></subfield>
+            <subfield code="cc"></subfield>
+            <subfield code="d"></subfield>
+            <subfield code="dd"></subfield>
+            <subfield code="e"></subfield>
+            <subfield code="ee"></subfield>
+            <subfield code="f"></subfield>
+            <subfield code="ff"></subfield>
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="f">1</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="ff">12</subfield>
+        </datafield>
+        <datafield tag="987" ind1=" "
+            ind2=" ">
+            <subfield code="b">1900</subfield>
+            <subfield code="bb">1905</subfield>
+            <subfield code="c">1</subfield>
+            <subfield code="cc">12</subfield>
+            <subfield code="d">1</subfield>
+            <subfield code="dd">31</subfield>
+            <subfield code="e">1</subfield>
+            <subfield code="ee">5</subfield>
+            <subfield code="f">1</subfield>
         </datafield>
     </record>
 </collection>

@@ -295,6 +295,70 @@ class Marc(Transformer):
                         note=holding_note_value or None,
                     )
                 )
+        for datafield in xml.find_all("datafield", tag="987"):
+            from_year = self.create_subfield_value_string_from_datafield(
+                datafield, "b", ", "
+            )
+            from_month = self.create_subfield_value_string_from_datafield(
+                datafield, "c", ", "
+            )
+            from_day = self.create_subfield_value_string_from_datafield(
+                datafield, "d", ", "
+            )
+            from_volume = self.create_subfield_value_string_from_datafield(
+                datafield, "e", ", "
+            )
+            from_issue = self.create_subfield_value_string_from_datafield(
+                datafield, "f", ", "
+            )
+            to_year = self.create_subfield_value_string_from_datafield(
+                datafield, ["bb"], ", "
+            )
+            to_month = self.create_subfield_value_string_from_datafield(
+                datafield, ["cc"], ", "
+            )
+            to_day = self.create_subfield_value_string_from_datafield(
+                datafield, ["dd"], ", "
+            )
+            to_volume = self.create_subfield_value_string_from_datafield(
+                datafield, ["ee"], ", "
+            )
+            to_issue = self.create_subfield_value_string_from_datafield(
+                datafield, ["ff"], ", "
+            )
+            serial_holding_note_value = ""
+            if from_year or from_month or from_day or from_volume or from_issue:
+                serial_holding_note_value += "From:"
+                if not from_year:
+                    from_year = "XXXX"
+                if not from_month:
+                    from_month = "XX"
+                if not from_day:
+                    from_day = "XX"
+                serial_holding_note_value += f" {from_year}-{from_month}-{from_day}"
+                if from_volume:
+                    serial_holding_note_value += f" Vol. {from_volume}"
+                if from_issue:
+                    serial_holding_note_value += f" Issue {from_issue}"
+            if to_year or to_month or to_day or to_volume or to_issue:
+                serial_holding_note_value += ", To:"
+                if not to_year:
+                    to_year = "XXXX"
+                if not to_month:
+                    to_month = "XX"
+                if not to_day:
+                    to_day = "XX"
+                serial_holding_note_value += f" {to_year}-{to_month}-{to_day}"
+                if to_volume:
+                    serial_holding_note_value += f" Vol. {to_volume}"
+                if to_issue:
+                    serial_holding_note_value += f" Issue {to_issue}"
+            if serial_holding_note_value:
+                fields.setdefault("holdings", []).append(
+                    timdex.Holding(
+                        note=serial_holding_note_value or None,
+                    )
+                )
 
         # identifiers
         identifier_marc_fields = [

@@ -183,6 +183,12 @@ def test_marc_record_all_fields_transform_correctly():
                 ),
                 note="Alexander Street Press Parent Record",
             ),
+            timdex.Holding(
+                note="From: 1941-1-1, To: 1941-12-31",
+            ),
+            timdex.Holding(
+                note="From: 1999-1-1 Vol. 1 Issue 1, To: 2003-12-31 Vol. 5 Issue 2",
+            ),
         ],
         identifiers=[
             timdex.Identifier(value="2005022317", kind="LCCN"),
@@ -533,6 +539,39 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 format="electronic resource",
                 location="f",
                 note="i, k",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Vol. 1 Issue 1, To: 1905-12-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: XXXX-1-1 Vol. 1 Issue 1, To: 1905-12-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Vol. 1 Issue 1, To: XXXX-12-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-XX-1 Vol. 1 Issue 1, To: 1905-12-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Vol. 1 Issue 1, To: 1905-XX-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-XX Vol. 1 Issue 1, To: 1905-12-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Vol. 1 Issue 1, To: 1905-12-XX Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Issue 1, To: 1905-12-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Vol. 1 Issue 1, To: 1905-12-31 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Vol. 1, To: 1905-12-31 Vol. 5 Issue 12",
+            ),
+            timdex.Holding(
+                note="From: 1900-1-1 Vol. 1 Issue 1, To: 1905-12-31 Vol. 5",
             ),
         ],
         identifiers=[
