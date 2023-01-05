@@ -32,7 +32,7 @@ marc_content_type_crosswalk = load_external_config(
 class Marc(Transformer):
     """Marc transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict:
+    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from a MARC XML record.
 
@@ -43,11 +43,17 @@ class Marc(Transformer):
         """
         fields: dict = {}
 
+        record_id = Marc.get_source_record_id(xml)
+
         fixed_length_data = xml.find("controlfield", tag="008", string=True)
+        if fixed_length_data is None:
+            logger.error(f"Record ID {record_id} is missing MARC 008 field")
+            return None
 
         leader = xml.find("leader", string=True)
-
-        record_id = Marc.get_source_record_id(xml)
+        if leader is None:
+            logger.error(f"Record ID {record_id} is missing MARC leader")
+            return None
 
         # alternate_titles
         alternate_title_marc_fields = [
@@ -119,13 +125,11 @@ class Marc(Transformer):
         # citation not used in MARC
 
         # content_type
-        if leader and (
-            content_type := Marc.json_crosswalk_code_to_name(
-                leader.string[6:7],
-                marc_content_type_crosswalk,
-                record_id,
-                "Leader/06",
-            )
+        if content_type := Marc.json_crosswalk_code_to_name(
+            leader.string[6:7],
+            marc_content_type_crosswalk,
+            record_id,
+            "Leader/06",
         ):
             fields["content_type"] = [content_type]
 
@@ -203,12 +207,13 @@ class Marc(Transformer):
         fields["contributors"] = contributor_values or None
 
         # dates
-        if fixed_length_data:
+        try:
+            publication_year = int(fixed_length_data.string[7:11])
             fields["dates"] = [
-                timdex.Date(
-                    kind="Publication date", value=fixed_length_data.string[7:11]
-                )
+                timdex.Date(kind="Publication date", value=str(publication_year))
             ]
+        except ValueError:
+            pass
 
         # edition
         edition_values = []
@@ -338,9 +343,8 @@ class Marc(Transformer):
 
         # Get language codes
         language_codes = []
-        if fixed_length_data:
-            if fixed_language_value := fixed_length_data.string[35:38]:
-                language_codes.append(fixed_language_value)
+        if fixed_language_value := fixed_length_data.string[35:38]:
+            language_codes.append(fixed_language_value)
         for field_041 in xml.find_all("datafield", tag="041"):
             language_codes.extend(
                 self.create_subfield_value_list_from_datafield(field_041, "abdefghjkmn")
@@ -389,29 +393,22 @@ class Marc(Transformer):
         # by leader "Type of Record" position = "Language Material" or "Manuscript
         # language material" and "Bibliographic level" position =
         # "Monographic component part," "Collection," "Subunit," or "Monograph/Item."
-        if leader:
-            if leader.string[6:7] in "at" and leader.string[7:8] in "acdm":
-                if fixed_length_data := xml.find(
-                    "controlfield", tag="008", string=True
-                ):
-                    if fixed_length_data.string[33:34] in "0se":
-                        fields["literary_form"] = "Nonfiction"
-                    elif fixed_length_data.string[33:34]:
-                        fields["literary_form"] = "Fiction"
+        if leader.string[6:7] in "at" and leader.string[7:8] in "acdm":
+            if fixed_length_data.string[33:34] in "0se":
+                fields["literary_form"] = "Nonfiction"
+            elif fixed_length_data.string[33:34]:
+                fields["literary_form"] = "Fiction"
 
         # locations
 
         # Get place of publication from 008 field code
-        if fixed_length_data:
-            if fixed_location_code := fixed_length_data.string[15:17]:
-                if location_name := Marc.loc_crosswalk_code_to_name(
-                    fixed_location_code, country_code_crosswalk, record_id, "country"
-                ):
-                    fields.setdefault("locations", []).append(
-                        timdex.Location(
-                            value=location_name, kind="Place of Publication"
-                        )
-                    )
+        if fixed_location_code := fixed_length_data.string[15:17]:
+            if location_name := Marc.loc_crosswalk_code_to_name(
+                fixed_location_code, country_code_crosswalk, record_id, "country"
+            ):
+                fields.setdefault("locations", []).append(
+                    timdex.Location(value=location_name, kind="Place of Publication")
+                )
 
         # Get other locations
         location_marc_fields = [
