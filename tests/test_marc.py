@@ -525,9 +525,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         dates=[timdex.Date(kind="Publication date", value="2016")],
         edition="a b",
         holdings=[
-            timdex.Holding(
-                call_number="bb", collection="i", format="t", location="aa", note="g"
-            ),
+            timdex.Holding(call_number="bb", note="g"),
             timdex.Holding(
                 collection="j",
                 format="electronic resource",
@@ -715,6 +713,33 @@ def test_create_subfield_value_string_from_datafield_with_blank_values():
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert Marc.create_subfield_value_string_from_datafield(datafield, "ad") == ""
+
+
+def test_json_crosswalk_code_to_name_returns_none_if_invalid(
+    caplog, marc_content_type_crosswalk
+):
+    assert (
+        Marc.json_crosswalk_code_to_name(
+            "wrong",
+            marc_content_type_crosswalk,
+            "record-01",
+            "MARC field",
+        )
+        is None
+    )
+    assert "Record #record-01 uses an invalid code in MARC field: wrong" in caplog.text
+
+
+def test_json_crosswalk_code_to_name_returns_name(caplog, marc_content_type_crosswalk):
+    assert (
+        Marc.json_crosswalk_code_to_name(
+            "a",
+            marc_content_type_crosswalk,
+            "record-01",
+            "MARC field",
+        )
+        == "Language material"
+    )
 
 
 def test_loc_crosswalk_code_to_name_returns_none_if_invalid(
