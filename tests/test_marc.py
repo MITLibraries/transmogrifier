@@ -153,7 +153,7 @@ def test_marc_record_all_fields_transform_correctly():
         holdings=[
             timdex.Holding(
                 call_number="PL2687.L8.A28 1994",
-                collection="Hayden Library, Institute Archives",
+                collection="Hayden Library",
                 format="Print volume",
                 location="Stacks",
             ),

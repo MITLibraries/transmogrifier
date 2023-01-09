@@ -230,43 +230,24 @@ class Marc(Transformer):
             holding_call_number_value = (
                 self.create_subfield_value_string_from_datafield(datafield, ["bb"])
             )
-            crosswalked_collection_values = []
-            for holding_collection in self.create_subfield_value_list_from_datafield(
-                datafield, "i"
-            ):
-                if crosswalked_collection_value := Marc.json_crosswalk_code_to_name(
-                    holding_collection,
-                    holdings_collection_crosswalk,
-                    record_id,
-                    "985 $i",
-                ):
-                    crosswalked_collection_values.append(crosswalked_collection_value)
-            holding_collection_value = ", ".join(crosswalked_collection_values)
-            crosswalked_format_values = []
-            for holding_format in self.create_subfield_value_list_from_datafield(
-                datafield, "t"
-            ):
-                if crosswalked_format_value := Marc.json_crosswalk_code_to_name(
-                    holding_format,
-                    holdings_format_crosswalk,
-                    record_id,
-                    "985 $t",
-                ):
-                    crosswalked_format_values.append(crosswalked_format_value)
-            holding_format_value = ", ".join(crosswalked_format_values)
-            crosswalked_location_values = []
-            for holding_location in self.create_subfield_value_list_from_datafield(
-                datafield, ["aa"]
-            ):
-                if crosswalked_location_value := Marc.json_crosswalk_code_to_name(
-                    holding_location,
-                    holdings_location_crosswalk,
-                    record_id,
-                    "985 $aa",
-                ):
-                    crosswalked_location_values.append(crosswalked_location_value)
-            holding_location_value = ", ".join(crosswalked_location_values)
-
+            holding_collection_value = Marc.json_crosswalk_code_to_name(
+                self.create_subfield_value_string_from_datafield(datafield, "i"),
+                holdings_collection_crosswalk,
+                record_id,
+                "985 $i",
+            )
+            holding_format_value = Marc.json_crosswalk_code_to_name(
+                self.create_subfield_value_string_from_datafield(datafield, "t"),
+                holdings_format_crosswalk,
+                record_id,
+                "985 $t",
+            )
+            holding_location_value = Marc.json_crosswalk_code_to_name(
+                self.create_subfield_value_string_from_datafield(datafield, ["aa"]),
+                holdings_location_crosswalk,
+                record_id,
+                "985 $aa",
+            )
             holding_note_value = self.create_subfield_value_string_from_datafield(
                 datafield, "g", ", "
             )
