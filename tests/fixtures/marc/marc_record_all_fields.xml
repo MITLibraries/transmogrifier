@@ -448,7 +448,6 @@
             <subfield code="t">BOOK</subfield>
             <subfield code="bb">PL2687.L8.A28 1994</subfield>
             <subfield code="i">HUM</subfield>
-            <subfield code="i">ACQ</subfield>
         </datafield>
         <datafield tag="985" ind1=" " ind2=" ">
             <subfield code="aa">OCC</subfield>

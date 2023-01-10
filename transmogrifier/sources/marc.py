@@ -119,10 +119,15 @@ class Marc(Transformer):
         # citation not used in MARC
 
         # content_type
-        if leader:
-            fields["content_type"] = [
-                marc_content_type_crosswalk.get(leader.string[6:7], leader.string[6:7])
-            ]
+        if leader and (
+            content_type := Marc.json_crosswalk_code_to_name(
+                leader.string[6:7],
+                marc_content_type_crosswalk,
+                record_id,
+                "Leader/06",
+            )
+        ):
+            fields["content_type"] = [content_type]
 
         # contents
         for datafield in xml.find_all("datafield", tag="505"):
@@ -225,37 +230,23 @@ class Marc(Transformer):
             holding_call_number_value = (
                 self.create_subfield_value_string_from_datafield(datafield, ["bb"])
             )
-            holding_collection_value = ", ".join(
-                [
-                    holdings_collection_crosswalk.get(
-                        holding_collection_value, holding_collection_value
-                    )
-                    for holding_collection_value in (
-                        self.create_subfield_value_list_from_datafield(datafield, "i")
-                    )
-                ]
+            holding_collection_value = Marc.json_crosswalk_code_to_name(
+                self.create_subfield_value_string_from_datafield(datafield, ["aa"]),
+                holdings_collection_crosswalk,
+                record_id,
+                "985 $aa",
             )
-            holding_format_value = ", ".join(
-                [
-                    holdings_format_crosswalk.get(
-                        holding_format_value, holding_format_value
-                    )
-                    for holding_format_value in (
-                        self.create_subfield_value_list_from_datafield(datafield, "t")
-                    )
-                ]
+            holding_format_value = Marc.json_crosswalk_code_to_name(
+                self.create_subfield_value_string_from_datafield(datafield, "t"),
+                holdings_format_crosswalk,
+                record_id,
+                "985 $t",
             )
-            holding_location_value = ", ".join(
-                [
-                    holdings_location_crosswalk.get(
-                        holding_location_value, holding_location_value
-                    )
-                    for holding_location_value in (
-                        self.create_subfield_value_list_from_datafield(
-                            datafield, ["aa"]
-                        )
-                    )
-                ]
+            holding_location_value = Marc.json_crosswalk_code_to_name(
+                self.create_subfield_value_string_from_datafield(datafield, "i"),
+                holdings_location_crosswalk,
+                record_id,
+                "985 $i",
             )
             holding_note_value = self.create_subfield_value_string_from_datafield(
                 datafield, "g", ", "
@@ -284,7 +275,7 @@ class Marc(Transformer):
                 datafield, "f", ", "
             )
             holding_note_value = self.create_subfield_value_string_from_datafield(
-                datafield, "ik", ", "
+                datafield, "i", ", "
             )
             if holding_collection_value or holding_location_value or holding_note_value:
                 fields.setdefault("holdings", []).append(
@@ -730,6 +721,28 @@ class Marc(Transformer):
         return separator.join(
             Marc.create_subfield_value_list_from_datafield(xml_element, subfield_codes)
         )
+
+    @staticmethod
+    def json_crosswalk_code_to_name(
+        code: str, crosswalk: dict, record_id: str, field_name: str
+    ) -> Optional[str]:
+        """
+        Retrieve the name associated with a given code from a JSON crosswalk. Logs a
+        warning and returns None if the code isn't found in the crosswalk.
+
+        Args:
+            code: The code from a MARC record.
+            crosswalk: The crosswalk dict to use, loaded from a config file.
+            record_id: The MMS ID of the MARC record.
+            field_name: The MARC field containing the code.
+        """
+        name = crosswalk.get(code)
+        if name is None:
+            logger.warning(
+                "Record #%s uses an invalid code in %s: %s", record_id, field_name, code
+            )
+            return None
+        return name
 
     @staticmethod
     def loc_crosswalk_code_to_name(
