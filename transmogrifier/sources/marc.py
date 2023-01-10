@@ -231,10 +231,10 @@ class Marc(Transformer):
                 self.create_subfield_value_string_from_datafield(datafield, ["bb"])
             )
             holding_collection_value = Marc.json_crosswalk_code_to_name(
-                self.create_subfield_value_string_from_datafield(datafield, "i"),
+                self.create_subfield_value_string_from_datafield(datafield, ["aa"]),
                 holdings_collection_crosswalk,
                 record_id,
-                "985 $i",
+                "985 $aa",
             )
             holding_format_value = Marc.json_crosswalk_code_to_name(
                 self.create_subfield_value_string_from_datafield(datafield, "t"),
@@ -243,10 +243,10 @@ class Marc(Transformer):
                 "985 $t",
             )
             holding_location_value = Marc.json_crosswalk_code_to_name(
-                self.create_subfield_value_string_from_datafield(datafield, ["aa"]),
+                self.create_subfield_value_string_from_datafield(datafield, "i"),
                 holdings_location_crosswalk,
                 record_id,
-                "985 $aa",
+                "985 $i",
             )
             holding_note_value = self.create_subfield_value_string_from_datafield(
                 datafield, "g", ", "
@@ -275,7 +275,7 @@ class Marc(Transformer):
                 datafield, "f", ", "
             )
             holding_note_value = self.create_subfield_value_string_from_datafield(
-                datafield, "ik", ", "
+                datafield, "i", ", "
             )
             if holding_collection_value or holding_location_value or holding_note_value:
                 fields.setdefault("holdings", []).append(

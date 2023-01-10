@@ -153,15 +153,15 @@ def test_marc_record_all_fields_transform_correctly():
         holdings=[
             timdex.Holding(
                 call_number="PL2687.L8.A28 1994",
-                collection="Hayden Library",
+                collection="Stacks",
                 format="Print volume",
-                location="Stacks",
+                location="Hayden Library",
             ),
             timdex.Holding(
                 call_number="QD79.C4.C485 1983",
-                collection="Library Storage Annex",
+                collection="Off Campus Collection",
                 format="Print volume",
-                location="Off Campus Collection",
+                location="Library Storage Annex",
                 note="pt.A",
             ),
             timdex.Holding(
@@ -170,7 +170,7 @@ def test_marc_record_all_fields_transform_correctly():
                 location=(
                     "http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383"
                 ),
-                note="Available from 06/01/2001 volume: 1 issue: 1., HeinOnline",
+                note="Available from 06/01/2001 volume: 1 issue: 1.",
             ),
             timdex.Holding(
                 collection=(
@@ -181,7 +181,6 @@ def test_marc_record_all_fields_transform_correctly():
                 location=(
                     "http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=19029653"
                 ),
-                note="Alexander Street Press Parent Record",
             ),
         ],
         identifiers=[
@@ -525,12 +524,18 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         dates=[timdex.Date(kind="Publication date", value="2016")],
         edition="a b",
         holdings=[
-            timdex.Holding(call_number="bb", note="g"),
+            timdex.Holding(
+                call_number="bb",
+                collection="Browsery",
+                format="VHS",
+                location="Hayden Library",
+                note="g",
+            ),
             timdex.Holding(
                 collection="j",
                 format="electronic resource",
                 location="f",
-                note="i, k",
+                note="i",
             ),
         ],
         identifiers=[
