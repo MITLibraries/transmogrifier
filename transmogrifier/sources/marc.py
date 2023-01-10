@@ -801,4 +801,19 @@ class Marc(Transformer):
         Args:
             xml: A BeautifulSoup Tag representing a single MARC XML record.
         """
-        return xml.find("controlfield", tag="001", string=True).string
+        return str(xml.find("controlfield", tag="001", string=True).string)
+
+    @classmethod
+    def record_is_deleted(cls, xml: Tag) -> bool:
+        """
+        Determine whether record has a status of deleted.
+
+        Overrides metaclass record_is_deleted() method.
+
+        Args:
+            xml: A BeautifulSoup Tag representing a single MARC XML record
+        """
+        if leader := xml.find("leader", string=True):
+            if leader.string[5:6] == "d":
+                return True
+        return False

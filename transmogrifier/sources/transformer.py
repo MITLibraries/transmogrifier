@@ -6,7 +6,7 @@ from typing import Iterator, Optional, final
 from bs4 import Tag
 
 from transmogrifier.config import SOURCES
-from transmogrifier.helpers import generate_citation
+from transmogrifier.helpers import DeletedRecord, generate_citation
 from transmogrifier.models import TimdexRecord
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,7 @@ class Transformer(object):
         self.processed_record_count = 0
         self.transformed_record_count = 0
         self.skipped_record_count = 0
+        self.deleted_records: list[str] = []
 
     def __iter__(self) -> Iterator[TimdexRecord]:
         """Iterate over transformed records."""
@@ -41,7 +42,11 @@ class Transformer(object):
         """Return next transformed record."""
         xml = next(self.input_records)
         self.processed_record_count += 1
-        record = self.transform(xml)
+        try:
+            record = self.transform(xml)
+        except DeletedRecord as error:
+            self.deleted_records.append(error.timdex_record_id)
+            return self.__next__()
         if record:
             self.transformed_record_count += 1
             return record
@@ -75,7 +80,6 @@ class Transformer(object):
         return []
 
     @classmethod
-    @abstractmethod
     def get_source_record_id(cls, xml: Tag) -> str:
         """
         Get or generate a source record ID from an XML record.
@@ -85,10 +89,9 @@ class Transformer(object):
         Args:
             xml: A BeautifulSoup Tag representing a single XML record
         """
-        return ""
+        return str(xml.header.find("identifier").string)
 
     @classmethod
-    @abstractmethod
     def record_is_deleted(cls, xml: Tag) -> bool:
         """
         Determine whether record has a status of deleted.
@@ -99,10 +102,6 @@ class Transformer(object):
             xml: A BeautifulSoup Tag representing a single XML record
         """
         if xml.find("header", status="deleted"):
-            logger.debug(
-                f"Skipping record {cls.get_source_record_id(xml)} with header status "
-                "deleted"
-            )
             return True
         return False
 
@@ -136,7 +135,9 @@ class Transformer(object):
             xml: A BeautifulSoup Tag representing a single OAI-PMH XML record.
         """
         if self.record_is_deleted(xml):
-            return None
+            source_record_id = self.get_source_record_id(xml)
+            timdex_record_id = f"{self.source}:{source_record_id.replace('/', '-')}"
+            raise DeletedRecord(timdex_record_id)
         optional_fields = self.get_optional_fields(xml)
         if optional_fields is None:
             return None

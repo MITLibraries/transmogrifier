@@ -18,8 +18,8 @@ def test_transformer_iterates_through_all_records(oai_pmh_records):
     output_records = Transformer("cool-repo", oai_pmh_records)
     assert len(list(output_records)) == 2
     assert output_records.processed_record_count == 3
-    assert output_records.skipped_record_count == 1
     assert output_records.transformed_record_count == 2
+    assert len(output_records.deleted_records) == 1
 
 
 def test_transformer_iterates_successfully_if_get_optional_fields_returns_none(
@@ -32,23 +32,22 @@ def test_transformer_iterates_successfully_if_get_optional_fields_returns_none(
         output_records = Transformer("cool-repo", oai_pmh_records)
         assert len(list(output_records)) == 0
         assert output_records.processed_record_count == 3
-        assert output_records.skipped_record_count == 3
+        assert output_records.skipped_record_count == 2
         assert output_records.transformed_record_count == 0
+        assert len(output_records.deleted_records) == 1
 
 
 def test_transformer_record_is_deleted_returns_true_if_deleted(caplog):
     input_records = parse_xml_records("tests/fixtures/record_deleted.xml")
-    output_records = Datacite("cool-repo", input_records)
-    assert len(list(output_records)) == 0
-    assert "Skipping record 123456 with header status deleted" in caplog.text
+    assert Transformer.record_is_deleted(next(input_records)) is True
 
 
 def test_transformer_get_required_fields_returns_expected_values(oai_pmh_records):
     transformer = Transformer("cool-repo", oai_pmh_records)
     assert transformer.get_required_fields(next(oai_pmh_records)) == {
         "source": "A Cool Repository",
-        "source_link": "https://example.com/",
-        "timdex_record_id": "cool-repo:",
+        "source_link": "https://example.com/12345",
+        "timdex_record_id": "cool-repo:12345",
         "title": "Title not provided",
     }
 
@@ -57,10 +56,10 @@ def test_transformer_transform_returns_timdex_record(oai_pmh_records):
     transformer = Transformer("cool-repo", oai_pmh_records)
     assert next(transformer) == TimdexRecord(
         source="A Cool Repository",
-        source_link="https://example.com/",
-        timdex_record_id="cool-repo:",
+        source_link="https://example.com/12345",
+        timdex_record_id="cool-repo:12345",
         title="Title not provided",
-        citation="Title not provided. https://example.com/",
+        citation="Title not provided. https://example.com/12345",
         content_type=["Not specified"],
     )
 

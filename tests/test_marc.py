@@ -838,3 +838,13 @@ def test_get_source_record_id():
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
+
+
+def test_record_is_deleted_returns_true_if_deleted():
+    deleted_record = parse_xml_records("tests/fixtures/marc/marc_record_deleted.xml")
+    assert Marc.record_is_deleted(next(deleted_record)) is True
+
+
+def test_record_is_deleted_returns_false_if_not_deleted():
+    marc_record = parse_xml_records("tests/fixtures/marc/marc_record_all_fields.xml")
+    assert Marc.record_is_deleted(next(marc_record)) is False

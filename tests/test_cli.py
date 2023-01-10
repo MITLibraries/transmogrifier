@@ -71,3 +71,23 @@ def test_transform_no_records(runner, tmp_path):
     )
     assert result.exit_code == 1
     assert isinstance(result.exception, ValueError)
+
+
+def test_transform_deleted_records(caplog, runner, tmp_path):
+    outfile = tmp_path / "records-to-index.json"
+    result = runner.invoke(
+        main,
+        [
+            "-i",
+            "tests/fixtures/record_deleted.xml",
+            "-o",
+            outfile,
+            "-s",
+            "jpal",
+        ],
+    )
+    assert result.exit_code == 0
+    assert (
+        "Completed transform, total records processed: 1, transformed records: 0"
+        ", skipped records: 0, deleted records: 1"
+    ) in caplog.text
