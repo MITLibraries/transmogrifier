@@ -84,7 +84,7 @@ def parse_xml_records(
 
 
 def write_deleted_records_to_file(deleted_records: list[str], output_file_path: str):
-    with open(output_file_path, "a") as file:
+    with open(output_file_path, "w") as file:
         for record_id in deleted_records:
             file.write(f"{record_id}\n")
 
