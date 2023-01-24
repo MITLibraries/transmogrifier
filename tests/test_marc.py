@@ -1,3 +1,5 @@
+import logging
+
 import transmogrifier.models as timdex
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.marc import Marc
@@ -681,6 +683,34 @@ def test_marc_record_with_missing_optional_fields_transforms_correctly():
     )
 
 
+def test_marc_record_missing_leader_logs_error(caplog):
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_missing_leader.xml"
+    )
+    output_records = Marc("alma", marc_xml_records)
+    assert len(list(output_records)) == 0
+    assert output_records.processed_record_count == 1
+    assert (
+        "transmogrifier.sources.marc",
+        logging.ERROR,
+        "Record ID 990027185640106761 is missing MARC leader",
+    ) in caplog.record_tuples
+
+
+def test_marc_record_missing_008_logs_error(caplog):
+    marc_xml_records = parse_xml_records(
+        "tests/fixtures/marc/marc_record_missing_008.xml"
+    )
+    output_records = Marc("alma", marc_xml_records)
+    assert len(list(output_records)) == 0
+    assert output_records.processed_record_count == 1
+    assert (
+        "transmogrifier.sources.marc",
+        logging.ERROR,
+        "Record ID 990027185640106761 is missing MARC 008 field",
+    ) in caplog.record_tuples
+
+
 def test_create_subfield_value_list_from_datafield_with_values():
     marc_xml_records = parse_xml_records(
         "tests/fixtures/marc/marc_record_all_fields.xml"
@@ -808,3 +838,13 @@ def test_get_source_record_id():
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
+
+
+def test_record_is_deleted_returns_true_if_deleted():
+    deleted_record = parse_xml_records("tests/fixtures/marc/marc_record_deleted.xml")
+    assert Marc.record_is_deleted(next(deleted_record)) is True
+
+
+def test_record_is_deleted_returns_false_if_not_deleted():
+    marc_record = parse_xml_records("tests/fixtures/marc/marc_record_all_fields.xml")
+    assert Marc.record_is_deleted(next(marc_record)) is False

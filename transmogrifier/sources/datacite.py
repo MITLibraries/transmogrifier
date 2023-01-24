@@ -305,19 +305,6 @@ class Datacite(Transformer):
         ]
 
     @classmethod
-    def get_source_record_id(cls, xml: Tag) -> str:
-        """
-        Get the source record ID from a Datacite XML record.
-
-        Overrides metaclass get_source_record_id() method.
-
-        Args:
-            xml: A BeautifulSoup Tag representing a single Datacite record in
-                oai_datacite XML.
-        """
-        return xml.header.find("identifier").string
-
-    @classmethod
     def generate_name_identifier_url(cls, name_identifier: Tag) -> str:
         """
         Generate a full name identifier URL with the specified scheme.

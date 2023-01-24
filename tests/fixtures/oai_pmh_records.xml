@@ -2,12 +2,20 @@
 <metadata>
     <record xmlns="http://www.openarchives.org/OAI/2.0/"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <header>
+            <identifier>12345</identifier>
+        </header>
     </record>
     <record xmlns="http://www.openarchives.org/OAI/2.0/"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <header>
+            <identifier>67890</identifier>
+        </header>
     </record>
     <record xmlns="http://www.openarchives.org/OAI/2.0/"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <header status="deleted"></header>
+        <header status="deleted">
+            <identifier>deleted</identifier>
+        </header>
     </record>
 </metadata>

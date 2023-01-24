@@ -83,14 +83,20 @@ def parse_xml_records(
             element.clear()
 
 
+def write_deleted_records_to_file(deleted_records: list[str], output_file_path: str):
+    with open(output_file_path, "a") as file:
+        for record_id in deleted_records:
+            file.write(f"{record_id}\n")
+
+
 def write_timdex_records_to_json(
     records: Iterator[TimdexRecord], output_file_path: str
 ) -> int:
     count = 0
     try:
         record = next(records)
-    except StopIteration as error:
-        raise ValueError("No records transformed from input file") from error
+    except StopIteration:
+        return count
     with open(output_file_path, "w") as file:
         file.write("[\n")
         while record:
@@ -112,3 +118,15 @@ def write_timdex_records_to_json(
             file.write(",\n")
         file.write("\n]")
     return count
+
+
+class DeletedRecord(Exception):
+    """Exception raised for records with a deleted status.
+
+    Attributes:
+        timdex_record_id: The TIMDEX record ID (not the source record ID) for the record
+
+    """
+
+    def __init__(self, timdex_record_id):
+        self.timdex_record_id = timdex_record_id
