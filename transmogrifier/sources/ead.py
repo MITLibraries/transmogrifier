@@ -5,6 +5,7 @@ from bs4 import NavigableString, Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
+from transmogrifier.helpers import validate_date, validate_date_range
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,8 @@ class Ead(Transformer):
             xml: A BeautifulSoup Tag representing a single EAD XML record.
         """
         fields: dict = {}
+
+        source_record_id = self.get_source_record_id(xml)
 
         if collection_description := xml.metadata.find("archdesc", level="collection"):
             pass
@@ -109,12 +112,28 @@ class Ead(Transformer):
                 date_instance = timdex.Date()
                 if "-" in date_value:
                     split = date_value.index("-")
-                    date_instance.range = timdex.Date_Range(
-                        gte=date_value[:split],
-                        lte=date_value[split + 1 :],
-                    )
+                    gte_date = date_value[:split]
+                    lte_date = date_value[split + 1 :]
+                    if validate_date_range(
+                        gte_date,
+                        lte_date,
+                        source_record_id,
+                    ):
+                        date_instance.range = timdex.Date_Range(
+                            gte=validate_date(
+                                gte_date,
+                                source_record_id,
+                            ),
+                            lte=validate_date(
+                                lte_date,
+                                source_record_id,
+                            ),
+                        )
                 else:
-                    date_instance.value = date_value
+                    date_instance.value = validate_date(
+                        date_value,
+                        source_record_id,
+                    )
                 date_instance.kind = date_element.get("datechar") or None
                 date_instance.note = date_element.get("certainty") or None
                 fields.setdefault("dates", []).append(date_instance)

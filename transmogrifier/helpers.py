@@ -1,7 +1,8 @@
 import json
 import logging
 import os
-from typing import Iterator
+from datetime import datetime
+from typing import Iterator, Optional
 
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
@@ -12,6 +13,7 @@ from bs4 import BeautifulSoup, Tag
 from lxml import etree  # nosec B410
 from smart_open import open
 
+from transmogrifier.config import DATE_FORMATS
 from transmogrifier.models import TimdexRecord
 
 logger = logging.getLogger(__name__)
@@ -81,6 +83,86 @@ def parse_xml_records(
             record = BeautifulSoup(record_string, "xml")
             yield record
             element.clear()
+
+
+def format_date(
+    date_value: Optional[str],
+) -> Optional[datetime]:
+    """
+    Format a date value as a datetime object according to one of the configured
+    OpenSearch date formats.
+
+    Args:
+        date_value: A date value.
+        source_record_id: The ID of the record being transformed.
+    """
+    if date_value:
+        for date_format in DATE_FORMATS:
+            try:
+                return datetime.strptime(date_value, date_format)
+            except ValueError:
+                pass
+    return None
+
+
+def validate_date(
+    date_value: Optional[str],
+    source_record_id: str,
+) -> Optional[str]:
+    """
+    Validate that a date can be parsed according to one of the configured
+    OpenSearch date formats. Returns original date value if valid or returns
+    None and logs an error.
+
+    Args:
+        date_value: A date value.
+        source_record_id: The ID of the record being transformed.
+    """
+    if date_value:
+        date_value = date_value.strip()
+        try:
+            if format_date(date_value):
+                return date_value
+        except ValueError:
+            pass
+    logger.error(
+        "Record # %s has a date that couldn't be parsed: %s",
+        source_record_id,
+        date_value,
+    )
+    return None
+
+
+def validate_date_range(
+    gte_date: Optional[str],
+    lte_date: Optional[str],
+    source_record_id: str,
+) -> bool:
+    """
+    Validate a date range by ensuring that the start date is before the end date to avoid
+    an OpenSearch exception. Returns true if only one date exists in the range or the end
+    date is after the start date, otherwise returns False and logs an error.
+
+    Args:
+        gte_date: The start date of a date range.
+        lte_date: The end date of a date range.
+        source_record_id: The ID of the record being transformed.
+    """
+    formatted_gte_date = format_date(gte_date)
+    formatted_lte_date = format_date(lte_date)
+    if formatted_gte_date and formatted_lte_date:
+        date_diff = formatted_gte_date - formatted_lte_date
+        if date_diff.days < 0:
+            return True
+        else:
+            logger.error(
+                "Record ID %s contains an invalid date range: %s, %s",
+                source_record_id,
+                gte_date,
+                lte_date,
+            )
+            return False
+    return True
 
 
 def write_deleted_records_to_file(deleted_records: list[str], output_file_path: str):

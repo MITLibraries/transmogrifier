@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 from bs4 import Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.helpers import validate_date, validate_date_range
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -117,15 +118,31 @@ class Datacite(Transformer):
 
         for date in xml.metadata.find_all("date"):
             d = timdex.Date()
-            if value := date.string:
-                if "/" in value:
-                    split = value.index("/")
-                    d.range = timdex.Date_Range(
-                        gte=value[:split],
-                        lte=value[split + 1 :],
-                    )
+            if date_value := date.string:
+                if "/" in date_value:
+                    split = date_value.index("/")
+                    gte_date = date_value[:split]
+                    lte_date = date_value[split + 1 :]
+                    if validate_date_range(
+                        gte_date,
+                        lte_date,
+                        source_record_id,
+                    ):
+                        d.range = timdex.Date_Range(
+                            gte=validate_date(
+                                gte_date,
+                                source_record_id,
+                            ),
+                            lte=validate_date(
+                                lte_date,
+                                source_record_id,
+                            ),
+                        )
                 else:
-                    d.value = value
+                    d.value = validate_date(
+                        date_value,
+                        source_record_id,
+                    )
             d.note = date.get("dateInformation") or None
             if any([d.note, d.range, d.value]):
                 d.kind = date.get("dateType") or None

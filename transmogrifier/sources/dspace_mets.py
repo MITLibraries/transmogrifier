@@ -4,6 +4,7 @@ import logging
 from bs4 import Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.helpers import validate_date
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,8 @@ class DspaceMets(Transformer):
             xml: A BeautifulSoup Tag representing a single DSpace METS XML record.
         """
         fields: dict = {}
+
+        source_record_id = self.get_source_record_id(xml)
 
         # alternate_titles
         for alternate_title in [
@@ -74,9 +77,12 @@ class DspaceMets(Transformer):
         # Only publication date is mapped from DSpace, other relevant date field (dc.
         # coverage.temporal) is not mapped to the OAI-PMH METS output.
         if publication_date := xml.find("mods:dateIssued", string=True):
-            fields["dates"] = [
-                timdex.Date(kind="Publication date", value=publication_date.string)
-            ]
+            if publication_date_value := validate_date(
+                publication_date.string, source_record_id
+            ):
+                fields["dates"] = [
+                    timdex.Date(kind="Publication date", value=publication_date_value)
+                ]
 
         # edition field not used in DSpace
 

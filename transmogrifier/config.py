@@ -10,6 +10,18 @@ from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
+DATE_FORMATS = [
+    "%Y/%m/%d",
+    "%m/%d/%Y",
+    "%m/%d/%y",
+    "%Y-%m-%d",
+    "%m-%d-%Y",
+    "%m-%d-%y",
+    "%Y",
+    "%Y/%m",
+    "%Y-%m",
+]
+
 SOURCES = {
     "alma": {
         "name": "MIT Alma",

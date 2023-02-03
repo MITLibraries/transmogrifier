@@ -5,6 +5,7 @@ from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
+from transmogrifier.helpers import validate_date
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -43,16 +44,16 @@ class Marc(Transformer):
         """
         fields: dict = {}
 
-        record_id = Marc.get_source_record_id(xml)
+        source_record_id = Marc.get_source_record_id(xml)
 
         fixed_length_data = xml.find("controlfield", tag="008", string=True)
         if fixed_length_data is None:
-            logger.error(f"Record ID {record_id} is missing MARC 008 field")
+            logger.error(f"Record ID {source_record_id} is missing MARC 008 field")
             return None
 
         leader = xml.find("leader", string=True)
         if leader is None:
-            logger.error(f"Record ID {record_id} is missing MARC leader")
+            logger.error(f"Record ID {source_record_id} is missing MARC leader")
             return None
 
         # alternate_titles
@@ -128,7 +129,7 @@ class Marc(Transformer):
         if content_type := Marc.json_crosswalk_code_to_name(
             leader.string[6:7],
             marc_content_type_crosswalk,
-            record_id,
+            source_record_id,
             "Leader/06",
         ):
             fields["content_type"] = [content_type]
@@ -207,13 +208,12 @@ class Marc(Transformer):
         fields["contributors"] = contributor_values or None
 
         # dates
-        try:
-            publication_year = int(fixed_length_data.string[7:11])
+        if publication_year := validate_date(
+            fixed_length_data.string[7:11], source_record_id
+        ):
             fields["dates"] = [
-                timdex.Date(kind="Publication date", value=str(publication_year))
+                timdex.Date(kind="Publication date", value=publication_year)
             ]
-        except ValueError:
-            pass
 
         # edition
         edition_values = []
@@ -238,19 +238,19 @@ class Marc(Transformer):
             holding_collection_value = Marc.json_crosswalk_code_to_name(
                 self.create_subfield_value_string_from_datafield(datafield, ["aa"]),
                 holdings_collection_crosswalk,
-                record_id,
+                source_record_id,
                 "985 $aa",
             )
             holding_format_value = Marc.json_crosswalk_code_to_name(
                 self.create_subfield_value_string_from_datafield(datafield, "t"),
                 holdings_format_crosswalk,
-                record_id,
+                source_record_id,
                 "985 $t",
             )
             holding_location_value = Marc.json_crosswalk_code_to_name(
                 self.create_subfield_value_string_from_datafield(datafield, "i"),
                 holdings_location_crosswalk,
-                record_id,
+                source_record_id,
                 "985 $i",
             )
             holding_note_value = self.create_subfield_value_string_from_datafield(
@@ -353,7 +353,7 @@ class Marc(Transformer):
         # Crosswalk codes to names
         for language_code in list(dict.fromkeys(language_codes)):
             if language_name := Marc.loc_crosswalk_code_to_name(
-                language_code, language_code_crosswalk, record_id, "language"
+                language_code, language_code_crosswalk, source_record_id, "language"
             ):
                 languages.append(language_name)
 
@@ -404,7 +404,7 @@ class Marc(Transformer):
         # Get place of publication from 008 field code
         if fixed_location_code := fixed_length_data.string[15:17]:
             if location_name := Marc.loc_crosswalk_code_to_name(
-                fixed_location_code, country_code_crosswalk, record_id, "country"
+                fixed_location_code, country_code_crosswalk, source_record_id, "country"
             ):
                 fields.setdefault("locations", []).append(
                     timdex.Location(value=location_name, kind="Place of Publication")

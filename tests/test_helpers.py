@@ -1,5 +1,13 @@
+from datetime import datetime
+
 import transmogrifier.models as timdex
-from transmogrifier.helpers import generate_citation, parse_xml_records
+from transmogrifier.helpers import (
+    format_date,
+    generate_citation,
+    parse_xml_records,
+    validate_date,
+    validate_date_range,
+)
 
 
 def test_generate_citation_with_required_fields_only():
@@ -184,3 +192,42 @@ def test_generate_citation_with_all_fields():
 def test_parse_xml_records_returns_record_iterator():
     records = parse_xml_records("tests/fixtures/datacite/datacite_records.xml")
     assert len(list(records)) == 38
+
+
+def test_format_date_success():
+    for date in [
+        "1930/12/31",
+        "12/31/1930",
+        "12/31/30",
+        "1930-12-31",
+        "12-31-1930",
+        "12-31-30",
+        "1930",
+        "1930/12",
+        "1930-12",
+    ]:
+        assert type(format_date(date)) == datetime
+
+
+def test_format_date_invalid_date_returns_none():
+    assert not format_date("circa 1930s")
+
+
+def test_validate_date_success():
+    assert validate_date("1930 ", "1234") == "1930"
+
+
+def test_validate_date_invalid_date_logs_error(caplog):
+    validate_date("circa 1930s", "1234")
+    assert (
+        "Record # 1234 has a date that couldn't be parsed: circa 1930s"
+    ) in caplog.text
+
+
+def test_validate_date_range_success():
+    assert validate_date_range("1930 ", "1926", "1234")
+
+
+def test_validate_date_range_invalid_date_logs_error(caplog):
+    validate_date_range("1930", "1924", "1234")
+    assert ("Record ID 1234 contains an invalid date range: 1930, 1924") in caplog.text

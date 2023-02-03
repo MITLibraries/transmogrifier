@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 from bs4 import Tag
 
 import transmogrifier.models as timdex
+from transmogrifier.helpers import validate_date, validate_date_range
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,8 @@ class DspaceDim(Transformer):
             xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
         """
         fields: dict = {}
+
+        source_record_id = self.get_source_record_id(xml)
 
         # alternate_titles
         for alternate_title in [
@@ -97,13 +100,27 @@ class DspaceDim(Transformer):
             if c.string
         ]:
             if "/" in coverage:
-                d = timdex.Date(
-                    range=timdex.Date_Range(
-                        gte=coverage.string[: coverage.string.index("/")],
-                        lte=coverage.string[coverage.string.index("/") + 1 :],
-                    ),
-                    kind="coverage",
-                )
+                split = coverage.index("/")
+                gte_date = coverage[:split]
+                lte_date = coverage[split + 1 :]
+                if validate_date_range(
+                    gte_date,
+                    lte_date,
+                    source_record_id,
+                ):
+                    d = timdex.Date(
+                        range=timdex.Date_Range(
+                            gte=validate_date(
+                                gte_date,
+                                source_record_id,
+                            ),
+                            lte=validate_date(
+                                lte_date,
+                                source_record_id,
+                            ),
+                        ),
+                        kind="coverage",
+                    )
             else:
                 d = timdex.Date(note=coverage.string, kind="coverage")
             fields.setdefault("dates", []).append(d)
