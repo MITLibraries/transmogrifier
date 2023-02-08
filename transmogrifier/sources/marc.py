@@ -208,9 +208,8 @@ class Marc(Transformer):
         fields["contributors"] = contributor_values or None
 
         # dates
-        if publication_year := validate_date(
-            fixed_length_data.string[7:11], source_record_id
-        ):
+        publication_year = fixed_length_data.string[7:11]
+        if validate_date(publication_year, source_record_id):
             fields["dates"] = [
                 timdex.Date(kind="Publication date", value=publication_year)
             ]

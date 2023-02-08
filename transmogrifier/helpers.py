@@ -85,57 +85,55 @@ def parse_xml_records(
             element.clear()
 
 
-def format_date(
-    date_value: Optional[str],
+def parse_date_from_string(
+    date_string: str,
 ) -> Optional[datetime]:
     """
-    Format a date value as a datetime object according to one of the configured
+    Transform a date string into a datetime object according to one of the configured
     OpenSearch date formats.
 
     Args:
-        date_value: A date value.
+        date_string: A date string.
         source_record_id: The ID of the record being transformed.
     """
-    if date_value:
-        for date_format in DATE_FORMATS:
-            try:
-                return datetime.strptime(date_value, date_format)
-            except ValueError:
-                pass
+    for date_format in DATE_FORMATS:
+        try:
+            return datetime.strptime(date_string, date_format)
+        except ValueError:
+            pass
     return None
 
 
 def validate_date(
-    date_value: Optional[str],
+    date_string: str,
     source_record_id: str,
-) -> Optional[str]:
+) -> bool:
     """
-    Validate that a date can be parsed according to one of the configured
-    OpenSearch date formats. Returns original date value if valid or returns
-    None and logs an error.
+    Validate that a date string can be parsed according to one of the configured
+    OpenSearch date formats. Returns True if date string is valid or returns
+    False and logs an error.
 
     Args:
-        date_value: A date value.
+        date_string: A date string.
         source_record_id: The ID of the record being transformed.
     """
-    if date_value:
-        date_value = date_value.strip()
-        try:
-            if format_date(date_value):
-                return date_value
-        except ValueError:
-            pass
+    date_string = date_string.strip()
+    try:
+        if parse_date_from_string(date_string):
+            return True
+    except ValueError:
+        pass
     logger.error(
-        "Record # %s has a date that couldn't be parsed: %s",
+        "Record # '%s' has a date that couldn't be parsed: %s",
         source_record_id,
-        date_value,
+        date_string,
     )
-    return None
+    return False
 
 
 def validate_date_range(
-    gte_date: Optional[str],
-    lte_date: Optional[str],
+    start_date: str,
+    end_date: str,
     source_record_id: str,
 ) -> bool:
     """
@@ -144,25 +142,31 @@ def validate_date_range(
     date is after the start date, otherwise returns False and logs an error.
 
     Args:
-        gte_date: The start date of a date range.
-        lte_date: The end date of a date range.
+        start_date: The start date of a date range.
+        end_date: The end date of a date range.
         source_record_id: The ID of the record being transformed.
     """
-    formatted_gte_date = format_date(gte_date)
-    formatted_lte_date = format_date(lte_date)
-    if formatted_gte_date and formatted_lte_date:
-        date_diff = formatted_gte_date - formatted_lte_date
-        if date_diff.days < 0:
+    start_date_object = parse_date_from_string(start_date)
+    end_date_object = parse_date_from_string(end_date)
+    if start_date_object and end_date_object:
+        if start_date_object <= end_date_object:
             return True
         else:
             logger.error(
-                "Record ID %s contains an invalid date range: %s, %s",
+                "Record ID '%s' has a later start date than end date: '%s', '%s'",
                 source_record_id,
-                gte_date,
-                lte_date,
+                start_date,
+                end_date,
             )
             return False
-    return True
+    else:
+        logger.error(
+            "Record ID '%s' has an invalid values in a date range: '%s', '%s'",
+            source_record_id,
+            start_date,
+            end_date,
+        )
+        return False
 
 
 def write_deleted_records_to_file(deleted_records: list[str], output_file_path: str):

@@ -2,8 +2,8 @@ from datetime import datetime
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import (
-    format_date,
     generate_citation,
+    parse_date_from_string,
     parse_xml_records,
     validate_date,
     validate_date_range,
@@ -194,40 +194,99 @@ def test_parse_xml_records_returns_record_iterator():
     assert len(list(records)) == 38
 
 
-def test_format_date_success():
+def test_parse_date_from_string_success():
     for date in [
-        "1930/12/31",
-        "12/31/1930",
-        "12/31/30",
-        "1930-12-31",
-        "12-31-1930",
-        "12-31-30",
         "1930",
-        "1930/12",
         "1930-12",
+        "1930",
+        "1930-12",
+        "1930-12-31",
+        "1930-12-31",
+        "19301231",
+        "19301231",
+        "12/31/1930",
+        "12/31/1930",
+        "1930/12/31",
+        "1930T12",
+        "1930T12Z",
+        "1930T12:34",
+        "1930T12:34Z",
+        "1930T12:34:56",
+        "1930T12:34:56Z",
+        "1930T12:34:56.000001",
+        "1930T12:34:56.000001Z",
+        "1930-12T12",
+        "1930-12T12Z",
+        "1930-12T12:34",
+        "1930-12T12:34Z",
+        "1930-12T12:34:56",
+        "1930-12T12:34:56Z",
+        "1930-12T12:34:56.000001",
+        "1930-12T12:34:56.000001Z",
+        "1930-12-31T12",
+        "1930-12-31T12Z",
+        "1930-12-31T12:34",
+        "1930-12-31T12:34Z",
+        "1930-12-31T12:34:56",
+        "1930-12-31T12:34:56Z",
+        "1930-12-31T12:34:56.000001",
+        "1930-12-31T12:34:56.000001Z",
+        "1930T12",
+        "1930T12Z",
+        "1930T12:34",
+        "1930T12:34Z",
+        "1930T12:34:56",
+        "1930T12:34:56Z",
+        "1930T12:34:56.000001",
+        "1930T12:34:56.000001Z",
+        "1930-12T12",
+        "1930-12T12Z",
+        "1930-12T12:34",
+        "1930-12T12:34Z",
+        "1930-12T12:34:56",
+        "1930-12T12:34:56Z",
+        "1930-12T12:34:56.000001",
+        "1930-12T12:34:56.000001Z",
+        "1930-12-31T12",
+        "1930-12-31T12Z",
+        "1930-12-31T12:34",
+        "1930-12-31T12:34Z",
+        "1930-12-31T12:34:56",
+        "1930-12-31T12:34:56Z",
+        "1930-12-31T12:34:56.000001",
+        "1930-12-31T12:34:56.000001Z",
     ]:
-        assert type(format_date(date)) == datetime
+        assert type(parse_date_from_string(date)) == datetime
 
 
-def test_format_date_invalid_date_returns_none():
-    assert not format_date("circa 1930s")
+def test_parse_date_from_string_invalid_date_returns_false():
+    assert not parse_date_from_string("circa 1930s")
 
 
 def test_validate_date_success():
-    assert validate_date("1930 ", "1234") == "1930"
+    assert validate_date("1930 ", "1234") is True
 
 
 def test_validate_date_invalid_date_logs_error(caplog):
     validate_date("circa 1930s", "1234")
     assert (
-        "Record # 1234 has a date that couldn't be parsed: circa 1930s"
+        "Record # '1234' has a date that couldn't be parsed: circa 1930s"
     ) in caplog.text
 
 
 def test_validate_date_range_success():
-    assert validate_date_range("1930 ", "1926", "1234")
+    assert validate_date_range("1926", "1930", "1234")
 
 
-def test_validate_date_range_invalid_date_logs_error(caplog):
+def test_validate_date_range_invalid_date_range_logs_error(caplog):
+    validate_date_range("circa 1910s", "1924", "1234")
+    assert (
+        "Record ID '1234' has an invalid values in a date range: 'circa 1910s', '1924'"
+    ) in caplog.text
+
+
+def test_validate_date_range_invalid_start_date_logs_error(caplog):
     validate_date_range("1930", "1924", "1234")
-    assert ("Record ID 1234 contains an invalid date range: 1930, 1924") in caplog.text
+    assert (
+        "Record ID '1234' has a later start date than end date: '1930', '1924'"
+    ) in caplog.text

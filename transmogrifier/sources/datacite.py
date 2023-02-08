@@ -129,19 +129,27 @@ class Datacite(Transformer):
                         source_record_id,
                     ):
                         d.range = timdex.Date_Range(
-                            gte=validate_date(
+                            gte=gte_date
+                            if validate_date(
                                 gte_date,
                                 source_record_id,
-                            ),
-                            lte=validate_date(
+                            )
+                            else None,
+                            lte=lte_date
+                            if validate_date(
                                 lte_date,
                                 source_record_id,
-                            ),
+                            )
+                            else None,
                         )
                 else:
-                    d.value = validate_date(
-                        date_value,
-                        source_record_id,
+                    d.value = (
+                        date_value
+                        if validate_date(
+                            date_value,
+                            source_record_id,
+                        )
+                        else None
                     )
             d.note = date.get("dateInformation") or None
             if any([d.note, d.range, d.value]):

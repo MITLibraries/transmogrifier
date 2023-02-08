@@ -120,19 +120,27 @@ class Ead(Transformer):
                         source_record_id,
                     ):
                         date_instance.range = timdex.Date_Range(
-                            gte=validate_date(
+                            gte=gte_date
+                            if validate_date(
                                 gte_date,
                                 source_record_id,
-                            ),
-                            lte=validate_date(
+                            )
+                            else None,
+                            lte=lte_date
+                            if validate_date(
                                 lte_date,
                                 source_record_id,
-                            ),
+                            )
+                            else None,
                         )
                 else:
-                    date_instance.value = validate_date(
-                        date_value,
-                        source_record_id,
+                    date_instance.value = (
+                        date_value
+                        if validate_date(
+                            date_value,
+                            source_record_id,
+                        )
+                        else None
                     )
                 date_instance.kind = date_element.get("datechar") or None
                 date_instance.note = date_element.get("certainty") or None
