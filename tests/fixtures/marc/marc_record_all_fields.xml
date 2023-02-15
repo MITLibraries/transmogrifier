@@ -465,8 +465,11 @@
         <datafield tag="986" ind1=" " ind2=" ">
             <subfield code="k">Alexander Street Press Parent Record</subfield>
             <subfield code="j">Music Online: Classical Music Library - United States</subfield>
-            <subfield code="j">Music Online: Classical Music Library</subfield>
-            <subfield code="f">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=19029653</subfield>
+            <subfield code="l">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=19029653</subfield>
+        </datafield>
+        <datafield tag="986" ind1=" " ind2=" ">
+            <subfield code="j">O'Reilly Online Learning</subfield>
+            <subfield code="d">http://link-resolver-url</subfield>
         </datafield>
     </record>
 </collection>

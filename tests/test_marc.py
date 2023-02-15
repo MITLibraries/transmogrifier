@@ -1,5 +1,7 @@
 import logging
 
+from bs4 import BeautifulSoup
+
 import transmogrifier.models as timdex
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.marc import Marc
@@ -175,14 +177,15 @@ def test_marc_record_all_fields_transform_correctly():
                 note="Available from 06/01/2001 volume: 1 issue: 1.",
             ),
             timdex.Holding(
-                collection=(
-                    "Music Online: Classical Music Library - United States, Music "
-                    "Online: Classical Music Library"
-                ),
+                collection="Music Online: Classical Music Library - United States",
                 format="electronic resource",
-                location=(
-                    "http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=19029653"
-                ),
+                location="http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?"
+                "cid=19029653",
+            ),
+            timdex.Holding(
+                collection="O'Reilly Online Learning",
+                format="electronic resource",
+                location="http://link-resolver-url",
             ),
         ],
         identifiers=[
@@ -212,6 +215,23 @@ def test_marc_record_all_fields_transform_correctly():
             "Sung in French",
         ],
         links=[
+            timdex.Link(
+                kind="Digital object URL",
+                text="HeinOnline U.S. Congressional Documents Library",
+                url="http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?"
+                "cid=ACC24383",
+            ),
+            timdex.Link(
+                kind="Digital object URL",
+                text="Music Online: Classical Music Library - United States",
+                url="http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?"
+                "cid=19029653",
+            ),
+            timdex.Link(
+                kind="Digital object URL",
+                text="O'Reilly Online Learning",
+                url="http://link-resolver-url",
+            ),
             timdex.Link(
                 url="http://catalog.hathitrust.org/api/volumes/oclc/1606890.html",
                 kind="Hathi Trust",
@@ -534,10 +554,32 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 note="g",
             ),
             timdex.Holding(
-                collection="j",
                 format="electronic resource",
-                location="f",
-                note="i",
+                location="only subfield d",
+            ),
+            timdex.Holding(
+                format="electronic resource",
+                location="only subfield f",
+            ),
+            timdex.Holding(
+                format="electronic resource",
+                note="only subfield i",
+            ),
+            timdex.Holding(
+                format="electronic resource",
+                collection="only subfield j",
+            ),
+            timdex.Holding(
+                format="electronic resource",
+                location="only subfield l",
+            ),
+            timdex.Holding(
+                format="electronic resource",
+                location="f: d and l present",
+            ),
+            timdex.Holding(
+                format="electronic resource",
+                location="l: d present",
             ),
         ],
         identifiers=[
@@ -558,6 +600,26 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             "Aljamía",
         ],
         links=[
+            timdex.Link(
+                kind="Digital object URL",
+                url="only subfield d",
+            ),
+            timdex.Link(
+                kind="Digital object URL",
+                url="only subfield f",
+            ),
+            timdex.Link(
+                kind="Digital object URL",
+                url="only subfield l",
+            ),
+            timdex.Link(
+                kind="Digital object URL",
+                url="f: d and l present",
+            ),
+            timdex.Link(
+                kind="Digital object URL",
+                url="l: d present",
+            ),
             timdex.Link(url="u", kind="3", restrictions="z", text="y"),
             timdex.Link(url="u", kind="3", restrictions="z", text="y"),
         ],
@@ -748,6 +810,27 @@ def test_create_subfield_value_string_from_datafield_with_blank_values():
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
     assert Marc.create_subfield_value_string_from_datafield(datafield, "ad") == ""
+
+
+def test_get_single_subfield_string_returns_expected_string():
+    datafield = BeautifulSoup(
+        '<datafield><subfield code="found"> the string  </subfield>/<datafield>', "xml"
+    )
+    assert Marc.get_single_subfield_string(datafield, "found") == "the string"
+
+
+def test_get_single_subfield_string_returns_none_if_no_string():
+    datafield = BeautifulSoup(
+        '<datafield><subfield code="empty"></subfield>/<datafield>', "xml"
+    )
+    assert Marc.get_single_subfield_string(datafield, "empty") is None
+
+
+def test_get_single_subfield_string_returns_none_if_whitespace_string():
+    datafield = BeautifulSoup(
+        '<datafield><subfield code="whitespace">    </subfield>/<datafield>', "xml"
+    )
+    assert Marc.get_single_subfield_string(datafield, "found") is None
 
 
 def test_json_crosswalk_code_to_name_returns_none_if_invalid(
