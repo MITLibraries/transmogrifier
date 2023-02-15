@@ -90,11 +90,10 @@ def parse_date_from_string(
 ) -> Optional[datetime]:
     """
     Transform a date string into a datetime object according to one of the configured
-    OpenSearch date formats.
+    OpenSearch date formats. Returns None if the date string cannot be parsed.
 
     Args:
         date_string: A date string.
-        source_record_id: The ID of the record being transformed.
     """
     for date_format in DATE_FORMATS:
         try:
@@ -118,17 +117,15 @@ def validate_date(
         source_record_id: The ID of the record being transformed.
     """
     date_string = date_string.strip()
-    try:
-        if parse_date_from_string(date_string):
-            return True
-    except ValueError:
-        pass
-    logger.error(
-        "Record # '%s' has a date that couldn't be parsed: %s",
-        source_record_id,
-        date_string,
-    )
-    return False
+    if parse_date_from_string(date_string):
+        return True
+    else:
+        logger.error(
+            "Record # '%s' has a date that couldn't be parsed: %s",
+            source_record_id,
+            date_string,
+        )
+        return False
 
 
 def validate_date_range(
@@ -137,9 +134,10 @@ def validate_date_range(
     source_record_id: str,
 ) -> bool:
     """
-    Validate a date range by ensuring that the start date is before the end date to avoid
-    an OpenSearch exception. Returns true if only one date exists in the range or the end
-    date is after the start date, otherwise returns False and logs an error.
+    Validate a date range by validating that the start and end dates can be parsed and
+    ensuring that the start date is before the end date to avoid an OpenSearch exception.
+    Returns true if only one date exists in the range or the end date is after the start
+    date, otherwise returns False and logs an error.
 
     Args:
         start_date: The start date of a date range.

@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from bs4 import Tag
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import validate_date, validate_date_range
+from transmogrifier.helpers import validate_date_range
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -110,18 +110,8 @@ class DspaceDim(Transformer):
                 ):
                     d = timdex.Date(
                         range=timdex.Date_Range(
-                            gte=gte_date
-                            if validate_date(
-                                gte_date,
-                                source_record_id,
-                            )
-                            else None,
-                            lte=lte_date
-                            if validate_date(
-                                lte_date,
-                                source_record_id,
-                            )
-                            else None,
+                            gte=gte_date,
+                            lte=lte_date,
                         ),
                         kind="coverage",
                     )
