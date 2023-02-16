@@ -1,7 +1,8 @@
 import json
 import logging
 import os
-from typing import Iterator
+from datetime import datetime
+from typing import Iterator, Optional
 
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
@@ -12,6 +13,7 @@ from bs4 import BeautifulSoup, Tag
 from lxml import etree  # nosec B410
 from smart_open import open
 
+from transmogrifier.config import DATE_FORMATS
 from transmogrifier.models import TimdexRecord
 
 logger = logging.getLogger(__name__)
@@ -81,6 +83,88 @@ def parse_xml_records(
             record = BeautifulSoup(record_string, "xml")
             yield record
             element.clear()
+
+
+def parse_date_from_string(
+    date_string: str,
+) -> Optional[datetime]:
+    """
+    Transform a date string into a datetime object according to one of the configured
+    OpenSearch date formats. Returns None if the date string cannot be parsed.
+
+    Args:
+        date_string: A date string.
+    """
+    for date_format in DATE_FORMATS:
+        try:
+            return datetime.strptime(date_string, date_format)
+        except ValueError:
+            pass
+    return None
+
+
+def validate_date(
+    date_string: str,
+    source_record_id: str,
+) -> bool:
+    """
+    Validate that a date string can be parsed according to one of the configured
+    OpenSearch date formats. Returns True if date string is valid or returns
+    False and logs an error.
+
+    Args:
+        date_string: A date string.
+        source_record_id: The ID of the record being transformed.
+    """
+    date_string = date_string.strip()
+    if parse_date_from_string(date_string):
+        return True
+    else:
+        logger.error(
+            "Record # '%s' has a date that couldn't be parsed: %s",
+            source_record_id,
+            date_string,
+        )
+        return False
+
+
+def validate_date_range(
+    start_date: str,
+    end_date: str,
+    source_record_id: str,
+) -> bool:
+    """
+    Validate a date range by validating that the start and end dates can be parsed and
+    ensuring that the start date is before the end date to avoid an OpenSearch exception.
+    Returns true if only one date exists in the range or the end date is after the start
+    date, otherwise returns False and logs an error.
+
+    Args:
+        start_date: The start date of a date range.
+        end_date: The end date of a date range.
+        source_record_id: The ID of the record being transformed.
+    """
+    start_date_object = parse_date_from_string(start_date)
+    end_date_object = parse_date_from_string(end_date)
+    if start_date_object and end_date_object:
+        if start_date_object <= end_date_object:
+            return True
+        else:
+            logger.error(
+                "Record ID '%s' has a later start date than end date: '%s', '%s'",
+                source_record_id,
+                start_date,
+                end_date,
+            )
+            return False
+    else:
+        logger.error(
+            "Record ID '%s' has an invalid values in a date range: '%s', '%s'",
+            source_record_id,
+            start_date,
+            end_date,
+        )
+        return False
 
 
 def write_deleted_records_to_file(deleted_records: list[str], output_file_path: str):
