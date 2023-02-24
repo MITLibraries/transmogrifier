@@ -858,19 +858,38 @@
             <subfield code="bb">bb</subfield>
             <subfield code="i">HUM</subfield>
         </datafield>
-        <datafield tag="986" ind1=" " ind2=" ">
+        <datafield tag="986">
             <subfield></subfield>
             <subfield code=""></subfield>
+            <subfield code="d"></subfield>
             <subfield code="f"></subfield>
             <subfield code="i"></subfield>
             <subfield code="j"></subfield>
+            <subfield code="l"></subfield>
         </datafield>
-        <datafield tag="986" ind1=" " ind2=" ">
-            <subfield></subfield>
-            <subfield code=""></subfield>
-            <subfield code="f">f</subfield>
-            <subfield code="i">i</subfield>
-            <subfield code="j">j</subfield>
+        <datafield tag="986">
+            <subfield code="d">only subfield d</subfield>
+        </datafield>
+        <datafield tag="986">
+            <subfield code="f">only subfield f</subfield>
+        </datafield>
+        <datafield tag="986">
+            <subfield code="i">only subfield i</subfield>
+        </datafield>
+        <datafield tag="986">
+            <subfield code="j">only subfield j</subfield>
+        </datafield>
+        <datafield tag="986">
+            <subfield code="l">only subfield l</subfield>
+        </datafield>
+        <datafield tag="986">
+            <subfield code="d">d: should not be used</subfield>
+            <subfield code="f">f: d and l present</subfield>
+            <subfield code="l">l: should not be used</subfield>
+        </datafield>
+        <datafield tag="986">
+            <subfield code="d">d: should not be used</subfield>
+            <subfield code="l">l: d present</subfield>
         </datafield>
     </record>
 </collection>

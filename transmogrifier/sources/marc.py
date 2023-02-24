@@ -230,6 +230,7 @@ class Marc(Transformer):
         # funding_information
 
         # holdings
+        # physical items
         for datafield in xml.find_all("datafield", tag="985"):
             holding_call_number_value = (
                 self.create_subfield_value_string_from_datafield(datafield, ["bb"])
@@ -271,23 +272,37 @@ class Marc(Transformer):
                         note=holding_note_value or None,
                     )
                 )
-        for datafield in xml.find_all("datafield", tag="986"):
-            holding_collection_value = self.create_subfield_value_string_from_datafield(
-                datafield, "j", ", "
+        # electronic portfolio items
+        for field_986 in xml.find_all("datafield", tag="986"):
+            electronic_item_collection = self.get_single_subfield_string(field_986, "j")
+            electronic_item_location = (
+                self.get_single_subfield_string(field_986, "f")
+                or self.get_single_subfield_string(field_986, "l")
+                or self.get_single_subfield_string(field_986, "d")
             )
-            holding_location_value = self.create_subfield_value_string_from_datafield(
-                datafield, "f", ", "
-            )
-            holding_note_value = self.create_subfield_value_string_from_datafield(
-                datafield, "i", ", "
-            )
-            if holding_collection_value or holding_location_value or holding_note_value:
+            electronic_item_note = self.get_single_subfield_string(field_986, "i")
+            if any(
+                [
+                    electronic_item_collection,
+                    electronic_item_location,
+                    electronic_item_note,
+                ]
+            ):
                 fields.setdefault("holdings", []).append(
                     timdex.Holding(
-                        collection=holding_collection_value or None,
+                        collection=electronic_item_collection,
                         format="electronic resource",
-                        location=holding_location_value or None,
-                        note=holding_note_value or None,
+                        location=electronic_item_location,
+                        note=electronic_item_note,
+                    )
+                )
+            # If there's a URL, add to links field as well
+            if electronic_item_location:
+                fields.setdefault("links", []).append(
+                    timdex.Link(
+                        url=electronic_item_location,
+                        kind="Digital object URL",
+                        text=electronic_item_collection,
                     )
                 )
 
@@ -363,7 +378,7 @@ class Marc(Transformer):
 
         fields["languages"] = list(dict.fromkeys(languages)) or None
 
-        # links
+        # links - see also: holdings field for electronic portfolio items
         # If indicator 1 is 4 and indicator 2 is 0 or 1, take the URL from subfield u,
         # the kind from subfield 3, link text from subfield y, and restrictions from
         # subfield z."
@@ -717,6 +732,28 @@ class Marc(Transformer):
         return separator.join(
             Marc.create_subfield_value_list_from_datafield(xml_element, subfield_codes)
         )
+
+    @staticmethod
+    def get_single_subfield_string(
+        xml_element: Tag, subfield_code: str
+    ) -> Optional[str]:
+        """
+        Get the string value of a <subfield> element with specified code(s).
+
+        Finds and returns the string value of a single <subfield> element if the
+        element contains a string. This uses bs4's find() method and thus will return
+        only the string value from the first <subfield> element matching the criteria.
+
+        Returns None if no matching <subfield> element containing a string is found, or
+        if the matching element's string value is only whitespace.
+
+        Args:
+            xml_element: A BeautifulSoup Tag representing a single MARC XML element.
+            subfield_code: The code attribute of the subfields to extract.
+        """
+        if subfield := xml_element.find("subfield", code=subfield_code, string=True):
+            return str(subfield.string).strip() or None
+        return None
 
     @staticmethod
     def json_crosswalk_code_to_name(
