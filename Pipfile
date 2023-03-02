@@ -22,7 +22,7 @@ mypy = "*"
 pytest = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.11"
 
 [scripts]
 transform = "python -c \"from transmogrifier.cli import main; main()\""

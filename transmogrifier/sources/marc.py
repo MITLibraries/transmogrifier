@@ -127,7 +127,7 @@ class Marc(Transformer):
 
         # content_type
         if content_type := Marc.json_crosswalk_code_to_name(
-            leader.string[6:7],
+            str(leader.string)[6:7],
             marc_content_type_crosswalk,
             source_record_id,
             "Leader/06",
@@ -208,7 +208,7 @@ class Marc(Transformer):
         fields["contributors"] = contributor_values or None
 
         # dates
-        publication_year = fixed_length_data.string[7:11]
+        publication_year = str(fixed_length_data.string)[7:11]
         if validate_date(publication_year, source_record_id):
             fields["dates"] = [
                 timdex.Date(kind="Publication date", value=publication_year)
@@ -357,7 +357,7 @@ class Marc(Transformer):
 
         # Get language codes
         language_codes = []
-        if fixed_language_value := fixed_length_data.string[35:38]:
+        if fixed_language_value := str(fixed_length_data.string)[35:38]:
             language_codes.append(fixed_language_value)
         for field_041 in xml.find_all("datafield", tag="041"):
             language_codes.extend(
@@ -374,7 +374,7 @@ class Marc(Transformer):
         # Add language notes
         for field_546 in xml.find_all("datafield", tag="546"):
             if language_note := field_546.find("subfield", code="a", string=True):
-                languages.append(language_note.string.rstrip(" ."))
+                languages.append(str(language_note.string).rstrip(" ."))
 
         fields["languages"] = list(dict.fromkeys(languages)) or None
 
@@ -391,7 +391,7 @@ class Marc(Transformer):
                 datafield, "z"
             )
             if kind_value := datafield.find("subfield", code="3", string=True):
-                kind_value = kind_value.string
+                kind_value = str(kind_value.string)
             if url_value:
                 fields.setdefault("links", []).append(
                     timdex.Link(
@@ -416,7 +416,7 @@ class Marc(Transformer):
         # locations
 
         # Get place of publication from 008 field code
-        if fixed_location_code := fixed_length_data.string[15:17]:
+        if fixed_location_code := str(fixed_length_data.string)[15:17]:
             if location_name := Marc.loc_crosswalk_code_to_name(
                 fixed_location_code, country_code_crosswalk, source_record_id, "country"
             ):
@@ -712,7 +712,7 @@ class Marc(Transformer):
         value_list = []
         for subfield in xml_element.find_all(True, string=True):
             if subfield.get("code", "") in subfield_codes:
-                value_list.append(subfield.string)
+                value_list.append(str(subfield.string))
         return value_list
 
     @staticmethod
@@ -761,7 +761,7 @@ class Marc(Transformer):
     ) -> Optional[str]:
         """
         Retrieve the name associated with a given code from a JSON crosswalk. Logs a
-        warning and returns None if the code isn't found in the crosswalk.
+        message and returns None if the code isn't found in the crosswalk.
 
         Args:
             code: The code from a MARC record.
@@ -771,7 +771,7 @@ class Marc(Transformer):
         """
         name = crosswalk.get(code)
         if name is None:
-            logger.warning(
+            logger.debug(
                 "Record #%s uses an invalid code in %s: %s", record_id, field_name, code
             )
             return None
@@ -783,8 +783,8 @@ class Marc(Transformer):
     ) -> Optional[str]:
         """
         Retrieve the name associated with a given code from a Library of Congress XML
-        code crosswalk. Logs a warning and returns None if the code isn't found in the
-        crosswalk. Logs a warning and returns the name if the code is obsolete.
+        code crosswalk. Logs a message and returns None if the code isn't found in the
+        crosswalk. Logs a message and returns the name if the code is obsolete.
 
         Args:
             code: The code from a MARC record.
@@ -794,12 +794,12 @@ class Marc(Transformer):
         """
         code_element = crosswalk.find("code", string=code)
         if code_element is None:
-            logger.warning(
+            logger.debug(
                 "Record #%s uses an invalid %s code: %s", record_id, code_type, code
             )
             return None
         if code_element.get("status") == "obsolete":
-            logger.warning(
+            logger.debug(
                 "Record #%s uses an obsolete %s code: %s", record_id, code_type, code
             )
         return str(code_element.parent.find("name").string)
