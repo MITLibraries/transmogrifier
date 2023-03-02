@@ -120,7 +120,7 @@ def validate_date(
     if parse_date_from_string(date_string):
         return True
     else:
-        logger.error(
+        logger.debug(
             "Record # '%s' has a date that couldn't be parsed: %s",
             source_record_id,
             date_string,
@@ -150,7 +150,7 @@ def validate_date_range(
         if start_date_object <= end_date_object:
             return True
         else:
-            logger.error(
+            logger.debug(
                 "Record ID '%s' has a later start date than end date: '%s', '%s'",
                 source_record_id,
                 start_date,
@@ -158,7 +158,7 @@ def validate_date_range(
             )
             return False
     else:
-        logger.error(
+        logger.debug(
             "Record ID '%s' has an invalid values in a date range: '%s', '%s'",
             source_record_id,
             start_date,
