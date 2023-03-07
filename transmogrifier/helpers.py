@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 from datetime import datetime
 from typing import Iterator, Optional
 
@@ -17,6 +18,9 @@ from transmogrifier.config import DATE_FORMATS
 from transmogrifier.models import TimdexRecord
 
 logger = logging.getLogger(__name__)
+
+
+sys.setrecursionlimit(10000)
 
 
 def generate_citation(extracted_data: dict) -> str:
