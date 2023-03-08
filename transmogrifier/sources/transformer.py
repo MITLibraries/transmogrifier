@@ -40,19 +40,20 @@ class Transformer(object):
 
     def __next__(self) -> TimdexRecord:
         """Return next transformed record."""
-        xml = next(self.input_records)
-        self.processed_record_count += 1
-        try:
-            record = self.transform(xml)
-        except DeletedRecord as error:
-            self.deleted_records.append(error.timdex_record_id)
-            return self.__next__()
-        if record:
-            self.transformed_record_count += 1
-            return record
-        else:
-            self.skipped_record_count += 1
-            return self.__next__()
+        while True:
+            xml = next(self.input_records)
+            self.processed_record_count += 1
+            try:
+                record = self.transform(xml)
+            except DeletedRecord as error:
+                self.deleted_records.append(error.timdex_record_id)
+                continue
+            if record:
+                self.transformed_record_count += 1
+                return record
+            else:
+                self.skipped_record_count += 1
+                continue
 
     @abstractmethod
     def get_optional_fields(self, xml: Tag) -> Optional[dict]:
