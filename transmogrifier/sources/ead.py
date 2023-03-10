@@ -112,8 +112,8 @@ class Ead(Transformer):
                 date_instance = timdex.Date()
                 if "-" in date_value:
                     split = date_value.index("-")
-                    gte_date = date_value[:split]
-                    lte_date = date_value[split + 1 :]
+                    gte_date = date_value[:split].strip()
+                    lte_date = date_value[split + 1 :].strip()
                     if validate_date_range(
                         gte_date,
                         lte_date,
@@ -125,7 +125,7 @@ class Ead(Transformer):
                         )
                 else:
                     date_instance.value = (
-                        date_value
+                        date_value.strip()
                         if validate_date(
                             date_value,
                             source_record_id,

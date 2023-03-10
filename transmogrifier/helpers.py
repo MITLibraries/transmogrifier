@@ -116,12 +116,11 @@ def validate_date(
         date_string: A date string.
         source_record_id: The ID of the record being transformed.
     """
-    date_string = date_string.strip()
     if parse_date_from_string(date_string):
         return True
     else:
         logger.debug(
-            "Record # '%s' has a date that couldn't be parsed: %s",
+            "Record # '%s' has a date that couldn't be parsed: '%s'",
             source_record_id,
             date_string,
         )

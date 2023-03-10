@@ -89,9 +89,11 @@ class DspaceDim(Transformer):
         # dates
         for date in [d for d in xml.find_all("dim:field", element="date") if d.string]:
             if date.get("qualifier") == "issued":
-                d = timdex.Date(value=date.string, kind="Publication date")
+                d = timdex.Date(value=date.string.strip(), kind="Publication date")
             else:
-                d = timdex.Date(value=date.string, kind=date.get("qualifier") or None)
+                d = timdex.Date(
+                    value=date.string.strip(), kind=date.get("qualifier") or None
+                )
             fields.setdefault("dates", []).append(d)
 
         for coverage in [

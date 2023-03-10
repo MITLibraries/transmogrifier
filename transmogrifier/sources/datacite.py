@@ -108,7 +108,9 @@ class Datacite(Transformer):
         # dates
         if publication_year := xml.metadata.find("publicationYear", string=True):
             fields["dates"] = [
-                timdex.Date(kind="Publication date", value=publication_year.string)
+                timdex.Date(
+                    kind="Publication date", value=publication_year.string.strip()
+                )
             ]
         else:
             logger.warning(
@@ -121,8 +123,8 @@ class Datacite(Transformer):
             if date_value := date.string:
                 if "/" in date_value:
                     split = date_value.index("/")
-                    gte_date = date_value[:split]
-                    lte_date = date_value[split + 1 :]
+                    gte_date = date_value[:split].strip()
+                    lte_date = date_value[split + 1 :].strip()
                     if validate_date_range(
                         gte_date,
                         lte_date,
@@ -134,7 +136,7 @@ class Datacite(Transformer):
                         )
                 else:
                     d.value = (
-                        date_value
+                        date_value.strip()
                         if validate_date(
                             date_value,
                             source_record_id,

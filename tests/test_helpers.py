@@ -264,14 +264,19 @@ def test_parse_date_from_string_invalid_date_returns_none():
 
 
 def test_validate_date_success():
-    assert validate_date("1930 ", "1234") is True
+    assert validate_date("1930", "1234") is True
 
 
 def test_validate_date_invalid_date_logs_error(caplog):
     assert validate_date("circa 1930s", "1234") is False
     assert (
-        "Record # '1234' has a date that couldn't be parsed: circa 1930s"
+        "Record # '1234' has a date that couldn't be parsed: 'circa 1930s'"
     ) in caplog.text
+
+
+def test_validate_date_whitespace_date_logs_error(caplog):
+    assert validate_date("30  ", "1234") is False
+    assert ("Record # '1234' has a date that couldn't be parsed: '30  '") in caplog.text
 
 
 def test_validate_date_range_success():
