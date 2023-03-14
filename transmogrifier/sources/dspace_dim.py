@@ -87,7 +87,7 @@ class DspaceDim(Transformer):
             )
 
         # dates
-        for date in [d for d in xml.find_all("dim:field", element="date") if d.string]:
+        for date in xml.find_all("dim:field", element="date", string=True):
             date_value = str(date.string.strip())
             if validate_date(date_value, source_record_id):
                 if date.get("qualifier") == "issued":
