@@ -120,7 +120,7 @@ class Datacite(Transformer):
 
         for date in xml.metadata.find_all("date"):
             d = timdex.Date()
-            if date_value := date.string:
+            if date_value := str(date.string):
                 if "/" in date_value:
                     split = date_value.index("/")
                     gte_date = date_value[:split].strip()
