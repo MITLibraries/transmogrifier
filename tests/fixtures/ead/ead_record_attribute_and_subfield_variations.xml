@@ -38,15 +38,21 @@
                         <unitdate datechar="creation"></unitdate>
                         <unitdate datechar="creation">1905-2012</unitdate>
                         <unitdate datechar="creation">1905</unitdate>
+                        <unitdate datechar="creation">abcd-efgh</unitdate>
+                        <unitdate datechar="creation">abcd</unitdate>
                         <unitdate datechar="creation" certainty=""></unitdate>
                         <unitdate datechar="creation" certainty="">1905-2012</unitdate>
                         <unitdate datechar="creation" certainty="">1905</unitdate>
                         <unitdate datechar="creation" certainty="approximate"></unitdate>
                         <unitdate datechar="creation" certainty="approximate">1905-2012</unitdate>
                         <unitdate datechar="creation" certainty="approximate">1905</unitdate>
+                        <unitdate datechar="creation" certainty="approximate">abcd-efgh</unitdate>
+                        <unitdate datechar="creation" certainty="approximate">abcd</unitdate>
                         <unitdate certainty="approximate"></unitdate>
                         <unitdate certainty="approximate">1905-2012</unitdate>
                         <unitdate certainty="approximate">1905</unitdate>
+                        <unitdate certainty="approximate">abcd-efgh</unitdate>
+                        <unitdate certainty="approximate">abcd</unitdate>
                         <unitdate datechar="" certainty="approximate"></unitdate>
                         <unitdate datechar="" certainty="approximate">1905-2012</unitdate>
                         <unitdate datechar="" certainty="approximate">1905</unitdate>
