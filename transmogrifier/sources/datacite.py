@@ -107,9 +107,14 @@ class Datacite(Transformer):
 
         # dates
         if publication_year := xml.metadata.find("publicationYear", string=True):
-            fields["dates"] = [
-                timdex.Date(kind="Publication date", value=publication_year.string)
-            ]
+            publication_year = str(publication_year.string.strip())
+            if validate_date(
+                publication_year,
+                source_record_id,
+            ):
+                fields["dates"] = [
+                    timdex.Date(kind="Publication date", value=publication_year)
+                ]
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field publicationYear",
@@ -119,10 +124,11 @@ class Datacite(Transformer):
         for date in xml.metadata.find_all("date"):
             d = timdex.Date()
             if date_value := date.string:
+                date_value = str(date_value)
                 if "/" in date_value:
                     split = date_value.index("/")
-                    gte_date = date_value[:split]
-                    lte_date = date_value[split + 1 :]
+                    gte_date = date_value[:split].strip()
+                    lte_date = date_value[split + 1 :].strip()
                     if validate_date_range(
                         gte_date,
                         lte_date,
@@ -134,7 +140,7 @@ class Datacite(Transformer):
                         )
                 else:
                     d.value = (
-                        date_value
+                        date_value.strip()
                         if validate_date(
                             date_value,
                             source_record_id,

@@ -14,7 +14,6 @@ DATE_FORMATS = [
     "%Y",  # strict_year
     "%Y-%m",  # strict_year_month
     # date variations
-    "%y",
     "%y-%m",
     "%y-%m-%d",
     "%Y-%m-%d",

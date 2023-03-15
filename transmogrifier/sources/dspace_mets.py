@@ -77,7 +77,7 @@ class DspaceMets(Transformer):
         # Only publication date is mapped from DSpace, other relevant date field (dc.
         # coverage.temporal) is not mapped to the OAI-PMH METS output.
         if publication_date := xml.find("mods:dateIssued", string=True):
-            publication_date_value = publication_date.string
+            publication_date_value = str(publication_date.string.strip())
             if validate_date(publication_date_value, source_record_id):
                 fields["dates"] = [
                     timdex.Date(kind="Publication date", value=publication_date_value)
