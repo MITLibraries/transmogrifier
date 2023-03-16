@@ -269,14 +269,14 @@ def test_validate_date_success():
 def test_validate_date_invalid_date_logs_error(caplog):
     assert validate_date("circa 1930s", "1234") is False
     assert (
-        "Record # '1234' has a date that couldn't be parsed: 'circa 1930s'"
+        "Record ID '1234' has a date that couldn't be parsed: 'circa 1930s'"
     ) in caplog.text
 
 
 def test_validate_date_whitespace_date_logs_error(caplog):
     assert validate_date("1930  ", "1234") is False
     assert (
-        "Record # '1234' has a date that couldn't be parsed: '1930  '"
+        "Record ID '1234' has a date that couldn't be parsed: '1930  '"
     ) in caplog.text
 
 
@@ -287,7 +287,7 @@ def test_validate_date_range_success():
 def test_validate_date_range_invalid_date_range_logs_error(caplog):
     assert validate_date_range("circa 1910s", "1924", "1234") is False
     assert (
-        "Record ID '1234' has an invalid values in a date range: 'circa 1910s', '1924'"
+        "Record ID '1234' has invalid values in a date range: 'circa 1910s', '1924'"
     ) in caplog.text
 
 
