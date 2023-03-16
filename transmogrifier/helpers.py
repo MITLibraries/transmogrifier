@@ -120,7 +120,7 @@ def validate_date(
         return True
     else:
         logger.debug(
-            "Record # '%s' has a date that couldn't be parsed: '%s'",
+            "Record ID '%s' has a date that couldn't be parsed: '%s'",
             source_record_id,
             date_string,
         )
@@ -158,7 +158,7 @@ def validate_date_range(
             return False
     else:
         logger.debug(
-            "Record ID '%s' has an invalid values in a date range: '%s', '%s'",
+            "Record ID '%s' has invalid values in a date range: '%s', '%s'",
             source_record_id,
             start_date,
             end_date,

@@ -132,9 +132,10 @@ class Ead(Transformer):
                         )
                         else None
                     )
-                date_instance.kind = date_element.get("datechar") or None
-                date_instance.note = date_element.get("certainty") or None
-                fields.setdefault("dates", []).append(date_instance)
+                if date_instance.range or date_instance.value:
+                    date_instance.kind = date_element.get("datechar") or None
+                    date_instance.note = date_element.get("certainty") or None
+                    fields.setdefault("dates", []).append(date_instance)
 
         # edition field not used in EAD
 

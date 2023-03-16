@@ -504,6 +504,28 @@ def test_ead_record_with_blank_optional_fields_transforms_correctly():
     )
 
 
+def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
+    ead_xml_records = parse_xml_records(
+        "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
+    )
+    output_record = next(Ead("aspace", ead_xml_records))
+    assert "abcd" not in [d.value for d in output_record.dates]
+    assert "abcd" not in [
+        d.range.gte for d in output_record.dates if "gte" in dir(d.range)
+    ]
+    assert "efgh" not in [
+        d.range.lte for d in output_record.dates if "lte" in dir(d.range)
+    ]
+    assert (
+        "Record ID 'repositories/2/resources/6' has invalid values in a date range: "
+        "'abcd', 'efgh'"
+    ) in caplog.text
+    assert (
+        "Record ID 'repositories/2/resources/6' has a date that couldn't be parsed: "
+        "'abcd'"
+    ) in caplog.text
+
+
 def test_ead_record_with_missing_optional_fields_transforms_correctly():
     ead_xml_records = parse_xml_records(
         "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
