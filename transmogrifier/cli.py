@@ -19,7 +19,6 @@ from transmogrifier.helpers import (
 logger = logging.getLogger(__name__)
 
 
-@click.command()
 @click.option(
     "-i",
     "--input-file",
@@ -42,6 +41,7 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-v", "--verbose", is_flag=True, help="Pass to log at debug level instead of info"
 )
+@click.command()
 def main(source, input_file, output_file, verbose):
     START_TIME = perf_counter()
     root_logger = logging.getLogger()
