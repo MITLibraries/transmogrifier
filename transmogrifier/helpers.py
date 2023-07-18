@@ -199,7 +199,7 @@ def write_timdex_records_to_json(
                     "Status update: %s records written to output file so far!", count
                 )
             try:
-                record: TimdexRecord = next(transformer_instance)  # type: ignore
+                record: TimdexRecord = next(transformer_instance)  # type: ignore[no-redef]  # noqa: E501
             except StopIteration:
                 break
             file.write(",\n")
