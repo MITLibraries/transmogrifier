@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Iterator, Optional
+from typing import TYPE_CHECKING, Iterator, Optional
 
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
@@ -15,6 +15,10 @@ from smart_open import open
 
 from transmogrifier.config import DATE_FORMATS
 from transmogrifier.models import TimdexRecord
+
+# import Transformer only when type checking to avoid circular dependency
+if TYPE_CHECKING:  # pragma: no cover
+    from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
@@ -173,11 +177,11 @@ def write_deleted_records_to_file(deleted_records: list[str], output_file_path: 
 
 
 def write_timdex_records_to_json(
-    records: Iterator[TimdexRecord], output_file_path: str
+    transformer_instance: "Transformer", output_file_path: str
 ) -> int:
     count = 0
     try:
-        record = next(records)
+        record: TimdexRecord = next(transformer_instance)
     except StopIteration:
         return count
     with open(output_file_path, "w") as file:
@@ -195,7 +199,7 @@ def write_timdex_records_to_json(
                     "Status update: %s records written to output file so far!", count
                 )
             try:
-                record = next(records)
+                record: TimdexRecord = next(transformer_instance)  # type: ignore[no-redef]  # noqa: E501
             except StopIteration:
                 break
             file.write(",\n")

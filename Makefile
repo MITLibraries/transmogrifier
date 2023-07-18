@@ -37,7 +37,7 @@ flake8:
 	pipenv run flake8 .
 
 isort:
-	pipenv run isort . --diff
+	pipenv run isort . --check --diff
 
 mypy:
 	pipenv run mypy transmogrifier
