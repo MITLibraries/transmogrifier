@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Iterator, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator, Optional
 
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
