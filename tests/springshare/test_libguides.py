@@ -1,6 +1,8 @@
 import transmogrifier.models as timdex
 from transmogrifier.helpers import parse_xml_records
-from transmogrifier.sources.springshare.libguides import Libguides
+from transmogrifier.sources.springshare import SpringshareOaiDc
+
+FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare/libguides"
 
 BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
     source="Libguides",
@@ -26,9 +28,9 @@ BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
 
 def test_libguide_transform_with_all_fields_transforms_correctly():
     input_records = parse_xml_records(
-        "tests/fixtures/springshare/libguides/libguides_record_all_fields.xml"
+        f"{FIXTURES_PREFIX}/libguides_record_all_fields.xml"
     )
-    output_records = Libguides("libguides", input_records)
+    output_records = SpringshareOaiDc("libguides", input_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="Libguides",
         source_link="https://libguides.mit.edu/materials",
@@ -70,16 +72,15 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
 
 def test_libguides_transform_with_optional_fields_blank_transforms_correctly():
     input_records = parse_xml_records(
-        "tests/fixtures/springshare/libguides/libguides_record_optional_fields_blank.xml"
+        f"{FIXTURES_PREFIX}/libguides_record_optional_fields_blank.xml"
     )
-    output_records = Libguides("libguides", input_records)
+    output_records = SpringshareOaiDc("libguides", input_records)
     assert next(output_records) == BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
 
 
 def test_libguides_transform_with_optional_fields_missing_transforms_correctly():
     input_records = parse_xml_records(
-        "tests/fixtures/springshare/libguides/libguides_record_optional_fields_missing"
-        ".xml"
+        f"{FIXTURES_PREFIX}/libguides_record_optional_fields_missing.xml"
     )
-    output_records = Libguides("libguides", input_records)
+    output_records = SpringshareOaiDc("libguides", input_records)
     assert next(output_records) == BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX

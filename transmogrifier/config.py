@@ -102,13 +102,12 @@ SOURCES = {
     "libguides": {
         "name": "Libguides",
         "base-url": "https://libguides.mit.edu/",
-        "transform-class": "transmogrifier.sources.springshare.libguides.Libguides",
+        "transform-class": "transmogrifier.sources.springshare.SpringshareOaiDc",
     },
     "researchdatabases": {
         "name": "Research Databases",
         "base-url": "https://libguides.mit.edu/",
-        "transform-class": "transmogrifier.sources.springshare.research_databases"
-        ".ResearchDatabases",
+        "transform-class": "transmogrifier.sources.springshare.SpringshareOaiDc",
     },
     "whoas": {
         "name": "Woods Hole Open Access Server",

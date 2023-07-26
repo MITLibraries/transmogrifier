@@ -1,6 +1,8 @@
 import transmogrifier.models as timdex
 from transmogrifier.helpers import parse_xml_records
-from transmogrifier.sources.springshare.research_databases import ResearchDatabases
+from transmogrifier.sources.springshare import SpringshareOaiDc
+
+FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare/research_databases"
 
 BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
     source="Research Databases",
@@ -26,10 +28,9 @@ BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
 
 def test_libguide_transform_with_all_fields_transforms_correctly():
     input_records = parse_xml_records(
-        "tests/fixtures/springshare/research_databases"
-        "/research_databases_record_all_fields.xml"
+        f"{FIXTURES_PREFIX}/research_databases_record_all_fields.xml"
     )
-    output_records = ResearchDatabases("researchdatabases", input_records)
+    output_records = SpringshareOaiDc("researchdatabases", input_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="Research Databases",
         source_link="https://libguides.mit.edu/llba",
@@ -67,17 +68,15 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
 
 def test_research_databases_transform_with_optional_fields_blank_transforms_correctly():
     input_records = parse_xml_records(
-        "tests/fixtures/springshare/research_databases"
-        "/research_databases_record_optional_fields_blank.xml"
+        f"{FIXTURES_PREFIX}/research_databases_record_optional_fields_blank.xml"
     )
-    output_records = ResearchDatabases("researchdatabases", input_records)
+    output_records = SpringshareOaiDc("researchdatabases", input_records)
     assert next(output_records) == BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
 
 
 def test_research_databases_transform_with_optional_fields_missing_transforms_correctly():
     input_records = parse_xml_records(
-        "tests/fixtures/springshare/research_databases"
-        "/research_databases_record_optional_fields_missing.xml"
+        f"{FIXTURES_PREFIX}/research_databases_record_optional_fields_missing.xml"
     )
-    output_records = ResearchDatabases("researchdatabases", input_records)
+    output_records = SpringshareOaiDc("researchdatabases", input_records)
     assert next(output_records) == BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
