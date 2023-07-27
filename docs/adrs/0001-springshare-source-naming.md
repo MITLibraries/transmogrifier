@@ -63,6 +63,6 @@ And so, the final decided upon source name was `researchdatabases`; no hyphens, 
 ## Consequences
 
 The source name `researchdatabases` reflects some compromises that must be made for sources:
-  * if the source name is meaningful to end users, it may lose fideltiy about the source origin
+  * if the source name is meaningful to end users, it may lose fidelity about the source origin
   * if the source name is technically viable, it may lose some human readability
 
