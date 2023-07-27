@@ -100,7 +100,7 @@ SOURCES = {
         "transform-class": "transmogrifier.sources.datacite.Datacite",
     },
     "libguides": {
-        "name": "Libguides",
+        "name": "LibGuides",
         "base-url": "https://libguides.mit.edu/",
         "transform-class": "transmogrifier.sources.springshare.SpringshareOaiDc",
     },

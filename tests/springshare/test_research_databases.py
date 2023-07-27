@@ -9,8 +9,8 @@ BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
     source_link="https://libguides.mit.edu/llba",
     timdex_record_id="researchdatabases:llba",
     title="Linguistics and Language Behavior Abstracts (LLBA)",
-    citation="Linguistics and Language Behavior Abstracts (LLBA). Research "
-    "Databases. https://libguides.mit.edu/llba",
+    citation="Linguistics and Language Behavior Abstracts (LLBA). researchdatabases. "
+    "https://libguides.mit.edu/llba",
     content_type=["researchdatabases"],
     format="electronic resource",
     identifiers=[
@@ -36,8 +36,8 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
         source_link="https://libguides.mit.edu/llba",
         timdex_record_id="researchdatabases:llba",
         title="Linguistics and Language Behavior Abstracts (LLBA)",
-        citation="Linguistics and Language Behavior Abstracts (LLBA). Research "
-        "Databases. https://libguides.mit.edu/llba",
+        citation="Linguistics and Language Behavior Abstracts (LLBA). "
+        "researchdatabases. https://libguides.mit.edu/llba",
         content_type=["researchdatabases"],
         dates=[
             timdex.Date(value="2022-01-28T22:15:37"),

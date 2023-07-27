@@ -5,11 +5,11 @@ from transmogrifier.sources.springshare import SpringshareOaiDc
 FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare/libguides"
 
 BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
-    source="Libguides",
+    source="LibGuides",
     source_link="https://libguides.mit.edu/materials",
     timdex_record_id="libguides:materials",
     title="Materials Science & Engineering",
-    citation="Materials Science & Engineering. Libguides. "
+    citation="Materials Science & Engineering. libguides. "
     "https://libguides.mit.edu/materials",
     content_type=["libguides"],
     format="electronic resource",
@@ -19,8 +19,8 @@ BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
     links=[
         timdex.Link(
             url="https://libguides.mit.edu/materials",
-            kind="Libguide URL",
-            text="Libguide URL",
+            kind="LibGuide URL",
+            text="LibGuide URL",
         )
     ],
 )
@@ -32,11 +32,11 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
     )
     output_records = SpringshareOaiDc("libguides", input_records)
     assert next(output_records) == timdex.TimdexRecord(
-        source="Libguides",
+        source="LibGuides",
         source_link="https://libguides.mit.edu/materials",
         timdex_record_id="libguides:materials",
         title="Materials Science & Engineering",
-        citation="Materials Science & Engineering. Libguides. "
+        citation="Ye Li. Materials Science & Engineering. MIT Libraries. libguides. "
         "https://libguides.mit.edu/materials",
         content_type=["libguides"],
         contributors=[
@@ -55,8 +55,8 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
         links=[
             timdex.Link(
                 url="https://libguides.mit.edu/materials",
-                kind="Libguide URL",
-                text="Libguide URL",
+                kind="LibGuide URL",
+                text="LibGuide URL",
             )
         ],
         publication_information=["MIT Libraries"],
