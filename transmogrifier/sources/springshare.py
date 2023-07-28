@@ -42,7 +42,7 @@ class SpringshareOaiDc(OaiDc):
                 date_iso_str = date_parser(str(date.string).strip()).isoformat()
             except ParserError as e:
                 logger.debug(
-                    "could not parse date for Springshare record: '%s', error: '%s'",
+                    "Record ID %s has a date that cannot be parsed: %s",
                     source_record_id,
                     str(e),
                 )
@@ -66,8 +66,7 @@ class SpringshareOaiDc(OaiDc):
         identifier = xml.find("dc:identifier")
         if identifier is None or identifier.string is None:
             logger.debug(
-                "cannot generate links for Springshare record '%s', dc:identifier not "
-                "present",
+                "Record ID %s has links that cannot be generated: missing dc:identifier",
                 source_record_id,
             )
             return None

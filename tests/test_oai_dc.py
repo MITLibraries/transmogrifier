@@ -68,10 +68,6 @@ def test_oaidc_transform_with_optional_fields_missing_transforms_correctly():
 
 
 def test_oaidc_generic_date():
-    """
-    Test generic get_dates() definition returns a validated timdex.Date
-    """
-
     input_records = parse_xml_records(
         f"{FIXTURES_PREFIX}/oaidc_record_valid_generic_date.xml"
     )
