@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:libguides.com:az/65257807</identifier>
+      <datestamp>2022-07-20T19:01:40Z</datestamp>
+      <setSpec>az</setSpec>
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>Linguistics and Language Behavior Abstracts (LLBA)</dc:title>
+        <dc:subject>Humanities</dc:subject>
+        <dc:description>The most comprehensive index to articles in Linguistics and Language
+          Development and use.</dc:description>
+        <dc:date>2022-01-28 22:15:37</dc:date>
+        <dc:identifier>https://libguides.mit.edu/llba</dc:identifier>
+      </oai_dc:dc>
+    </metadata>
+  </record>
+</records>

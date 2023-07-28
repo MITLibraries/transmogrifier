@@ -99,6 +99,16 @@ SOURCES = {
         "base-url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
         "transform-class": "transmogrifier.sources.datacite.Datacite",
     },
+    "libguides": {
+        "name": "LibGuides",
+        "base-url": "https://libguides.mit.edu/",
+        "transform-class": "transmogrifier.sources.springshare.SpringshareOaiDc",
+    },
+    "researchdatabases": {
+        "name": "Research Databases",
+        "base-url": "https://libguides.mit.edu/",
+        "transform-class": "transmogrifier.sources.springshare.SpringshareOaiDc",
+    },
     "whoas": {
         "name": "Woods Hole Open Access Server",
         "base-url": "https://darchive.mblwhoilibrary.org/handle/",

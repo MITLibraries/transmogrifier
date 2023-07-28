@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:libguides.com:guides/175846</identifier>
+      <datestamp>2023-05-31T19:49:21Z</datestamp>
+      <setSpec>guides</setSpec>
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>Materials Science &amp; Engineering</dc:title>
+        <dc:creator>Ye Li</dc:creator>
+        <dc:subject>Engineering</dc:subject>
+        <dc:subject>Science</dc:subject>
+        <dc:description>Useful databases and other research tips for materials science.</dc:description>
+        <dc:publisher>MIT Libraries</dc:publisher>
+        <dc:date>2008-06-19 17:55:27</dc:date>
+        <dc:identifier>https://libguides.mit.edu/materials</dc:identifier>
+      </oai_dc:dc>
+    </metadata>
+  </record>
+</records>

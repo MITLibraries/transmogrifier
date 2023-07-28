@@ -1,0 +1,8 @@
+<records>
+    <record xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:date>2000-01-01</dc:date>
+    </record>
+    <record xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:date>January 1st, 2000</dc:date>
+    </record>
+</records>

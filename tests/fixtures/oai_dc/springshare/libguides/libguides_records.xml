@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:libguides.com:guides/175846</identifier>
+      <datestamp>2023-05-31T19:49:21Z</datestamp>
+      <setSpec>guides</setSpec>
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>Materials Science &amp; Engineering</dc:title>
+        <dc:creator>Ye Li</dc:creator>
+        <dc:subject>Engineering</dc:subject>
+        <dc:subject>Science</dc:subject>
+        <dc:description>Useful databases and other research tips for materials science.</dc:description>
+        <dc:publisher>MIT Libraries</dc:publisher>
+        <dc:date>2008-06-19 17:55:27</dc:date>
+        <dc:identifier>https://libguides.mit.edu/materials</dc:identifier>
+      </oai_dc:dc>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:libguides.com:guides/175847</identifier>
+      <datestamp>2018-08-17T17:47:32Z</datestamp>
+      <setSpec>guides</setSpec>
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>NTSB Reports</dc:title>
+        <dc:creator>Barbara Williams</dc:creator>
+        <dc:subject>Engineering</dc:subject>
+        <dc:description>A guide to library research tools for aeronautics &amp; astronautics.</dc:description>
+        <dc:publisher>MIT Libraries</dc:publisher>
+        <dc:date>2008-06-24 04:29:10</dc:date>
+        <dc:identifier>https://libguides.mit.edu/c.php?g=175847</dc:identifier>
+      </oai_dc:dc>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:libguides.com:guides/175849</identifier>
+      <datestamp>2023-06-27T18:37:44Z</datestamp>
+      <setSpec>guides</setSpec>
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>Country Data &amp; Analysis</dc:title>
+        <dc:creator>Nicholas Albaugh</dc:creator>
+        <dc:subject>Business &amp; management</dc:subject>
+        <dc:description>This is the subject guide for Country Data &amp; Analysis</dc:description>
+        <dc:publisher>MIT Libraries</dc:publisher>
+        <dc:date>2008-06-26 00:51:04</dc:date>
+        <dc:identifier>https://libguides.mit.edu/country</dc:identifier>
+      </oai_dc:dc>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:libguides.com:guides/175853</identifier>
+      <datestamp>2023-06-12T15:30:12Z</datestamp>
+      <setSpec>guides</setSpec>
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>News, Newspapers, and Current Events</dc:title>
+        <dc:creator>Jennifer Greenleaf</dc:creator>
+        <dc:subject>Interdisciplinary</dc:subject>
+        <dc:description>This is the subject guide for News</dc:description>
+        <dc:publisher>MIT Libraries</dc:publisher>
+        <dc:date>2008-06-26 21:29:54</dc:date>
+        <dc:identifier>https://libguides.mit.edu/news</dc:identifier>
+      </oai_dc:dc>
+    </metadata>
+  </record>
+  <record xmlns="http://www.openarchives.org/OAI/2.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <header>
+      <identifier>oai:libguides.com:guides/175855</identifier>
+      <datestamp>2021-07-19T09:31:31Z</datestamp>
+      <setSpec>guides</setSpec>
+    </header>
+    <metadata>
+      <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>Biography</dc:title>
+        <dc:creator>Tina Chan</dc:creator>
+        <dc:subject>Interdisciplinary</dc:subject>
+        <dc:publisher>MIT Libraries</dc:publisher>
+        <dc:date>2008-06-26 22:05:13</dc:date>
+        <dc:identifier>https://libguides.mit.edu/biography</dc:identifier>
+      </oai_dc:dc>
+    </metadata>
+  </record>
+</records>
