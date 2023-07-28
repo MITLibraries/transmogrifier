@@ -4,11 +4,10 @@ from transmogrifier.sources.springshare import SpringshareOaiDc
 
 SPRINGSHARE_FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare"
 
-LIBGUIDES_FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare/libguides"
+LIBGUIDES_FIXTURES_PREFIX = f"{SPRINGSHARE_FIXTURES_PREFIX}/libguides"
 
-RESEARCHDATABASES_FIXTURES_PREFIX = (
-    "tests/fixtures/oai_dc/springshare/research_databases"
-)
+RESEARCHDATABASES_FIXTURES_PREFIX = f"{SPRINGSHARE_FIXTURES_PREFIX}/research_databases"
+
 
 LIBGUIDES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
     source="LibGuides",
@@ -59,8 +58,8 @@ def test_springshare_get_dates_valid():
     )
     transformer_instance = SpringshareOaiDc("libguides", input_records)
     for xml in transformer_instance.input_records:
-        date_field_val = transformer_instance.get_dates("test_get_dates", xml)
-        assert date_field_val == [
+        date_field_value = transformer_instance.get_dates("test_get_dates", xml)
+        assert date_field_value == [
             timdex.Date(kind=None, note=None, range=None, value="2000-01-01T00:00:00")
         ]
 
@@ -82,8 +81,8 @@ def test_springshare_get_links_missing_identifier_logged_and_skipped(caplog):
     )
     transformer_instance = SpringshareOaiDc("libguides", input_records)
     for xml in transformer_instance.input_records:
-        links_field_val = transformer_instance.get_links("test_get_links", xml)
-        assert links_field_val is None
+        links_field_value = transformer_instance.get_links("test_get_links", xml)
+        assert links_field_value is None
         assert "has links that cannot be generated" in caplog.text
 
 
