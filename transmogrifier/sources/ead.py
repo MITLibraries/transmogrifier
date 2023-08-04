@@ -445,8 +445,8 @@ class Ead(Transformer):
         """
         if skipped_elements is None:
             skipped_elements = []
-        if type(item) == NavigableString and item.strip():
+        if isinstance(item, NavigableString) and item.strip():
             yield str(item.strip())
-        elif type(item) == Tag and item.name not in skipped_elements:
+        elif isinstance(item, Tag) and item.name not in skipped_elements:
             for child in item.children:
                 yield from cls.parse_mixed_value(child, skipped_elements)
