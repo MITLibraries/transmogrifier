@@ -118,10 +118,12 @@ class Transformer(object):
         """
         source_record_id = self.get_source_record_id(xml)
         title = self.get_valid_title(source_record_id, xml)
+        source_link = self.get_source_link(self.source_base_url, source_record_id, xml)
+        timdex_record_id = self.get_timdex_record_id(self.source, source_record_id, xml)
         return {
             "source": self.source_name,
-            "source_link": self.source_base_url + source_record_id,
-            "timdex_record_id": f"{self.source}:{source_record_id.replace('/', '-')}",
+            "source_link": source_link,
+            "timdex_record_id": timdex_record_id,
             "title": title,
         }
 
@@ -180,7 +182,7 @@ class Transformer(object):
                 source_record_id,
                 all_titles,
             )
-        if all_titles and type(all_titles[0]) == str:
+        if all_titles and isinstance(all_titles[0], str):
             title = all_titles[0]
         elif all_titles and all_titles[0].string:
             title = all_titles[0].string
@@ -191,3 +193,39 @@ class Transformer(object):
             )
             title = "Title not provided"
         return title
+
+    @classmethod
+    def get_source_link(
+        cls, source_base_url: str, source_record_id: str, xml: Tag
+    ) -> str:
+        """
+        Class method to set the source link for the item.
+
+        May be overridden by source subclasses if needed.
+
+        Default behavior is to concatenate the source base URL + source record id.
+
+        Args:
+            source_base_url: Source base URL.
+            source_record_id: Record identifier for the source record.
+            xml: A BeautifulSoup Tag representing a single XML record.
+        """
+        return source_base_url + source_record_id
+
+    @classmethod
+    def get_timdex_record_id(cls, source: str, source_record_id: str, xml: Tag) -> str:
+        """
+        Class method to set the TIMDEX record id.
+
+        May be overridden by source subclasses if needed.
+
+        Default behavior is to concatenate the source name + source record id.
+
+        Args:
+            source: Source name.
+            source_record_id: Record identifier for the source record.
+            xml: A BeautifulSoup Tag representing a single XML record.
+                - not used by default implementation, but could be useful for subclass
+                overrides
+        """
+        return f"{source}:{source_record_id.replace('/', '-')}"

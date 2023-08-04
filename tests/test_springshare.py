@@ -12,7 +12,7 @@ RESEARCHDATABASES_FIXTURES_PREFIX = f"{SPRINGSHARE_FIXTURES_PREFIX}/research_dat
 LIBGUIDES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
     source="LibGuides",
     source_link="https://libguides.mit.edu/materials",
-    timdex_record_id="libguides:materials",
+    timdex_record_id="libguides:guides-175846",
     title="Materials Science & Engineering",
     citation="Materials Science & Engineering. libguides. "
     "https://libguides.mit.edu/materials",
@@ -33,7 +33,7 @@ LIBGUIDES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
 RESEARCHDATABASES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
     source="Research Databases",
     source_link="https://libguides.mit.edu/llba",
-    timdex_record_id="researchdatabases:llba",
+    timdex_record_id="researchdatabases:az-65257807",
     title="Linguistics and Language Behavior Abstracts (LLBA)",
     citation="Linguistics and Language Behavior Abstracts (LLBA). researchdatabases. "
     "https://libguides.mit.edu/llba",
@@ -94,7 +94,7 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
     assert next(output_records) == timdex.TimdexRecord(
         source="LibGuides",
         source_link="https://libguides.mit.edu/materials",
-        timdex_record_id="libguides:materials",
+        timdex_record_id="libguides:guides-175846",
         title="Materials Science & Engineering",
         citation="Ye Li. Materials Science & Engineering. MIT Libraries. libguides. "
         "https://libguides.mit.edu/materials",
@@ -154,7 +154,7 @@ def test_research_databases_transform_with_all_fields_transforms_correctly():
     assert next(output_records) == timdex.TimdexRecord(
         source="Research Databases",
         source_link="https://libguides.mit.edu/llba",
-        timdex_record_id="researchdatabases:llba",
+        timdex_record_id="researchdatabases:az-65257807",
         title="Linguistics and Language Behavior Abstracts (LLBA)",
         citation="Linguistics and Language Behavior Abstracts (LLBA). "
         "researchdatabases. https://libguides.mit.edu/llba",

@@ -80,25 +80,31 @@ class SpringshareOaiDc(OaiDc):
         ]
 
     @classmethod
-    def get_source_record_id(cls, xml: Tag) -> str:
+    def get_source_link(
+        cls, source_base_url: str, source_record_id: str, xml: Tag
+    ) -> str:
         """
-        Get the source record ID from a Springshare OAI DC XML record.
+        Override for default source_link behavior.
 
-        Overrides metaclass get_source_record_id() method.
+        Springshare resources contain the source link in their dc:identifier fields.
+        However, this cannot be reliably split and combined with the source base url,
+        as this either provides poorly formed timdex record ids OR source links that
+        do not work.
 
-        The URL path of the Springshare resource is used as the source record id, which
-        results in a timdex record id like "libguides:materials" or
-        "researchdatabases:llba".  This is preferred over the OAI-PMH identifier, a
-        numeric value, which cannot be used to construct an accessible source link.
+        Example libguides OAI identifier and <dc:identifier>:
+            - oai:libguides.com:guides/175846, https://libguides.mit.edu/materials
+            - oai:libguides.com:guides/175847, https://libguides.mit.edu/c.php?g=175847
 
-        Libguides example:
-            "https://libguides.mit.edu/materials" -> "materials"
+        Example researchdatabases OAI identifier and <dc:identifier>:
+            - oai:libguides.com:az/65257807, https://libguides.mit.edu/llba
 
-        AZ (Research Database) example:
-            "https://libguides.mit.edu/llba" -> "llba"
+        It is preferable to split the OAI header identifier and use this as the TIMDEX
+        record id, but then take the dc:identifier wholesale and use this for the source
+        link.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single Springshare OAI DC XML record.
+            source_base_url: Source base URL.
+            source_record_id: Record identifier for the source record.
+            xml: A BeautifulSoup Tag representing a single XML record.
         """
-
-        return str(xml.find("dc:identifier").string).split("/")[-1]
+        return str(xml.find("dc:identifier").string)
