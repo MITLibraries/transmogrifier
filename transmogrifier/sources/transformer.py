@@ -117,9 +117,12 @@ class Transformer(object):
             xml: A BeautifulSoup Tag representing a single OAI-PMH XML record.
         """
         source_record_id = self.get_source_record_id(xml)
-        title = self.get_valid_title(source_record_id, xml)
+
+        # run methods to generate required fields
         source_link = self.get_source_link(self.source_base_url, source_record_id, xml)
         timdex_record_id = self.get_timdex_record_id(self.source, source_record_id, xml)
+        title = self.get_valid_title(source_record_id, xml)
+
         return {
             "source": self.source_name,
             "source_link": source_link,
@@ -209,6 +212,8 @@ class Transformer(object):
             source_base_url: Source base URL.
             source_record_id: Record identifier for the source record.
             xml: A BeautifulSoup Tag representing a single XML record.
+                - not used by default implementation, but could be useful for subclass
+                    overrides
         """
         return source_base_url + source_record_id
 
