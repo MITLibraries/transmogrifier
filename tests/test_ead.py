@@ -526,6 +526,15 @@ def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
     ) in caplog.text
 
 
+def test_ead_record_correct_identifiers_from_multiple_unitid(caplog):
+    ead_xml_records = parse_xml_records(
+        "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
+    )
+    output_record = next(Ead("aspace", ead_xml_records))
+    for identifier in output_record.identifiers:
+        assert identifier.value != "unitid-that-should-not-be-identifier"
+
+
 def test_ead_record_with_missing_optional_fields_transforms_correctly():
     ead_xml_records = parse_xml_records(
         "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
