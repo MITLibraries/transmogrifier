@@ -152,6 +152,8 @@ class Ead(Transformer):
         for id_element in collection_description_did.find_all(
             "unitid", recursive=False
         ):
+            if id_element.get("type") == "aspace_uri":
+                continue
             if id_value := self.create_string_from_mixed_value(
                 id_element,
                 " ",

@@ -59,6 +59,9 @@
                         <unitid>
                             <emph>Data enclosed in subelement</emph>
                         </unitid>
+                        <unitid type="aspace_uri">
+                            <emph>unitid-that-should-not-be-identifier</emph>
+                        </unitid>
                         <abstract>
                             <emph>Data enclosed in subelement</emph>
                         </abstract>
