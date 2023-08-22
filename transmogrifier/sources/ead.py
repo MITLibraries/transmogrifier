@@ -103,39 +103,11 @@ class Ead(Transformer):
                             identifier=self.generate_name_identifier_url(name_element),
                         )
                     )
+
         # dates
-        for date_element in collection_description_did.find_all("unitdate"):
-            if date_value := self.create_string_from_mixed_value(
-                date_element,
-                " ",
-            ):
-                date_instance = timdex.Date()
-                if "-" in date_value:
-                    split = date_value.index("-")
-                    gte_date = date_value[:split].strip()
-                    lte_date = date_value[split + 1 :].strip()
-                    if validate_date_range(
-                        gte_date,
-                        lte_date,
-                        source_record_id,
-                    ):
-                        date_instance.range = timdex.Date_Range(
-                            gte=gte_date,
-                            lte=lte_date,
-                        )
-                else:
-                    date_instance.value = (
-                        date_value.strip()
-                        if validate_date(
-                            date_value,
-                            source_record_id,
-                        )
-                        else None
-                    )
-                if date_instance.range or date_instance.value:
-                    date_instance.kind = date_element.get("datechar") or None
-                    date_instance.note = date_element.get("certainty") or None
-                    fields.setdefault("dates", []).append(date_instance)
+        dates = self.parse_dates(collection_description_did, source_record_id)
+        if dates:
+            fields.setdefault("dates", []).extend(dates)
 
         # edition field not used in EAD
 
@@ -452,3 +424,59 @@ class Ead(Transformer):
         elif isinstance(item, Tag) and item.name not in skipped_elements:
             for child in item.children:
                 yield from cls.parse_mixed_value(child, skipped_elements)
+
+    def parse_dates(
+        self, collection_description_did: Tag, source_record_id: str
+    ) -> list[timdex.Date]:
+        """
+        Dedicated method to parse dates.  Targeting archdesc.unitdata elements, using
+        only those with a @normal attribute value.  These are almost uniformly ranges,
+        but in the event they are not (or two identical values for the range) a single
+        date value is produced.
+        """
+
+        dates = []
+        for date_element in collection_description_did.find_all("unitdate"):
+            normal_date = date_element.get("normal", "").strip()
+            if normal_date == "":
+                continue
+
+            date_instance = timdex.Date()
+
+            # date range
+            if "/" in normal_date:
+                gte_date, lte_date = normal_date.split("/")
+                if gte_date != lte_date:
+                    if validate_date_range(
+                        gte_date,
+                        lte_date,
+                        source_record_id,
+                    ):
+                        date_instance.range = timdex.Date_Range(
+                            gte=gte_date,
+                            lte=lte_date,
+                        )
+                else:
+                    date_str = gte_date  # arbitrarily take one
+                    if validate_date(
+                        date_str,
+                        source_record_id,
+                    ):
+                        date_instance.value = date_str
+
+            # fallback on single date
+            else:
+                if validate_date(
+                    normal_date,
+                    source_record_id,
+                ):
+                    date_instance.value = normal_date
+
+            # include @datechar and @certainty attributes
+            date_instance.kind = date_element.get("datechar")
+            date_instance.note = date_element.get("certainty")
+
+            if date_instance.range or date_instance.value:
+                dates.append(date_instance)
+
+        return dates
