@@ -32,7 +32,7 @@
                             <num>VC.0002</num>
                         </unittitle>
                         <unittitle>Title 3</unittitle>
-                        <unitdate certainty="approximate" datechar="creation">1905-2012</unitdate>
+                        <unitdate certainty="approximate" datechar="creation" normal="1905/2012">1905-2012</unitdate>
                         <unitid>
                             1234
                         </unitid>

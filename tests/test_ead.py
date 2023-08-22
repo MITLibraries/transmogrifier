@@ -385,41 +385,24 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             timdex.Date(
                 range=timdex.Date_Range(gte="1905", lte="2012"),
             ),
-            timdex.Date(value="1905"),
-            timdex.Date(
-                range=timdex.Date_Range(gte="1905", lte="2012"),
-            ),
-            timdex.Date(value="1905"),
-            timdex.Date(
-                range=timdex.Date_Range(gte="1905", lte="2012"),
-            ),
-            timdex.Date(value="1905"),
             timdex.Date(
                 kind="creation",
                 range=timdex.Date_Range(gte="1905", lte="2012"),
             ),
-            timdex.Date(kind="creation", value="1905"),
             timdex.Date(
-                kind="creation",
+                note="approximate",
                 range=timdex.Date_Range(gte="1905", lte="2012"),
             ),
-            timdex.Date(kind="creation", value="1905"),
             timdex.Date(
                 kind="creation",
                 note="approximate",
                 range=timdex.Date_Range(gte="1905", lte="2012"),
             ),
-            timdex.Date(kind="creation", note="approximate", value="1905"),
             timdex.Date(
-                note="approximate",
-                range=timdex.Date_Range(gte="1905", lte="2012"),
+                range=timdex.Date_Range(gte="1953-11-09", lte="1953-11-10"),
             ),
-            timdex.Date(note="approximate", value="1905"),
-            timdex.Date(
-                note="approximate",
-                range=timdex.Date_Range(gte="1905", lte="2012"),
-            ),
-            timdex.Date(note="approximate", value="1905"),
+            timdex.Date(value="1969-03-04"),
+            timdex.Date(value="2023"),
         ],
         identifiers=[
             timdex.Identifier(
@@ -509,21 +492,18 @@ def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
     output_record = next(Ead("aspace", ead_xml_records))
-    assert "abcd" not in [d.value for d in output_record.dates]
-    assert "abcd" not in [
-        d.range.gte for d in output_record.dates if "gte" in dir(d.range)
-    ]
-    assert "efgh" not in [
-        d.range.lte for d in output_record.dates if "lte" in dir(d.range)
-    ]
-    assert (
-        "Record ID 'repositories/2/resources/6' has invalid values in a date range: "
-        "'abcd', 'efgh'"
-    ) in caplog.text
-    assert (
-        "Record ID 'repositories/2/resources/6' has a date that couldn't be parsed: "
-        "'abcd'"
-    ) in caplog.text
+
+    for date in output_record.dates:
+        assert date.value != "undated"
+        assert date.value != "1984"
+        if date.range is not None:
+            assert date.range.gte != "1984"
+            assert date.range.lte != "1989"
+            assert date.range.gte != "2001"
+            assert date.range.lte != "1999"
+
+    assert ("has a date that couldn't be parsed: 'undated'") in caplog.text
+    assert ("has a later start date than end date: '2001', '1999'") in caplog.text
 
 
 def test_ead_record_correct_identifiers_from_multiple_unitid(caplog):

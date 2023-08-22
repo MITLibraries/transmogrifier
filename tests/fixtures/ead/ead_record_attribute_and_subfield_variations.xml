@@ -26,36 +26,16 @@
                             <emph></emph>
                             <num></num>
                         </unittitle>
-                        <unitdate datechar=""></unitdate>
-                        <unitdate datechar="">1905-2012</unitdate>
-                        <unitdate datechar="">1905</unitdate>
-                        <unitdate certainty=""></unitdate>
-                        <unitdate certainty="">1905-2012</unitdate>
-                        <unitdate certainty="">1905</unitdate>
-                        <unitdate datechar="" certainty=""></unitdate>
-                        <unitdate datechar="" certainty="">1905-2012</unitdate>
-                        <unitdate datechar="" certainty="">1905</unitdate>
-                        <unitdate datechar="creation"></unitdate>
-                        <unitdate datechar="creation">1905-2012</unitdate>
-                        <unitdate datechar="creation">1905</unitdate>
-                        <unitdate datechar="creation">abcd-efgh</unitdate>
-                        <unitdate datechar="creation">abcd</unitdate>
-                        <unitdate datechar="creation" certainty=""></unitdate>
-                        <unitdate datechar="creation" certainty="">1905-2012</unitdate>
-                        <unitdate datechar="creation" certainty="">1905</unitdate>
-                        <unitdate datechar="creation" certainty="approximate"></unitdate>
-                        <unitdate datechar="creation" certainty="approximate">1905-2012</unitdate>
-                        <unitdate datechar="creation" certainty="approximate">1905</unitdate>
-                        <unitdate datechar="creation" certainty="approximate">abcd-efgh</unitdate>
-                        <unitdate datechar="creation" certainty="approximate">abcd</unitdate>
-                        <unitdate certainty="approximate"></unitdate>
-                        <unitdate certainty="approximate">1905-2012</unitdate>
-                        <unitdate certainty="approximate">1905</unitdate>
-                        <unitdate certainty="approximate">abcd-efgh</unitdate>
-                        <unitdate certainty="approximate">abcd</unitdate>
-                        <unitdate datechar="" certainty="approximate"></unitdate>
-                        <unitdate datechar="" certainty="approximate">1905-2012</unitdate>
-                        <unitdate datechar="" certainty="approximate">1905</unitdate>
+                        <unitdate normal="1905/2012">1905-2012</unitdate>
+                        <unitdate datechar="creation" normal="1905/2012">1905-2012</unitdate>
+                        <unitdate certainty="approximate" normal="1905/2012">1905-2012</unitdate>
+                        <unitdate datechar="creation" certainty="approximate" normal="1905/2012">1905-2012</unitdate>
+                        <unitdate normal="1953-11-09/1953-11-10">1953 November 9–10</unitdate>
+                        <unitdate normal="1969-03-04/1969-03-04">1969-03-04</unitdate> <!-- same date in normal range, collapses to single date -->
+                        <unitdate normal="2023">2023</unitdate> <!-- non-range value unlikely but maybe possible -->
+                        <unitdate>1984-1989</unitdate> <!-- missing @normal attribute, skipped -->
+                        <unitdate normal="undated">undated</unitdate> <!-- invalid single date, skipped -->
+                        <unitdate normal="2001/1999">2001-1999</unitdate> <!-- invalid range, skipped -->
                         <unitid>
                             <emph>Data enclosed in subelement</emph>
                         </unitid>
