@@ -51,7 +51,7 @@ class SpringshareOaiDc(OaiDc):
                 date_iso_str,
                 source_record_id,
             ):
-                dates.append(timdex.Date(value=date_iso_str, kind=None))
+                dates.append(timdex.Date(value=date_iso_str, kind="Created"))
         return dates or None
 
     def get_links(self, source_record_id: str, xml: Tag) -> Optional[List[timdex.Link]]:

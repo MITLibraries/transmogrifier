@@ -60,7 +60,9 @@ def test_springshare_get_dates_valid():
     for xml in transformer_instance.input_records:
         date_field_value = transformer_instance.get_dates("test_get_dates", xml)
         assert date_field_value == [
-            timdex.Date(kind=None, note=None, range=None, value="2000-01-01T00:00:00")
+            timdex.Date(
+                kind="Created", note=None, range=None, value="2000-01-01T00:00:00"
+            )
         ]
 
 
@@ -106,7 +108,7 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
             )
         ],
         dates=[
-            timdex.Date(value="2008-06-19T17:55:27"),
+            timdex.Date(value="2008-06-19T17:55:27", kind="Created"),
         ],
         format="electronic resource",
         identifiers=[
@@ -160,7 +162,7 @@ def test_research_databases_transform_with_all_fields_transforms_correctly():
         "researchdatabases. https://libguides.mit.edu/llba",
         content_type=["researchdatabases"],
         dates=[
-            timdex.Date(value="2022-01-28T22:15:37"),
+            timdex.Date(value="2022-01-28T22:15:37", kind="Created"),
         ],
         format="electronic resource",
         identifiers=[
