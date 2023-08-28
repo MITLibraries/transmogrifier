@@ -137,7 +137,7 @@ class OaiDc(Transformer):
                     date_str,
                     source_record_id,
                 ):
-                    dates.append(timdex.Date(value=date_str))
+                    dates.append(timdex.Date(value=date_str, kind="Unknown"))
         return dates or None
 
     def get_links(self, source_record_id: str, xml: Tag) -> Optional[List[timdex.Link]]:

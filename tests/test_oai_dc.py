@@ -74,5 +74,5 @@ def test_oaidc_generic_date():
     transformer_instance = OaiDc("libguides", input_records)
     xml = next(transformer_instance.input_records)
     assert transformer_instance.get_dates("test_source_record_id", xml) == [
-        timdex.Date(kind=None, note=None, range=None, value="2008-06-19T17:55:27")
+        timdex.Date(kind="Unknown", note=None, range=None, value="2008-06-19T17:55:27")
     ]
