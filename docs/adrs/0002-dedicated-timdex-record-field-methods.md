@@ -19,12 +19,23 @@ Acknowledging this approach has been very successful for sources to date, it has
   * there are some hardcoded assumptions about the relationship of unique identifiers to accessible source URLs defined in methods not designed to be overridden
   * there is an emerging pattern (as mentioned above) to breakout complex logic into methods, but is not consistently applied in naming or approach across sources
   * extending a base transformers can be tricky if the `get_optional_fields()` is complex or reused variables across fields
+    * having functionally a single entrypoint like `get_optional_fields()` limits inheritance, without adjusting other transformations, to a single parent transformation
   * documentation for handling a particular field, unless broken out into a standalone method, was confined to inline comments
-  * testing transformations requires testing the full, final outputted record that `get_optional_fields()` contributes to 
+  * testing transformations requires testing the full, final outputted record that `get_optional_fields()` contributes to
 
 Additionally, there has been a desire to document how a source is mapped from the original "raw" record into a TIMDEX record.  The `get_optional_fields()` approach does not lend itself well to documentation as it relies heavily on inline comments and/or ad-hoc methods to breakout complex logic.  If every transformation had methods dedicated to particular fields, thereby providing a space for docstrings to explain the logic of that field handling, this might eventually support programmatic documentation of how fields are mapped for a source.
 
 Moving to a method-per-field approach will also allow for more granular logging.
+
+### Transformation Inheritance
+
+Something alluded to above but warrants a bit more discussion is how refactoring to have one method per field, might better support transformation class inheritance.  
+
+Currently, extending another transformation usually means accepting its `get_optional_fields()` approach, and if methods are defined in _that_, overriding those for more specific behavior.   The limitation here is that a) those hooks might not exist which would require modifying that "parent" transformation, and b) when they are, it's understandably inconsistent across different transformations.
+
+In a situation where methods are defined targeting specific `TimdexRecord` fields, it would be straight-forward to extend transformations as you'd know precisely which field logic (methods) you'd like to keep or override.
+
+And, you could extend _multiple_ classes with the same understanding; based on [python's MRO](https://www.python.org/download/releases/2.3/mro/), the classes extended would provide those field methods in predictable pattern of defining / overriding.
 
 ## Decision
 
@@ -81,7 +92,7 @@ From there, transformations will extend `Transformer` and override methods for s
 
 ### 2- Refactor pre-existing transformations to use this new approach
 
-With the new structure in place, refactor pre-existing source transformations to use it.  This may include revisiting some of the transformation inheritance if there is an opportunity for intermediate transformation classes now that an intermediate class could theoretically handle only one, two, or a handful of fields. 
+With the new structure in place, refactor pre-existing source transformations to use it.  This may include revisiting some of the transformation inheritance if there is an opportunity for smaller, intermediate transformations that could be combined and used (as discussed in "Transformation Inheritance" above).
 
 The end goal should be transformations that are identical to the original versions, only the structure of the transformations will have changed in this first pass.
 
