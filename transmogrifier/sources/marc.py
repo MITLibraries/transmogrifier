@@ -6,7 +6,7 @@ from bs4 import Tag
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import Transformer
+from transmogrifier.sources.transformer import XmlTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ marc_content_type_crosswalk = load_external_config(
 )
 
 
-class Marc(Transformer):
+class Marc(XmlTransformer):
     """Marc transformer."""
 
     def get_optional_fields(self, xml: Tag) -> Optional[dict]:

@@ -6,7 +6,7 @@ from bs4 import NavigableString, Tag
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
 from transmogrifier.helpers import validate_date, validate_date_range
-from transmogrifier.sources.transformer import Transformer
+from transmogrifier.sources.transformer import XmlTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ aspace_type_crosswalk = load_external_config(
 )
 
 
-class Ead(Transformer):
+class Ead(XmlTransformer):
     """EAD transformer."""
 
     def get_optional_fields(self, xml: Tag) -> Optional[dict]:
