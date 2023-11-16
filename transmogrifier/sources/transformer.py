@@ -12,11 +12,12 @@ from transmogrifier.models import TimdexRecord
 logger = logging.getLogger(__name__)
 
 
-class Transformer(object):
+class XmlTransformer(object):
     """Base transformer class."""
 
     __metaclass__ = ABCMeta
 
+    @final
     def __init__(self, source: str, input_records: Iterator[Tag]) -> None:
         """
         Initialize Transformer instance.
@@ -34,17 +35,19 @@ class Transformer(object):
         self.skipped_record_count = 0
         self.deleted_records: list[str] = []
 
+    @final
     def __iter__(self) -> Iterator[TimdexRecord]:
         """Iterate over transformed records."""
         return self
 
+    @final
     def __next__(self) -> TimdexRecord:
         """Return next transformed record."""
         while True:
-            xml = next(self.input_records)
+            source_record = next(self.input_records)
             self.processed_record_count += 1
             try:
-                record = self.transform(xml)
+                record = self.transform(source_record)
             except DeletedRecord as error:
                 self.deleted_records.append(error.timdex_record_id)
                 continue
@@ -56,72 +59,76 @@ class Transformer(object):
                 continue
 
     @abstractmethod
-    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
+    def get_optional_fields(self, source_record: Tag) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from an XML record.
 
         Must be overridden by source subclasses.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single XML record
+            source_record: A BeautifulSoup Tag representing a single XML record
         """
         return {}
 
     @classmethod
     @abstractmethod
-    def get_main_titles(cls, xml: Tag) -> list[Tag]:
+    def get_main_titles(cls, source_record: Tag) -> list[Tag]:
         """
         Retrieve main title(s) from an XML record.
 
         Must be overridden by source subclasses.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single XML record
+            source_record: A BeautifulSoup Tag representing a single XML record
         """
         return []
 
     @classmethod
-    def get_source_record_id(cls, xml: Tag) -> str:
+    def get_source_record_id(cls, source_record: Tag) -> str:
         """
         Get or generate a source record ID from an XML record.
 
         May be overridden by source subclasses if needed.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single XML record
+            source_record: A BeautifulSoup Tag representing a single XML record
         """
-        return str(xml.header.find("identifier").string)
+        return str(source_record.header.find("identifier").string)
 
     @classmethod
-    def record_is_deleted(cls, xml: Tag) -> bool:
+    def record_is_deleted(cls, source_record: Tag) -> bool:
         """
         Determine whether record has a status of deleted.
 
         May be overridden by source subclasses if needed.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single XML record
+            source_record: A BeautifulSoup Tag representing a single XML record
         """
-        if xml.find("header", status="deleted"):
+        if source_record.find("header", status="deleted"):
             return True
         return False
 
     @final
-    def get_required_fields(self, xml: Tag) -> dict:
+    def get_required_fields(self, source_record: Tag) -> dict:
         """
         Get required TIMDEX fields from an XML record.
 
         May not be overridden.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single OAI-PMH XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI-PMH XML record.
         """
-        source_record_id = self.get_source_record_id(xml)
+        source_record_id = self.get_source_record_id(source_record)
 
         # run methods to generate required fields
-        source_link = self.get_source_link(self.source_base_url, source_record_id, xml)
-        timdex_record_id = self.get_timdex_record_id(self.source, source_record_id, xml)
-        title = self.get_valid_title(source_record_id, xml)
+        source_link = self.get_source_link(
+            self.source_base_url, source_record_id, source_record
+        )
+        timdex_record_id = self.get_timdex_record_id(
+            self.source, source_record_id, source_record
+        )
+        title = self.get_valid_title(source_record_id, source_record)
 
         return {
             "source": self.source_name,
@@ -131,25 +138,25 @@ class Transformer(object):
         }
 
     @final
-    def transform(self, xml: Tag) -> Optional[TimdexRecord]:
+    def transform(self, source_record: Tag) -> Optional[TimdexRecord]:
         """
         Transform an OAI-PMH XML record into a TIMDEX record.
 
         May not be overridden.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single OAI-PMH XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI-PMH XML record.
         """
-        if self.record_is_deleted(xml):
-            source_record_id = self.get_source_record_id(xml)
+        if self.record_is_deleted(source_record):
+            source_record_id = self.get_source_record_id(source_record)
             timdex_record_id = f"{self.source}:{source_record_id.replace('/', '-')}"
             raise DeletedRecord(timdex_record_id)
-        optional_fields = self.get_optional_fields(xml)
+        optional_fields = self.get_optional_fields(source_record)
         if optional_fields is None:
             return None
         else:
             fields = {
-                **self.get_required_fields(xml),
+                **self.get_required_fields(source_record),
                 **optional_fields,
             }
 
@@ -163,7 +170,7 @@ class Transformer(object):
 
     @final
     @classmethod
-    def get_valid_title(cls, source_record_id: str, xml: Tag) -> str:
+    def get_valid_title(cls, source_record_id: str, source_record: Tag) -> str:
         """
         Retrieves main title(s) from an XML record and returns a valid title string.
 
@@ -175,9 +182,9 @@ class Transformer(object):
 
         Args:
             source_record_id: Record identifier for the source record.
-            xml: A BeautifulSoup Tag representing a single XML record.
+            source_record: A BeautifulSoup Tag representing a single XML record.
         """
-        all_titles = cls.get_main_titles(xml)
+        all_titles = cls.get_main_titles(source_record)
         if len(all_titles) > 1:
             logger.warning(
                 "Record %s has multiple titles. Using the first title from the "
@@ -199,7 +206,7 @@ class Transformer(object):
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, xml: Tag
+        cls, source_base_url: str, source_record_id: str, source_record: Tag
     ) -> str:
         """
         Class method to set the source link for the item.
@@ -211,14 +218,16 @@ class Transformer(object):
         Args:
             source_base_url: Source base URL.
             source_record_id: Record identifier for the source record.
-            xml: A BeautifulSoup Tag representing a single XML record.
+            source_record: A BeautifulSoup Tag representing a single XML record.
                 - not used by default implementation, but could be useful for subclass
                     overrides
         """
         return source_base_url + source_record_id
 
     @classmethod
-    def get_timdex_record_id(cls, source: str, source_record_id: str, xml: Tag) -> str:
+    def get_timdex_record_id(
+        cls, source: str, source_record_id: str, source_record: Tag
+    ) -> str:
         """
         Class method to set the TIMDEX record id.
 
@@ -229,7 +238,7 @@ class Transformer(object):
         Args:
             source: Source name.
             source_record_id: Record identifier for the source record.
-            xml: A BeautifulSoup Tag representing a single XML record.
+            source_record: A BeautifulSoup Tag representing a single XML record.
                 - not used by default implementation, but could be useful for subclass
                 overrides
         """
