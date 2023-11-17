@@ -1,5 +1,4 @@
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.oaidc import OaiDc
 
 FIXTURES_PREFIX = "tests/fixtures/oai_dc"
@@ -20,7 +19,9 @@ BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
 
 
 def test_oaidctransform_with_all_fields_transforms_correctly():
-    source_records = parse_xml_records(f"{FIXTURES_PREFIX}/oaidc_record_all_fields.xml")
+    source_records = OaiDc.parse_source_file(
+        f"{FIXTURES_PREFIX}/oaidc_record_all_fields.xml"
+    )
     output_records = OaiDc("libguides", source_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="LibGuides",
@@ -52,7 +53,7 @@ def test_oaidctransform_with_all_fields_transforms_correctly():
 
 
 def test_oaidc_transform_with_optional_fields_blank_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = OaiDc.parse_source_file(
         f"{FIXTURES_PREFIX}/oaidc_record_optional_fields_blank.xml"
     )
     output_records = OaiDc("libguides", source_records)
@@ -60,7 +61,7 @@ def test_oaidc_transform_with_optional_fields_blank_transforms_correctly():
 
 
 def test_oaidc_transform_with_optional_fields_missing_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = OaiDc.parse_source_file(
         f"{FIXTURES_PREFIX}/oaidc_record_optional_fields_missing.xml"
     )
     output_records = OaiDc("libguides", source_records)
@@ -68,7 +69,7 @@ def test_oaidc_transform_with_optional_fields_missing_transforms_correctly():
 
 
 def test_oaidc_generic_date():
-    source_records = parse_xml_records(
+    source_records = OaiDc.parse_source_file(
         f"{FIXTURES_PREFIX}/oaidc_record_valid_generic_date.xml"
     )
     transformer_instance = OaiDc("libguides", source_records)

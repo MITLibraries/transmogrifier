@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.models import TimdexRecord
 from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.transformer import Transformer, XmlTransformer
@@ -53,7 +52,9 @@ def test_xmltransformer_parse_source_file_returns_record_iterator():
 
 
 def test_xmltransformer_record_is_deleted_returns_true_if_deleted(caplog):
-    source_records = parse_xml_records("tests/fixtures/record_deleted.xml")
+    source_records = XmlTransformer.parse_source_file(
+        "tests/fixtures/record_deleted.xml"
+    )
     assert XmlTransformer.record_is_deleted(next(source_records)) is True
 
 
@@ -80,7 +81,9 @@ def test_xmltransformer_transform_returns_timdex_record(oai_pmh_records):
 
 
 def test_xmltransformer_get_valid_title_with_title_field_blank_logs_warning(caplog):
-    source_records = parse_xml_records("tests/fixtures/record_title_field_blank.xml")
+    source_records = XmlTransformer.parse_source_file(
+        "tests/fixtures/record_title_field_blank.xml"
+    )
     output_records = Datacite("cool-repo", source_records)
     assert next(output_records).title == "Title not provided"
     assert (
@@ -90,7 +93,9 @@ def test_xmltransformer_get_valid_title_with_title_field_blank_logs_warning(capl
 
 
 def test_xmltransformer_get_valid_title_with_title_field_missing_logs_warning(caplog):
-    source_records = parse_xml_records("tests/fixtures/record_title_field_missing.xml")
+    source_records = XmlTransformer.parse_source_file(
+        "tests/fixtures/record_title_field_missing.xml"
+    )
     output_records = Datacite("cool-repo", source_records)
     assert next(output_records).title == "Title not provided"
     assert (
@@ -100,7 +105,9 @@ def test_xmltransformer_get_valid_title_with_title_field_missing_logs_warning(ca
 
 
 def test_xmltransformer_get_valid_title_with_title_field_multiple_logs_warning(caplog):
-    source_records = parse_xml_records("tests/fixtures/record_title_field_multiple.xml")
+    source_records = XmlTransformer.parse_source_file(
+        "tests/fixtures/record_title_field_multiple.xml"
+    )
     output_records = Datacite("cool-repo", source_records)
     assert (
         next(output_records).title

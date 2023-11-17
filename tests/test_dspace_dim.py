@@ -1,10 +1,9 @@
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.dspace_dim import DspaceDim
 
 
 def test_dspace_dim_transform_with_all_fields_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_all_fields.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
@@ -133,7 +132,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
 
 
 def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_attribute_variations.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
@@ -188,7 +187,7 @@ def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
 
 
 def test_dspace_dim_transform_with_optional_fields_blank_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_optional_fields_blank.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
@@ -204,7 +203,7 @@ def test_dspace_dim_transform_with_optional_fields_blank_transforms_correctly():
 
 
 def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_optional_fields_missing.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)

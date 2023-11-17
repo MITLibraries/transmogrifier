@@ -1,5 +1,4 @@
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.springshare import SpringshareOaiDc
 
 SPRINGSHARE_FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare"
@@ -53,7 +52,7 @@ RESEARCHDATABASES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
 
 
 def test_springshare_get_dates_valid():
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         f"{SPRINGSHARE_FIXTURES_PREFIX}/springshare_valid_dates.xml"
     )
     transformer_instance = SpringshareOaiDc("libguides", source_records)
@@ -67,7 +66,7 @@ def test_springshare_get_dates_valid():
 
 
 def test_springshare_get_dates_invalid_logged_and_skipped(caplog):
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         f"{SPRINGSHARE_FIXTURES_PREFIX}/springshare_invalid_dates.xml"
     )
     transformer_instance = SpringshareOaiDc("libguides", source_records)
@@ -78,7 +77,7 @@ def test_springshare_get_dates_invalid_logged_and_skipped(caplog):
 
 
 def test_springshare_get_links_missing_identifier_logged_and_skipped(caplog):
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         f"{SPRINGSHARE_FIXTURES_PREFIX}/springshare_record_missing_required_fields.xml"
     )
     transformer_instance = SpringshareOaiDc("libguides", source_records)
@@ -89,7 +88,7 @@ def test_springshare_get_links_missing_identifier_logged_and_skipped(caplog):
 
 
 def test_libguide_transform_with_all_fields_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_all_fields.xml"
     )
     output_records = SpringshareOaiDc("libguides", source_records)
@@ -133,7 +132,7 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
 
 
 def test_libguides_transform_with_optional_fields_blank_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_optional_fields_blank.xml"
     )
     output_records = SpringshareOaiDc("libguides", source_records)
@@ -141,7 +140,7 @@ def test_libguides_transform_with_optional_fields_blank_transforms_correctly():
 
 
 def test_libguides_transform_with_optional_fields_missing_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_optional_fields_missing.xml"
     )
     output_records = SpringshareOaiDc("libguides", source_records)
@@ -149,7 +148,7 @@ def test_libguides_transform_with_optional_fields_missing_transforms_correctly()
 
 
 def test_research_databases_transform_with_all_fields_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         f"{RESEARCHDATABASES_FIXTURES_PREFIX}/research_databases_record_all_fields.xml"
     )
     output_records = SpringshareOaiDc("researchdatabases", source_records)
@@ -189,7 +188,7 @@ def test_research_databases_transform_with_all_fields_transforms_correctly():
 
 
 def test_research_databases_transform_with_optional_fields_blank_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         RESEARCHDATABASES_FIXTURES_PREFIX
         + "/research_databases_record_optional_fields_blank.xml"
     )
@@ -201,7 +200,7 @@ def test_research_databases_transform_with_optional_fields_blank_transforms_corr
 
 
 def test_research_databases_transform_with_optional_fields_missing_transforms_correctly():
-    source_records = parse_xml_records(
+    source_records = SpringshareOaiDc.parse_source_file(
         RESEARCHDATABASES_FIXTURES_PREFIX
         + "/research_databases_record_optional_fields_missing.xml"
     )

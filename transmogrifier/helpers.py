@@ -2,15 +2,9 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import TYPE_CHECKING, Iterator, Optional
+from typing import TYPE_CHECKING, Optional
 
 from attrs import asdict
-from bs4 import BeautifulSoup, Tag
-
-# Note: the lxml module in defusedxml is deprecated, so we have to use the
-# regular lxml library. Transmogrifier only parses data from known sources so this
-# should not be a security issue.
-from lxml import etree  # nosec B410
 from smart_open import open
 
 from transmogrifier.config import DATE_FORMATS
@@ -71,22 +65,6 @@ def generate_citation(extracted_data: dict) -> str:
 
     citation += publisher_string + resource_type_string + url_string
     return citation
-
-
-def parse_xml_records(
-    input_file_path: str,
-) -> Iterator[Tag]:
-    with open(input_file_path, "rb") as file:
-        for _, element in etree.iterparse(
-            file,
-            tag="{*}record",
-            encoding="utf-8",
-            recover=True,
-        ):
-            record_string = etree.tostring(element, encoding="utf-8")
-            record = BeautifulSoup(record_string, "xml")
-            yield record
-            element.clear()
 
 
 def parse_date_from_string(

@@ -4,7 +4,6 @@ import transmogrifier.models as timdex
 from transmogrifier.helpers import (
     generate_citation,
     parse_date_from_string,
-    parse_xml_records,
     validate_date,
     validate_date_range,
 )
@@ -187,11 +186,6 @@ def test_generate_citation_with_all_fields():
         == "Smith, Susie Q., Jones, John J. (2022): A Very Important Paper. "
         "Massachusetts Institute of Technology. Article. https://example.com/paper"
     )
-
-
-def test_parse_xml_records_returns_record_iterator():
-    records = parse_xml_records("tests/fixtures/datacite/datacite_records.xml")
-    assert len(list(records)) == 38
 
 
 def test_parse_date_from_string_success():
