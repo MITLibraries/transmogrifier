@@ -11,7 +11,6 @@ from transmogrifier.config import (
     get_transformer,
 )
 from transmogrifier.helpers import (
-    parse_xml_records,
     write_deleted_records_to_file,
     write_timdex_records_to_json,
 )
@@ -49,8 +48,8 @@ def main(source, input_file, output_file, verbose):
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    source_records = parse_xml_records(input_file)
     transformer_class = get_transformer(source)
+    source_records = transformer_class.parse_source_file(input_file)
     transformer_instance = transformer_class(source, source_records)
     write_timdex_records_to_json(transformer_instance, output_file)
     if transformer_instance.processed_record_count == 0:

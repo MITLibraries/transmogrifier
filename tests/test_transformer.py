@@ -45,6 +45,13 @@ def test_xmltransformer_iterates_successfully_if_get_optional_fields_returns_non
         assert len(output_records.deleted_records) == 1
 
 
+def test_xmltransformer_parse_source_file_returns_record_iterator():
+    records = XmlTransformer.parse_source_file(
+        "tests/fixtures/datacite/datacite_records.xml"
+    )
+    assert len(list(records)) == 38
+
+
 def test_xmltransformer_record_is_deleted_returns_true_if_deleted(caplog):
     source_records = parse_xml_records("tests/fixtures/record_deleted.xml")
     assert XmlTransformer.record_is_deleted(next(source_records)) is True

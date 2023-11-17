@@ -3,7 +3,12 @@ import logging
 from abc import ABCMeta, abstractmethod
 from typing import Iterator, Optional, TypeAlias, final
 
-from bs4 import Tag
+from bs4 import BeautifulSoup, Tag
+
+# Note: the lxml module in defusedxml is deprecated, so we have to use the
+# regular lxml library. Transmogrifier only parses data from known sources so this
+# should not be a security issue.
+from lxml import etree  # nosec B410
 
 from transmogrifier.config import SOURCES
 from transmogrifier.helpers import DeletedRecord, generate_citation
@@ -59,6 +64,16 @@ class Transformer(object):
             else:
                 self.skipped_record_count += 1
                 continue
+
+    @classmethod
+    @abstractmethod
+    def parse_source_file(cls, input_file: str) -> Iterator[JSON | Tag]:
+        """
+        Parse source file and return source records via an iterator.
+
+        Must be overridden by format subclasses.
+        """
+        pass
 
     @abstractmethod
     def get_optional_fields(self, source_record: JSON | Tag) -> Optional[dict]:
@@ -186,6 +201,26 @@ class Transformer(object):
 
 class XmlTransformer(Transformer):
     """Base transformer class."""
+
+    @final
+    @classmethod
+    def parse_source_file(cls, input_file: str) -> Iterator[Tag]:
+        """
+        Parse source file and return source records via an iterator.
+
+        May not be overridden.
+        """
+        with open(input_file, "rb") as file:
+            for _, element in etree.iterparse(
+                file,
+                tag="{*}record",
+                encoding="utf-8",
+                recover=True,
+            ):
+                record_string = etree.tostring(element, encoding="utf-8")
+                record = BeautifulSoup(record_string, "xml")
+                yield record
+                element.clear()
 
     @abstractmethod
     def get_optional_fields(self, source_record: Tag) -> Optional[dict]:
