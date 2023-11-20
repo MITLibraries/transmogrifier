@@ -11,7 +11,7 @@ def test_transformer_initializes_with_expected_attributes(oai_pmh_records):
     assert transformer.source == "cool-repo"
     assert transformer.source_base_url == "https://example.com/"
     assert transformer.source_name == "A Cool Repository"
-    assert transformer.input_records == oai_pmh_records
+    assert transformer.source_records == oai_pmh_records
 
 
 def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
@@ -19,7 +19,7 @@ def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
     assert transformer.source == "cool-repo"
     assert transformer.source_base_url == "https://example.com/"
     assert transformer.source_name == "A Cool Repository"
-    assert transformer.input_records == oai_pmh_records
+    assert transformer.source_records == oai_pmh_records
 
 
 def test_xmltransformer_iterates_through_all_records(oai_pmh_records):
@@ -46,8 +46,8 @@ def test_xmltransformer_iterates_successfully_if_get_optional_fields_returns_non
 
 
 def test_xmltransformer_record_is_deleted_returns_true_if_deleted(caplog):
-    input_records = parse_xml_records("tests/fixtures/record_deleted.xml")
-    assert XmlTransformer.record_is_deleted(next(input_records)) is True
+    source_records = parse_xml_records("tests/fixtures/record_deleted.xml")
+    assert XmlTransformer.record_is_deleted(next(source_records)) is True
 
 
 def test_xmltransformer_get_required_fields_returns_expected_values(oai_pmh_records):
@@ -73,8 +73,8 @@ def test_xmltransformer_transform_returns_timdex_record(oai_pmh_records):
 
 
 def test_xmltransformer_get_valid_title_with_title_field_blank_logs_warning(caplog):
-    input_records = parse_xml_records("tests/fixtures/record_title_field_blank.xml")
-    output_records = Datacite("cool-repo", input_records)
+    source_records = parse_xml_records("tests/fixtures/record_title_field_blank.xml")
+    output_records = Datacite("cool-repo", source_records)
     assert next(output_records).title == "Title not provided"
     assert (
         "Record doi:10.7910/DVN/19PPE7 was missing a title, source record should be "
@@ -83,8 +83,8 @@ def test_xmltransformer_get_valid_title_with_title_field_blank_logs_warning(capl
 
 
 def test_xmltransformer_get_valid_title_with_title_field_missing_logs_warning(caplog):
-    input_records = parse_xml_records("tests/fixtures/record_title_field_missing.xml")
-    output_records = Datacite("cool-repo", input_records)
+    source_records = parse_xml_records("tests/fixtures/record_title_field_missing.xml")
+    output_records = Datacite("cool-repo", source_records)
     assert next(output_records).title == "Title not provided"
     assert (
         "Record doi:10.7910/DVN/19PPE7 was missing a title, source record should be "
@@ -93,8 +93,8 @@ def test_xmltransformer_get_valid_title_with_title_field_missing_logs_warning(ca
 
 
 def test_xmltransformer_get_valid_title_with_title_field_multiple_logs_warning(caplog):
-    input_records = parse_xml_records("tests/fixtures/record_title_field_multiple.xml")
-    output_records = Datacite("cool-repo", input_records)
+    source_records = parse_xml_records("tests/fixtures/record_title_field_multiple.xml")
+    output_records = Datacite("cool-repo", source_records)
     assert (
         next(output_records).title
         == "The Impact of Maternal Literacy and Participation Programs"

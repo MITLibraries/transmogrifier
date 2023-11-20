@@ -32,11 +32,11 @@ def test_valid_content_types_with_all_valid():
 
 
 def test_whoas_skips_records_with_only_invalid_or_not_present_content_types():
-    input_records = list(
+    source_records = list(
         parse_xml_records(
             "tests/fixtures/dspace/whoas_records_with_valid_and_invalid_content_types.xml"
         )
     )
-    assert len(input_records) == 4
-    output_records = Whoas("whoas", iter(input_records))
+    assert len(source_records) == 4
+    output_records = Whoas("whoas", iter(source_records))
     assert len(list(output_records)) == 2

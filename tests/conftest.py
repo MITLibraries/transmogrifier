@@ -53,10 +53,10 @@ def datacite_records():
 
 @pytest.fixture()
 def datacite_record_all_fields():
-    input_records = parse_xml_records(
+    source_records = parse_xml_records(
         "tests/fixtures/datacite/datacite_record_all_fields.xml"
     )
-    return Datacite("cool-repo", input_records)
+    return Datacite("cool-repo", source_records)
 
 
 @pytest.fixture()

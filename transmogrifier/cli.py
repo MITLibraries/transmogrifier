@@ -49,9 +49,9 @@ def main(source, input_file, output_file, verbose):
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    input_records = parse_xml_records(input_file)
+    source_records = parse_xml_records(input_file)
     transformer_class = get_transformer(source)
-    transformer_instance = transformer_class(source, input_records)
+    transformer_instance = transformer_class(source, source_records)
     write_timdex_records_to_json(transformer_instance, output_file)
     if transformer_instance.processed_record_count == 0:
         raise ValueError("No records processed from input file, needs investigation")
