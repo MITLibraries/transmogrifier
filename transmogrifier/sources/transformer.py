@@ -20,18 +20,18 @@ class Transformer(object):
     __metaclass__ = ABCMeta
 
     @final
-    def __init__(self, source: str, input_records: Iterator[JSON | Tag]) -> None:
+    def __init__(self, source: str, source_records: Iterator[JSON | Tag]) -> None:
         """
         Initialize Transformer instance.
 
         Args:
             source: Source repository label. Must match a source key from config.SOURCES.
-            input_records: A set of source records to be processed.
+            source_records: A set of source records to be processed.
         """
         self.source: str = source
         self.source_base_url: str = SOURCES[source]["base-url"]
         self.source_name = SOURCES[source]["name"]
-        self.input_records: Iterator[JSON | Tag] = input_records
+        self.source_records: Iterator[JSON | Tag] = source_records
         self.processed_record_count: int = 0
         self.transformed_record_count: int = 0
         self.skipped_record_count: int = 0
@@ -46,7 +46,7 @@ class Transformer(object):
     def __next__(self) -> TimdexRecord:
         """Return next transformed record."""
         while True:
-            source_record = next(self.input_records)
+            source_record = next(self.source_records)
             self.processed_record_count += 1
             try:
                 record = self.transform(source_record)
