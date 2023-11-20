@@ -1,9 +1,14 @@
 """Transformer module."""
 import logging
 from abc import ABCMeta, abstractmethod
-from typing import Iterator, Optional, final
+from typing import Iterator, Optional, TypeAlias, final
 
-from bs4 import Tag
+from bs4 import BeautifulSoup, Tag
+
+# Note: the lxml module in defusedxml is deprecated, so we have to use the
+# regular lxml library. Transmogrifier only parses data from known sources so this
+# should not be a security issue.
+from lxml import etree  # nosec B410
 
 from transmogrifier.config import SOURCES
 from transmogrifier.helpers import DeletedRecord, generate_citation
@@ -11,28 +16,30 @@ from transmogrifier.models import TimdexRecord
 
 logger = logging.getLogger(__name__)
 
+JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
-class XmlTransformer(object):
+
+class Transformer(object):
     """Base transformer class."""
 
     __metaclass__ = ABCMeta
 
     @final
-    def __init__(self, source: str, input_records: Iterator[Tag]) -> None:
+    def __init__(self, source: str, input_records: Iterator[JSON | Tag]) -> None:
         """
         Initialize Transformer instance.
 
         Args:
-            source: Source repository short label. Must match a source key from
-                config.SOURCES
+            source: Source repository label. Must match a source key from config.SOURCES.
+            input_records: A set of source records to be processed.
         """
-        self.source = source
-        self.source_base_url = SOURCES[source]["base-url"]
+        self.source: str = source
+        self.source_base_url: str = SOURCES[source]["base-url"]
         self.source_name = SOURCES[source]["name"]
-        self.input_records = input_records
-        self.processed_record_count = 0
-        self.transformed_record_count = 0
-        self.skipped_record_count = 0
+        self.input_records: Iterator[JSON | Tag] = input_records
+        self.processed_record_count: int = 0
+        self.transformed_record_count: int = 0
+        self.skipped_record_count: int = 0
         self.deleted_records: list[str] = []
 
     @final
@@ -57,6 +64,163 @@ class XmlTransformer(object):
             else:
                 self.skipped_record_count += 1
                 continue
+
+    @classmethod
+    @abstractmethod
+    def parse_source_file(cls, input_file: str) -> Iterator[JSON | Tag]:
+        """
+        Parse source file and return source records via an iterator.
+
+        Must be overridden by format subclasses.
+        """
+        pass
+
+    @abstractmethod
+    def get_optional_fields(self, source_record: JSON | Tag) -> Optional[dict]:
+        """
+        Retrieve optional TIMDEX fields from a source record.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        return {}
+
+    @classmethod
+    @abstractmethod
+    def get_main_titles(cls, source_record: JSON | Tag) -> list[Tag | str]:
+        """
+        Retrieve main title(s) from an source record.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        return []
+
+    @classmethod
+    @abstractmethod
+    def get_source_record_id(cls, source_record: JSON | Tag) -> str:
+        """
+        Get or generate a source record ID from a source record.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        return ""
+
+    @classmethod
+    @abstractmethod
+    def record_is_deleted(cls, source_record: JSON | Tag) -> bool:
+        """
+        Determine whether record has a status of deleted.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        return False
+
+    @abstractmethod
+    def get_required_fields(self, source_record: JSON | Tag) -> dict:
+        """
+        Get required TIMDEX fields from a source record.
+
+        Must be overridden by format subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        return {}
+
+    @abstractmethod
+    def transform(self, source_record: JSON | Tag) -> Optional[TimdexRecord]:
+        """
+        Transform a source record into a TIMDEX record.
+
+        Must be overridden by format subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        return None
+
+    @classmethod
+    @abstractmethod
+    def get_valid_title(cls, source_record_id: str, source_record: JSON | Tag) -> str:
+        """
+        Retrieves main title(s) from a source record and returns a valid title string.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_record_id: Record identifier for the source record.
+            source_record: A single source record.
+        """
+        return ""
+
+    @classmethod
+    @abstractmethod
+    def get_source_link(
+        cls, source_base_url: str, source_record_id: str, source_record: JSON | Tag
+    ) -> str:
+        """
+        Class method to set the source link for the item.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_base_url: Source base URL.
+            source_record_id: Record identifier for the source record.
+            source_record: A single source record.
+        """
+        return ""
+
+    @classmethod
+    @abstractmethod
+    def get_timdex_record_id(
+        cls, source: str, source_record_id: str, source_record: Tag
+    ) -> str:
+        """
+        Class method to set the TIMDEX record id.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source: Source name.
+            source_record_id: Record identifier for the source record.
+            source_record: A single source record.
+        """
+        return ""
+
+
+class XmlTransformer(Transformer):
+    """Base transformer class."""
+
+    @final
+    @classmethod
+    def parse_source_file(cls, input_file: str) -> Iterator[Tag]:
+        """
+        Parse source file and return source records via an iterator.
+
+        May not be overridden.
+        """
+        with open(input_file, "rb") as file:
+            for _, element in etree.iterparse(
+                file,
+                tag="{*}record",
+                encoding="utf-8",
+                recover=True,
+            ):
+                record_string = etree.tostring(element, encoding="utf-8")
+                record = BeautifulSoup(record_string, "xml")
+                yield record
+                element.clear()
 
     @abstractmethod
     def get_optional_fields(self, source_record: Tag) -> Optional[dict]:

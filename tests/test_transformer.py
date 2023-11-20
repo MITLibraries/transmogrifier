@@ -3,7 +3,15 @@ from unittest.mock import patch
 from transmogrifier.helpers import parse_xml_records
 from transmogrifier.models import TimdexRecord
 from transmogrifier.sources.datacite import Datacite
-from transmogrifier.sources.transformer import XmlTransformer
+from transmogrifier.sources.transformer import Transformer, XmlTransformer
+
+
+def test_transformer_initializes_with_expected_attributes(oai_pmh_records):
+    transformer = Transformer("cool-repo", oai_pmh_records)
+    assert transformer.source == "cool-repo"
+    assert transformer.source_base_url == "https://example.com/"
+    assert transformer.source_name == "A Cool Repository"
+    assert transformer.input_records == oai_pmh_records
 
 
 def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
