@@ -12,7 +12,7 @@ from transmogrifier.models import TimdexRecord
 
 # import XmlTransformer only when type checking to avoid circular dependency
 if TYPE_CHECKING:  # pragma: no cover
-    from transmogrifier.sources.transformer import XmlTransformer
+    from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +155,7 @@ def write_deleted_records_to_file(deleted_records: list[str], output_file_path: 
 
 
 def write_timdex_records_to_json(
-    transformer_instance: "XmlTransformer", output_file_path: str
+    transformer_instance: "Transformer", output_file_path: str
 ) -> int:
     count = 0
     try:

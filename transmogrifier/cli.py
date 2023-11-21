@@ -46,11 +46,11 @@ def main(source, input_file, output_file, verbose):
 
     transformer_class = Transformer.get_transformer(source)
     source_records = transformer_class.parse_source_file(input_file)
-    transformer_instance = transformer_class(source, source_records)
-    write_timdex_records_to_json(transformer_instance, output_file)
-    if transformer_instance.processed_record_count == 0:
+    transformer = transformer_class(source, source_records)
+    write_timdex_records_to_json(transformer, output_file)
+    if transformer.processed_record_count == 0:
         raise ValueError("No records processed from input file, needs investigation")
-    if deleted_records := transformer_instance.deleted_records:
+    if deleted_records := transformer.deleted_records:
         deleted_output_file = output_file.replace("index", "delete").replace(
             "json", "txt"
         )
@@ -62,10 +62,10 @@ def main(source, input_file, output_file, verbose):
             "skipped records: %d, "
             "deleted records: %d"
         ),
-        transformer_instance.processed_record_count,
-        transformer_instance.transformed_record_count,
-        transformer_instance.skipped_record_count,
-        len(transformer_instance.deleted_records),
+        transformer.processed_record_count,
+        transformer.transformed_record_count,
+        transformer.skipped_record_count,
+        len(transformer.deleted_records),
     )
     elapsed_time = perf_counter() - START_TIME
     logger.info(

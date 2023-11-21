@@ -70,7 +70,7 @@ class Transformer(object):
 
     @final
     @staticmethod
-    def get_transformer(source: str) -> Transformer:
+    def get_transformer(source: str) -> type[Transformer]:
         """
         Return configured transformer class for a source.
 
@@ -221,7 +221,7 @@ class XmlTransformer(Transformer):
     @classmethod
     def parse_source_file(cls, input_file: str) -> Iterator[Tag]:
         """
-        Parse source file and return source records via an iterator.
+        Parse XML file and return source records as bs4 Tags via an iterator.
 
         May not be overridden.
         """
@@ -319,12 +319,12 @@ class XmlTransformer(Transformer):
     @final
     def transform(self, source_record: Tag) -> Optional[TimdexRecord]:
         """
-        Transform an OAI-PMH XML record into a TIMDEX record.
+        Transform an XML record into a TIMDEX record.
 
         May not be overridden.
 
         Args:
-            source_record: A BeautifulSoup Tag representing a single OAI-PMH XML record.
+            source_record: A BeautifulSoup Tag representing a single XML record.
         """
         if self.record_is_deleted(source_record):
             source_record_id = self.get_source_record_id(source_record)
