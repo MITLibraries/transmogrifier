@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+import pytest
+
 from transmogrifier.models import TimdexRecord
 from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.transformer import Transformer, XmlTransformer
@@ -11,6 +13,25 @@ def test_transformer_initializes_with_expected_attributes(oai_pmh_records):
     assert transformer.source_base_url == "https://example.com/"
     assert transformer.source_name == "A Cool Repository"
     assert transformer.source_records == oai_pmh_records
+
+
+def test_transformer_get_transformer_returns_correct_class_name():
+    assert Transformer.get_transformer("jpal") == Datacite
+
+
+def test_transformer_get_transformer_source_missing_class_name_raises_error():
+    with pytest.raises(KeyError):
+        Transformer.get_transformer("cool-repo")
+
+
+def test_transformer_get_transformer_source_wrong_class_name_raises_error(bad_config):
+    with pytest.raises(AttributeError):
+        Transformer.get_transformer("bad-class-name")
+
+
+def test_transformer_get_transformer_source_wrong_module_path_raises_error(bad_config):
+    with pytest.raises(ImportError):
+        Transformer.get_transformer("bad-module-path")
 
 
 def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):

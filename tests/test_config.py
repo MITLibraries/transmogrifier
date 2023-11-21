@@ -6,10 +6,8 @@ from bs4 import BeautifulSoup
 from transmogrifier.config import (
     configure_logger,
     configure_sentry,
-    get_transformer,
     load_external_config,
 )
-from transmogrifier.sources.datacite import Datacite
 
 
 def test_configure_logger_not_verbose():
@@ -42,25 +40,6 @@ def test_configure_sentry_env_variable_is_dsn(monkeypatch):
     monkeypatch.setenv("SENTRY_DSN", "https://1234567890@00000.ingest.sentry.io/123456")
     result = configure_sentry()
     assert result == "Sentry DSN found, exceptions will be sent to Sentry with env=test"
-
-
-def test_get_transformer_returns_correct_class_name():
-    assert get_transformer("jpal") == Datacite
-
-
-def test_get_transformer_source_missing_class_name_raises_error():
-    with pytest.raises(KeyError):
-        get_transformer("cool-repo")
-
-
-def test_get_transformer_source_wrong_class_name_raises_error(bad_config):
-    with pytest.raises(AttributeError):
-        get_transformer("bad-class-name")
-
-
-def test_get_transformer_source_wrong_module_path_raises_error(bad_config):
-    with pytest.raises(ImportError):
-        get_transformer("bad-module-path")
 
 
 def test_load_external_config_invalid_file_type_raises_error():

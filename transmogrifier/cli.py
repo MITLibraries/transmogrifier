@@ -4,16 +4,12 @@ from time import perf_counter
 
 import click
 
-from transmogrifier.config import (
-    SOURCES,
-    configure_logger,
-    configure_sentry,
-    get_transformer,
-)
+from transmogrifier.config import SOURCES, configure_logger, configure_sentry
 from transmogrifier.helpers import (
     write_deleted_records_to_file,
     write_timdex_records_to_json,
 )
+from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +44,7 @@ def main(source, input_file, output_file, verbose):
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    transformer_class = get_transformer(source)
+    transformer_class = Transformer.get_transformer(source)
     source_records = transformer_class.parse_source_file(input_file)
     transformer_instance = transformer_class(source, source_records)
     write_timdex_records_to_json(transformer_instance, output_file)

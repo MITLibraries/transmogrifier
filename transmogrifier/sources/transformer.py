@@ -1,6 +1,9 @@
 """Transformer module."""
+from __future__ import annotations
+
 import logging
 from abc import ABCMeta, abstractmethod
+from importlib import import_module
 from typing import Iterator, Optional, TypeAlias, final
 
 from bs4 import BeautifulSoup, Tag
@@ -64,6 +67,18 @@ class Transformer(object):
             else:
                 self.skipped_record_count += 1
                 continue
+
+    @final
+    @staticmethod
+    def get_transformer(source: str) -> Transformer:
+        """
+        Return configured transformer class for a source.
+
+        Source must be configured with a valid transform class path.
+        """
+        module_name, class_name = SOURCES[source]["transform-class"].rsplit(".", 1)
+        source_module = import_module(module_name)
+        return getattr(source_module, class_name)
 
     @classmethod
     @abstractmethod
