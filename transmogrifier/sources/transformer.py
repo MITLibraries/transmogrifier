@@ -1,11 +1,14 @@
 """Transformer module."""
 from __future__ import annotations
 
+import json
 import logging
+import os
 from abc import ABCMeta, abstractmethod
 from importlib import import_module
 from typing import Iterator, Optional, TypeAlias, final
 
+from attrs import asdict
 from bs4 import BeautifulSoup, Tag
 
 # Note: the lxml module in defusedxml is deprecated, so we have to use the
@@ -69,12 +72,68 @@ class Transformer(object):
                 continue
 
     @final
-    @staticmethod
-    def get_transformer(source: str) -> type[Transformer]:
+    def write_timdex_records_to_json(self, output_file: str) -> int:
+        """
+        Write TIMDEX records to JSON file.
+
+        Args:
+            output_file: The JSON file used for writing TIMDEX records.
+
+        """
+        count = 0
+        try:
+            record: TimdexRecord = next(self)
+        except StopIteration:
+            return count
+        with open(output_file, "w") as file:
+            file.write("[\n")
+            while record:
+                file.write(
+                    json.dumps(
+                        asdict(record, filter=lambda attr, value: value is not None),
+                        indent=2,
+                    )
+                )
+                count += 1
+                if count % int(os.getenv("STATUS_UPDATE_INTERVAL", 1000)) == 0:
+                    logger.info(
+                        "Status update: %s records written to output file so far!",
+                        count,
+                    )
+                try:
+                    record: TimdexRecord = next(self)  # type: ignore[no-redef]  # noqa: E501
+                except StopIteration:
+                    break
+                file.write(",\n")
+            file.write("\n]")
+        return count
+
+    @final
+    @classmethod
+    def load(cls, source: str, source_file: str) -> Transformer:
+        """
+        Instantiate specified transformer class and populate with source records.
+
+        Args:
+            source: Source repository label. Must match a source key from config.SOURCES.
+            source_file: A file containing source records to be transformed.
+        """
+        transformer_class = cls.get_transformer(source)
+        source_records = transformer_class.parse_source_file(source_file)
+        transformer = transformer_class(source, source_records)
+        return transformer
+
+    @final
+    @classmethod
+    def get_transformer(cls, source: str) -> type[Transformer]:
         """
         Return configured transformer class for a source.
 
         Source must be configured with a valid transform class path.
+
+        Args:
+            source: Source repository label. Must match a source key from config.SOURCES.
+
         """
         module_name, class_name = SOURCES[source]["transform-class"].rsplit(".", 1)
         source_module = import_module(module_name)
@@ -82,11 +141,14 @@ class Transformer(object):
 
     @classmethod
     @abstractmethod
-    def parse_source_file(cls, input_file: str) -> Iterator[JSON | Tag]:
+    def parse_source_file(cls, source_file: str) -> Iterator[JSON | Tag]:
         """
         Parse source file and return source records via an iterator.
 
         Must be overridden by format subclasses.
+
+        Args:
+            source_file: A file containing source records to be transformed.
         """
         pass
 
@@ -219,13 +281,16 @@ class XmlTransformer(Transformer):
 
     @final
     @classmethod
-    def parse_source_file(cls, input_file: str) -> Iterator[Tag]:
+    def parse_source_file(cls, source_file: str) -> Iterator[Tag]:
         """
         Parse XML file and return source records as bs4 Tags via an iterator.
 
         May not be overridden.
+
+        Args:
+            source_file: A file containing source records to be transformed.
         """
-        with open(input_file, "rb") as file:
+        with open(source_file, "rb") as file:
             for _, element in etree.iterparse(
                 file,
                 tag="{*}record",

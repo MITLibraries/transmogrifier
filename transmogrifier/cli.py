@@ -5,10 +5,7 @@ from time import perf_counter
 import click
 
 from transmogrifier.config import SOURCES, configure_logger, configure_sentry
-from transmogrifier.helpers import (
-    write_deleted_records_to_file,
-    write_timdex_records_to_json,
-)
+from transmogrifier.helpers import write_deleted_records_to_file
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -44,10 +41,8 @@ def main(source, input_file, output_file, verbose):
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    transformer_class = Transformer.get_transformer(source)
-    source_records = transformer_class.parse_source_file(input_file)
-    transformer = transformer_class(source, source_records)
-    write_timdex_records_to_json(transformer, output_file)
+    transformer = Transformer.load(source, input_file)
+    transformer.write_timdex_records_to_json(output_file)
     if transformer.processed_record_count == 0:
         raise ValueError("No records processed from input file, needs investigation")
     if deleted_records := transformer.deleted_records:

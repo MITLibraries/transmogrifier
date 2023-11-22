@@ -1,18 +1,10 @@
-import json
 import logging
-import os
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
-from attrs import asdict
 from smart_open import open
 
 from transmogrifier.config import DATE_FORMATS
-from transmogrifier.models import TimdexRecord
-
-# import XmlTransformer only when type checking to avoid circular dependency
-if TYPE_CHECKING:  # pragma: no cover
-    from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
@@ -152,37 +144,6 @@ def write_deleted_records_to_file(deleted_records: list[str], output_file_path: 
     with open(output_file_path, "w") as file:
         for record_id in deleted_records:
             file.write(f"{record_id}\n")
-
-
-def write_timdex_records_to_json(
-    transformer_instance: "Transformer", output_file_path: str
-) -> int:
-    count = 0
-    try:
-        record: TimdexRecord = next(transformer_instance)
-    except StopIteration:
-        return count
-    with open(output_file_path, "w") as file:
-        file.write("[\n")
-        while record:
-            file.write(
-                json.dumps(
-                    asdict(record, filter=lambda attr, value: value is not None),
-                    indent=2,
-                )
-            )
-            count += 1
-            if count % int(os.getenv("STATUS_UPDATE_INTERVAL", 1000)) == 0:
-                logger.info(
-                    "Status update: %s records written to output file so far!", count
-                )
-            try:
-                record: TimdexRecord = next(transformer_instance)  # type: ignore[no-redef]  # noqa: E501
-            except StopIteration:
-                break
-            file.write(",\n")
-        file.write("\n]")
-    return count
 
 
 class DeletedRecord(Exception):
