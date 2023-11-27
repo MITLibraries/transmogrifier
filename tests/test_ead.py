@@ -1,12 +1,13 @@
 import logging
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.ead import Ead
 
 
 def test_ead_record_all_fields_transform_correctly():
-    ead_xml_records = parse_xml_records("tests/fixtures/ead/ead_record_all_fields.xml")
+    ead_xml_records = Ead.parse_source_file(
+        "tests/fixtures/ead/ead_record_all_fields.xml"
+    )
     output_records = Ead("aspace", ead_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="MIT ArchivesSpace",
@@ -216,7 +217,7 @@ def test_ead_record_all_fields_transform_correctly():
 
 
 def test_ead_record_with_missing_archdesc_logs_error(caplog):
-    ead_xml_records = parse_xml_records(
+    ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_missing_archdesc.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
@@ -230,7 +231,7 @@ def test_ead_record_with_missing_archdesc_logs_error(caplog):
 
 
 def test_ead_record_with_missing_archdesc_did_logs_error(caplog):
-    ead_xml_records = parse_xml_records(
+    ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_missing_archdesc_did.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
@@ -244,7 +245,7 @@ def test_ead_record_with_missing_archdesc_did_logs_error(caplog):
 
 
 def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly():
-    ead_xml_records = parse_xml_records(
+    ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
@@ -470,7 +471,7 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
 
 
 def test_ead_record_with_blank_optional_fields_transforms_correctly():
-    ead_xml_records = parse_xml_records(
+    ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_blank_optional_fields.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
@@ -488,7 +489,7 @@ def test_ead_record_with_blank_optional_fields_transforms_correctly():
 
 
 def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
-    ead_xml_records = parse_xml_records(
+    ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
     output_record = next(Ead("aspace", ead_xml_records))
@@ -507,7 +508,7 @@ def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
 
 
 def test_ead_record_correct_identifiers_from_multiple_unitid(caplog):
-    ead_xml_records = parse_xml_records(
+    ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
     output_record = next(Ead("aspace", ead_xml_records))
@@ -516,7 +517,7 @@ def test_ead_record_correct_identifiers_from_multiple_unitid(caplog):
 
 
 def test_ead_record_with_missing_optional_fields_transforms_correctly():
-    ead_xml_records = parse_xml_records(
+    ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
     )
     output_records = Ead("aspace", ead_xml_records)

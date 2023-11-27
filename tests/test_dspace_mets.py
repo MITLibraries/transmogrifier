@@ -1,10 +1,9 @@
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.dspace_mets import DspaceMets
 
 
 def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly():
-    dspace_xml_records = parse_xml_records(
+    dspace_xml_records = DspaceMets.parse_source_file(
         "tests/fixtures/dspace/dspace_mets_record_optional_fields_missing.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)
@@ -20,7 +19,7 @@ def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly
 
 
 def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly():
-    dspace_xml_records = parse_xml_records(
+    dspace_xml_records = DspaceMets.parse_source_file(
         "tests/fixtures/dspace/dspace_mets_record_optional_fields_blank.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)
@@ -36,7 +35,7 @@ def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly()
 
 
 def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly():
-    dspace_xml_records = parse_xml_records(
+    dspace_xml_records = DspaceMets.parse_source_file(
         "tests/fixtures/dspace/dspace_mets_record_attribute_and_subfield_variations.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)
@@ -85,7 +84,7 @@ def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly
 
 
 def test_dspace_mets_transform_with_all_fields_transforms_correctly():
-    dspace_xml_records = parse_xml_records(
+    dspace_xml_records = DspaceMets.parse_source_file(
         "tests/fixtures/dspace/dspace_mets_record_all_fields.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)

@@ -5,8 +5,8 @@ from click.testing import CliRunner
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.datacite import Datacite
+from transmogrifier.sources.transformer import XmlTransformer
 
 
 @pytest.fixture(autouse=True)
@@ -48,15 +48,17 @@ def runner():
 
 @pytest.fixture()
 def datacite_records():
-    return parse_xml_records("tests/fixtures/datacite/datacite_records.xml")
+    return XmlTransformer.parse_source_file(
+        "tests/fixtures/datacite/datacite_records.xml"
+    )
 
 
 @pytest.fixture()
 def datacite_record_all_fields():
-    input_records = parse_xml_records(
+    source_records = XmlTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_record_all_fields.xml"
     )
-    return Datacite("cool-repo", input_records)
+    return Datacite("cool-repo", source_records)
 
 
 @pytest.fixture()
@@ -71,7 +73,7 @@ def marc_content_type_crosswalk():
 
 @pytest.fixture()
 def oai_pmh_records():
-    return parse_xml_records("tests/fixtures/oai_pmh_records.xml")
+    return XmlTransformer.parse_source_file("tests/fixtures/oai_pmh_records.xml")
 
 
 @pytest.fixture()

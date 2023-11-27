@@ -3,12 +3,11 @@ import logging
 from bs4 import BeautifulSoup
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.marc import Marc
 
 
 def test_marc_record_all_fields_transform_correctly():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
@@ -489,7 +488,7 @@ def test_marc_record_all_fields_transform_correctly():
 
 
 def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_attribute_and_subfield_variations.xml",
     )
     output_records = Marc("alma", marc_xml_records)
@@ -706,7 +705,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
 
 
 def test_marc_record_with_blank_optional_fields_transforms_correctly():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
@@ -727,7 +726,7 @@ def test_marc_record_with_blank_optional_fields_transforms_correctly():
 
 
 def test_marc_record_with_missing_optional_fields_transforms_correctly():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
@@ -746,7 +745,7 @@ def test_marc_record_with_missing_optional_fields_transforms_correctly():
 
 
 def test_marc_record_missing_leader_logs_error(caplog):
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_missing_leader.xml"
     )
     output_records = Marc("alma", marc_xml_records)
@@ -760,7 +759,7 @@ def test_marc_record_missing_leader_logs_error(caplog):
 
 
 def test_marc_record_missing_008_logs_error(caplog):
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_missing_008.xml"
     )
     output_records = Marc("alma", marc_xml_records)
@@ -774,7 +773,7 @@ def test_marc_record_missing_008_logs_error(caplog):
 
 
 def test_create_subfield_value_list_from_datafield_with_values():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
@@ -786,7 +785,7 @@ def test_create_subfield_value_list_from_datafield_with_values():
 
 
 def test_create_subfield_value_list_from_datafield_with_blank_values():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
@@ -794,7 +793,7 @@ def test_create_subfield_value_list_from_datafield_with_blank_values():
 
 
 def test_create_subfield_value_string_from_datafield_with_values():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
@@ -805,7 +804,7 @@ def test_create_subfield_value_string_from_datafield_with_values():
 
 
 def test_create_subfield_value_string_from_datafield_with_blank_values():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
@@ -894,7 +893,7 @@ def test_loc_crosswalk_code_to_name_returns_name(caplog, loc_country_crosswalk):
 
 
 def test_get_main_titles_record_with_title():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_main_titles(next(marc_xml_records)) == [
@@ -903,31 +902,35 @@ def test_get_main_titles_record_with_title():
 
 
 def test_get_main_titles_record_with_blank_title():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     assert Marc.get_main_titles(next(marc_xml_records)) == []
 
 
 def test_get_main_titles_record_without_title():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
     )
     assert Marc.get_main_titles(next(marc_xml_records)) == []
 
 
 def test_get_source_record_id():
-    marc_xml_records = parse_xml_records(
+    marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
 
 
 def test_record_is_deleted_returns_true_if_deleted():
-    deleted_record = parse_xml_records("tests/fixtures/marc/marc_record_deleted.xml")
+    deleted_record = Marc.parse_source_file(
+        "tests/fixtures/marc/marc_record_deleted.xml"
+    )
     assert Marc.record_is_deleted(next(deleted_record)) is True
 
 
 def test_record_is_deleted_returns_false_if_not_deleted():
-    marc_record = parse_xml_records("tests/fixtures/marc/marc_record_all_fields.xml")
+    marc_record = Marc.parse_source_file(
+        "tests/fixtures/marc/marc_record_all_fields.xml"
+    )
     assert Marc.record_is_deleted(next(marc_record)) is False

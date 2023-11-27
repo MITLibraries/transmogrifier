@@ -1,5 +1,4 @@
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.oaidc import OaiDc
 
 FIXTURES_PREFIX = "tests/fixtures/oai_dc"
@@ -20,8 +19,10 @@ BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX = timdex.TimdexRecord(
 
 
 def test_oaidctransform_with_all_fields_transforms_correctly():
-    input_records = parse_xml_records(f"{FIXTURES_PREFIX}/oaidc_record_all_fields.xml")
-    output_records = OaiDc("libguides", input_records)
+    source_records = OaiDc.parse_source_file(
+        f"{FIXTURES_PREFIX}/oaidc_record_all_fields.xml"
+    )
+    output_records = OaiDc("libguides", source_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="LibGuides",
         source_link="https://libguides.mit.edu/guides/175846",
@@ -52,27 +53,27 @@ def test_oaidctransform_with_all_fields_transforms_correctly():
 
 
 def test_oaidc_transform_with_optional_fields_blank_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = OaiDc.parse_source_file(
         f"{FIXTURES_PREFIX}/oaidc_record_optional_fields_blank.xml"
     )
-    output_records = OaiDc("libguides", input_records)
+    output_records = OaiDc("libguides", source_records)
     assert next(output_records) == BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
 
 
 def test_oaidc_transform_with_optional_fields_missing_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = OaiDc.parse_source_file(
         f"{FIXTURES_PREFIX}/oaidc_record_optional_fields_missing.xml"
     )
-    output_records = OaiDc("libguides", input_records)
+    output_records = OaiDc("libguides", source_records)
     assert next(output_records) == BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
 
 
 def test_oaidc_generic_date():
-    input_records = parse_xml_records(
+    source_records = OaiDc.parse_source_file(
         f"{FIXTURES_PREFIX}/oaidc_record_valid_generic_date.xml"
     )
-    transformer_instance = OaiDc("libguides", input_records)
-    xml = next(transformer_instance.input_records)
+    transformer_instance = OaiDc("libguides", source_records)
+    xml = next(transformer_instance.source_records)
     assert transformer_instance.get_dates("test_source_record_id", xml) == [
         timdex.Date(kind="Unknown", note=None, range=None, value="2008-06-19T17:55:27")
     ]

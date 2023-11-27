@@ -1,13 +1,12 @@
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.sources.dspace_dim import DspaceDim
 
 
 def test_dspace_dim_transform_with_all_fields_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_all_fields.xml"
     )
-    output_records = DspaceDim("cool-repo", input_records)
+    output_records = DspaceDim("cool-repo", source_records)
     assert next(output_records) == timdex.TimdexRecord(
         citation="Journal of Geophysical Research: Solid Earth 121 (2016): 5859–5879",
         source="A Cool Repository",
@@ -133,10 +132,10 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
 
 
 def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_attribute_variations.xml"
     )
-    output_records = DspaceDim("cool-repo", input_records)
+    output_records = DspaceDim("cool-repo", source_records)
     assert next(output_records) == timdex.TimdexRecord(
         citation="Title with Blank Qualifier. https://example.com/1912/2641",
         source="A Cool Repository",
@@ -188,10 +187,10 @@ def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
 
 
 def test_dspace_dim_transform_with_optional_fields_blank_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_optional_fields_blank.xml"
     )
-    output_records = DspaceDim("cool-repo", input_records)
+    output_records = DspaceDim("cool-repo", source_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
@@ -204,10 +203,10 @@ def test_dspace_dim_transform_with_optional_fields_blank_transforms_correctly():
 
 
 def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_optional_fields_missing.xml"
     )
-    output_records = DspaceDim("cool-repo", input_records)
+    output_records = DspaceDim("cool-repo", source_records)
     assert next(output_records) == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",

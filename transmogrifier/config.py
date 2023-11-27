@@ -2,7 +2,6 @@
 import json
 import logging
 import os
-from importlib import import_module
 from typing import Literal, Union
 
 import sentry_sdk
@@ -149,17 +148,6 @@ def configure_sentry() -> str:
         sentry_sdk.init(sentry_dsn, environment=env)
         return f"Sentry DSN found, exceptions will be sent to Sentry with env={env}"
     return "No Sentry DSN found, exceptions will not be sent to Sentry"
-
-
-def get_transformer(source: str) -> type:
-    """
-    Return configured transformer class for a source.
-
-    Source must be configured with a valid transform class path.
-    """
-    module_name, class_name = SOURCES[source]["transform-class"].rsplit(".", 1)
-    source_module = import_module(module_name)
-    return getattr(source_module, class_name)
 
 
 def load_external_config(

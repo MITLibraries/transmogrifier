@@ -1,24 +1,10 @@
-import json
 import logging
-import os
 from datetime import datetime
-from typing import TYPE_CHECKING, Iterator, Optional
+from typing import Optional
 
-from attrs import asdict
-from bs4 import BeautifulSoup, Tag
-
-# Note: the lxml module in defusedxml is deprecated, so we have to use the
-# regular lxml library. Transmogrifier only parses data from known sources so this
-# should not be a security issue.
-from lxml import etree  # nosec B410
 from smart_open import open
 
 from transmogrifier.config import DATE_FORMATS
-from transmogrifier.models import TimdexRecord
-
-# import Transformer only when type checking to avoid circular dependency
-if TYPE_CHECKING:  # pragma: no cover
-    from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
@@ -71,22 +57,6 @@ def generate_citation(extracted_data: dict) -> str:
 
     citation += publisher_string + resource_type_string + url_string
     return citation
-
-
-def parse_xml_records(
-    input_file_path: str,
-) -> Iterator[Tag]:
-    with open(input_file_path, "rb") as file:
-        for _, element in etree.iterparse(
-            file,
-            tag="{*}record",
-            encoding="utf-8",
-            recover=True,
-        ):
-            record_string = etree.tostring(element, encoding="utf-8")
-            record = BeautifulSoup(record_string, "xml")
-            yield record
-            element.clear()
 
 
 def parse_date_from_string(
@@ -174,37 +144,6 @@ def write_deleted_records_to_file(deleted_records: list[str], output_file_path: 
     with open(output_file_path, "w") as file:
         for record_id in deleted_records:
             file.write(f"{record_id}\n")
-
-
-def write_timdex_records_to_json(
-    transformer_instance: "Transformer", output_file_path: str
-) -> int:
-    count = 0
-    try:
-        record: TimdexRecord = next(transformer_instance)
-    except StopIteration:
-        return count
-    with open(output_file_path, "w") as file:
-        file.write("[\n")
-        while record:
-            file.write(
-                json.dumps(
-                    asdict(record, filter=lambda attr, value: value is not None),
-                    indent=2,
-                )
-            )
-            count += 1
-            if count % int(os.getenv("STATUS_UPDATE_INTERVAL", 1000)) == 0:
-                logger.info(
-                    "Status update: %s records written to output file so far!", count
-                )
-            try:
-                record: TimdexRecord = next(transformer_instance)  # type: ignore[no-redef]  # noqa: E501
-            except StopIteration:
-                break
-            file.write(",\n")
-        file.write("\n]")
-    return count
 
 
 class DeletedRecord(Exception):

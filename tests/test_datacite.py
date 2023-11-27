@@ -1,4 +1,3 @@
-from transmogrifier.helpers import parse_xml_records
 from transmogrifier.models import (
     AlternateTitle,
     Contributor,
@@ -170,10 +169,10 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
 
 
 def test_datacite_transform_missing_required_datacite_fields_logs_warning(caplog):
-    input_records = parse_xml_records(
+    source_records = Datacite.parse_source_file(
         "tests/fixtures/datacite/datacite_record_missing_datacite_required_fields.xml"
     )
-    output_records = Datacite("cool-repo", input_records)
+    output_records = Datacite("cool-repo", source_records)
     next(output_records)
 
     assert (
@@ -195,10 +194,10 @@ def test_datacite_transform_missing_required_datacite_fields_logs_warning(caplog
 
 
 def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = Datacite.parse_source_file(
         "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
     )
-    output_records = Datacite("cool-repo", input_records)
+    output_records = Datacite("cool-repo", source_records)
     assert next(output_records) == TimdexRecord(
         citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
@@ -218,10 +217,10 @@ def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
 
 
 def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = Datacite.parse_source_file(
         "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
     )
-    output_records = Datacite("cool-repo", input_records)
+    output_records = Datacite("cool-repo", source_records)
     assert next(output_records) == TimdexRecord(
         citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
@@ -241,10 +240,10 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
 
 
 def test_datacite_with_attribute_and_subfield_variations_transforms_correctly():
-    input_records = parse_xml_records(
+    source_records = Datacite.parse_source_file(
         "tests/fixtures/datacite/datacite_record_attribute_and_subfield_variations.xml"
     )
-    output_records = Datacite("cool-repo", input_records)
+    output_records = Datacite("cool-repo", source_records)
     assert next(output_records) == TimdexRecord(
         citation=(
             "Creator, No affiliation no identifier, Creator, Blank affiliation blank "
