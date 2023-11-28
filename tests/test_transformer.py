@@ -7,14 +7,6 @@ from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.transformer import Transformer, XmlTransformer
 
 
-def test_transformer_initializes_with_expected_attributes(oai_pmh_records):
-    transformer = Transformer("cool-repo", oai_pmh_records)
-    assert transformer.source == "cool-repo"
-    assert transformer.source_base_url == "https://example.com/"
-    assert transformer.source_name == "A Cool Repository"
-    assert transformer.source_records == oai_pmh_records
-
-
 def test_transformer_get_transformer_returns_correct_class_name():
     assert Transformer.get_transformer("jpal") == Datacite
 
@@ -136,7 +128,6 @@ def test_xmltransformer_get_valid_title_with_title_field_multiple_logs_warning(c
     )
     assert (
         "Record doi:10.7910/DVN/19PPE7 has multiple titles. Using the first title from "
-        "the following titles found: [<title>The Impact of Maternal Literacy and "
-        "Participation Programs</title>, <title>Additional Title</title>]"
-        in caplog.text
+        "the following titles found: ['The Impact of Maternal Literacy and "
+        "Participation Programs', 'Additional Title']" in caplog.text
     )

@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from importlib import import_module
 from typing import Iterator, Optional, TypeAlias, final
 
@@ -25,10 +25,8 @@ logger = logging.getLogger(__name__)
 JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
 
-class Transformer(object):
+class Transformer(ABC):
     """Base transformer class."""
-
-    __metaclass__ = ABCMeta
 
     @final
     def __init__(self, source: str, source_records: Iterator[JSON | Tag]) -> None:
@@ -139,6 +137,41 @@ class Transformer(object):
         source_module = import_module(module_name)
         return getattr(source_module, class_name)
 
+    @final
+    @classmethod
+    def get_valid_title(cls, source_record_id: str, source_record: Tag | JSON) -> str:
+        """
+        Retrieves main title(s) from a source record and returns a valid title string.
+
+        May not be overridden.
+
+        If the list of main titles retrieved from the source record is empty or the
+        title element has no string value, inserts standard language to represent a
+        missing title field.
+
+        Args:
+            source_record_id: Record identifier for the source record.
+            source_record: A single source record.
+        """
+        all_titles = cls.get_main_titles(source_record)
+        title_count = len(all_titles)
+        if title_count > 1:
+            logger.warning(
+                "Record %s has multiple titles. Using the first title from the "
+                "following titles found: %s",
+                source_record_id,
+                all_titles,
+            )
+        if title_count >= 1:
+            title = all_titles[0]
+        else:
+            logger.warning(
+                "Record %s was missing a title, source record should be investigated.",
+                source_record_id,
+            )
+            title = "Title not provided"
+        return title
+
     @classmethod
     @abstractmethod
     def parse_source_file(cls, source_file: str) -> Iterator[JSON | Tag]:
@@ -153,55 +186,16 @@ class Transformer(object):
         pass
 
     @abstractmethod
-    def get_optional_fields(self, source_record: JSON | Tag) -> Optional[dict]:
+    def transform(self, source_record: JSON | Tag) -> Optional[TimdexRecord]:
         """
-        Retrieve optional TIMDEX fields from a source record.
+        Transform a source record into a TIMDEX record.
 
-        Must be overridden by source subclasses.
+        Must be overridden by format subclasses.
 
         Args:
             source_record: A single source record.
         """
-        return {}
-
-    @classmethod
-    @abstractmethod
-    def get_main_titles(cls, source_record: JSON | Tag) -> list[Tag | str]:
-        """
-        Retrieve main title(s) from an source record.
-
-        Must be overridden by source subclasses.
-
-        Args:
-            source_record: A single source record.
-        """
-        return []
-
-    @classmethod
-    @abstractmethod
-    def get_source_record_id(cls, source_record: JSON | Tag) -> str:
-        """
-        Get or generate a source record ID from a source record.
-
-        Must be overridden by source subclasses.
-
-        Args:
-            source_record: A single source record.
-        """
-        return ""
-
-    @classmethod
-    @abstractmethod
-    def record_is_deleted(cls, source_record: JSON | Tag) -> bool:
-        """
-        Determine whether record has a status of deleted.
-
-        Must be overridden by source subclasses.
-
-        Args:
-            source_record: A single source record.
-        """
-        return False
+        pass
 
     @abstractmethod
     def get_required_fields(self, source_record: JSON | Tag) -> dict:
@@ -213,33 +207,19 @@ class Transformer(object):
         Args:
             source_record: A single source record.
         """
-        return {}
-
-    @abstractmethod
-    def transform(self, source_record: JSON | Tag) -> Optional[TimdexRecord]:
-        """
-        Transform a source record into a TIMDEX record.
-
-        Must be overridden by format subclasses.
-
-        Args:
-            source_record: A single source record.
-        """
-        return None
+        pass
 
     @classmethod
-    @abstractmethod
-    def get_valid_title(cls, source_record_id: str, source_record: JSON | Tag) -> str:
+    def get_main_titles(cls, source_record: JSON | Tag) -> list[str]:
         """
-        Retrieves main title(s) from a source record and returns a valid title string.
+        Retrieve main title(s) from an source record.
 
         Must be overridden by source subclasses.
 
         Args:
-            source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
-        return ""
+        return []
 
     @classmethod
     @abstractmethod
@@ -256,7 +236,7 @@ class Transformer(object):
             source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
-        return ""
+        pass
 
     @classmethod
     @abstractmethod
@@ -273,11 +253,48 @@ class Transformer(object):
             source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
-        return ""
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_source_record_id(cls, source_record: JSON | Tag) -> str:
+        """
+        Get or generate a source record ID from a source record.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def record_is_deleted(cls, source_record: JSON | Tag) -> bool:
+        """
+        Determine whether record has a status of deleted.
+
+        Must be overridden by source subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        pass
+
+    def get_optional_fields(self, source_record: JSON | Tag) -> Optional[dict]:
+        """
+        Retrieve optional TIMDEX fields from a source record.
+
+        May be overridden by source subclasses.
+
+        Args:
+            source_record: A single source record.
+        """
+        return {}
 
 
 class XmlTransformer(Transformer):
-    """Base transformer class."""
+    """XML transformer class."""
 
     @final
     @classmethod
@@ -302,57 +319,6 @@ class XmlTransformer(Transformer):
                 yield record
                 element.clear()
 
-    @abstractmethod
-    def get_optional_fields(self, source_record: Tag) -> Optional[dict]:
-        """
-        Retrieve optional TIMDEX fields from an XML record.
-
-        Must be overridden by source subclasses.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        return {}
-
-    @classmethod
-    @abstractmethod
-    def get_main_titles(cls, source_record: Tag) -> list[Tag]:
-        """
-        Retrieve main title(s) from an XML record.
-
-        Must be overridden by source subclasses.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        return []
-
-    @classmethod
-    def get_source_record_id(cls, source_record: Tag) -> str:
-        """
-        Get or generate a source record ID from an XML record.
-
-        May be overridden by source subclasses if needed.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        return str(source_record.header.find("identifier").string)
-
-    @classmethod
-    def record_is_deleted(cls, source_record: Tag) -> bool:
-        """
-        Determine whether record has a status of deleted.
-
-        May be overridden by source subclasses if needed.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        if source_record.find("header", status="deleted"):
-            return True
-        return False
-
     @final
     def get_required_fields(self, source_record: Tag) -> dict:
         """
@@ -361,7 +327,7 @@ class XmlTransformer(Transformer):
         May not be overridden.
 
         Args:
-            source_record: A BeautifulSoup Tag representing a single OAI-PMH XML record.
+            source_record: A BeautifulSoup Tag representing a single source record.
         """
         source_record_id = self.get_source_record_id(source_record)
 
@@ -393,7 +359,9 @@ class XmlTransformer(Transformer):
         """
         if self.record_is_deleted(source_record):
             source_record_id = self.get_source_record_id(source_record)
-            timdex_record_id = f"{self.source}:{source_record_id.replace('/', '-')}"
+            timdex_record_id = self.get_timdex_record_id(
+                self.source, source_record_id, source_record
+            )
             raise DeletedRecord(timdex_record_id)
         optional_fields = self.get_optional_fields(source_record)
         if optional_fields is None:
@@ -412,41 +380,17 @@ class XmlTransformer(Transformer):
 
             return TimdexRecord(**fields)
 
-    @final
     @classmethod
-    def get_valid_title(cls, source_record_id: str, source_record: Tag) -> str:
+    def get_main_titles(cls, source_record: Tag) -> list[Tag]:
         """
-        Retrieves main title(s) from an XML record and returns a valid title string.
+        Retrieve main title(s) from an XML record.
 
-        May not be overridden.
-
-        If the list of main titles retrieved from the source record is empty or the
-        title element has no string value, inserts standard language to represent a
-        missing title field.
+        May be overridden by source subclasses.
 
         Args:
-            source_record_id: Record identifier for the source record.
-            source_record: A BeautifulSoup Tag representing a single XML record.
+            source_record: A BeautifulSoup Tag representing a single XML record
         """
-        all_titles = cls.get_main_titles(source_record)
-        if len(all_titles) > 1:
-            logger.warning(
-                "Record %s has multiple titles. Using the first title from the "
-                "following titles found: %s",
-                source_record_id,
-                all_titles,
-            )
-        if all_titles and isinstance(all_titles[0], str):
-            title = all_titles[0]
-        elif all_titles and all_titles[0].string:
-            title = all_titles[0].string
-        else:
-            logger.warning(
-                "Record %s was missing a title, source record should be investigated.",
-                source_record_id,
-            )
-            title = "Title not provided"
-        return title
+        return []
 
     @classmethod
     def get_source_link(
@@ -487,3 +431,40 @@ class XmlTransformer(Transformer):
                 overrides
         """
         return f"{source}:{source_record_id.replace('/', '-')}"
+
+    @classmethod
+    def get_source_record_id(cls, source_record: Tag) -> str:
+        """
+        Get or generate a source record ID from an XML record.
+
+        May be overridden by source subclasses if needed.
+
+        Args:
+            source_record: A BeautifulSoup Tag representing a single XML record
+        """
+        return str(source_record.header.find("identifier").string)
+
+    @classmethod
+    def record_is_deleted(cls, source_record: Tag) -> bool:
+        """
+        Determine whether record has a status of deleted.
+
+        May be overridden by source subclasses if needed.
+
+        Args:
+            source_record: A BeautifulSoup Tag representing a single XML record
+        """
+        if source_record.find("header", status="deleted"):
+            return True
+        return False
+
+    def get_optional_fields(self, source_record: Tag) -> Optional[dict]:
+        """
+        Retrieve optional TIMDEX fields from an XML record.
+
+        May be overridden by source subclasses.
+
+        Args:
+            source_record: A BeautifulSoup Tag representing a single XML record
+        """
+        return {}

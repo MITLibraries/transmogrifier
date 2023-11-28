@@ -153,7 +153,7 @@ class OaiDc(XmlTransformer):
         return None
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[Tag]:
+    def get_main_titles(cls, xml: Tag) -> list[str]:
         """
         Retrieve main title(s) from a generic OAI DC XML record.
 
@@ -162,7 +162,7 @@ class OaiDc(XmlTransformer):
         Args:
             xml: A BeautifulSoup Tag representing a single OAI DC XML record.
         """
-        return [t for t in xml.find_all("dc:title")]
+        return [t.string for t in xml.find_all("dc:title", string=True)]
 
     @classmethod
     def get_source_record_id(cls, xml: Tag) -> str:

@@ -42,7 +42,7 @@ class DspaceDim(XmlTransformer):
         for index, title in enumerate(self.get_main_titles(xml)):
             if index > 0:
                 fields.setdefault("alternate_titles", []).append(
-                    timdex.AlternateTitle(value=title.string)
+                    timdex.AlternateTitle(value=title)
                 )
 
         # citation
@@ -280,7 +280,7 @@ class DspaceDim(XmlTransformer):
         ] or None
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[Tag]:
+    def get_main_titles(cls, xml: Tag) -> list[str]:
         """
         Retrieve main title(s) from a DSpace DIM XML record.
 
@@ -290,8 +290,8 @@ class DspaceDim(XmlTransformer):
             xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
         """
         return [
-            t
-            for t in xml.find_all("dim:field", element="title")
+            t.string
+            for t in xml.find_all("dim:field", element="title", string=True)
             if "qualifier" not in t.attrs
         ]
 
