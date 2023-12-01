@@ -57,6 +57,31 @@ def test_xmltransformer_iterates_successfully_if_get_optional_fields_returns_non
         assert len(output_records.deleted_records) == 1
 
 
+def test_xmltransformer__write_output_files_writes_timdex_records_and_deleted_files(
+    tmp_path, oai_pmh_records
+):
+    output_file = str(tmp_path / "output_file.json")
+    transformer = XmlTransformer("cool-repo", oai_pmh_records)
+    transformer._write_output_files(output_file)
+    output_files = list(tmp_path.iterdir())
+    assert len(output_files) == 2
+    assert output_files[0].name == "output_file.json"
+    assert output_files[1].name == "output_file.txt"
+
+
+def test_xmltransformer__write_output_files_no_deleted_records_file_if_not_needed(
+    tmp_path,
+):
+    output_file = str(tmp_path / "output_file.json")
+    datacite_records = XmlTransformer.parse_source_file(
+        "tests/fixtures/datacite/datacite_records.xml"
+    )
+    transformer = XmlTransformer("cool-repo", datacite_records)
+    transformer._write_output_files(output_file)
+    assert len(list(tmp_path.iterdir())) == 1
+    assert next(tmp_path.iterdir()).name == "output_file.json"
+
+
 def test_xmltransformer_parse_source_file_returns_record_iterator():
     records = XmlTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_records.xml"
