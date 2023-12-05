@@ -70,8 +70,13 @@ class Transformer(ABC):
                 continue
 
     @final
-    def _write_output_files(self, output_file: str) -> None:
-        self.write_timdex_records_to_json_file(output_file)
+    def transform_and_write_output_files(self, output_file: str) -> None:
+        """Iterates through source records to transform and write to output files.
+
+        Args:
+            output_file: The name of the output files.
+        """
+        self._write_timdex_records_to_json_file(output_file)
         if self.processed_record_count == 0:
             raise ValueError(
                 "No records processed from input file, needs investigation"
@@ -80,16 +85,17 @@ class Transformer(ABC):
             deleted_output_file = output_file.replace("index", "delete").replace(
                 "json", "txt"
             )
-            self.write_deleted_records_to_txt_file(deleted_records, deleted_output_file)
+            self._write_deleted_records_to_txt_file(
+                deleted_records, deleted_output_file
+            )
 
     @final
-    def write_timdex_records_to_json_file(self, output_file: str) -> int:
+    def _write_timdex_records_to_json_file(self, output_file: str) -> int:
         """
         Write TIMDEX records to JSON file.
 
         Args:
             output_file: The JSON file used for writing TIMDEX records.
-
         """
         count = 0
         try:
@@ -121,10 +127,16 @@ class Transformer(ABC):
 
     @final
     @staticmethod
-    def write_deleted_records_to_txt_file(
-        deleted_records: list[str], output_file_path: str
+    def _write_deleted_records_to_txt_file(
+        deleted_records: list[str], output_file: str
     ):
-        with open(output_file_path, "w") as file:
+        """Write deleted records to the specified text file.
+
+        Args:
+            deleted_records: The deleted records to write to file.
+            output_file: The text file used for writing deleted records.
+        """
+        with open(output_file, "w") as file:
             for record_id in deleted_records:
                 file.write(f"{record_id}\n")
 
@@ -232,6 +244,7 @@ class Transformer(ABC):
         pass
 
     @classmethod
+    @abstractmethod
     def get_main_titles(cls, source_record: JSON | Tag) -> list[str]:
         """
         Retrieve main title(s) from an source record.
@@ -241,7 +254,7 @@ class Transformer(ABC):
         Args:
             source_record: A single source record.
         """
-        return []
+        pass
 
     @classmethod
     @abstractmethod

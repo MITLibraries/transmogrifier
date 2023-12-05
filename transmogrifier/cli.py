@@ -41,7 +41,7 @@ def main(source, input_file, output_file, verbose):
     logger.info("Running transform for source %s", source)
 
     transformer = Transformer.load(source, input_file)
-    transformer._write_output_files(output_file)
+    transformer.transform_and_write_output_files(output_file)
     logger.info(
         (
             "Completed transform, total records processed: %d, "
