@@ -40,7 +40,7 @@ class DspaceMets(XmlTransformer):
         for index, title in enumerate(self.get_main_titles(xml)):
             if index > 0:
                 fields.setdefault("alternate_titles", []).append(
-                    timdex.AlternateTitle(value=title.string)
+                    timdex.AlternateTitle(value=title)
                 )
 
         # call_numbers: relevant field in DSpace (dc.subject.classification) is not
@@ -191,7 +191,7 @@ class DspaceMets(XmlTransformer):
         return fields
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[Tag]:
+    def get_main_titles(cls, xml: Tag) -> list[str]:
         """
         Retrieve main title(s) from a DSpace METS XML record.
 
@@ -200,7 +200,11 @@ class DspaceMets(XmlTransformer):
         Args:
             xml: A BeautifulSoup Tag representing a single DSpace METS XML record.
         """
-        return [t for t in xml.find_all("mods:title", string=True) if not t.get("type")]
+        return [
+            t.string
+            for t in xml.find_all("mods:title", string=True)
+            if not t.get("type")
+        ]
 
     @classmethod
     def get_source_record_id(cls, xml: Tag) -> str:

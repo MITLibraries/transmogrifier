@@ -40,7 +40,7 @@ class Datacite(XmlTransformer):
         for index, title in enumerate(self.get_main_titles(xml)):
             if index > 0:
                 fields.setdefault("alternate_titles", []).append(
-                    timdex.AlternateTitle(value=title.string)
+                    timdex.AlternateTitle(value=title)
                 )
 
         # content_type
@@ -309,7 +309,7 @@ class Datacite(XmlTransformer):
         return fields
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[Tag]:
+    def get_main_titles(cls, xml: Tag) -> list[str]:
         """
         Retrieve main title(s) from a Datacite XML record.
 
@@ -320,7 +320,7 @@ class Datacite(XmlTransformer):
                 oai_datacite XML.
         """
         return [
-            t
+            t.string
             for t in xml.metadata.find_all("title", string=True)
             if not t.get("titleType")
         ]

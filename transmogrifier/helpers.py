@@ -2,8 +2,6 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from smart_open import open
-
 from transmogrifier.config import DATE_FORMATS
 
 logger = logging.getLogger(__name__)
@@ -138,12 +136,6 @@ def validate_date_range(
             end_date,
         )
         return False
-
-
-def write_deleted_records_to_file(deleted_records: list[str], output_file_path: str):
-    with open(output_file_path, "w") as file:
-        for record_id in deleted_records:
-            file.write(f"{record_id}\n")
 
 
 class DeletedRecord(Exception):
