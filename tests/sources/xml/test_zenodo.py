@@ -1,4 +1,4 @@
-from transmogrifier.sources.zenodo import Zenodo
+from transmogrifier.sources.xml.zenodo import Zenodo
 
 
 def test_zenodo_create_source_record_id_generates_correct_id():

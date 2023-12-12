@@ -1,5 +1,5 @@
 import transmogrifier.models as timdex
-from transmogrifier.sources.dspace_mets import DspaceMets
+from transmogrifier.sources.xml.dspace_mets import DspaceMets
 
 
 def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly():

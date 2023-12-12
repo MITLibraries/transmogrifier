@@ -1,4 +1,4 @@
-from transmogrifier.sources.whoas import Whoas
+from transmogrifier.sources.xml.whoas import Whoas
 
 
 def test_valid_content_types_with_all_invalid():

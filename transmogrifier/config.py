@@ -81,42 +81,42 @@ SOURCES = {
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?"
             "vid=01MIT_INST:MIT&docid=alma"
         ),
-        "transform-class": "transmogrifier.sources.marc.Marc",
+        "transform-class": "transmogrifier.sources.xml.marc.Marc",
     },
     "aspace": {
         "name": "MIT ArchivesSpace",
         "base-url": "https://archivesspace.mit.edu/",
-        "transform-class": "transmogrifier.sources.ead.Ead",
+        "transform-class": "transmogrifier.sources.xml.ead.Ead",
     },
     "dspace": {
         "name": "DSpace@MIT",
         "base-url": "https://dspace.mit.edu/handle/",
-        "transform-class": "transmogrifier.sources.dspace_mets.DspaceMets",
+        "transform-class": "transmogrifier.sources.xml.dspace_mets.DspaceMets",
     },
     "jpal": {
         "name": "Abdul Latif Jameel Poverty Action Lab Dataverse",
         "base-url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=",
-        "transform-class": "transmogrifier.sources.datacite.Datacite",
+        "transform-class": "transmogrifier.sources.xml.datacite.Datacite",
     },
     "libguides": {
         "name": "LibGuides",
         "base-url": "https://libguides.mit.edu/",
-        "transform-class": "transmogrifier.sources.springshare.SpringshareOaiDc",
+        "transform-class": "transmogrifier.sources.xml.springshare.SpringshareOaiDc",
     },
     "researchdatabases": {
         "name": "Research Databases",
         "base-url": "https://libguides.mit.edu/",
-        "transform-class": "transmogrifier.sources.springshare.SpringshareOaiDc",
+        "transform-class": "transmogrifier.sources.xml.springshare.SpringshareOaiDc",
     },
     "whoas": {
         "name": "Woods Hole Open Access Server",
         "base-url": "https://darchive.mblwhoilibrary.org/handle/",
-        "transform-class": "transmogrifier.sources.whoas.Whoas",
+        "transform-class": "transmogrifier.sources.xml.whoas.Whoas",
     },
     "zenodo": {
         "name": "Zenodo",
         "base-url": "https://zenodo.org/record/",
-        "transform-class": "transmogrifier.sources.zenodo.Zenodo",
+        "transform-class": "transmogrifier.sources.xml.zenodo.Zenodo",
     },
 }
 

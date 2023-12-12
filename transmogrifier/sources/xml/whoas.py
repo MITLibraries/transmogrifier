@@ -1,6 +1,6 @@
 from bs4 import Tag
 
-from transmogrifier.sources.dspace_dim import DspaceDim
+from transmogrifier.sources.xml.dspace_dim import DspaceDim
 
 INVALID_CONTENT_TYPES = [
     "article",

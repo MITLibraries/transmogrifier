@@ -3,8 +3,8 @@ from unittest.mock import patch
 import pytest
 
 from transmogrifier.models import TimdexRecord
-from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.transformer import Transformer, XmlTransformer
+from transmogrifier.sources.xml.datacite import Datacite
 
 
 def test_transformer_get_transformer_returns_correct_class_name():

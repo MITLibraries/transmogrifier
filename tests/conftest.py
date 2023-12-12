@@ -5,8 +5,8 @@ from click.testing import CliRunner
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
-from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.transformer import XmlTransformer
+from transmogrifier.sources.xml.datacite import Datacite
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +29,7 @@ def bad_config():
     SOURCES["bad-class-name"] = {
         "name": "Some Repository",
         "base-url": "https://example.com/",
-        "transform-class": "transmogrifier.sources.datacite.WrongClass",
+        "transform-class": "transmogrifier.sources.xml.datacite.WrongClass",
     }
     SOURCES["bad-module-path"] = {
         "name": "Some Repository",
