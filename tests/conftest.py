@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
-from transmogrifier.sources.transformer import XmlTransformer
+from transmogrifier.sources.transformer import JsonTransformer, XmlTransformer
 from transmogrifier.sources.xml.datacite import Datacite
 
 
@@ -46,6 +46,15 @@ def runner():
     return CliRunner()
 
 
+@pytest.fixture
+def aardvark_record_all_fields():
+    return next(
+        JsonTransformer.parse_source_file(
+            "tests/fixtures/aardvark/aardvark_record_all_fields.jsonl"
+        )
+    )
+
+
 @pytest.fixture()
 def datacite_records():
     return XmlTransformer.parse_source_file(
@@ -59,6 +68,11 @@ def datacite_record_all_fields():
         "tests/fixtures/datacite/datacite_record_all_fields.xml"
     )
     return Datacite("cool-repo", source_records)
+
+
+@pytest.fixture()
+def json_records():
+    return JsonTransformer.parse_source_file("tests/fixtures/json_records.jsonl")
 
 
 @pytest.fixture()

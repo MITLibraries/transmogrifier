@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from importlib import import_module
 from typing import Iterator, Optional, TypeAlias, final
 
+import jsonlines
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
 
@@ -29,7 +30,9 @@ class Transformer(ABC):
     """Base transformer class."""
 
     @final
-    def __init__(self, source: str, source_records: Iterator[JSON | Tag]) -> None:
+    def __init__(
+        self, source: str, source_records: Iterator[dict[str, JSON] | Tag]
+    ) -> None:
         """
         Initialize Transformer instance.
 
@@ -173,7 +176,9 @@ class Transformer(ABC):
 
     @final
     @classmethod
-    def get_valid_title(cls, source_record_id: str, source_record: Tag | JSON) -> str:
+    def get_valid_title(
+        cls, source_record_id: str, source_record: dict[str, JSON] | Tag
+    ) -> str:
         """
         Retrieves main title(s) from a source record and returns a valid title string.
 
@@ -208,7 +213,7 @@ class Transformer(ABC):
 
     @classmethod
     @abstractmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[JSON | Tag]:
+    def parse_source_file(cls, source_file: str) -> Iterator[dict[str, JSON] | Tag]:
         """
         Parse source file and return source records via an iterator.
 
@@ -220,7 +225,7 @@ class Transformer(ABC):
         pass
 
     @abstractmethod
-    def transform(self, source_record: JSON | Tag) -> Optional[TimdexRecord]:
+    def transform(self, source_record: dict[str, JSON] | Tag) -> Optional[TimdexRecord]:
         """
         Transform a source record into a TIMDEX record.
 
@@ -232,7 +237,7 @@ class Transformer(ABC):
         pass
 
     @abstractmethod
-    def get_required_fields(self, source_record: JSON | Tag) -> dict:
+    def get_required_fields(self, source_record: dict[str, JSON] | Tag) -> dict:
         """
         Get required TIMDEX fields from a source record.
 
@@ -245,7 +250,7 @@ class Transformer(ABC):
 
     @classmethod
     @abstractmethod
-    def get_main_titles(cls, source_record: JSON | Tag) -> list[str]:
+    def get_main_titles(cls, source_record: dict[str, JSON] | Tag) -> list[str]:
         """
         Retrieve main title(s) from an source record.
 
@@ -259,7 +264,10 @@ class Transformer(ABC):
     @classmethod
     @abstractmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, source_record: JSON | Tag
+        cls,
+        source_base_url: str,
+        source_record_id: str,
+        source_record: dict[str, JSON] | Tag,
     ) -> str:
         """
         Class method to set the source link for the item.
@@ -276,7 +284,7 @@ class Transformer(ABC):
     @classmethod
     @abstractmethod
     def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: Tag
+        cls, source: str, source_record_id: str, source_record: dict[str, JSON] | Tag
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -292,7 +300,7 @@ class Transformer(ABC):
 
     @classmethod
     @abstractmethod
-    def get_source_record_id(cls, source_record: JSON | Tag) -> str:
+    def get_source_record_id(cls, source_record: dict[str, JSON] | Tag) -> str:
         """
         Get or generate a source record ID from a source record.
 
@@ -305,7 +313,7 @@ class Transformer(ABC):
 
     @classmethod
     @abstractmethod
-    def record_is_deleted(cls, source_record: JSON | Tag) -> bool:
+    def record_is_deleted(cls, source_record: dict[str, JSON] | Tag) -> bool:
         """
         Determine whether record has a status of deleted.
 
@@ -316,7 +324,9 @@ class Transformer(ABC):
         """
         pass
 
-    def get_optional_fields(self, source_record: JSON | Tag) -> Optional[dict]:
+    def get_optional_fields(
+        self, source_record: dict[str, JSON] | Tag
+    ) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from a source record.
 
@@ -333,7 +343,7 @@ class JsonTransformer(Transformer):
 
     @final
     @classmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[JSON]:
+    def parse_source_file(cls, source_file: str) -> Iterator[dict[str, JSON]]:
         """
         Parse JSON file and return source records as JSON objects via an iterator.
 
@@ -342,12 +352,12 @@ class JsonTransformer(Transformer):
         Args:
             source_file: A file containing source records to be transformed.
         """
-        with open(source_file, "rb") as file:
-            for record in json.load(file):
+        with jsonlines.open(source_file) as records:
+            for record in records.iter(type=dict):
                 yield record
 
     @final
-    def transform(self, source_record: JSON) -> Optional[TimdexRecord]:
+    def transform(self, source_record: dict[str, JSON]) -> Optional[TimdexRecord]:
         """
         Transform a JSON record into a TIMDEX record.
 
@@ -380,7 +390,7 @@ class JsonTransformer(Transformer):
             return TimdexRecord(**fields)
 
     @final
-    def get_required_fields(self, source_record: JSON) -> dict:
+    def get_required_fields(self, source_record: dict[str, JSON]) -> dict:
         """
         Get required TIMDEX fields from an JSON record.
 
@@ -409,7 +419,7 @@ class JsonTransformer(Transformer):
 
     @classmethod
     @abstractmethod
-    def get_main_titles(cls, source_record: JSON) -> list[str]:
+    def get_main_titles(cls, source_record: dict[str, JSON]) -> list[str]:
         """
         Retrieve main title(s) from a JSON record.
 
@@ -422,7 +432,7 @@ class JsonTransformer(Transformer):
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, source_record: JSON
+        cls, source_base_url: str, source_record_id: str, source_record: dict[str, JSON]
     ) -> str:
         """
         Class method to set the source link for the item.
@@ -442,7 +452,7 @@ class JsonTransformer(Transformer):
 
     @classmethod
     def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: JSON
+        cls, source: str, source_record_id: str, source_record: dict[str, JSON]
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -462,7 +472,7 @@ class JsonTransformer(Transformer):
 
     @classmethod
     @abstractmethod
-    def get_source_record_id(cls, source_record: JSON) -> str:
+    def get_source_record_id(cls, source_record: dict[str, JSON]) -> str:
         """
         Get or generate a source record ID from a JSON record.
 
@@ -475,7 +485,7 @@ class JsonTransformer(Transformer):
 
     @classmethod
     @abstractmethod
-    def record_is_deleted(cls, source_record: JSON) -> bool:
+    def record_is_deleted(cls, source_record: dict[str, JSON]) -> bool:
         """
         Determine whether record has a status of deleted.
 
@@ -486,7 +496,7 @@ class JsonTransformer(Transformer):
         """
         pass
 
-    def get_optional_fields(self, source_record: JSON) -> Optional[dict]:
+    def get_optional_fields(self, source_record: dict[str, JSON]) -> Optional[dict]:
         """
         Retrieve optional TIMDEX fields from a JSON record.
 
