@@ -229,7 +229,8 @@ class Transformer(ABC):
         self, source_record: dict[str, JSON] | Tag
     ) -> Optional[TimdexRecord]:
         """
-        Private method called by Transform a source record into a TIMDEX record.
+        Private method called for both XML and JSON transformations, where
+        all logic is shared except source_record type.
 
         May not be overridden.
 
