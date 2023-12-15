@@ -224,10 +224,45 @@ class Transformer(ABC):
         """
         pass
 
+    @final
+    def _transform(
+        self, source_record: dict[str, JSON] | Tag
+    ) -> Optional[TimdexRecord]:
+        """
+        Private method called by Transform a source record into a TIMDEX record.
+
+        May not be overridden.
+
+        Args:
+            source_record: A single source record.
+        """
+        if self.record_is_deleted(source_record):
+            source_record_id = self.get_source_record_id(source_record)
+            timdex_record_id = self.get_timdex_record_id(
+                self.source, source_record_id, source_record
+            )
+            raise DeletedRecord(timdex_record_id)
+        optional_fields = self.get_optional_fields(source_record)
+        if optional_fields is None:
+            return None
+        else:
+            fields = {
+                **self.get_required_fields(source_record),
+                **optional_fields,
+            }
+
+            # If citation field was not present, generate citation from other fields
+            if fields.get("citation") is None:
+                fields["citation"] = generate_citation(fields)
+            if fields.get("content_type") is None:
+                fields["content_type"] = ["Not specified"]
+
+            return TimdexRecord(**fields)
+
     @abstractmethod
     def transform(self, source_record: dict[str, JSON] | Tag) -> Optional[TimdexRecord]:
         """
-        Transform a source record into a TIMDEX record.
+        Call Transformer._transform method to transform source record to TIMDEX record.
 
         Must be overridden by format subclasses.
 
@@ -349,6 +384,8 @@ class JsonTransformer(Transformer):
 
         May not be overridden.
 
+        Validates that records in the file are dicts for proper processing.
+
         Args:
             source_file: A file containing source records to be transformed.
         """
@@ -359,35 +396,14 @@ class JsonTransformer(Transformer):
     @final
     def transform(self, source_record: dict[str, JSON]) -> Optional[TimdexRecord]:
         """
-        Transform a JSON record into a TIMDEX record.
+        Call Transformer._transform method to transform JSON record to TIMDEX record.
 
         May not be overridden.
 
         Args:
             source_record: A JSON object representing a source record.
         """
-        if self.record_is_deleted(source_record):
-            source_record_id = self.get_source_record_id(source_record)
-            timdex_record_id = self.get_timdex_record_id(
-                self.source, source_record_id, source_record
-            )
-            raise DeletedRecord(timdex_record_id)
-        optional_fields = self.get_optional_fields(source_record)
-        if optional_fields is None:
-            return None
-        else:
-            fields = {
-                **self.get_required_fields(source_record),
-                **optional_fields,
-            }
-
-            # If citation field was not present, generate citation from other fields
-            if fields.get("citation") is None:
-                fields["citation"] = generate_citation(fields)
-            if fields.get("content_type") is None:
-                fields["content_type"] = ["Not specified"]
-
-            return TimdexRecord(**fields)
+        return self._transform(source_record)
 
     @final
     def get_required_fields(self, source_record: dict[str, JSON]) -> dict:
@@ -537,35 +553,14 @@ class XmlTransformer(Transformer):
     @final
     def transform(self, source_record: Tag) -> Optional[TimdexRecord]:
         """
-        Transform an XML record into a TIMDEX record.
+        Call Transformer._transform method to transform XML record to TIMDEX record.
 
         May not be overridden.
 
         Args:
             source_record: A BeautifulSoup Tag representing a single XML record.
         """
-        if self.record_is_deleted(source_record):
-            source_record_id = self.get_source_record_id(source_record)
-            timdex_record_id = self.get_timdex_record_id(
-                self.source, source_record_id, source_record
-            )
-            raise DeletedRecord(timdex_record_id)
-        optional_fields = self.get_optional_fields(source_record)
-        if optional_fields is None:
-            return None
-        else:
-            fields = {
-                **self.get_required_fields(source_record),
-                **optional_fields,
-            }
-
-            # If citation field was not present, generate citation from other fields
-            if fields.get("citation") is None:
-                fields["citation"] = generate_citation(fields)
-            if fields.get("content_type") is None:
-                fields["content_type"] = ["Not specified"]
-
-            return TimdexRecord(**fields)
+        return self._transform(source_record)
 
     @final
     def get_required_fields(self, source_record: Tag) -> dict:

@@ -6,23 +6,26 @@ from transmogrifier.sources.transformer import JsonTransformer
 logger = logging.getLogger(__name__)
 
 
-class Aardvark(JsonTransformer):
-    """Aardvark transformer."""
+class MITAardvark(JsonTransformer):
+    """MITAardvark transformer.
+
+    MIT Aardvark records have more required fields than standard Aardvark records
+    as detailed here in the geo-harvester's MITAardvark class:
+
+    https://github.com/MITLibraries/geo-harvester/blob/main/harvester/records/record.py
+    """
 
     @classmethod
     def get_main_titles(cls, source_record: dict) -> list[str]:
         """
-        Retrieve main title(s) from a Aardvark JSON record.
+        Retrieve main title(s) from a MITAardvark JSON record.
 
         Overrides metaclass get_main_titles() method.
 
         Args:
             source_record: A JSON object representing a source record.
         """
-        titles = []
-        if title := "dct_title_s" in source_record and source_record["dct_title_s"]:
-            titles.append(title)
-        return titles
+        return [source_record["dct_title_s"]]
 
     @classmethod
     def get_source_record_id(cls, source_record: dict) -> str:
@@ -39,7 +42,7 @@ class Aardvark(JsonTransformer):
         """
         Determine whether record has a status of deleted.
 
-        ## WIP - defining to enable instantiation of Aardvark instance.
+        ## WIP - defining to enable instantiation of MITAardvark instance.
 
         Args:
             source_record: A JSON object representing a source record.
@@ -58,7 +61,7 @@ class Aardvark(JsonTransformer):
         """
         fields: dict = {}
 
-        # alternate_titles field not used in Aardvark
+        # alternate_titles
 
         # content_type
         fields["content_type"] = ["Geospatial data"]
@@ -76,7 +79,7 @@ class Aardvark(JsonTransformer):
         # identifiers
 
         # languages
-        fields["languages"] = source_record.get("dct_langauge_sm")
+        fields["languages"] = source_record.get("dct_language_sm")
 
         # links
 
@@ -99,6 +102,14 @@ class Aardvark(JsonTransformer):
     @staticmethod
     def get_subjects(source_record: dict) -> list[timdex.Subject]:
         """Get values from source record for TIMDEX subjects field.
+
+        Unlike other TIMDEX sources, the subject scheme is not known
+        for each term. The kind here represents the uncontrolled field
+        in which the term was found.
+
+        DCAT Keyword: https://www.w3.org/TR/vocab-dcat-2/#Property:resource_keyword
+        DCAT Theme: https://www.w3.org/TR/vocab-dcat-2/#Property:resource_theme
+        Dublin Core Subject: http://purl.org/dc/terms/subject
 
         Args:
             source_record: A JSON object representing a source record.

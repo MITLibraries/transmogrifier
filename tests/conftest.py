@@ -71,8 +71,8 @@ def datacite_record_all_fields():
 
 
 @pytest.fixture()
-def json_records():
-    return JsonTransformer.parse_source_file("tests/fixtures/json_records.jsonl")
+def aardvark_records():
+    return JsonTransformer.parse_source_file("tests/fixtures/aardvark_records.jsonl")
 
 
 @pytest.fixture()
