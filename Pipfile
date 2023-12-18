@@ -7,10 +7,11 @@ name = "pypi"
 attrs = "*"
 beautifulsoup4 = "*"
 click = "*"
+jsonlines = "*"
 lxml = "*"
+python-dateutil = "*"
 sentry-sdk = "*"
 smart-open = {version = "*", extras = ["s3"]}
-python-dateutil = "*"
 types-python-dateutil = "*"
 
 [dev-packages]

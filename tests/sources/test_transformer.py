@@ -1,10 +1,11 @@
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 from transmogrifier.models import TimdexRecord
-from transmogrifier.sources.datacite import Datacite
 from transmogrifier.sources.transformer import Transformer, XmlTransformer
+from transmogrifier.sources.xml.datacite import Datacite
 
 
 def test_transformer_get_transformer_returns_correct_class_name():
@@ -62,11 +63,11 @@ def test_xmltransformer_transform_and_write_output_files_writes_output_files(
 ):
     output_file = str(tmp_path / "output_file.json")
     transformer = XmlTransformer("cool-repo", oai_pmh_records)
+    assert not Path(tmp_path / "output_file.json").exists()
+    assert not Path(tmp_path / "output_file.txt").exists()
     transformer.transform_and_write_output_files(output_file)
-    output_files = list(tmp_path.iterdir())
-    assert len(output_files) == 2
-    assert output_files[0].name == "output_file.json"
-    assert output_files[1].name == "output_file.txt"
+    assert Path(tmp_path / "output_file.json").exists()
+    assert Path(tmp_path / "output_file.txt").exists()
 
 
 def test_xmltransformer_transform_and_write_output_files_no_txt_file_if_not_needed(

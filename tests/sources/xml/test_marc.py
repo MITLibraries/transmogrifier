@@ -3,7 +3,7 @@ import logging
 from bs4 import BeautifulSoup
 
 import transmogrifier.models as timdex
-from transmogrifier.sources.marc import Marc
+from transmogrifier.sources.xml.marc import Marc
 
 
 def test_marc_record_all_fields_transform_correctly():
@@ -752,7 +752,7 @@ def test_marc_record_missing_leader_logs_error(caplog):
     assert len(list(output_records)) == 0
     assert output_records.processed_record_count == 1
     assert (
-        "transmogrifier.sources.marc",
+        "transmogrifier.sources.xml.marc",
         logging.ERROR,
         "Record ID 990027185640106761 is missing MARC leader",
     ) in caplog.record_tuples
@@ -766,7 +766,7 @@ def test_marc_record_missing_008_logs_error(caplog):
     assert len(list(output_records)) == 0
     assert output_records.processed_record_count == 1
     assert (
-        "transmogrifier.sources.marc",
+        "transmogrifier.sources.xml.marc",
         logging.ERROR,
         "Record ID 990027185640106761 is missing MARC 008 field",
     ) in caplog.record_tuples

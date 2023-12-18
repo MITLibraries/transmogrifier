@@ -1,5 +1,5 @@
 import transmogrifier.models as timdex
-from transmogrifier.sources.springshare import SpringshareOaiDc
+from transmogrifier.sources.xml.springshare import SpringshareOaiDc
 
 SPRINGSHARE_FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare"
 

@@ -1,5 +1,5 @@
 import transmogrifier.models as timdex
-from transmogrifier.sources.oaidc import OaiDc
+from transmogrifier.sources.xml.oaidc import OaiDc
 
 FIXTURES_PREFIX = "tests/fixtures/oai_dc"
 

@@ -1,5 +1,5 @@
 import transmogrifier.models as timdex
-from transmogrifier.sources.dspace_dim import DspaceDim
+from transmogrifier.sources.xml.dspace_dim import DspaceDim
 
 
 def test_dspace_dim_transform_with_all_fields_transforms_correctly():

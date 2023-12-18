@@ -2,7 +2,7 @@ from typing import List
 
 from bs4 import Tag
 
-from transmogrifier.sources.datacite import Datacite
+from transmogrifier.sources.xml.datacite import Datacite
 
 VALID_CONTENT_TYPES = [
     "dataset",

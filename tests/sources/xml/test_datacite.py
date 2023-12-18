@@ -13,7 +13,7 @@ from transmogrifier.models import (
     Subject,
     TimdexRecord,
 )
-from transmogrifier.sources.datacite import Datacite
+from transmogrifier.sources.xml.datacite import Datacite
 
 
 def test_datacite_transform_with_all_fields_transforms_correctly(

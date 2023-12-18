@@ -7,7 +7,7 @@ from dateutil.parser import parse as date_parser
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.oaidc import OaiDc
+from transmogrifier.sources.xml.oaidc import OaiDc
 
 logger = logging.getLogger(__name__)
 

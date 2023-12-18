@@ -5,8 +5,8 @@ from click.testing import CliRunner
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
-from transmogrifier.sources.datacite import Datacite
-from transmogrifier.sources.transformer import XmlTransformer
+from transmogrifier.sources.transformer import JsonTransformer, XmlTransformer
+from transmogrifier.sources.xml.datacite import Datacite
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +29,7 @@ def bad_config():
     SOURCES["bad-class-name"] = {
         "name": "Some Repository",
         "base-url": "https://example.com/",
-        "transform-class": "transmogrifier.sources.datacite.WrongClass",
+        "transform-class": "transmogrifier.sources.xml.datacite.WrongClass",
     }
     SOURCES["bad-module-path"] = {
         "name": "Some Repository",
@@ -46,6 +46,15 @@ def runner():
     return CliRunner()
 
 
+@pytest.fixture
+def aardvark_record_all_fields():
+    return next(
+        JsonTransformer.parse_source_file(
+            "tests/fixtures/aardvark/aardvark_record_all_fields.jsonl"
+        )
+    )
+
+
 @pytest.fixture()
 def datacite_records():
     return XmlTransformer.parse_source_file(
@@ -59,6 +68,11 @@ def datacite_record_all_fields():
         "tests/fixtures/datacite/datacite_record_all_fields.xml"
     )
     return Datacite("cool-repo", source_records)
+
+
+@pytest.fixture()
+def aardvark_records():
+    return JsonTransformer.parse_source_file("tests/fixtures/aardvark_records.jsonl")
 
 
 @pytest.fixture()

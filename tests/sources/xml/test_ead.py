@@ -1,7 +1,7 @@
 import logging
 
 import transmogrifier.models as timdex
-from transmogrifier.sources.ead import Ead
+from transmogrifier.sources.xml.ead import Ead
 
 
 def test_ead_record_all_fields_transform_correctly():
@@ -224,7 +224,7 @@ def test_ead_record_with_missing_archdesc_logs_error(caplog):
     assert len(list(output_records)) == 0
     assert output_records.processed_record_count == 1
     assert (
-        "transmogrifier.sources.ead",
+        "transmogrifier.sources.xml.ead",
         logging.ERROR,
         "Record ID repositories/2/resources/4 is missing archdesc element",
     ) in caplog.record_tuples
@@ -238,7 +238,7 @@ def test_ead_record_with_missing_archdesc_did_logs_error(caplog):
     assert len(list(output_records)) == 0
     assert output_records.processed_record_count == 1
     assert (
-        "transmogrifier.sources.ead",
+        "transmogrifier.sources.xml.ead",
         logging.ERROR,
         "Record ID repositories/2/resources/3 is missing archdesc > did element",
     ) in caplog.record_tuples
