@@ -48,10 +48,8 @@ def runner():
 
 @pytest.fixture
 def aardvark_record_all_fields():
-    return next(
-        JsonTransformer.parse_source_file(
-            "tests/fixtures/aardvark/aardvark_record_all_fields.jsonl"
-        )
+    return JsonTransformer.parse_source_file(
+        "tests/fixtures/aardvark/aardvark_record_all_fields.jsonl"
     )
 
 
