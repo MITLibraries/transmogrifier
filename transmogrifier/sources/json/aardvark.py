@@ -1,12 +1,12 @@
 import logging
 
 import transmogrifier.models as timdex
-from transmogrifier.sources.transformer import JsonTransformer
+from transmogrifier.sources.transformer import JSONTransformer
 
 logger = logging.getLogger(__name__)
 
 
-class MITAardvark(JsonTransformer):
+class MITAardvark(JSONTransformer):
     """MITAardvark transformer.
 
     MIT Aardvark records have more required fields than standard Aardvark records

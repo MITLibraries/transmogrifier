@@ -5,12 +5,12 @@ from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import XmlTransformer
+from transmogrifier.sources.transformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
 
-class OaiDc(XmlTransformer):
+class OaiDc(XMLTransformer):
     """
     Generic OAI DC transformer.
 
