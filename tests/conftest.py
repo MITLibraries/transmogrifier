@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
-from transmogrifier.sources.transformer import JsonTransformer, XmlTransformer
+from transmogrifier.sources.transformer import JSONTransformer, XMLTransformer
 from transmogrifier.sources.xml.datacite import Datacite
 
 
@@ -48,23 +48,21 @@ def runner():
 
 @pytest.fixture
 def aardvark_record_all_fields():
-    return next(
-        JsonTransformer.parse_source_file(
-            "tests/fixtures/aardvark/aardvark_record_all_fields.jsonl"
-        )
+    return JSONTransformer.parse_source_file(
+        "tests/fixtures/aardvark/aardvark_record_all_fields.jsonl"
     )
 
 
 @pytest.fixture()
 def datacite_records():
-    return XmlTransformer.parse_source_file(
+    return XMLTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_records.xml"
     )
 
 
 @pytest.fixture()
 def datacite_record_all_fields():
-    source_records = XmlTransformer.parse_source_file(
+    source_records = XMLTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_record_all_fields.xml"
     )
     return Datacite("cool-repo", source_records)
@@ -72,7 +70,7 @@ def datacite_record_all_fields():
 
 @pytest.fixture()
 def aardvark_records():
-    return JsonTransformer.parse_source_file("tests/fixtures/aardvark_records.jsonl")
+    return JSONTransformer.parse_source_file("tests/fixtures/aardvark_records.jsonl")
 
 
 @pytest.fixture()
@@ -87,7 +85,7 @@ def marc_content_type_crosswalk():
 
 @pytest.fixture()
 def oai_pmh_records():
-    return XmlTransformer.parse_source_file("tests/fixtures/oai_pmh_records.xml")
+    return XMLTransformer.parse_source_file("tests/fixtures/oai_pmh_records.xml")
 
 
 @pytest.fixture()

@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from transmogrifier.models import TimdexRecord
-from transmogrifier.sources.transformer import Transformer, XmlTransformer
+from transmogrifier.sources.transformer import Transformer, XMLTransformer
 from transmogrifier.sources.xml.datacite import Datacite
 
 
@@ -28,7 +28,7 @@ def test_transformer_get_transformer_source_wrong_module_path_raises_error(bad_c
 
 
 def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
-    transformer = XmlTransformer("cool-repo", oai_pmh_records)
+    transformer = XMLTransformer("cool-repo", oai_pmh_records)
     assert transformer.source == "cool-repo"
     assert transformer.source_base_url == "https://example.com/"
     assert transformer.source_name == "A Cool Repository"
@@ -36,7 +36,7 @@ def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
 
 
 def test_xmltransformer_iterates_through_all_records(oai_pmh_records):
-    output_records = XmlTransformer("cool-repo", oai_pmh_records)
+    output_records = XMLTransformer("cool-repo", oai_pmh_records)
     assert len(list(output_records)) == 2
     assert output_records.processed_record_count == 3
     assert output_records.transformed_record_count == 2
@@ -47,10 +47,10 @@ def test_xmltransformer_iterates_successfully_if_get_optional_fields_returns_non
     oai_pmh_records,
 ):
     with patch(
-        "transmogrifier.sources.transformer.XmlTransformer.get_optional_fields"
+        "transmogrifier.sources.transformer.XMLTransformer.get_optional_fields"
     ) as m:
         m.return_value = None
-        output_records = XmlTransformer("cool-repo", oai_pmh_records)
+        output_records = XMLTransformer("cool-repo", oai_pmh_records)
         assert len(list(output_records)) == 0
         assert output_records.processed_record_count == 3
         assert output_records.skipped_record_count == 2
@@ -62,7 +62,7 @@ def test_xmltransformer_transform_and_write_output_files_writes_output_files(
     tmp_path, oai_pmh_records
 ):
     output_file = str(tmp_path / "output_file.json")
-    transformer = XmlTransformer("cool-repo", oai_pmh_records)
+    transformer = XMLTransformer("cool-repo", oai_pmh_records)
     assert not Path(tmp_path / "output_file.json").exists()
     assert not Path(tmp_path / "output_file.txt").exists()
     transformer.transform_and_write_output_files(output_file)
@@ -74,31 +74,31 @@ def test_xmltransformer_transform_and_write_output_files_no_txt_file_if_not_need
     tmp_path,
 ):
     output_file = str(tmp_path / "output_file.json")
-    datacite_records = XmlTransformer.parse_source_file(
+    datacite_records = XMLTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_records.xml"
     )
-    transformer = XmlTransformer("cool-repo", datacite_records)
+    transformer = XMLTransformer("cool-repo", datacite_records)
     transformer.transform_and_write_output_files(output_file)
     assert len(list(tmp_path.iterdir())) == 1
     assert next(tmp_path.iterdir()).name == "output_file.json"
 
 
 def test_xmltransformer_parse_source_file_returns_record_iterator():
-    records = XmlTransformer.parse_source_file(
+    records = XMLTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_records.xml"
     )
     assert len(list(records)) == 38
 
 
 def test_xmltransformer_record_is_deleted_returns_true_if_deleted(caplog):
-    source_records = XmlTransformer.parse_source_file(
+    source_records = XMLTransformer.parse_source_file(
         "tests/fixtures/record_deleted.xml"
     )
-    assert XmlTransformer.record_is_deleted(next(source_records)) is True
+    assert XMLTransformer.record_is_deleted(next(source_records)) is True
 
 
 def test_xmltransformer_get_required_fields_returns_expected_values(oai_pmh_records):
-    transformer = XmlTransformer("cool-repo", oai_pmh_records)
+    transformer = XMLTransformer("cool-repo", oai_pmh_records)
     assert transformer.get_required_fields(next(oai_pmh_records)) == {
         "source": "A Cool Repository",
         "source_link": "https://example.com/12345",
@@ -108,7 +108,7 @@ def test_xmltransformer_get_required_fields_returns_expected_values(oai_pmh_reco
 
 
 def test_xmltransformer_transform_returns_timdex_record(oai_pmh_records):
-    transformer = XmlTransformer("cool-repo", oai_pmh_records)
+    transformer = XMLTransformer("cool-repo", oai_pmh_records)
     assert next(transformer) == TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/12345",
@@ -120,7 +120,7 @@ def test_xmltransformer_transform_returns_timdex_record(oai_pmh_records):
 
 
 def test_xmltransformer_get_valid_title_with_title_field_blank_logs_warning(caplog):
-    source_records = XmlTransformer.parse_source_file(
+    source_records = XMLTransformer.parse_source_file(
         "tests/fixtures/record_title_field_blank.xml"
     )
     output_records = Datacite("cool-repo", source_records)
@@ -132,7 +132,7 @@ def test_xmltransformer_get_valid_title_with_title_field_blank_logs_warning(capl
 
 
 def test_xmltransformer_get_valid_title_with_title_field_missing_logs_warning(caplog):
-    source_records = XmlTransformer.parse_source_file(
+    source_records = XMLTransformer.parse_source_file(
         "tests/fixtures/record_title_field_missing.xml"
     )
     output_records = Datacite("cool-repo", source_records)
@@ -144,7 +144,7 @@ def test_xmltransformer_get_valid_title_with_title_field_missing_logs_warning(ca
 
 
 def test_xmltransformer_get_valid_title_with_title_field_multiple_logs_warning(caplog):
-    source_records = XmlTransformer.parse_source_file(
+    source_records = XMLTransformer.parse_source_file(
         "tests/fixtures/record_title_field_multiple.xml"
     )
     output_records = Datacite("cool-repo", source_records)

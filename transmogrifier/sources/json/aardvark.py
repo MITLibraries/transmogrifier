@@ -1,12 +1,12 @@
 import logging
 
 import transmogrifier.models as timdex
-from transmogrifier.sources.transformer import JsonTransformer
+from transmogrifier.sources.transformer import JSONTransformer
 
 logger = logging.getLogger(__name__)
 
 
-class MITAardvark(JsonTransformer):
+class MITAardvark(JSONTransformer):
     """MITAardvark transformer.
 
     MIT Aardvark records have more required fields than standard Aardvark records
@@ -51,30 +51,32 @@ class MITAardvark(JsonTransformer):
 
     def get_optional_fields(self, source_record: dict) -> dict | None:
         """
-        Retrieve optional TIMDEX fields from a Aardvar JSON record.
+        Retrieve optional TIMDEX fields from an Aardvark JSON record.
 
         Overrides metaclass get_optional_fields() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single Datacite record in
-                oai_datacite XML.
+            source_record: A JSON object representing a source record.
         """
         fields: dict = {}
 
         # alternate_titles
+        fields["alternate_titles"] = self.get_alternate_titles(source_record) or None
 
         # content_type
         fields["content_type"] = ["Geospatial data"]
 
         # contributors
+        fields["contributors"] = self.get_contributors(source_record) or None
 
         # dates
 
-        # edition
+        # edition not used in MITAardvark
 
         # format
+        fields["format"] = source_record.get("dct_format_s")
 
-        # funding_information
+        # funding_information not used in MITAardvark
 
         # identifiers
 
@@ -86,18 +88,91 @@ class MITAardvark(JsonTransformer):
         # locations
 
         # notes
+        fields["notes"] = self.get_notes(source_record) or None
 
         # publication_information
+        fields["publication_information"] = (
+            self.get_publication_information(source_record) or None
+        )
 
-        # related_items
+        # related_items not used in MITAardvark
 
         # rights
+        fields["rights"] = self.get_rights(source_record) or None
 
         # subjects
         fields["subjects"] = self.get_subjects(source_record) or None
 
         # summary field
+        fields["summary"] = source_record.get("dct_description_sm")
+
         return fields
+
+    @staticmethod
+    def get_alternate_titles(source_record: dict) -> list[timdex.AlternateTitle]:
+        """Get values from source record for TIMDEX alternate_titles field."""
+        return [
+            timdex.AlternateTitle(value=title_value)
+            for title_value in source_record.get("dct_alternative_sm", [])
+        ]
+
+    @staticmethod
+    def get_contributors(source_record: dict) -> list[timdex.Contributor]:
+        """Get values from source record for TIMDEX contributors field."""
+        return [
+            timdex.Contributor(value=contributor_value, kind="Creator")
+            for contributor_value in source_record.get("dct_creator_sm", [])
+        ]
+
+    @staticmethod
+    def get_notes(source_record: dict) -> list[timdex.Note]:
+        """Get values from source record for TIMDEX notes field."""
+        return [
+            timdex.Note(value=[note_value], kind="Display note")
+            for note_value in source_record.get("gbl_displayNote_sm", [])
+        ]
+
+    @staticmethod
+    def get_publication_information(source_record: dict) -> list[str]:
+        """Get values from source record for TIMDEX publication_information field."""
+        publication_information = []
+
+        if "dct_publisher_sm" in source_record:
+            publication_information.extend(source_record["dct_publisher_sm"])
+
+        if "schema_provider_s" in source_record:
+            publication_information.append(source_record["schema_provider_s"])
+
+        return publication_information
+
+    @staticmethod
+    def get_rights(source_record: dict) -> list[timdex.Rights]:
+        """Get values from source record for TIMDEX rights field."""
+        rights = []
+
+        if "dct_accessRights_s" in source_record:
+            rights.append(
+                timdex.Rights(
+                    description=source_record["dct_accessRights_s"], kind="Access"
+                )
+            )
+
+        rights.extend(
+            [
+                timdex.Rights(uri=rights_uri_value)
+                for rights_uri_value in source_record.get("dct_license_sm", [])
+            ]
+        )
+
+        for aardvark_rights_field in ["dct_rights_sm", "dct_rightsHolder_sm"]:
+            if aardvark_rights_field in source_record:
+                rights.append(
+                    timdex.Rights(
+                        description=". ".join(source_record[aardvark_rights_field])
+                    )
+                )
+
+        return rights
 
     @staticmethod
     def get_subjects(source_record: dict) -> list[timdex.Subject]:
@@ -115,6 +190,7 @@ class MITAardvark(JsonTransformer):
             source_record: A JSON object representing a source record.
         """
         subjects = []
+
         aardvark_subject_fields = {
             "dcat_keyword_sm": "DCAT Keyword",
             "dcat_theme_sm": "DCAT Theme",
@@ -122,6 +198,7 @@ class MITAardvark(JsonTransformer):
             "gbl_resourceClass_sm": "Subject scheme not provided",
             "gbl_resourceType_sm": "Subject scheme not provided",
         }
+
         for aardvark_subject_field, kind_value in {
             key: value
             for key, value in aardvark_subject_fields.items()
@@ -129,4 +206,5 @@ class MITAardvark(JsonTransformer):
         }.items():
             for subject in source_record[aardvark_subject_field]:
                 subjects.append(timdex.Subject(value=[subject], kind=kind_value))
+
         return subjects

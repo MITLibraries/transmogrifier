@@ -374,7 +374,7 @@ class Transformer(ABC):
         return {}
 
 
-class JsonTransformer(Transformer):
+class JSONTransformer(Transformer):
     """JSON transformer class."""
 
     @final
@@ -525,7 +525,7 @@ class JsonTransformer(Transformer):
         return {}
 
 
-class XmlTransformer(Transformer):
+class XMLTransformer(Transformer):
     """XML transformer class."""
 
     @final

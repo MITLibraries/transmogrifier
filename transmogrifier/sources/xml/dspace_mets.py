@@ -5,12 +5,12 @@ from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import XmlTransformer
+from transmogrifier.sources.transformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
 
-class DspaceMets(XmlTransformer):
+class DspaceMets(XMLTransformer):
     """DSpace METS transformer."""
 
     def get_optional_fields(self, xml: Tag) -> dict:
