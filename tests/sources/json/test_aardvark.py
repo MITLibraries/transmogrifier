@@ -100,6 +100,7 @@ def test_aardvark_get_rights_success(aardvark_record_all_fields):
     assert MITAardvark.get_rights(next(aardvark_record_all_fields)) == [
         timdex.Rights(description="Access note", kind="Access"),
         timdex.Rights(uri="http://license.license"),
+        timdex.Rights(uri="http://another_license.another_license"),
         timdex.Rights(description="Some person has the rights"),
         timdex.Rights(
             description="The person with the rights. Another person with the rights"

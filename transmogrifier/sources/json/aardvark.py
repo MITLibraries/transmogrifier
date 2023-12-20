@@ -51,7 +51,7 @@ class MITAardvark(JsonTransformer):
 
     def get_optional_fields(self, source_record: dict) -> dict | None:
         """
-        Retrieve optional TIMDEX fields from a Aardvar JSON record.
+        Retrieve optional TIMDEX fields from an Aardvark JSON record.
 
         Overrides metaclass get_optional_fields() method.
 
@@ -111,44 +111,26 @@ class MITAardvark(JsonTransformer):
     @staticmethod
     def get_alternate_titles(source_record: dict) -> list[timdex.AlternateTitle]:
         """Get values from source record for TIMDEX alternate_titles field."""
-        alternate_titles = []
-
-        if "dct_alternative_sm" in source_record:
-            for title_value in [
-                title_value for title_value in source_record["dct_alternative_sm"]
-            ]:
-                alternate_titles.append(timdex.AlternateTitle(value=title_value))
-
-        return alternate_titles
+        return [
+            timdex.AlternateTitle(value=title_value)
+            for title_value in source_record.get("dct_alternative_sm", [])
+        ]
 
     @staticmethod
     def get_contributors(source_record: dict) -> list[timdex.Contributor]:
         """Get values from source record for TIMDEX contributors field."""
-        contributors = []
-
-        if "dct_creator_sm" in source_record:
-            for contributor_value in [
-                contributor_value
-                for contributor_value in source_record["dct_creator_sm"]
-            ]:
-                contributors.append(
-                    timdex.Contributor(value=contributor_value, kind="Creator")
-                )
-
-        return contributors
+        return [
+            timdex.Contributor(value=contributor_value, kind="Creator")
+            for contributor_value in source_record.get("dct_creator_sm", [])
+        ]
 
     @staticmethod
     def get_notes(source_record: dict) -> list[timdex.Note]:
         """Get values from source record for TIMDEX notes field."""
-        notes = []
-
-        if "gbl_displayNote_sm" in source_record:
-            for note_value in [
-                note_value for note_value in source_record["gbl_displayNote_sm"]
-            ]:
-                notes.append(timdex.Note(value=[note_value], kind="Display note"))
-
-        return notes
+        return [
+            timdex.Note(value=[note_value], kind="Display note")
+            for note_value in source_record.get("gbl_displayNote_sm", [])
+        ]
 
     @staticmethod
     def get_publication_information(source_record: dict) -> list[str]:
@@ -175,8 +157,12 @@ class MITAardvark(JsonTransformer):
                 )
             )
 
-        if "dct_license_sm" in source_record:
-            rights.append(timdex.Rights(uri=source_record["dct_license_sm"]))
+        rights.extend(
+            [
+                timdex.Rights(uri=rights_uri_value)
+                for rights_uri_value in source_record.get("dct_license_sm", [])
+            ]
+        )
 
         for aardvark_rights_field in ["dct_rights_sm", "dct_rightsHolder_sm"]:
             if aardvark_rights_field in source_record:
