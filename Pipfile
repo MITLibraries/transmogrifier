@@ -13,6 +13,7 @@ python-dateutil = "*"
 sentry-sdk = "*"
 smart-open = {version = "*", extras = ["s3"]}
 types-python-dateutil = "*"
+jsonschema = "*"
 
 [dev-packages]
 bandit = "*"
