@@ -63,6 +63,61 @@ def test_aardvark_get_contributors_success(aardvark_record_all_fields):
     ]
 
 
+def test_aardvark_get_dates_success(aardvark_record_all_fields):
+    assert MITAardvark.get_dates(next(aardvark_record_all_fields), "123") == [
+        timdex.Date(kind="Issued", value="2003-10-23"),
+        timdex.Date(kind="Coverage", value="1943"),
+        timdex.Date(kind="Coverage", value="1979"),
+        timdex.Date(kind="Coverage", value="1944"),
+        timdex.Date(kind="Coverage", value="1945"),
+        timdex.Date(kind="Coverage", value="1946"),
+        timdex.Date(
+            range=timdex.Date_Range(gte="1943", lte="1946"),
+        ),
+    ]
+
+
+def test_aardvark_get_identifiers_success(aardvark_record_all_fields):
+    assert MITAardvark.get_identifiers(next(aardvark_record_all_fields)) == [
+        timdex.Identifier(value="abc123")
+    ]
+
+
+def test_aardvark_get_links_success(aardvark_record_all_fields):
+    assert MITAardvark.get_links(next(aardvark_record_all_fields), "123") == [
+        timdex.Link(
+            url="https://example.com/GISPORTAL_GISOWNER01_BOSTONWATER95.source.fgdc.xml",
+            kind="Download",
+            text="Source Metadata",
+        ),
+        timdex.Link(
+            url="https://example.com/GISPORTAL_GISOWNER01_BOSTONWATER95."
+            "normalized.aardvark.json",
+            kind="Download",
+            text="Normalized Metadata",
+        ),
+        timdex.Link(
+            url="https://example.com/GISPORTAL_GISOWNER01_BOSTONWATER95.zip",
+            kind="Download",
+            text="Data Zipfile",
+        ),
+    ]
+
+
+def test_aardvark_get_links_logs_warning_for_invalid_json(caplog):
+    assert MITAardvark.get_links({"dct_references_s": "Invalid"}, "123") == []
+    assert (
+        "Record ID '123': Unable to parse links string 'Invalid' as JSON" in caplog.text
+    )
+
+
+def test_aardvark_get_locations_success(aardvark_record_all_fields):
+    assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == [
+        timdex.Location(kind="Bounding Box", geodata=[-111.1, -104.0, 45.0, 40.9]),
+        timdex.Location(kind="Geometry", geodata=[-111.1, -104.0, 45.0, 40.9]),
+    ]
+
+
 def test_aardvark_get_notes_success(aardvark_record_all_fields):
     assert MITAardvark.get_notes(next(aardvark_record_all_fields)) == [
         timdex.Note(
