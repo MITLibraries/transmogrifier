@@ -1,9 +1,10 @@
 import json
 import logging
+import re
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_geodata_string, parse_solr_date_range_string
-from transmogrifier.sources.transformer import JSONTransformer
+from transmogrifier.helpers import parse_geodata_string
+from transmogrifier.sources.transformer import JSON, JSONTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,22 @@ class MITAardvark(JSONTransformer):
         return [source_record["dct_title_s"]]
 
     @classmethod
+    def get_timdex_record_id(
+        cls, source: str, source_record_id: str, source_record: dict[str, JSON]
+    ) -> str:
+        """
+        Class method to set the TIMDEX record id.
+
+        Args:
+            source: Source name.
+            source_record_id: Record identifier for the source record.
+            source_record: A JSON object representing a source record.
+                - not used by default implementation, but could be useful for subclass
+                overrides
+        """
+        return f"{source}:{source_record_id.replace('/', '-')}"
+
+    @classmethod
     def get_source_record_id(cls, source_record: dict) -> str:
         """
         Get source record ID from a JSON record.
@@ -37,7 +54,7 @@ class MITAardvark(JSONTransformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-        return source_record["id"]
+        return source_record["id"].replace("mit:", "").replace("ogm:", "")
 
     @classmethod
     def record_is_deleted(cls, source_record: dict) -> bool:
@@ -134,17 +151,29 @@ class MITAardvark(JSONTransformer):
             for contributor_value in source_record.get("dct_creator_sm", [])
         ]
 
-    @staticmethod
-    def get_dates(source_record: dict, source_record_id: str) -> list[timdex.Date]:
+    @classmethod
+    def get_dates(cls, source_record: dict, source_record_id: str) -> list[timdex.Date]:
         """Get values from source record for TIMDEX dates field."""
-        dates = []
+        return (
+            cls._issued_dates(source_record)
+            + cls._coverage_dates(source_record)
+            + cls._range_dates(source_record, source_record_id)
+        )
 
+    @classmethod
+    def _issued_dates(cls, source_record: dict) -> list[timdex.Date]:
+        """Get values for issued dates."""
+        issued_dates = []
         if "dct_issued_s" in source_record:
-            dates.append(
+            issued_dates.append(
                 timdex.Date(value=source_record["dct_issued_s"], kind="Issued")
             )
+        return issued_dates
 
-        # logic to remove duplicate entries from the 2 fields that record coverage dates
+    @classmethod
+    def _coverage_dates(cls, source_record: dict) -> list[timdex.Date]:
+        """Get values for coverage dates."""
+        coverage_dates = []
         coverage_date_values = []
         coverage_date_values.extend(source_record.get("dct_temporal_sm", []))
         for date_value in [
@@ -154,24 +183,55 @@ class MITAardvark(JSONTransformer):
         ]:
             coverage_date_values.append(date_value)
         for coverage_date_value in coverage_date_values:
-            dates.append(timdex.Date(value=coverage_date_value, kind="Coverage"))
+            coverage_dates.append(
+                timdex.Date(value=coverage_date_value, kind="Coverage")
+            )
+        return coverage_dates
 
+    @classmethod
+    def _range_dates(
+        cls, source_record: dict, source_record_id: str
+    ) -> list[timdex.Date]:
+        """Get values for issued dates."""
+        range_dates = []
         for date_range_string in [
             date_range_strings
             for date_range_strings in source_record.get("gbl_dateRange_drsim", [])
         ]:
-            date_range_values = parse_solr_date_range_string(
+            date_range_values = cls.parse_solr_date_range_string(
                 date_range_string, source_record_id
             )
-            dates.append(
+            range_dates.append(
                 timdex.Date(
                     range=timdex.Date_Range(
                         gte=date_range_values[0], lte=date_range_values[1]
                     )
                 )
             )
+        return range_dates
 
-        return dates
+    @classmethod
+    def parse_solr_date_range_string(
+        cls, date_range_string: str, source_record_id: str
+    ) -> tuple:
+        """Get a list of values from a Solr-formatted date range string.
+
+        Example:
+         - "[1943 TO 1946]"
+
+        Args:
+            date_range_string: Formatted date range string to parse.
+            source_record_id: The ID of the record containing the string to parse.
+        """
+        try:
+            matches = re.match(r"\[([0-9]{4}) TO ([0-9]{4})\]", date_range_string)
+            return matches.groups()  # type: ignore[union-attr]
+        except AttributeError:
+            message = (
+                f"Record ID '{source_record_id}': "
+                f"Unable to parse date range string '{date_range_string}'"
+            )
+            raise ValueError(message)
 
     @staticmethod
     def get_identifiers(source_record: dict) -> list[timdex.Identifier]:
@@ -185,8 +245,8 @@ class MITAardvark(JSONTransformer):
     def get_links(source_record: dict, source_record_id: str) -> list[timdex.Link]:
         """Get values from source record for TIMDEX links field."""
         links = []
+        links_string = source_record["dct_references_s"]
         try:
-            links_string = source_record.get("dct_references_s", "")
             links_object = json.loads(links_string)
             links.extend(
                 [
@@ -214,20 +274,21 @@ class MITAardvark(JSONTransformer):
             "dcat_bbox": "Bounding Box",
             "locn_geometry": "Geometry",
         }
-        for aardvark_location_field, kind_value in {
-            key: value
-            for key, value in aardvark_location_fields.items()
-            if key in source_record
-        }.items():
-            if geodata_points := parse_geodata_string(
-                source_record[aardvark_location_field], source_record_id
-            ):
-                locations.append(
-                    timdex.Location(
-                        geodata=geodata_points,
-                        kind=kind_value,
+        for aardvark_location_field, kind_value in aardvark_location_fields.items():
+            if aardvark_location_field not in source_record:
+                continue
+            try:
+                if geodata_points := parse_geodata_string(
+                    source_record[aardvark_location_field], source_record_id
+                ):
+                    locations.append(
+                        timdex.Location(
+                            geodata=geodata_points,
+                            kind=kind_value,
+                        )
                     )
-                )
+            except ValueError as exception:
+                logger.warning(exception)
         return locations
 
     @staticmethod

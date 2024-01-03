@@ -103,6 +103,16 @@ SOURCES = {
         "base-url": "https://libguides.mit.edu/",
         "transform-class": "transmogrifier.sources.xml.springshare.SpringshareOaiDc",
     },
+    "gismit": {
+        "name": "MIT GIS Resources",
+        "base-url": "XXXX",
+        "transform-class": "transmogrifier.sources.json.aardvark.MITAardvark",
+    },
+    "gisogm": {
+        "name": "OpenGeoMetadata GIS Resources",
+        "base-url": "XXXX",
+        "transform-class": "transmogrifier.sources.json.aardvark.OGMAardvark",
+    },
     "researchdatabases": {
         "name": "Research Databases",
         "base-url": "https://libguides.mit.edu/",

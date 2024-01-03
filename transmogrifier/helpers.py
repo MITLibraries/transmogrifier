@@ -80,7 +80,6 @@ def parse_geodata_string(geodata_string: str, source_record_id: str) -> list[flo
 
     Example:
      - "ENVELOPE(-111.1, -104.0, 45.0, 40.9)"
-     - "POLYGON((-80 25, -65 18, -64 33, -80 25))"
 
      Args:
         geodata_string: Formatted geodata string to parse.
@@ -99,36 +98,6 @@ def parse_geodata_string(geodata_string: str, source_record_id: str) -> list[flo
         )
         raise ValueError(message)
     return geodata_points
-
-
-def parse_solr_date_range_string(
-    date_range_string: str, source_record_id: str
-) -> list[str]:
-    """Get a list of values from a Solr-formatted date range string.
-
-    Example:
-     - "[1943 TO 1946]"
-
-    Args:
-        date_range_string: Formatted date range string to parse.
-        source_record_id: The ID of the record containing the string to parse.
-    """
-    date_ranges = []
-    if (
-        date_range_string.startswith("[")
-        and date_range_string.endswith("]")
-        and " TO " in date_range_string
-    ):
-        date_range_values = date_range_string.split("[")[-1].split("]")[0].split(" TO ")
-        if [date_range_string] != date_range_values:
-            date_ranges.extend(date_range_values)
-    else:
-        message = (
-            f"Record ID '{source_record_id}': "
-            f"Unable to parse date range string '{date_range_string}'"
-        )
-        raise ValueError(message)
-    return date_ranges
 
 
 def validate_date(

@@ -9,6 +9,7 @@ from importlib import import_module
 from typing import Iterator, Optional, TypeAlias, final
 
 import jsonlines
+import smart_open
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
 
@@ -390,9 +391,10 @@ class JSONTransformer(Transformer):
         Args:
             source_file: A file containing source records to be transformed.
         """
-        with jsonlines.open(source_file) as records:
-            for record in records.iter(type=dict):
-                yield record
+        with smart_open.open(source_file, "r") as source_file_object:
+            with jsonlines.open(source_file_object.name) as records:
+                for record in records.iter(type=dict):
+                    yield record
 
     @final
     def transform(self, source_record: dict[str, JSON]) -> Optional[TimdexRecord]:
@@ -539,7 +541,7 @@ class XMLTransformer(Transformer):
         Args:
             source_file: A file containing source records to be transformed.
         """
-        with open(source_file, "rb") as file:
+        with smart_open.open(source_file, "rb") as file:
             for _, element in etree.iterparse(
                 file,
                 tag="{*}record",

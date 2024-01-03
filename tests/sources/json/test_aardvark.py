@@ -1,3 +1,5 @@
+import pytest
+
 import transmogrifier.models as timdex
 from transmogrifier.sources.json.aardvark import MITAardvark
 
@@ -21,6 +23,7 @@ def test_aardvark_transform_returns_timdex_record(aardvark_records):
         title="Test title 1",
         citation="Test title 1. Geospatial data. https://example.com/123",
         content_type=["Geospatial data"],
+        rights=[timdex.Rights(description="Access rights", kind="Access")],
     )
 
 
@@ -75,6 +78,21 @@ def test_aardvark_get_dates_success(aardvark_record_all_fields):
             range=timdex.Date_Range(gte="1943", lte="1946"),
         ),
     ]
+
+
+def test_aardvark_parse_solr_date_range_string_success():
+    assert MITAardvark.parse_solr_date_range_string("[1932 TO 1937]", "123") == (
+        "1932",
+        "1937",
+    )
+
+
+def test_parse_solr_date_range_invalid_date_range_string_raises_error():
+    with pytest.raises(
+        ValueError,
+        match="Record ID '123': Unable to parse date range string 'Invalid'",
+    ):
+        MITAardvark.parse_solr_date_range_string("Invalid", "123")
 
 
 def test_aardvark_get_identifiers_success(aardvark_record_all_fields):

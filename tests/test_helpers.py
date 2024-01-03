@@ -7,7 +7,6 @@ from transmogrifier.helpers import (
     generate_citation,
     parse_date_from_string,
     parse_geodata_string,
-    parse_solr_date_range_string,
     validate_date,
     validate_date_range,
 )
@@ -275,18 +274,6 @@ def test_parse_geodata_string_invalid_geodata_string_raises_error():
         match="Record ID '123': Unable to parse geodata string 'Invalid'",
     ):
         parse_geodata_string("Invalid", "123")
-
-
-def test_parse_solr_date_range_string_success():
-    assert parse_solr_date_range_string("[[1932 TO 1937]]", "123") == ["1932", "1937"]
-
-
-def test_parse_solr_date_range_invalid_date_range_string_raises_error():
-    with pytest.raises(
-        ValueError,
-        match="Record ID '123': Unable to parse date range string 'Invalid'",
-    ):
-        parse_solr_date_range_string("Invalid", "123")
 
 
 def test_validate_date_success():
