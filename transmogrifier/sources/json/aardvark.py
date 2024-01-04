@@ -51,10 +51,13 @@ class MITAardvark(JSONTransformer):
         """
         Get source record ID from a JSON record.
 
+        Removes "mit:" and "ogm:" prefixes to avoid duplication, (e.g. "gismit:mit:abc123"
+        NOT "gismit:mit:abc123")
+
         Args:
             source_record: A JSON object representing a source record.
         """
-        return source_record["id"].replace("mit:", "").replace("ogm:", "")
+        return source_record["id"].removeprefix("mit:").removeprefix("ogm:")
 
     @classmethod
     def record_is_deleted(cls, source_record: dict) -> bool:
