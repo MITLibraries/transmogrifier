@@ -9,6 +9,7 @@ from importlib import import_module
 from typing import Iterator, Optional, TypeAlias, final
 
 import jsonlines
+import smart_open
 from attrs import asdict
 from bs4 import BeautifulSoup, Tag
 
@@ -105,7 +106,7 @@ class Transformer(ABC):
             record: TimdexRecord = next(self)
         except StopIteration:
             return count
-        with open(output_file, "w") as file:
+        with smart_open.open(output_file, "w") as file:
             file.write("[\n")
             while record:
                 file.write(
@@ -139,7 +140,7 @@ class Transformer(ABC):
             deleted_records: The deleted records to write to file.
             output_file: The text file used for writing deleted records.
         """
-        with open(output_file, "w") as file:
+        with smart_open.open(output_file, "w") as file:
             for record_id in deleted_records:
                 file.write(f"{record_id}\n")
 
@@ -390,9 +391,10 @@ class JSONTransformer(Transformer):
         Args:
             source_file: A file containing source records to be transformed.
         """
-        with jsonlines.open(source_file) as records:
-            for record in records.iter(type=dict):
-                yield record
+        with smart_open.open(source_file, "r") as source_file_object:
+            with jsonlines.Reader(source_file_object) as records:
+                for record in records.iter(type=dict):
+                    yield record
 
     @final
     def transform(self, source_record: dict[str, JSON]) -> Optional[TimdexRecord]:
@@ -539,7 +541,7 @@ class XMLTransformer(Transformer):
         Args:
             source_file: A file containing source records to be transformed.
         """
-        with open(source_file, "rb") as file:
+        with smart_open.open(source_file, "rb") as file:
             for _, element in etree.iterparse(
                 file,
                 tag="{*}record",

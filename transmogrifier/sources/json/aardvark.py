@@ -1,7 +1,10 @@
+import json
 import logging
+import re
 
 import transmogrifier.models as timdex
-from transmogrifier.sources.transformer import JSONTransformer
+from transmogrifier.helpers import parse_geodata_string
+from transmogrifier.sources.transformer import JSON, JSONTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +31,55 @@ class MITAardvark(JSONTransformer):
         return [source_record["dct_title_s"]]
 
     @classmethod
+    def get_source_link(
+        cls, source_base_url: str, source_record_id: str, source_record: dict[str, JSON]
+    ) -> str:
+        """
+        Class method to set the source link for the item.
+
+        May be overridden by source subclasses if needed.
+
+        Default behavior is to concatenate the source base URL + source record id.
+
+        Args:
+            source_base_url: Source base URL.
+            source_record_id: Record identifier for the source record.
+            source_record: A BeautifulSoup Tag representing a single XML record.
+                - not used by default implementation, but could be useful for subclass
+                    overrides
+        """
+        return source_base_url + cls.get_timdex_record_id(
+            "gismit", source_record_id, source_record
+        )
+
+    @classmethod
+    def get_timdex_record_id(
+        cls, source: str, source_record_id: str, source_record: dict[str, JSON]
+    ) -> str:
+        """
+        Class method to set the TIMDEX record id.
+
+        Args:
+            source: Source name.
+            source_record_id: Record identifier for the source record.
+            source_record: A JSON object representing a source record.
+                - not used by default implementation, but could be useful for subclass
+                overrides
+        """
+        return f"{source}:{source_record_id.replace('/', '-')}"
+
+    @classmethod
     def get_source_record_id(cls, source_record: dict) -> str:
         """
         Get source record ID from a JSON record.
 
+        Removes "mit:" and "ogm:" prefixes to avoid duplication, (e.g. "gismit:mit:abc123"
+        NOT "gismit:mit:abc123")
+
         Args:
             source_record: A JSON object representing a source record.
         """
-        return source_record["id"]
+        return source_record["id"].removeprefix("mit:").removeprefix("ogm:")
 
     @classmethod
     def record_is_deleted(cls, source_record: dict) -> bool:
@@ -60,6 +104,8 @@ class MITAardvark(JSONTransformer):
         """
         fields: dict = {}
 
+        source_record_id = self.get_source_record_id(source_record)
+
         # alternate_titles
         fields["alternate_titles"] = self.get_alternate_titles(source_record) or None
 
@@ -70,6 +116,7 @@ class MITAardvark(JSONTransformer):
         fields["contributors"] = self.get_contributors(source_record) or None
 
         # dates
+        fields["dates"] = self.get_dates(source_record, source_record_id) or None
 
         # edition not used in MITAardvark
 
@@ -79,13 +126,18 @@ class MITAardvark(JSONTransformer):
         # funding_information not used in MITAardvark
 
         # identifiers
+        fields["identifiers"] = self.get_identifiers(source_record) or None
 
         # languages
         fields["languages"] = source_record.get("dct_language_sm")
 
         # links
+        fields["links"] = self.get_links(source_record, source_record_id) or None
 
         # locations
+        fields["locations"] = (
+            self.get_locations(source_record, source_record_id) or None
+        )
 
         # notes
         fields["notes"] = self.get_notes(source_record) or None
@@ -123,6 +175,146 @@ class MITAardvark(JSONTransformer):
             timdex.Contributor(value=contributor_value, kind="Creator")
             for contributor_value in source_record.get("dct_creator_sm", [])
         ]
+
+    @classmethod
+    def get_dates(cls, source_record: dict, source_record_id: str) -> list[timdex.Date]:
+        """Get values from source record for TIMDEX dates field."""
+        return (
+            cls._issued_dates(source_record)
+            + cls._coverage_dates(source_record)
+            + cls._range_dates(source_record, source_record_id)
+        )
+
+    @classmethod
+    def _issued_dates(cls, source_record: dict) -> list[timdex.Date]:
+        """Get values for issued dates."""
+        issued_dates = []
+        if "dct_issued_s" in source_record:
+            issued_dates.append(
+                timdex.Date(value=source_record["dct_issued_s"], kind="Issued")
+            )
+        return issued_dates
+
+    @classmethod
+    def _coverage_dates(cls, source_record: dict) -> list[timdex.Date]:
+        """Get values for coverage dates."""
+        coverage_dates = []
+        coverage_date_values = []
+        coverage_date_values.extend(source_record.get("dct_temporal_sm", []))
+        for date_value in [
+            str(date_value)
+            for date_value in source_record.get("gbl_indexYear_im", [])
+            if str(date_value) not in coverage_date_values
+        ]:
+            coverage_date_values.append(date_value)
+        for coverage_date_value in coverage_date_values:
+            coverage_dates.append(
+                timdex.Date(value=coverage_date_value, kind="Coverage")
+            )
+        return coverage_dates
+
+    @classmethod
+    def _range_dates(
+        cls, source_record: dict, source_record_id: str
+    ) -> list[timdex.Date]:
+        """Get values for issued dates."""
+        range_dates = []
+        for date_range_string in [
+            date_range_strings
+            for date_range_strings in source_record.get("gbl_dateRange_drsim", [])
+        ]:
+            date_range_values = cls.parse_solr_date_range_string(
+                date_range_string, source_record_id
+            )
+            range_dates.append(
+                timdex.Date(
+                    range=timdex.Date_Range(
+                        gte=date_range_values[0], lte=date_range_values[1]
+                    )
+                )
+            )
+        return range_dates
+
+    @classmethod
+    def parse_solr_date_range_string(
+        cls, date_range_string: str, source_record_id: str
+    ) -> tuple:
+        """Get a list of values from a Solr-formatted date range string.
+
+        Example:
+         - "[1943 TO 1946]"
+
+        Args:
+            date_range_string: Formatted date range string to parse.
+            source_record_id: The ID of the record containing the string to parse.
+        """
+        try:
+            matches = re.match(r"\[([0-9]{4}) TO ([0-9]{4})\]", date_range_string)
+            return matches.groups()  # type: ignore[union-attr]
+        except AttributeError:
+            message = (
+                f"Record ID '{source_record_id}': "
+                f"Unable to parse date range string '{date_range_string}'"
+            )
+            raise ValueError(message)
+
+    @staticmethod
+    def get_identifiers(source_record: dict) -> list[timdex.Identifier]:
+        """Get values from source record for TIMDEX identifiers field."""
+        return [
+            timdex.Identifier(value=identifier_value)
+            for identifier_value in source_record.get("dct_identifier_sm", [])
+        ]
+
+    @staticmethod
+    def get_links(source_record: dict, source_record_id: str) -> list[timdex.Link]:
+        """Get values from source record for TIMDEX links field."""
+        links = []
+        links_string = source_record["dct_references_s"]
+        try:
+            links_object = json.loads(links_string)
+            links.extend(
+                [
+                    timdex.Link(
+                        url=link.get("url"), kind="Download", text=link.get("label")
+                    )
+                    for link in links_object.get("https://schema.org/downloadUrl")
+                ]
+            )
+        except ValueError:
+            logger.warning(
+                f"Record ID '{source_record_id}': Unable to parse "
+                f"links string '{links_string}' as JSON"
+            )
+        return links
+
+    @staticmethod
+    def get_locations(
+        source_record: dict, source_record_id: str
+    ) -> list[timdex.Location]:
+        """Get values from source record for TIMDEX locations field."""
+        locations = []
+
+        aardvark_location_fields = {
+            "dcat_bbox": "Bounding Box",
+            "locn_geometry": "Geometry",
+        }
+        for aardvark_location_field, kind_value in aardvark_location_fields.items():
+            if aardvark_location_field not in source_record:
+                continue
+            try:
+                if geodata_points := parse_geodata_string(
+                    source_record[aardvark_location_field], source_record_id
+                ):
+                    locations.append(
+                        timdex.Location(
+                            geodata=geodata_points,
+                            kind=kind_value,
+                        )
+                    )
+            except ValueError as exception:
+                logger.warning(exception)
+        return locations
 
     @staticmethod
     def get_notes(source_record: dict) -> list[timdex.Note]:

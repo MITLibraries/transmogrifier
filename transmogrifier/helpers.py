@@ -75,6 +75,31 @@ def parse_date_from_string(
     return None
 
 
+def parse_geodata_string(geodata_string: str, source_record_id: str) -> list[float]:
+    """Get list of values from a formatted geodata string.
+
+    Example:
+     - "ENVELOPE(-111.1, -104.0, 45.0, 40.9)"
+
+     Args:
+        geodata_string: Formatted geodata string to parse.
+        source_record_id: The ID of the record containing the string to parse.
+    """
+    geodata_points = []
+    try:
+        raw_geodata_points = geodata_string.split("(")[-1].split(")")[0].split(",")
+        stripped_geodata_points = map(str.strip, raw_geodata_points)
+        geodata_floats = list(map(float, stripped_geodata_points))
+        geodata_points.extend(geodata_floats)
+    except ValueError:
+        message = (
+            f"Record ID '{source_record_id}': "
+            f"Unable to parse geodata string '{geodata_string}'"
+        )
+        raise ValueError(message)
+    return geodata_points
+
+
 def validate_date(
     date_string: str,
     source_record_id: str,
