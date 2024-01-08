@@ -3,7 +3,6 @@ import logging
 import re
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import parse_geodata_string
 from transmogrifier.sources.transformer import JSON, JSONTransformer
 
 logger = logging.getLogger(__name__)
@@ -228,9 +227,10 @@ class MITAardvark(JSONTransformer):
             )
             range_dates.append(
                 timdex.Date(
+                    kind="Coverage",
                     range=timdex.Date_Range(
                         gte=date_range_values[0], lte=date_range_values[1]
-                    )
+                    ),
                 )
             )
         return range_dates
@@ -262,7 +262,7 @@ class MITAardvark(JSONTransformer):
     def get_identifiers(source_record: dict) -> list[timdex.Identifier]:
         """Get values from source record for TIMDEX identifiers field."""
         return [
-            timdex.Identifier(value=identifier_value)
+            timdex.Identifier(value=identifier_value, kind="Not specified")
             for identifier_value in source_record.get("dct_identifier_sm", [])
         ]
 
@@ -292,8 +292,13 @@ class MITAardvark(JSONTransformer):
     def get_locations(
         source_record: dict, source_record_id: str
     ) -> list[timdex.Location]:
-        """Get values from source record for TIMDEX locations field."""
-        locations = []
+        """Get values from source record for TIMDEX locations field.
+
+        WIP: Currently in the process of determining our approach for storing geographic
+        geometry data in the TIMDEX record and how this dovetails with the OpenSearch
+        mapping.  At this time, this method returns an empty list of Locations.
+        """
+        locations: list[timdex.Location] = []
 
         aardvark_location_fields = {
             "dcat_bbox": "Bounding Box",
@@ -303,15 +308,11 @@ class MITAardvark(JSONTransformer):
             if aardvark_location_field not in source_record:
                 continue
             try:
-                if geodata_points := parse_geodata_string(
-                    source_record[aardvark_location_field], source_record_id
-                ):
-                    locations.append(
-                        timdex.Location(
-                            geodata=geodata_points,
-                            kind=kind_value,
-                        )
-                    )
+                message = (
+                    f"Geometry field '{aardvark_location_field}' found, but "
+                    f"currently not mapped."
+                )
+                logger.debug(message)
             except ValueError as exception:
                 logger.warning(exception)
         return locations

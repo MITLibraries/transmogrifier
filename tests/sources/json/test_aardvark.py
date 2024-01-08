@@ -75,6 +75,7 @@ def test_aardvark_get_dates_success(aardvark_record_all_fields):
         timdex.Date(kind="Coverage", value="1945"),
         timdex.Date(kind="Coverage", value="1946"),
         timdex.Date(
+            kind="Coverage",
             range=timdex.Date_Range(gte="1943", lte="1946"),
         ),
     ]
@@ -97,7 +98,7 @@ def test_parse_solr_date_range_invalid_date_range_string_raises_error():
 
 def test_aardvark_get_identifiers_success(aardvark_record_all_fields):
     assert MITAardvark.get_identifiers(next(aardvark_record_all_fields)) == [
-        timdex.Identifier(value="abc123")
+        timdex.Identifier(value="abc123", kind="Not specified")
     ]
 
 
@@ -129,11 +130,11 @@ def test_aardvark_get_links_logs_warning_for_invalid_json(caplog):
     )
 
 
-def test_aardvark_get_locations_success(aardvark_record_all_fields):
-    assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == [
-        timdex.Location(kind="Bounding Box", geodata=[-111.1, -104.0, 45.0, 40.9]),
-        timdex.Location(kind="Geometry", geodata=[-111.1, -104.0, 45.0, 40.9]),
-    ]
+def test_aardvark_get_locations_success(caplog, aardvark_record_all_fields):
+    caplog.set_level("DEBUG")
+    assert "Geometry field 'dcat_bbox' found, but currently not mapped."
+    assert "Geometry field 'locn_geometry' found, but currently not mapped."
+    assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == []
 
 
 def test_aardvark_get_notes_success(aardvark_record_all_fields):
