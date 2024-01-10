@@ -387,6 +387,7 @@ class MITAardvark(JSONTransformer):
         aardvark_subject_fields = {
             "dcat_keyword_sm": "DCAT Keyword",
             "dcat_theme_sm": "DCAT Theme",
+            "dct_spatial_sm": "Dublin Core Spatial",
             "dct_subject_sm": "Dublin Core Subject",
             "gbl_resourceClass_sm": "Subject scheme not provided",
             "gbl_resourceType_sm": "Subject scheme not provided",

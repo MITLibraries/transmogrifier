@@ -186,6 +186,7 @@ def test_aardvark_get_subjects_success(aardvark_record_all_fields):
     assert MITAardvark.get_subjects(next(aardvark_record_all_fields)) == [
         timdex.Subject(value=["Country"], kind="DCAT Keyword"),
         timdex.Subject(value=["Political boundaries"], kind="DCAT Theme"),
+        timdex.Subject(value=["Some city, Some country"], kind="Dublin Core Spatial"),
         timdex.Subject(value=["Geography"], kind="Dublin Core Subject"),
         timdex.Subject(value=["Earth"], kind="Dublin Core Subject"),
         timdex.Subject(value=["Dataset"], kind="Subject scheme not provided"),
