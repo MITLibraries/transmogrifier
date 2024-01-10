@@ -90,6 +90,8 @@ class MITAardvark(JSONTransformer):
         Args:
             source_record: A JSON object representing a source record.
         """
+        if source_record.get("gbl_suppressed_b") is True:
+            return True
         return False
 
     def get_optional_fields(self, source_record: dict) -> dict | None:

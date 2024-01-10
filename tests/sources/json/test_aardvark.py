@@ -1,7 +1,31 @@
+from pathlib import Path
+
 import pytest
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.json.aardvark import MITAardvark
+
+
+def test_mitaardvark_transform_and_write_output_files_writes_output_files(
+    tmp_path, aardvark_records
+):
+    output_file = str(tmp_path / "output_file.json")
+    transformer = MITAardvark("cool-repo", aardvark_records)
+    assert not Path(tmp_path / "output_file.json").exists()
+    assert not Path(tmp_path / "output_file.txt").exists()
+    transformer.transform_and_write_output_files(output_file)
+    assert Path(tmp_path / "output_file.json").exists()
+    assert Path(tmp_path / "output_file.txt").exists()
+
+
+def test_mitaardvark_transform_and_write_output_files_no_txt_file_if_not_needed(
+    tmp_path, aardvark_record_all_fields
+):
+    output_file = str(tmp_path / "output_file.json")
+    transformer = MITAardvark("cool-repo", aardvark_record_all_fields)
+    transformer.transform_and_write_output_files(output_file)
+    assert len(list(tmp_path.iterdir())) == 1
+    assert next(tmp_path.iterdir()).name == "output_file.json"
 
 
 def test_aardvark_get_required_fields_returns_expected_values(aardvark_records):
@@ -41,6 +65,34 @@ def test_aardvark_get_main_titles_success(aardvark_record_all_fields):
     assert MITAardvark.get_main_titles(next(aardvark_record_all_fields)) == [
         "Test title 1"
     ]
+
+
+def test_aardvark_record_is_deleted_returns_false_if_field_missing(
+    aardvark_record_all_fields,
+):
+    assert MITAardvark.record_is_deleted(next(aardvark_record_all_fields)) is False
+
+
+def test_aardvark_record_is_deleted_returns_false_if_value_is_string(
+    aardvark_record_all_fields,
+):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["gbl_supressed_b"] = "True"
+    assert MITAardvark.record_is_deleted(aardvark_record) is False
+
+
+def test_aardvark_record_is_deleted_returns_false_if_value_is_false(
+    aardvark_record_all_fields,
+):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["gbl_suppressed_b"] = False
+    assert MITAardvark.record_is_deleted(aardvark_record) is False
+
+
+def test_aardvark_record_is_deleted_success(aardvark_record_all_fields):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["gbl_suppressed_b"] = True
+    assert MITAardvark.record_is_deleted(aardvark_record) is True
 
 
 def test_aardvark_get_source_record_id_success(aardvark_record_all_fields):
