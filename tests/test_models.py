@@ -181,10 +181,10 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
         timdex_record_all_fields_and_subfields.locations[0].kind
         == "Data was gathered here"
     )
-    assert timdex_record_all_fields_and_subfields.locations[0].geodata == [
-        -77.025955,
-        38.942142,
-    ]
+    assert (
+        timdex_record_all_fields_and_subfields.locations[0].geoshape
+        == "BBOX(-77.025955, 38.942142)"
+    )
     assert timdex_record_all_fields_and_subfields.notes[0].value == [
         "This book is awesome"
     ]
@@ -305,7 +305,7 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
         "literary_form": "nonfiction",
         "locations": [
             {
-                "geodata": [-77.025955, 38.942142],
+                "geoshape": "BBOX(-77.025955, 38.942142)",
                 "kind": "Data was gathered here",
                 "value": "A point on the globe",
             }

@@ -1,12 +1,9 @@
 from datetime import datetime
 
-import pytest
-
 import transmogrifier.models as timdex
 from transmogrifier.helpers import (
     generate_citation,
     parse_date_from_string,
-    parse_geodata_string,
     validate_date,
     validate_date_range,
 )
@@ -257,23 +254,6 @@ def test_parse_date_from_string_success():
 
 def test_parse_date_from_string_invalid_date_returns_none():
     assert parse_date_from_string("circa 1930s") is None
-
-
-def test_parse_geodata_string_success():
-    assert parse_geodata_string("ENVELOPE(-111.1, -104.0, 45.0, 40.9)", "123") == [
-        -111.1,
-        -104.0,
-        45.0,
-        40.9,
-    ]
-
-
-def test_parse_geodata_string_invalid_geodata_string_raises_error():
-    with pytest.raises(
-        ValueError,
-        match="Record ID '123': Unable to parse geodata string 'Invalid'",
-    ):
-        parse_geodata_string("Invalid", "123")
 
 
 def test_validate_date_success():

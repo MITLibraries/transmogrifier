@@ -182,11 +182,30 @@ def test_aardvark_get_links_logs_warning_for_invalid_json(caplog):
     )
 
 
-def test_aardvark_get_locations_success(caplog, aardvark_record_all_fields):
-    caplog.set_level("DEBUG")
-    assert "Geometry field 'dcat_bbox' found, but currently not mapped."
-    assert "Geometry field 'locn_geometry' found, but currently not mapped."
-    assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == []
+def test_aardvark_get_locations_success(aardvark_record_all_fields):
+    assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == [
+        timdex.Location(
+            kind="Bounding Box", geoshape="BBOX(-111.1, -104.0, 45.0, 40.9)"
+        ),
+        timdex.Location(kind="Geometry", geoshape="BBOX(-111.1, -104.0, 45.0, 40.9)"),
+    ]
+
+
+def test_parse_get_locations_string_invalid_geostring_logs_warning(
+    aardvark_record_all_fields, caplog
+):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["dcat_bbox"] = "Invalid"
+    aardvark_record["locn_geometry"] = "Invalid"
+    assert MITAardvark.get_locations(aardvark_record, "123") == []
+    assert (
+        "Record ID '123': Unable to parse geodata string 'Invalid' in 'dcat_bbox'"
+        in caplog.text
+    )
+    assert (
+        "Record ID '123': Unable to parse geodata string 'Invalid' in 'locn_geometry'"
+        in caplog.text
+    )
 
 
 def test_aardvark_get_notes_success(aardvark_record_all_fields):

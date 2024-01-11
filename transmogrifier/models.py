@@ -125,9 +125,7 @@ class Link:
 class Location:
     value: Optional[str] = field(default=None, validator=optional(instance_of(str)))
     kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    geodata: Optional[list[float]] = field(
-        default=None, validator=optional(list_of(float))
-    )
+    geoshape: Optional[str] = field(default=None, validator=optional(instance_of(str)))
 
 
 @define

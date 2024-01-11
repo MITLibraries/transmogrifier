@@ -294,13 +294,8 @@ class MITAardvark(JSONTransformer):
     def get_locations(
         source_record: dict, source_record_id: str
     ) -> list[timdex.Location]:
-        """Get values from source record for TIMDEX locations field.
-
-        WIP: Currently in the process of determining our approach for storing geographic
-        geometry data in the TIMDEX record and how this dovetails with the OpenSearch
-        mapping.  At this time, this method returns an empty list of Locations.
-        """
-        locations: list[timdex.Location] = []
+        """Get values from source record for TIMDEX locations field."""
+        locations = []
 
         aardvark_location_fields = {
             "dcat_bbox": "Bounding Box",
@@ -309,14 +304,22 @@ class MITAardvark(JSONTransformer):
         for aardvark_location_field, kind_value in aardvark_location_fields.items():
             if aardvark_location_field not in source_record:
                 continue
-            try:
-                message = (
-                    f"Geometry field '{aardvark_location_field}' found, but "
-                    f"currently not mapped."
+            if (
+                geodata_string := source_record[aardvark_location_field]
+            ) and "ENVELOPE" in source_record[aardvark_location_field]:
+                locations.append(
+                    timdex.Location(
+                        geoshape=geodata_string.replace("ENVELOPE", "BBOX"),
+                        kind=kind_value,
+                    )
                 )
-                logger.debug(message)
-            except ValueError as exception:
-                logger.warning(exception)
+            else:
+                message = (
+                    f"Record ID '{source_record_id}': "
+                    f"Unable to parse geodata string '{geodata_string}' "
+                    f"in '{aardvark_location_field}'"
+                )
+                logger.warning(message)
         return locations
 
     @staticmethod
