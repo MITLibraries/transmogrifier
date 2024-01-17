@@ -90,9 +90,14 @@ class MITAardvark(JSONTransformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-        if source_record.get("gbl_suppressed_b") is True:
-            return True
-        return False
+        if isinstance(source_record["gbl_suppressed_b"], bool):
+            return source_record["gbl_suppressed_b"]
+        else:
+            message = (
+                f"Record ID '{cls.get_source_record_id(source_record)}': "
+                "'gbl_suppressed_b' value is not a boolean"
+            )
+            raise ValueError(message)
 
     def get_optional_fields(self, source_record: dict) -> dict | None:
         """
@@ -309,7 +314,7 @@ class MITAardvark(JSONTransformer):
             ) and "ENVELOPE" in source_record[aardvark_location_field]:
                 locations.append(
                     timdex.Location(
-                        geoshape=geodata_string.replace("ENVELOPE", "BBOX"),
+                        geoshape=geodata_string.replace("ENVELOPE", "BBOX "),
                         kind=kind_value,
                     )
                 )
@@ -390,10 +395,10 @@ class MITAardvark(JSONTransformer):
         subjects = []
 
         aardvark_subject_fields = {
-            "dcat_keyword_sm": "DCAT Keyword",
-            "dcat_theme_sm": "DCAT Theme",
-            "dct_spatial_sm": "Dublin Core Spatial",
-            "dct_subject_sm": "Dublin Core Subject",
+            "dcat_keyword_sm": "DCAT; Keyword",
+            "dcat_theme_sm": "DCAT; Theme",
+            "dct_spatial_sm": "Dublin Core; Spatial",
+            "dct_subject_sm": "Dublin Core; Subject",
             "gbl_resourceClass_sm": "Subject scheme not provided",
             "gbl_resourceType_sm": "Subject scheme not provided",
         }

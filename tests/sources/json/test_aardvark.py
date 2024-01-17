@@ -73,12 +73,16 @@ def test_aardvark_record_is_deleted_returns_false_if_field_missing(
     assert MITAardvark.record_is_deleted(next(aardvark_record_all_fields)) is False
 
 
-def test_aardvark_record_is_deleted_returns_false_if_value_is_string(
+def test_aardvark_record_is_deleted_raises_error_if_value_is_string(
     aardvark_record_all_fields,
 ):
-    aardvark_record = next(aardvark_record_all_fields)
-    aardvark_record["gbl_supressed_b"] = "True"
-    assert MITAardvark.record_is_deleted(aardvark_record) is False
+    with pytest.raises(
+        ValueError,
+        match="Record ID '123': 'gbl_suppressed_b' value is not a boolean",
+    ):
+        aardvark_record = next(aardvark_record_all_fields)
+        aardvark_record["gbl_suppressed_b"] = "True"
+        MITAardvark.record_is_deleted(aardvark_record)
 
 
 def test_aardvark_record_is_deleted_returns_false_if_value_is_false(
@@ -185,9 +189,9 @@ def test_aardvark_get_links_logs_warning_for_invalid_json(caplog):
 def test_aardvark_get_locations_success(aardvark_record_all_fields):
     assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == [
         timdex.Location(
-            kind="Bounding Box", geoshape="BBOX(-111.1, -104.0, 45.0, 40.9)"
+            kind="Bounding Box", geoshape="BBOX (-111.1, -104.0, 45.0, 40.9)"
         ),
-        timdex.Location(kind="Geometry", geoshape="BBOX(-111.1, -104.0, 45.0, 40.9)"),
+        timdex.Location(kind="Geometry", geoshape="BBOX (-111.1, -104.0, 45.0, 40.9)"),
     ]
 
 
@@ -255,11 +259,11 @@ def test_aardvark_get_rights_success(aardvark_record_all_fields):
 
 def test_aardvark_get_subjects_success(aardvark_record_all_fields):
     assert MITAardvark.get_subjects(next(aardvark_record_all_fields)) == [
-        timdex.Subject(value=["Country"], kind="DCAT Keyword"),
-        timdex.Subject(value=["Political boundaries"], kind="DCAT Theme"),
-        timdex.Subject(value=["Some city, Some country"], kind="Dublin Core Spatial"),
-        timdex.Subject(value=["Geography"], kind="Dublin Core Subject"),
-        timdex.Subject(value=["Earth"], kind="Dublin Core Subject"),
+        timdex.Subject(value=["Country"], kind="DCAT; Keyword"),
+        timdex.Subject(value=["Political boundaries"], kind="DCAT; Theme"),
+        timdex.Subject(value=["Some city, Some country"], kind="Dublin Core; Spatial"),
+        timdex.Subject(value=["Geography"], kind="Dublin Core; Subject"),
+        timdex.Subject(value=["Earth"], kind="Dublin Core; Subject"),
         timdex.Subject(value=["Dataset"], kind="Subject scheme not provided"),
         timdex.Subject(value=["Vector data"], kind="Subject scheme not provided"),
     ]
