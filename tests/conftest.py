@@ -163,7 +163,7 @@ def timdex_record_all_fields_and_subfields():
             timdex.Location(
                 value="A point on the globe",
                 kind="Data was gathered here",
-                geodata=[-77.025955, 38.942142],
+                geoshape="BBOX(-77.025955, 38.942142)",
             )
         ],
         notes=[timdex.Note(value=["This book is awesome"], kind="opinion")],

@@ -1,7 +1,31 @@
+from pathlib import Path
+
 import pytest
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.json.aardvark import MITAardvark
+
+
+def test_mitaardvark_transform_and_write_output_files_writes_output_files(
+    tmp_path, aardvark_records
+):
+    output_file = str(tmp_path / "output_file.json")
+    transformer = MITAardvark("cool-repo", aardvark_records)
+    assert not Path(tmp_path / "output_file.json").exists()
+    assert not Path(tmp_path / "output_file.txt").exists()
+    transformer.transform_and_write_output_files(output_file)
+    assert Path(tmp_path / "output_file.json").exists()
+    assert Path(tmp_path / "output_file.txt").exists()
+
+
+def test_mitaardvark_transform_and_write_output_files_no_txt_file_if_not_needed(
+    tmp_path, aardvark_record_all_fields
+):
+    output_file = str(tmp_path / "output_file.json")
+    transformer = MITAardvark("cool-repo", aardvark_record_all_fields)
+    transformer.transform_and_write_output_files(output_file)
+    assert len(list(tmp_path.iterdir())) == 1
+    assert next(tmp_path.iterdir()).name == "output_file.json"
 
 
 def test_aardvark_get_required_fields_returns_expected_values(aardvark_records):
@@ -41,6 +65,38 @@ def test_aardvark_get_main_titles_success(aardvark_record_all_fields):
     assert MITAardvark.get_main_titles(next(aardvark_record_all_fields)) == [
         "Test title 1"
     ]
+
+
+def test_aardvark_record_is_deleted_returns_false_if_field_missing(
+    aardvark_record_all_fields,
+):
+    assert MITAardvark.record_is_deleted(next(aardvark_record_all_fields)) is False
+
+
+def test_aardvark_record_is_deleted_raises_error_if_value_is_string(
+    aardvark_record_all_fields,
+):
+    with pytest.raises(
+        ValueError,
+        match="Record ID '123': 'gbl_suppressed_b' value is not a boolean",
+    ):
+        aardvark_record = next(aardvark_record_all_fields)
+        aardvark_record["gbl_suppressed_b"] = "True"
+        MITAardvark.record_is_deleted(aardvark_record)
+
+
+def test_aardvark_record_is_deleted_returns_false_if_value_is_false(
+    aardvark_record_all_fields,
+):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["gbl_suppressed_b"] = False
+    assert MITAardvark.record_is_deleted(aardvark_record) is False
+
+
+def test_aardvark_record_is_deleted_success(aardvark_record_all_fields):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["gbl_suppressed_b"] = True
+    assert MITAardvark.record_is_deleted(aardvark_record) is True
 
 
 def test_aardvark_get_source_record_id_success(aardvark_record_all_fields):
@@ -130,11 +186,30 @@ def test_aardvark_get_links_logs_warning_for_invalid_json(caplog):
     )
 
 
-def test_aardvark_get_locations_success(caplog, aardvark_record_all_fields):
-    caplog.set_level("DEBUG")
-    assert "Geometry field 'dcat_bbox' found, but currently not mapped."
-    assert "Geometry field 'locn_geometry' found, but currently not mapped."
-    assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == []
+def test_aardvark_get_locations_success(aardvark_record_all_fields):
+    assert MITAardvark.get_locations(next(aardvark_record_all_fields), "123") == [
+        timdex.Location(
+            kind="Bounding Box", geoshape="BBOX (-111.1, -104.0, 45.0, 40.9)"
+        ),
+        timdex.Location(kind="Geometry", geoshape="BBOX (-111.1, -104.0, 45.0, 40.9)"),
+    ]
+
+
+def test_parse_get_locations_string_invalid_geostring_logs_warning(
+    aardvark_record_all_fields, caplog
+):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["dcat_bbox"] = "Invalid"
+    aardvark_record["locn_geometry"] = "Invalid"
+    assert MITAardvark.get_locations(aardvark_record, "123") == []
+    assert (
+        "Record ID '123': Unable to parse geodata string 'Invalid' in 'dcat_bbox'"
+        in caplog.text
+    )
+    assert (
+        "Record ID '123': Unable to parse geodata string 'Invalid' in 'locn_geometry'"
+        in caplog.text
+    )
 
 
 def test_aardvark_get_notes_success(aardvark_record_all_fields):
@@ -184,10 +259,11 @@ def test_aardvark_get_rights_success(aardvark_record_all_fields):
 
 def test_aardvark_get_subjects_success(aardvark_record_all_fields):
     assert MITAardvark.get_subjects(next(aardvark_record_all_fields)) == [
-        timdex.Subject(value=["Country"], kind="DCAT Keyword"),
-        timdex.Subject(value=["Political boundaries"], kind="DCAT Theme"),
-        timdex.Subject(value=["Geography"], kind="Dublin Core Subject"),
-        timdex.Subject(value=["Earth"], kind="Dublin Core Subject"),
+        timdex.Subject(value=["Country"], kind="DCAT; Keyword"),
+        timdex.Subject(value=["Political boundaries"], kind="DCAT; Theme"),
+        timdex.Subject(value=["Some city, Some country"], kind="Dublin Core; Spatial"),
+        timdex.Subject(value=["Geography"], kind="Dublin Core; Subject"),
+        timdex.Subject(value=["Earth"], kind="Dublin Core; Subject"),
         timdex.Subject(value=["Dataset"], kind="Subject scheme not provided"),
         timdex.Subject(value=["Vector data"], kind="Subject scheme not provided"),
     ]

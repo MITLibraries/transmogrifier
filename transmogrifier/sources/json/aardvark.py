@@ -90,7 +90,14 @@ class MITAardvark(JSONTransformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-        return False
+        if isinstance(source_record["gbl_suppressed_b"], bool):
+            return source_record["gbl_suppressed_b"]
+        else:
+            message = (
+                f"Record ID '{cls.get_source_record_id(source_record)}': "
+                "'gbl_suppressed_b' value is not a boolean"
+            )
+            raise ValueError(message)
 
     def get_optional_fields(self, source_record: dict) -> dict | None:
         """
@@ -292,13 +299,8 @@ class MITAardvark(JSONTransformer):
     def get_locations(
         source_record: dict, source_record_id: str
     ) -> list[timdex.Location]:
-        """Get values from source record for TIMDEX locations field.
-
-        WIP: Currently in the process of determining our approach for storing geographic
-        geometry data in the TIMDEX record and how this dovetails with the OpenSearch
-        mapping.  At this time, this method returns an empty list of Locations.
-        """
-        locations: list[timdex.Location] = []
+        """Get values from source record for TIMDEX locations field."""
+        locations = []
 
         aardvark_location_fields = {
             "dcat_bbox": "Bounding Box",
@@ -307,14 +309,22 @@ class MITAardvark(JSONTransformer):
         for aardvark_location_field, kind_value in aardvark_location_fields.items():
             if aardvark_location_field not in source_record:
                 continue
-            try:
-                message = (
-                    f"Geometry field '{aardvark_location_field}' found, but "
-                    f"currently not mapped."
+            if (
+                geodata_string := source_record[aardvark_location_field]
+            ) and "ENVELOPE" in source_record[aardvark_location_field]:
+                locations.append(
+                    timdex.Location(
+                        geoshape=geodata_string.replace("ENVELOPE", "BBOX "),
+                        kind=kind_value,
+                    )
                 )
-                logger.debug(message)
-            except ValueError as exception:
-                logger.warning(exception)
+            else:
+                message = (
+                    f"Record ID '{source_record_id}': "
+                    f"Unable to parse geodata string '{geodata_string}' "
+                    f"in '{aardvark_location_field}'"
+                )
+                logger.warning(message)
         return locations
 
     @staticmethod
@@ -385,9 +395,10 @@ class MITAardvark(JSONTransformer):
         subjects = []
 
         aardvark_subject_fields = {
-            "dcat_keyword_sm": "DCAT Keyword",
-            "dcat_theme_sm": "DCAT Theme",
-            "dct_subject_sm": "Dublin Core Subject",
+            "dcat_keyword_sm": "DCAT; Keyword",
+            "dcat_theme_sm": "DCAT; Theme",
+            "dct_spatial_sm": "Dublin Core; Spatial",
+            "dct_subject_sm": "Dublin Core; Subject",
             "gbl_resourceClass_sm": "Subject scheme not provided",
             "gbl_resourceType_sm": "Subject scheme not provided",
         }
