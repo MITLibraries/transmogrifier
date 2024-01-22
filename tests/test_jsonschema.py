@@ -1,6 +1,8 @@
-import pytest
+import json
+import os
+
 from attrs import asdict
-from jsonschema import validate, ValidationError
+from jsonschema import validate, ValidationError, FormatChecker, Draft202012Validator
 
 schema = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -53,7 +55,13 @@ schema = {
                             "lte": {"type": "string"},
                         },
                     },
-                    "value": {"type": "string", "format": "date"},
+                    "value": {
+                        "anyOf": [
+                            {"$ref": "#/$defs/strict_year"},
+                            {"pattern": r"^\d{4}-(0?[1-9]|1[0,1,2])$"},
+                            {"format": "date"},
+                        ],
+                    },
                 },
             },
         },
@@ -172,26 +180,44 @@ schema = {
         "summary": {"$ref": "#/$defs/list_of_strings"},
     },
     "required": ["source", "source_link", "timdex_record_id", "title"],
-    "$defs": {"list_of_strings": {"type": "array", "items": {"type": "string"}}},
+    "$defs": {
+        "list_of_strings": {"type": "array", "items": {"type": "string"}},
+        "strict_year": {"type": "string", "pattern": "^\\d{4}$"},
+    },
 }
 
 
 def test_timdex_record_required_fields_jsonschema_validation_success(
     timdex_record_required_fields,
 ):
+    schema_dir = os.path.dirname(os.path.dirname(__file__))
+    with open(schema_dir + "/config/mit-schema-timdex-opensearch.json") as f:
+        schema = json.loads(f.read())
+
     timdex_record_required_fields_dict = asdict(
         timdex_record_required_fields,
         filter=lambda _, value: value is not None and value != [],
     )
-    print(f"Validating: {timdex_record_required_fields_dict}")
-    validate(instance=timdex_record_required_fields_dict, schema=schema)
+    validate(
+        instance=timdex_record_required_fields_dict,
+        schema=schema,
+        format_checker=Draft202012Validator.FORMAT_CHECKER,
+    )
 
 
 def test_timdex_record_all_fields_and_subfields_jsonschema_validation_success(
     timdex_record_all_fields_and_subfields,
 ):
+    schema_dir = os.path.dirname(os.path.dirname(__file__))
+    with open(schema_dir + "/config/mit-schema-timdex-opensearch.json") as f:
+        schema = json.loads(f.read())
+
     timdex_record_all_fields_and_subfields_dict = asdict(
         timdex_record_all_fields_and_subfields,
         filter=lambda _, value: value is not None and value != [],
     )
-    validate(instance=timdex_record_all_fields_and_subfields_dict, schema=schema)
+    validate(
+        instance=timdex_record_all_fields_and_subfields_dict,
+        schema=schema,
+        format_checker=Draft202012Validator.FORMAT_CHECKER,
+    )

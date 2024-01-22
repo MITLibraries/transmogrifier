@@ -10,6 +10,7 @@ click = "*"
 jsonlines = "*"
 lxml = "*"
 python-dateutil = "*"
+rfc3339-validator = "*"
 sentry-sdk = "*"
 smart-open = {version = "*", extras = ["s3"]}
 types-python-dateutil = "*"

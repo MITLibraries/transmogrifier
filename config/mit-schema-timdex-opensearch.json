@@ -1,0 +1,498 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "MIT Schema - TIMDEX",
+    "description": "Schema for MIT TIMDEX OpenSearch document",
+    "type": "object",
+    "properties": {
+        "source": {
+            "type": "string"
+        },
+        "source_link": {
+            "type": "string"
+        },
+        "timdex_record_id": {
+            "type": "string"
+        },
+        "title": {
+            "type": "string"
+        },
+        "alternate_titles": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            }
+        },
+        "call_numbers": {
+            "$ref": "#/$defs/list_of_strings"
+        },
+        "citation": {
+            "type": "string"
+        },
+        "content_type": {
+            "$ref": "#/$defs/list_of_strings"
+        },
+        "contents": {
+            "$ref": "#/$defs/list_of_strings"
+        },
+        "contributors": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "affiliation": {
+                        "$ref": "#/$defs/list_of_strings"
+                    },
+                    "kind": {
+                        "type": "string"
+                    },
+                    "mit_affiliated": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            }
+        },
+        "dates": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "type": "string"
+                    },
+                    "note": {
+                        "type": "string"
+                    },
+                    "range": {
+                        "type": "object",
+                        "properties": {
+                            "gt": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year_month"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_date_optional_time"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_basic_date"
+                                    }
+                                ]
+                            },
+                            "gte": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year_month"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_date_optional_time"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_basic_date"
+                                    }
+                                ]
+                            },
+                            "lt": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year_month"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_date_optional_time"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_basic_date"
+                                    }
+                                ]
+                            },
+                            "lte": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_strict_year_month"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_date_optional_time"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/dates_basic_date"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "value": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/dates_strict_year"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_strict_year_month"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_date_optional_time"
+                            },
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_basic_date"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_slash_delim_date"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_slash_delim_MMddyyyy_date"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_slash_delim_MMddyy_date"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_slash_delim_Mdyyyy_date"
+                            },
+                            {
+                                "$ref": "#/$defs/dates_slash_delim_Mdyy_date"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "edition": {
+            "type": "string"
+        },
+        "file_formats": {
+            "$ref": "#/$defs/list_of_strings"
+        },
+        "format": {
+            "type": "string"
+        },
+        "funding_information": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "funder_name": {
+                        "type": "string"
+                    },
+                    "funder_identifier": {
+                        "type": "string"
+                    },
+                    "funder_identifier_type": {
+                        "type": "string"
+                    },
+                    "award_number": {
+                        "type": "string"
+                    },
+                    "award_uri": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "holdings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "call_number": {
+                        "type": "string"
+                    },
+                    "collection": {
+                        "type": "string"
+                    },
+                    "format": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "note": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "identifiers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            }
+        },
+        "languages": {
+            "$ref": "#/$defs/list_of_strings"
+        },
+        "links": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string"
+                    },
+                    "restrictions": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "url"
+                ]
+            }
+        },
+        "literary_form": {
+            "type": "string"
+        },
+        "locations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string"
+                    },
+                    "geoshape": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/geoshape_envelope"
+                            },
+                            {
+                                "$ref": "#/$defs/geoshape_polygon"
+                            },
+                            {
+                                "$ref": "#/$defs/geoshape_multipolygon"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "notes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "kind": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            }
+        },
+        "numbering": {
+            "type": "string"
+        },
+        "physical_description": {
+            "type": "string"
+        },
+        "publication_frequency": {
+            "$ref": "#/$defs/list_of_strings"
+        },
+        "publication_information": {
+            "$ref": "#/$defs/list_of_strings"
+        },
+        "related_items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "item_type": {
+                        "type": "string"
+                    },
+                    "relationship": {
+                        "type": "string"
+                    },
+                    "uri": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "rights": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string"
+                    },
+                    "uri": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "subjects": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "$ref": "#/$defs/list_of_strings"
+                    },
+                    "kind": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            }
+        },
+        "summary": {
+            "$ref": "#/$defs/list_of_strings"
+        }
+    },
+    "required": [
+        "source",
+        "source_link",
+        "timdex_record_id",
+        "title"
+    ],
+    "$defs": {
+        "list_of_strings": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "dates_basic_date": {
+            "type": "string",
+            "pattern": "^(\\d{4})(0[1-9]|1[012])(0[1-9]|1[0-9]|2[0-9]|3[01])$"
+        },
+        "dates_date_optional_time": {
+            "type": "string",
+            "oneOf": [
+                {
+                    "pattern": "^\\d{4}$"
+                },
+                {
+                    "pattern": "^(\\d{4})-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])T(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$"
+                },
+                {
+                    "pattern": "^(\\d{4})-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])T(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
+                },
+                {
+                    "pattern": "^(\\d{4})-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])T(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]).([0-9]*)[+-](0[1-9]|1[0-9]|2[0-3]):([0-5][0-9])$"
+                }
+            ]
+        },
+        "dates_slash_delim_date": {
+            "type": "string",
+            "pattern": "^(\\d{4})\/(0[1-9]|1[012])\/(0[1-9]|1[0-9]|2[0-9]|3[01])$"
+        },
+        "dates_slash_delim_Mdyy_date": {
+            "type": "string",
+            "pattern": "^([1-9]|1[012])\/([1-9]|2[0-9]|3[01])\/(\\d{2})$"
+        },
+        "dates_slash_delim_Mdyyyy_date": {
+            "type": "string",
+            "pattern": "^([1-9]|1[012])\/([1-9]|2[0-9]|3[01])\/(\\d{4})$"
+        },
+        "dates_slash_delim_MMddyy_date": {
+            "type": "string",
+            "pattern": "^(0[1-9]|1[012])\/(0[1-9]|1[0-9]|2[0-9]|3[01])\/(\\d{2})$"
+        },
+        "dates_slash_delim_MMddyyyy_date": {
+            "type": "string",
+            "pattern": "^(0[1-9]|1[012])\/(0[1-9]|1[0-9]|2[0-9]|3[01])\/(\\d{4})$"
+        },
+        "dates_strict_year": {
+            "type": "string",
+            "pattern": "^\\d{4}$"
+        },
+        "dates_strict_year_month": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(0[1-9]|1[012])$"
+        },
+        "geoshape_envelope": {
+            "type": "string",
+            "pattern": "^BBOX\\s?[(]((?:[+-]?\\d+(?:\\.\\d+)?)(?:,\\s(?:[+-]?\\d+(?:\\.\\d+)?)){3})[)]$"
+        },
+        "geoshape_polygon": {
+            "type": "string",
+            "pattern": "^POLYGON\\s?[(]([(][+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?(?:,\\s[+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?)*[)])?(,\\s([(][+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?(?:(,\\s([+-]?\\d+(?:\\.\\d+)?)\\s([+-]?\\d+(?:\\.\\d+)?)))*[)]))*[)]$"
+        },
+        "geoshape_multipolygon": {
+            "type": "string",
+            "pattern": "^MULTIPOLYGON\\s[(]([(](?:[(][+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?(?:,\\s(?:[+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?))*[)])?(?:,\\s(?:[(][+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?(?:,\\s(?:[+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?))*[)]))*[)])?(,\\s[(](?:[(][+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?(?:,\\s(?:[+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?))*[)])?(?:,\\s(?:[(][+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?(?:,\\s(?:[+-]?\\d+(?:\\.\\d+)?\\s[+-]?\\d+(?:\\.\\d+)?))*[)]))*[)])*[)]$"
+        }
+    }
+}
