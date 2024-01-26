@@ -285,7 +285,15 @@ class MITAardvark(JSONTransformer):
                     timdex.Link(
                         url=link.get("url"), kind="Download", text=link.get("label")
                     )
-                    for link in links_object.get("https://schema.org/downloadUrl")
+                    for link in links_object.get("http://schema.org/downloadUrl", [])
+                ]
+            )
+            links.extend(
+                [
+                    timdex.Link(
+                        url=link.get("url"), kind="Website", text=link.get("label")
+                    )
+                    for link in links_object.get("http://schema.org/url", [])
                 ]
             )
         except ValueError:
