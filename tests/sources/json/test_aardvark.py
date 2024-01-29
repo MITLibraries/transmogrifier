@@ -161,20 +161,29 @@ def test_aardvark_get_identifiers_success(aardvark_record_all_fields):
 def test_aardvark_get_links_success(aardvark_record_all_fields):
     assert MITAardvark.get_links(next(aardvark_record_all_fields), "123") == [
         timdex.Link(
-            url="https://example.com/GISPORTAL_GISOWNER01_BOSTONWATER95.source.fgdc.xml",
+            url="https://cdn.dev1.mitlibrary.net/geo/public"
+            "/GISPORTAL_GISOWNER01_BOSTONWATER95.source.fgdc.xml",
             kind="Download",
             text="Source Metadata",
         ),
         timdex.Link(
-            url="https://example.com/GISPORTAL_GISOWNER01_BOSTONWATER95."
+            url="https://cdn.dev1.mitlibrary.net/geo/public"
+            "/GISPORTAL_GISOWNER01_BOSTONWATER95."
             "normalized.aardvark.json",
             kind="Download",
-            text="Normalized Metadata",
+            text="Aardvark Metadata",
         ),
         timdex.Link(
-            url="https://example.com/GISPORTAL_GISOWNER01_BOSTONWATER95.zip",
+            url="https://cdn.dev1.mitlibrary.net/geo/public"
+            "/GISPORTAL_GISOWNER01_BOSTONWATER95.zip",
             kind="Download",
-            text="Data Zipfile",
+            text="Data",
+        ),
+        timdex.Link(
+            url="https://search.libraries.mit.edu/record/gismit"
+            ":GISPORTAL_GISOWNER01_BOSTONWATER95",
+            kind="Website",
+            text="Website",
         ),
     ]
 
