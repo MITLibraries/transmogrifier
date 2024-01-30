@@ -76,12 +76,12 @@ def test_aardvark_record_is_deleted_returns_false_if_field_missing(
 def test_aardvark_record_is_deleted_raises_error_if_value_is_string(
     aardvark_record_all_fields,
 ):
+    aardvark_record = next(aardvark_record_all_fields)
+    aardvark_record["gbl_suppressed_b"] = "True"
     with pytest.raises(
         ValueError,
         match="Record ID '123': 'gbl_suppressed_b' value is not a boolean",
     ):
-        aardvark_record = next(aardvark_record_all_fields)
-        aardvark_record["gbl_suppressed_b"] = "True"
         MITAardvark.record_is_deleted(aardvark_record)
 
 
@@ -132,7 +132,7 @@ def test_aardvark_get_dates_success(aardvark_record_all_fields):
         timdex.Date(kind="Coverage", value="1946"),
         timdex.Date(
             kind="Coverage",
-            range=timdex.Date_Range(gte="1943", lte="1946"),
+            range=timdex.DateRange(gte="1943", lte="1946"),
         ),
     ]
 
@@ -249,9 +249,10 @@ def test_aardvark_get_notes_success(aardvark_record_all_fields):
 
 
 def test_aardvark_get_publication_information_success(aardvark_record_all_fields):
-    assert MITAardvark.get_publication_information(
-        next(aardvark_record_all_fields)
-    ) == ["ML InfoMap (Firm)", "MIT"]
+    assert MITAardvark.get_publication_information(next(aardvark_record_all_fields)) == [
+        "ML InfoMap (Firm)",
+        "MIT",
+    ]
 
 
 def test_aardvark_get_rights_success(aardvark_record_all_fields):

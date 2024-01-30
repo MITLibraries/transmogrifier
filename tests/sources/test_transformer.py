@@ -1,3 +1,4 @@
+# ruff: noqa: PLR2004
 from pathlib import Path
 from unittest.mock import patch
 
@@ -17,12 +18,14 @@ def test_transformer_get_transformer_source_missing_class_name_raises_error():
         Transformer.get_transformer("cool-repo")
 
 
-def test_transformer_get_transformer_source_wrong_class_name_raises_error(bad_config):
+@pytest.mark.usefixtures("_bad_config")
+def test_transformer_get_transformer_source_wrong_class_name_raises_error():
     with pytest.raises(AttributeError):
         Transformer.get_transformer("bad-class-name")
 
 
-def test_transformer_get_transformer_source_wrong_module_path_raises_error(bad_config):
+@pytest.mark.usefixtures("_bad_config")
+def test_transformer_get_transformer_source_wrong_module_path_raises_error():
     with pytest.raises(ImportError):
         Transformer.get_transformer("bad-module-path")
 
@@ -91,9 +94,7 @@ def test_xmltransformer_parse_source_file_returns_record_iterator():
 
 
 def test_xmltransformer_record_is_deleted_returns_true_if_deleted(caplog):
-    source_records = XMLTransformer.parse_source_file(
-        "tests/fixtures/record_deleted.xml"
-    )
+    source_records = XMLTransformer.parse_source_file("tests/fixtures/record_deleted.xml")
     assert XMLTransformer.record_is_deleted(next(source_records)) is True
 
 

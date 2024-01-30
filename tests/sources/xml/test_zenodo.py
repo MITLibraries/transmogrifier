@@ -1,10 +1,9 @@
+# ruff: noqa: PLR2004
 from transmogrifier.sources.xml.zenodo import Zenodo
 
 
 def test_zenodo_create_source_record_id_generates_correct_id():
-    source_records = Zenodo.parse_source_file(
-        "tests/fixtures/datacite/zenodo_record.xml"
-    )
+    source_records = Zenodo.parse_source_file("tests/fixtures/datacite/zenodo_record.xml")
     output_records = Zenodo("zenodo", source_records)
     zenodo_record = next(output_records)
     assert zenodo_record.source_link == "https://zenodo.org/record/4291646"

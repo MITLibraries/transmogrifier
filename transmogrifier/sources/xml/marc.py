@@ -1,7 +1,6 @@
 import logging
-from typing import Optional, Union
 
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
@@ -33,7 +32,7 @@ marc_content_type_crosswalk = load_external_config(
 class Marc(XMLTransformer):
     """Marc transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
+    def get_optional_fields(self, xml: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a MARC XML record.
 
@@ -48,12 +47,14 @@ class Marc(XMLTransformer):
 
         fixed_length_data = xml.find("controlfield", tag="008", string=True)
         if fixed_length_data is None:
-            logger.error(f"Record ID {source_record_id} is missing MARC 008 field")
+            message = f"Record ID {source_record_id} is missing MARC 008 field"
+            logger.error(message)
             return None
 
         leader = xml.find("leader", string=True)
         if leader is None:
-            logger.error(f"Record ID {source_record_id} is missing MARC leader")
+            message = f"Record ID {source_record_id} is missing MARC leader"
+            logger.error(message)
             return None
 
         # alternate_titles
@@ -114,9 +115,7 @@ class Marc(XMLTransformer):
             },
         ]
         for call_number_marc_field in call_number_marc_fields:
-            for datafield in xml.find_all(
-                "datafield", tag=call_number_marc_field["tag"]
-            ):
+            for datafield in xml.find_all("datafield", tag=call_number_marc_field["tag"]):
                 for call_number_value in self.create_subfield_value_list_from_datafield(
                     datafield,
                     call_number_marc_field["subfields"],
@@ -141,9 +140,7 @@ class Marc(XMLTransformer):
                 "agrt",
             ):
                 for contents_item in contents_value.split(" -- "):
-                    fields.setdefault("contents", []).append(
-                        contents_item.rstrip(" ./-")
-                    )
+                    fields.setdefault("contents", []).append(contents_item.rstrip(" ./-"))
 
         # contributors
         contributor_marc_fields = [
@@ -174,9 +171,7 @@ class Marc(XMLTransformer):
         ]
         contributor_values = []
         for contributor_marc_field in contributor_marc_fields:
-            for datafield in xml.find_all(
-                "datafield", tag=contributor_marc_field["tag"]
-            ):
+            for datafield in xml.find_all("datafield", tag=contributor_marc_field["tag"]):
                 if contributor_value := (
                     self.create_subfield_value_string_from_datafield(
                         datafield,
@@ -220,7 +215,7 @@ class Marc(XMLTransformer):
             if edition_value := self.create_subfield_value_string_from_datafield(
                 datafield, "ab", " "
             ):
-                edition_values.append(edition_value)
+                edition_values.append(edition_value)  # noqa: PERF401
         fields["edition"] = " ".join(edition_values) or None
 
         # file_formats
@@ -232,8 +227,8 @@ class Marc(XMLTransformer):
         # holdings
         # physical items
         for datafield in xml.find_all("datafield", tag="985"):
-            holding_call_number_value = (
-                self.create_subfield_value_string_from_datafield(datafield, ["bb"])
+            holding_call_number_value = self.create_subfield_value_string_from_datafield(
+                datafield, ["bb"]
             )
             holding_collection_value = Marc.json_crosswalk_code_to_name(
                 self.create_subfield_value_string_from_datafield(datafield, ["aa"]),
@@ -335,9 +330,7 @@ class Marc(XMLTransformer):
             },
         ]
         for identifier_marc_field in identifier_marc_fields:
-            for datafield in xml.find_all(
-                "datafield", tag=identifier_marc_field["tag"]
-            ):
+            for datafield in xml.find_all("datafield", tag=identifier_marc_field["tag"]):
                 if identifier_value := (
                     self.create_subfield_value_string_from_datafield(
                         datafield,
@@ -369,12 +362,12 @@ class Marc(XMLTransformer):
             if language_name := Marc.loc_crosswalk_code_to_name(
                 language_code, language_code_crosswalk, source_record_id, "language"
             ):
-                languages.append(language_name)
+                languages.append(language_name)  # noqa: PERF401
 
         # Add language notes
         for field_546 in xml.find_all("datafield", tag="546"):
             if language_note := field_546.find("subfield", code="a", string=True):
-                languages.append(str(language_note.string).rstrip(" ."))
+                languages.append(str(language_note.string).rstrip(" ."))  # noqa: PERF401
 
         fields["languages"] = list(dict.fromkeys(languages)) or None
 
@@ -382,9 +375,7 @@ class Marc(XMLTransformer):
         # If indicator 1 is 4 and indicator 2 is 0 or 1, take the URL from subfield u,
         # the kind from subfield 3, link text from subfield y, and restrictions from
         # subfield z."
-        for datafield in xml.find_all(
-            "datafield", tag="856", ind1="4", ind2=["0", "1"]
-        ):
+        for datafield in xml.find_all("datafield", tag="856", ind1="4", ind2=["0", "1"]):
             url_value = self.create_subfield_value_list_from_datafield(datafield, "u")
             text_value = self.create_subfield_value_list_from_datafield(datafield, "y")
             restrictions_value = self.create_subfield_value_list_from_datafield(
@@ -416,7 +407,7 @@ class Marc(XMLTransformer):
         # locations
 
         # Get place of publication from 008 field code
-        if fixed_location_code := str(fixed_length_data.string)[15:17]:
+        if fixed_location_code := str(fixed_length_data.string)[15:17]:  # noqa: SIM102
             if location_name := Marc.loc_crosswalk_code_to_name(
                 fixed_location_code, country_code_crosswalk, source_record_id, "country"
             ):
@@ -533,24 +524,19 @@ class Marc(XMLTransformer):
                     )
 
         # numbering
-        numbering_values = []
-        for datafield in xml.find_all("datafield", tag="362"):
-            if numbering_value := self.create_subfield_value_string_from_datafield(
-                datafield, "a", " "
-            ):
-                numbering_values.append(numbering_value)
-        fields["numbering"] = " ".join(numbering_values) or None
+
+        if numbering_values := [
+            self.create_subfield_value_string_from_datafield(datafield, "a", " ")
+            for datafield in xml.find_all("datafield", tag="362")
+        ]:
+            fields["numbering"] = " ".join(numbering_values) or None
 
         # physical_description
-        physical_description_values = []
-        for datafield in xml.find_all("datafield", tag="300"):
-            if physical_description_value := (
-                self.create_subfield_value_string_from_datafield(
-                    datafield, "abcefg", " "
-                )
-            ):
-                physical_description_values.append(physical_description_value)
-        fields["physical_description"] = " ".join(physical_description_values) or None
+        if physical_description_values := [
+            self.create_subfield_value_string_from_datafield(datafield, "abcefg", " ")
+            for datafield in xml.find_all("datafield", tag="300")
+        ]:
+            fields["physical_description"] = " ".join(physical_description_values) or None
 
         # publication_frequency
         for datafield in xml.find_all("datafield", tag="310"):
@@ -699,7 +685,7 @@ class Marc(XMLTransformer):
     @staticmethod
     def create_subfield_value_list_from_datafield(
         xml_element: Tag,
-        subfield_codes: Union[list, str],
+        subfield_codes: list | str,
     ) -> list:
         """
         Create a list of values from the specified subfields of a
@@ -709,16 +695,16 @@ class Marc(XMLTransformer):
             xml_element: A BeautifulSoup Tag representing a single MARC XML element.
             subfield_codes: The codes of the subfields to extract.
         """
-        value_list = []
-        for subfield in xml_element.find_all(True, string=True):
-            if subfield.get("code", "") in subfield_codes:
-                value_list.append(str(subfield.string))
-        return value_list
+        return [
+            str(subfield.string)
+            for subfield in xml_element.find_all(name=True, string=True)
+            if subfield.get("code", "") in subfield_codes
+        ]
 
     @staticmethod
     def create_subfield_value_string_from_datafield(
         xml_element: Tag,
-        subfield_codes: Union[list, str],
+        subfield_codes: list | str,
         separator: str = "",
     ) -> str:
         """
@@ -734,9 +720,7 @@ class Marc(XMLTransformer):
         )
 
     @staticmethod
-    def get_single_subfield_string(
-        xml_element: Tag, subfield_code: str
-    ) -> Optional[str]:
+    def get_single_subfield_string(xml_element: Tag, subfield_code: str) -> str | None:
         """
         Get the string value of a <subfield> element with specified code(s).
 
@@ -758,7 +742,7 @@ class Marc(XMLTransformer):
     @staticmethod
     def json_crosswalk_code_to_name(
         code: str, crosswalk: dict, record_id: str, field_name: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Retrieve the name associated with a given code from a JSON crosswalk. Logs a
         message and returns None if the code isn't found in the crosswalk.
@@ -780,7 +764,7 @@ class Marc(XMLTransformer):
     @staticmethod
     def loc_crosswalk_code_to_name(
         code: str, crosswalk: Tag, record_id: str, code_type: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Retrieve the name associated with a given code from a Library of Congress XML
         code crosswalk. Logs a message and returns None if the code isn't found in the
@@ -820,12 +804,13 @@ class Marc(XMLTransformer):
                 xml.find("datafield", tag="245"), "abfgknps", " "
             ):
                 main_title_values.append(main_title_value.rstrip(" .,/"))
-            return main_title_values
         except AttributeError:
-            logger.error(
+            logger.exception(
                 "Record ID %s is missing a 245 field", Marc.get_source_record_id(xml)
             )
             return []
+        else:
+            return main_title_values
 
     @staticmethod
     def get_source_record_id(xml: Tag) -> str:
@@ -849,7 +834,7 @@ class Marc(XMLTransformer):
         Args:
             xml: A BeautifulSoup Tag representing a single MARC XML record
         """
-        if leader := xml.find("leader", string=True):
+        if leader := xml.find("leader", string=True):  # noqa: SIM102
             if leader.string[5:6] == "d":
                 return True
         return False

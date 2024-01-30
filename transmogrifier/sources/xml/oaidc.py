@@ -1,7 +1,6 @@
 import logging
-from typing import Dict, List, Optional
 
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
@@ -18,14 +17,13 @@ class OaiDc(XMLTransformer):
     anticipated this will most likely get extended by a source-specific transformer.
     """
 
-    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
+    def get_optional_fields(self, xml: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a generic OAI DC XML record.
 
         Args:
             xml: A BeautifulSoup Tag representing a single OAI DC XML record
         """
-
         fields: dict = {}
 
         # extract source_record_id early for use and logging
@@ -52,7 +50,7 @@ class OaiDc(XMLTransformer):
             )
 
         # dates
-        fields["dates"] = self.get_dates(source_record_id, xml)
+        fields["dates"] = self.get_dates(source_record_id, xml) or None
 
         # edition: not set in this transformation
 
@@ -76,7 +74,7 @@ class OaiDc(XMLTransformer):
         # languages: not set in this transformation
 
         # links
-        fields["links"] = self.get_links(source_record_id, xml)
+        fields["links"] = self.get_links(source_record_id, xml) or None
 
         # literary_form: not set in this transformation
 
@@ -100,14 +98,13 @@ class OaiDc(XMLTransformer):
         # rights: not set in this transformation
 
         # subjects
-        subjects_dict: Dict[str, List[str]] = {}
+        subjects_dict: dict[str, list[str]] = {}
         for subject in xml.metadata.find_all("dc:subject", string=True):
             subjects_dict.setdefault("Subject scheme not provided", []).append(
                 str(subject.string)
             )
         fields["subjects"] = [
-            timdex.Subject(value=value, kind=key)
-            for key, value in subjects_dict.items()
+            timdex.Subject(value=value, kind=key) for key, value in subjects_dict.items()
         ] or None
 
         # summary
@@ -117,7 +114,7 @@ class OaiDc(XMLTransformer):
 
         return fields
 
-    def get_dates(self, source_record_id: str, xml: Tag) -> Optional[List[timdex.Date]]:
+    def get_dates(self, source_record_id: str, xml: Tag) -> list[timdex.Date]:
         """
         Method to get TIMDEX "dates" field.  This method broken out to allow subclasses
         to override.
@@ -128,7 +125,6 @@ class OaiDc(XMLTransformer):
             source_record_id: Source record id
             xml: A BeautifulSoup Tag representing a single OAI DC XML record.
         """
-
         dates = []
         if date_elements := xml.find_all("dc:date", string=True):
             for date in date_elements:
@@ -138,9 +134,11 @@ class OaiDc(XMLTransformer):
                     source_record_id,
                 ):
                     dates.append(timdex.Date(value=date_str, kind="Unknown"))
-        return dates or None
+        return dates
 
-    def get_links(self, source_record_id: str, xml: Tag) -> Optional[List[timdex.Link]]:
+    def get_links(
+        self, source_record_id: str, xml: Tag  # noqa: ARG002
+    ) -> list[timdex.Link] | None:
         """
         Method to get TIMDEX "links" field. This method broken out to allow subclasses
         to override.
@@ -149,7 +147,6 @@ class OaiDc(XMLTransformer):
             source_record_id: Source record id
             xml: A BeautifulSoup Tag representing a single OAI DC XML record.
         """
-
         return None
 
     @classmethod
@@ -175,5 +172,4 @@ class OaiDc(XMLTransformer):
         Args:
             xml: A BeautifulSoup Tag representing a single OAI DC XML record.
         """
-
         return xml.header.identifier.string.split(":")[-1]

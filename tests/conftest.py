@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from click.testing import CliRunner
 
@@ -10,22 +8,20 @@ from transmogrifier.sources.xml.datacite import Datacite
 
 
 @pytest.fixture(autouse=True)
-def test_env():
-    os.environ = {"WORKSPACE": "test"}
-    yield
+def _test_env(monkeypatch):
+    monkeypatch.setenv("WORKSPACE", "test")
 
 
 @pytest.fixture(autouse=True, scope="session")
-def test_config():
+def _test_config():
     SOURCES["cool-repo"] = {
         "name": "A Cool Repository",
         "base-url": "https://example.com/",
     }
-    yield
 
 
-@pytest.fixture()
-def bad_config():
+@pytest.fixture
+def _bad_config():
     SOURCES["bad-class-name"] = {
         "name": "Some Repository",
         "base-url": "https://example.com/",
@@ -41,7 +37,7 @@ def bad_config():
     SOURCES.pop("bad-module-path")
 
 
-@pytest.fixture()
+@pytest.fixture
 def runner():
     return CliRunner()
 
@@ -53,14 +49,14 @@ def aardvark_record_all_fields():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def datacite_records():
     return XMLTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_records.xml"
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def datacite_record_all_fields():
     source_records = XMLTransformer.parse_source_file(
         "tests/fixtures/datacite/datacite_record_all_fields.xml"
@@ -68,27 +64,27 @@ def datacite_record_all_fields():
     return Datacite("cool-repo", source_records)
 
 
-@pytest.fixture()
+@pytest.fixture
 def aardvark_records():
     return JSONTransformer.parse_source_file("tests/fixtures/aardvark_records.jsonl")
 
 
-@pytest.fixture()
+@pytest.fixture
 def loc_country_crosswalk():
     return load_external_config("config/loc-countries.xml", "xml")
 
 
-@pytest.fixture()
+@pytest.fixture
 def marc_content_type_crosswalk():
     return load_external_config("config/marc_content_type_crosswalk.json", "json")
 
 
-@pytest.fixture()
+@pytest.fixture
 def oai_pmh_records():
     return XMLTransformer.parse_source_file("tests/fixtures/oai_pmh_records.xml")
 
 
-@pytest.fixture()
+@pytest.fixture
 def timdex_record_required_fields():
     return timdex.TimdexRecord(
         source="A Cool Repository",
@@ -98,7 +94,7 @@ def timdex_record_required_fields():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def timdex_record_all_fields_and_subfields():
     return timdex.TimdexRecord(
         citation="Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID",
@@ -124,7 +120,7 @@ def timdex_record_all_fields_and_subfields():
             timdex.Date(
                 kind="dates collected",
                 note="data collected every 3 days",
-                range=timdex.Date_Range(gt="2019-01-01", lt="2019-06-30"),
+                range=timdex.DateRange(gt="2019-01-01", lt="2019-06-30"),
             ),
         ],
         edition="2nd revision",

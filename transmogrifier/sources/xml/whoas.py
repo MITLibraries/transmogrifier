@@ -1,4 +1,4 @@
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 
 from transmogrifier.sources.xml.dspace_dim import DspaceDim
 
@@ -48,5 +48,4 @@ class Whoas(DspaceDim):
         """
         if all(item.lower() in INVALID_CONTENT_TYPES for item in content_type_list):
             return False
-        else:
-            return True
+        return True

@@ -117,7 +117,7 @@
                 <fundingReference>
                     <funderName>3ie, Nike Foundation</funderName>
                     <funderIdentifier funderIdentifierType="Crossref FunderID">0987</funderIdentifier>
-                    <awardNumber awardURI="http://awards.example/7689">OW1/1012 (3ie)</awardNumber>
+                    <awardNumber awardURI="http://awards.example/7689">OW1/1012 (3ie)</awardNumber>
                 </fundingReference>
             </fundingReferences>
         </resource>

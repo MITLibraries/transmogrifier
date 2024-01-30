@@ -1,6 +1,5 @@
 import logging
-from datetime import datetime
-from typing import Optional
+from datetime import UTC, datetime
 
 from transmogrifier.config import DATE_FORMATS
 
@@ -59,7 +58,7 @@ def generate_citation(extracted_data: dict) -> str:
 
 def parse_date_from_string(
     date_string: str,
-) -> Optional[datetime]:
+) -> datetime | None:
     """
     Transform a date string into a datetime object according to one of the configured
     OpenSearch date formats. Returns None if the date string cannot be parsed.
@@ -69,7 +68,7 @@ def parse_date_from_string(
     """
     for date_format in DATE_FORMATS:
         try:
-            return datetime.strptime(date_string, date_format)
+            return datetime.strptime(date_string, date_format).astimezone(UTC)
         except ValueError:
             pass
     return None
@@ -90,13 +89,12 @@ def validate_date(
     """
     if parse_date_from_string(date_string):
         return True
-    else:
-        logger.debug(
-            "Record ID '%s' has a date that couldn't be parsed: '%s'",
-            source_record_id,
-            date_string,
-        )
-        return False
+    logger.debug(
+        "Record ID '%s' has a date that couldn't be parsed: '%s'",
+        source_record_id,
+        date_string,
+    )
+    return False
 
 
 def validate_date_range(
@@ -120,25 +118,23 @@ def validate_date_range(
     if start_date_object and end_date_object:
         if start_date_object <= end_date_object:
             return True
-        else:
-            logger.debug(
-                "Record ID '%s' has a later start date than end date: '%s', '%s'",
-                source_record_id,
-                start_date,
-                end_date,
-            )
-            return False
-    else:
         logger.debug(
-            "Record ID '%s' has invalid values in a date range: '%s', '%s'",
+            "Record ID '%s' has a later start date than end date: '%s', '%s'",
             source_record_id,
             start_date,
             end_date,
         )
         return False
+    logger.debug(
+        "Record ID '%s' has invalid values in a date range: '%s', '%s'",
+        source_record_id,
+        start_date,
+        end_date,
+    )
+    return False
 
 
-class DeletedRecord(Exception):
+class DeletedRecordError(Exception):
     """Exception raised for records with a deleted status.
 
     Attributes:
@@ -146,5 +142,5 @@ class DeletedRecord(Exception):
 
     """
 
-    def __init__(self, timdex_record_id):
+    def __init__(self, timdex_record_id: str) -> None:
         self.timdex_record_id = timdex_record_id

@@ -45,8 +45,7 @@ def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path
     assert result.exit_code == 0
     assert "Logger 'root' configured with level=DEBUG" in caplog.text
     assert (
-        "Sentry DSN found, exceptions will be sent to Sentry with env=test"
-        in caplog.text
+        "Sentry DSN found, exceptions will be sent to Sentry with env=test" in caplog.text
     )
     assert "Running transform for source jpal" in caplog.text
     assert "Status update: 30 records written to output file so far!" in caplog.text

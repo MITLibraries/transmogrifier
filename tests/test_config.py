@@ -1,7 +1,7 @@
 import logging
 
 import pytest
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore[import-untyped]
 
 from transmogrifier.config import (
     configure_logger,
@@ -13,15 +13,15 @@ from transmogrifier.config import (
 def test_configure_logger_not_verbose():
     logger = logging.getLogger(__name__)
     result = configure_logger(logger, verbose=False)
-    assert logger.getEffectiveLevel() == 20
-    assert result == "Logger 'test_config' configured with level=INFO"
+    assert logger.getEffectiveLevel() == logging.INFO
+    assert result == "Logger 'tests.test_config' configured with level=INFO"
 
 
 def test_configure_logger_verbose(caplog):
     logger = logging.getLogger(__name__)
     result = configure_logger(logger, verbose=True)
-    assert logger.getEffectiveLevel() == 10
-    assert result == "Logger 'test_config' configured with level=DEBUG"
+    assert logger.getEffectiveLevel() == logging.DEBUG
+    assert result == "Logger 'tests.test_config' configured with level=DEBUG"
 
 
 def test_configure_sentry_no_env_variable(monkeypatch):
@@ -43,18 +43,15 @@ def test_configure_sentry_env_variable_is_dsn(monkeypatch):
 
 
 def test_load_external_config_invalid_file_type_raises_error():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unrecognized file_type parameter: zxr"):
         load_external_config("config/loc-countries.xml", "zxr")
 
 
 def test_load_external_config_json():
-    assert (
-        type(load_external_config("config/marc_content_type_crosswalk.json", "json"))
-        == dict
+    assert isinstance(
+        load_external_config("config/marc_content_type_crosswalk.json", "json"), dict
     )
 
 
 def test_load_external_config_xml():
-    assert (
-        type(load_external_config("config/loc-countries.xml", "xml")) == BeautifulSoup
-    )
+    assert type(load_external_config("config/loc-countries.xml", "xml")) == BeautifulSoup

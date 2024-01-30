@@ -1,11 +1,12 @@
 """transmogrifier.config module."""
+
 import json
 import logging
 import os
-from typing import Literal, Union
+from typing import Literal
 
 import sentry_sdk
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +132,7 @@ SOURCES = {
 }
 
 
-def configure_logger(logger: logging.Logger, verbose: bool) -> str:
+def configure_logger(logger: logging.Logger, verbose: bool) -> str:  # noqa: FBT001
     if verbose:
         logging.basicConfig(
             format="%(asctime)s %(levelname)s %(name)s.%(funcName)s() line %(lineno)d: "
@@ -162,7 +163,7 @@ def configure_sentry() -> str:
 
 def load_external_config(
     file_path: str, file_type: Literal["json", "xml"]
-) -> Union[dict, BeautifulSoup]:
+) -> dict | BeautifulSoup:
     """
     Load a configuration file into a Python object. JSON files are parsed into dicts
     and XML files are parsed into BeautifulSoup objects.
@@ -173,7 +174,8 @@ def load_external_config(
     with open(file_path, "rb") as config_file:
         if file_type == "json":
             return json.load(config_file)
-        elif file_type == "xml":
+        elif file_type == "xml":  # noqa: RET505
             return BeautifulSoup(config_file, "xml")
         else:
-            raise ValueError("Unrecognized file_type parameter: %s", file_type)
+            message = f"Unrecognized file_type parameter: {file_type}"
+            raise ValueError(message)
