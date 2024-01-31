@@ -1,3 +1,5 @@
+import logging
+
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.springshare import SpringshareOaiDc
 
@@ -66,24 +68,26 @@ def test_springshare_get_dates_valid():
 
 
 def test_springshare_get_dates_invalid_logged_and_skipped(caplog):
+    caplog.set_level(logging.DEBUG)
     source_records = SpringshareOaiDc.parse_source_file(
         f"{SPRINGSHARE_FIXTURES_PREFIX}/springshare_invalid_dates.xml"
     )
     transformer_instance = SpringshareOaiDc("libguides", source_records)
     for xml in transformer_instance.source_records:
         date_field_value = transformer_instance.get_dates("test_get_dates", xml)
-        assert date_field_value is None
+        assert date_field_value == []
         assert "has a date that cannot be parsed" in caplog.text
 
 
 def test_springshare_get_links_missing_identifier_logged_and_skipped(caplog):
+    caplog.set_level(logging.DEBUG)
     source_records = SpringshareOaiDc.parse_source_file(
         f"{SPRINGSHARE_FIXTURES_PREFIX}/springshare_record_missing_required_fields.xml"
     )
     transformer_instance = SpringshareOaiDc("libguides", source_records)
     for xml in transformer_instance.source_records:
         links_field_value = transformer_instance.get_links("test_get_links", xml)
-        assert links_field_value is None
+        assert links_field_value == []
         assert "has links that cannot be generated" in caplog.text
 
 
@@ -194,8 +198,7 @@ def test_research_databases_transform_with_optional_fields_blank_transforms_corr
     )
     output_records = SpringshareOaiDc("researchdatabases", source_records)
     assert (
-        next(output_records)
-        == RESEARCHDATABASES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
+        next(output_records) == RESEARCHDATABASES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
     )
 
 
@@ -206,6 +209,5 @@ def test_research_databases_transform_with_optional_fields_missing_transforms_co
     )
     output_records = SpringshareOaiDc("researchdatabases", source_records)
     assert (
-        next(output_records)
-        == RESEARCHDATABASES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
+        next(output_records) == RESEARCHDATABASES_BLANK_OR_MISSING_OPTIONAL_FIELDS_TIMDEX
     )

@@ -5,6 +5,9 @@ ECR_NAME_DEV:=transmogrifier-dev
 ECR_URL_DEV:=222053980223.dkr.ecr.us-east-1.amazonaws.com/transmogrifier-dev
 ### End of Terraform-generated header ###
 
+help: ## Print this message
+	@awk 'BEGIN { FS = ":.*##"; print "Usage:  make <target>\n\nTargets:" } \
+/^[-_[:alpha:]]+:.?*##/ { printf "  %-15s%s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 ### Dependency commands ###
 install: ## Install script and dependencies
@@ -24,23 +27,30 @@ coveralls: test
 	pipenv run coverage lcov -o ./coverage/lcov.info
 
 
-### Linting commands ###
-lint: bandit black flake8 isort mypy ## Lint the repo
-
-bandit:
-	pipenv run bandit -r transmogrifier
+# linting commands
+lint: black mypy ruff safety 
 
 black:
 	pipenv run black --check --diff .
 
-flake8:
-	pipenv run flake8 .
-
-isort:
-	pipenv run isort . --check --diff
-
 mypy:
-	pipenv run mypy transmogrifier
+	pipenv run mypy .
+
+ruff:
+	pipenv run ruff check .
+
+safety:
+	pipenv check
+	pipenv verify
+
+# apply changes to resolve any linting errors
+lint-apply: black-apply ruff-apply
+
+black-apply: 
+	pipenv run black .
+
+ruff-apply: 
+	pipenv run ruff check --fix .
 
 
 ### Terraform-generated Developer Deploy Commands for Dev environment ###

@@ -1,6 +1,4 @@
-from typing import List
-
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 
 from transmogrifier.sources.xml.datacite import Datacite
 
@@ -37,7 +35,7 @@ class Zenodo(Datacite):
         return xml.header.find("identifier").string.replace("oai:zenodo.org:", "")
 
     @classmethod
-    def valid_content_types(cls, content_type_list: List[str]) -> bool:
+    def valid_content_types(cls, content_type_list: list[str]) -> bool:
         """
         Validate a list of content_type values from a Datacite XML record.
 
@@ -46,7 +44,4 @@ class Zenodo(Datacite):
         Args:
             content_type_list: A list of content_type values.
         """
-        if any(item.lower() in VALID_CONTENT_TYPES for item in content_type_list):
-            return True
-        else:
-            return False
+        return any(item.lower() in VALID_CONTENT_TYPES for item in content_type_list)

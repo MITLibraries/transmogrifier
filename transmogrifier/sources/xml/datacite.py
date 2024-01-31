@@ -1,7 +1,6 @@
 import logging
-from typing import Dict, List, Optional
 
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date, validate_date_range
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Datacite(XMLTransformer):
     """Datacite transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
+    def get_optional_fields(self, xml: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a Datacite XML record.
 
@@ -69,8 +68,7 @@ class Datacite(XMLTransformer):
                     timdex.Contributor(
                         value=creator_name.string,
                         affiliation=[
-                            a.string
-                            for a in creator.find_all("affiliation", string=True)
+                            a.string for a in creator.find_all("affiliation", string=True)
                         ]
                         or None,
                         identifier=[
@@ -134,7 +132,7 @@ class Datacite(XMLTransformer):
                         lte_date,
                         source_record_id,
                     ):
-                        d.range = timdex.Date_Range(
+                        d.range = timdex.DateRange(
                             gte=gte_date,
                             lte=lte_date,
                         )
@@ -165,9 +163,7 @@ class Datacite(XMLTransformer):
         fields["format"] = "electronic resource"
 
         # funding_information
-        for funding_reference in [
-            fr for fr in xml.metadata.find_all("fundingReference")
-        ]:
+        for funding_reference in xml.metadata.find_all("fundingReference"):
             f = timdex.Funder()
             if funder_name := funding_reference.find("funderName", string=True):
                 f.funder_name = funder_name.string
@@ -205,9 +201,7 @@ class Datacite(XMLTransformer):
 
         related_identifiers = xml.metadata.find_all("relatedIdentifier", string=True)
         for related_identifier in [
-            ri
-            for ri in related_identifiers
-            if ri.get("relationType") == "IsIdenticalTo"
+            ri for ri in related_identifiers if ri.get("relationType") == "IsIdenticalTo"
         ]:
             fields.setdefault("identifiers", []).append(
                 timdex.Identifier(
@@ -263,9 +257,7 @@ class Datacite(XMLTransformer):
 
         # related_items, uses related_identifiers retrieved for identifiers
         for related_identifier in [
-            ri
-            for ri in related_identifiers
-            if ri.get("relationType") != "IsIdenticalTo"
+            ri for ri in related_identifiers if ri.get("relationType") != "IsIdenticalTo"
         ]:
             fields.setdefault("related_items", []).append(
                 timdex.RelatedItem(
@@ -286,7 +278,7 @@ class Datacite(XMLTransformer):
             )
 
         # subjects
-        subjects_dict: Dict[str, List[str]] = {}
+        subjects_dict: dict[str, list[str]] = {}
         for subject in xml.metadata.find_all("subject", string=True):
             if not subject.get("subjectScheme"):
                 subjects_dict.setdefault("Subject scheme not provided", []).append(
@@ -297,8 +289,7 @@ class Datacite(XMLTransformer):
                     subject.string
                 )
         fields["subjects"] = [
-            timdex.Subject(value=value, kind=key)
-            for key, value in subjects_dict.items()
+            timdex.Subject(value=value, kind=key) for key, value in subjects_dict.items()
         ] or None
 
         # summary
@@ -329,6 +320,7 @@ class Datacite(XMLTransformer):
     def generate_name_identifier_url(cls, name_identifier: Tag) -> str:
         """
         Generate a full name identifier URL with the specified scheme.
+
         Args:
             name_identifier: A BeautifulSoup Tag representing a Datacite
                 nameIdentifier XML field.
@@ -343,6 +335,7 @@ class Datacite(XMLTransformer):
     def generate_related_item_identifier_url(cls, related_item_identifier: Tag) -> str:
         """
         Generate a full related item identifier URL with the specified scheme.
+
         Args:
             related_item_identifier: A BeautifulSoup Tag representing a Datacite
                 relatedIdentifier XML field.
@@ -356,7 +349,7 @@ class Datacite(XMLTransformer):
         return base_url + related_item_identifier.string
 
     @classmethod
-    def valid_content_types(cls, content_type_list: List[str]) -> bool:
+    def valid_content_types(cls, _content_type_list: list[str]) -> bool:
         """
         Validate a list of content_type values from a Datacite XML record.
 

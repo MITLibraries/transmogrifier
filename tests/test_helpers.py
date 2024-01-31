@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import transmogrifier.models as timdex
@@ -261,6 +262,7 @@ def test_validate_date_success():
 
 
 def test_validate_date_invalid_date_logs_error(caplog):
+    caplog.set_level(logging.DEBUG)
     assert validate_date("circa 1930s", "1234") is False
     assert (
         "Record ID '1234' has a date that couldn't be parsed: 'circa 1930s'"
@@ -268,6 +270,7 @@ def test_validate_date_invalid_date_logs_error(caplog):
 
 
 def test_validate_date_whitespace_date_logs_error(caplog):
+    caplog.set_level(logging.DEBUG)
     assert validate_date("1930  ", "1234") is False
     assert (
         "Record ID '1234' has a date that couldn't be parsed: '1930  '"
@@ -279,6 +282,7 @@ def test_validate_date_range_success():
 
 
 def test_validate_date_range_invalid_date_range_logs_error(caplog):
+    caplog.set_level(logging.DEBUG)
     assert validate_date_range("circa 1910s", "1924", "1234") is False
     assert (
         "Record ID '1234' has invalid values in a date range: 'circa 1910s', '1924'"
@@ -286,6 +290,7 @@ def test_validate_date_range_invalid_date_range_logs_error(caplog):
 
 
 def test_validate_date_range_invalid_start_date_logs_error(caplog):
+    caplog.set_level(logging.DEBUG)
     assert validate_date_range("1930", "1924", "1234") is False
     assert (
         "Record ID '1234' has a later start date than end date: '1930', '1924'"

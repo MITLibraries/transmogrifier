@@ -1,7 +1,6 @@
 import logging
-from typing import List, Optional
 
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 from dateutil.parser import ParserError
 from dateutil.parser import parse as date_parser
 
@@ -21,7 +20,7 @@ class SpringshareOaiDc(OaiDc):
         - researchdatabases
     """
 
-    def get_dates(self, source_record_id: str, xml: Tag) -> Optional[List[timdex.Date]]:
+    def get_dates(self, source_record_id: str, xml: Tag) -> list[timdex.Date]:
         """
         Overrides OaiDc's default get_dates() logic for Springshare records.
 
@@ -35,26 +34,24 @@ class SpringshareOaiDc(OaiDc):
             source_record_id: Source record id
             xml: A BeautifulSoup Tag representing a single OAI DC XML record.
         """
-
         dates = []
         if date := xml.find("dc:date", string=True):
             try:
                 date_iso_str = date_parser(str(date.string).strip()).isoformat()
+                if validate_date(
+                    date_iso_str,
+                    source_record_id,
+                ):
+                    dates.append(timdex.Date(value=date_iso_str, kind="Created"))
             except ParserError as e:
                 logger.debug(
                     "Record ID %s has a date that cannot be parsed: %s",
                     source_record_id,
                     str(e),
                 )
-                return None
-            if validate_date(
-                date_iso_str,
-                source_record_id,
-            ):
-                dates.append(timdex.Date(value=date_iso_str, kind="Created"))
-        return dates or None
+        return dates
 
-    def get_links(self, source_record_id: str, xml: Tag) -> Optional[List[timdex.Link]]:
+    def get_links(self, source_record_id: str, xml: Tag) -> list[timdex.Link] | None:
         """
         Overrides OaiDc's default get_links() logic for Springshare records.
 
@@ -62,26 +59,25 @@ class SpringshareOaiDc(OaiDc):
             source_record_id: Source record id
             xml: A BeautifulSoup Tag representing a single OAI DC XML record.
         """
-
-        identifier = xml.find("dc:identifier")
-        if identifier is None or identifier.string is None:
-            logger.debug(
-                "Record ID %s has links that cannot be generated: missing dc:identifier",
-                source_record_id,
+        links = []
+        if identifier := xml.find("dc:identifier", string=True):
+            singular_source_name = self.source_name.rstrip("s")
+            links.append(
+                timdex.Link(
+                    kind=f"{singular_source_name} URL",
+                    text=f"{singular_source_name} URL",
+                    url=str(identifier.string),
+                )
             )
-            return None
-        singular_source_name = self.source_name.rstrip("s")
-        return [
-            timdex.Link(
-                kind=f"{singular_source_name} URL",
-                text=f"{singular_source_name} URL",
-                url=str(identifier.string),
-            )
-        ]
+        logger.debug(
+            "Record ID %s has links that cannot be generated: missing dc:identifier",
+            source_record_id,
+        )
+        return links
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, xml: Tag
+        cls, _source_base_url: str, _source_record_id: str, xml: Tag
     ) -> str:
         """
         Override for default source_link behavior.

@@ -1,6 +1,6 @@
 import logging
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.marc import Marc
@@ -23,9 +23,7 @@ def test_marc_record_all_fields_transform_correctly():
             timdex.AlternateTitle(
                 value="Main Entry Date 1 Date 2", kind="Preferred Title"
             ),
-            timdex.AlternateTitle(
-                value="Uniform Date 1 Date 2", kind="Preferred Title"
-            ),
+            timdex.AlternateTitle(value="Uniform Date 1 Date 2", kind="Preferred Title"),
             timdex.AlternateTitle(
                 value="Varying Form Of Title 1", kind="Varying Form of Title"
             ),
@@ -190,9 +188,7 @@ def test_marc_record_all_fields_transform_correctly():
         identifiers=[
             timdex.Identifier(value="2005022317", kind="LCCN"),
             timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
-            timdex.Identifier(
-                value="0878426914. paperback. alkaline paper", kind="ISBN"
-            ),
+            timdex.Identifier(value="0878426914. paperback. alkaline paper", kind="ISBN"),
             timdex.Identifier(value="0033-0736", kind="ISSN"),
             timdex.Identifier(value="0095-9014", kind="ISSN"),
             timdex.Identifier(
@@ -508,9 +504,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             timdex.AlternateTitle(
                 value="a d f g h k l m n o p r s", kind="Preferred Title"
             ),
-            timdex.AlternateTitle(
-                value="a b f g h i n p", kind="Varying Form of Title"
-            ),
+            timdex.AlternateTitle(value="a b f g h i n p", kind="Varying Form of Title"),
             timdex.AlternateTitle(
                 value="a d f g h i k l m n o p r s t",
                 kind="Preferred Title",
@@ -835,6 +829,7 @@ def test_get_single_subfield_string_returns_none_if_whitespace_string():
 def test_json_crosswalk_code_to_name_returns_none_if_invalid(
     caplog, marc_content_type_crosswalk
 ):
+    caplog.set_level(logging.DEBUG)
     assert (
         Marc.json_crosswalk_code_to_name(
             "wrong",
@@ -862,6 +857,7 @@ def test_json_crosswalk_code_to_name_returns_name(caplog, marc_content_type_cros
 def test_loc_crosswalk_code_to_name_returns_none_if_invalid(
     caplog, loc_country_crosswalk
 ):
+    caplog.set_level(logging.DEBUG)
     assert (
         Marc.loc_crosswalk_code_to_name(
             "wrong", loc_country_crosswalk, "record-01", "country"
@@ -874,6 +870,7 @@ def test_loc_crosswalk_code_to_name_returns_none_if_invalid(
 def test_loc_crosswalk_code_to_name_returns_name_and_logs_warning_if_obsolete(
     caplog, loc_country_crosswalk
 ):
+    caplog.set_level(logging.DEBUG)
     assert (
         Marc.loc_crosswalk_code_to_name(
             "bwr", loc_country_crosswalk, "record-01", "country"
@@ -923,14 +920,10 @@ def test_get_source_record_id():
 
 
 def test_record_is_deleted_returns_true_if_deleted():
-    deleted_record = Marc.parse_source_file(
-        "tests/fixtures/marc/marc_record_deleted.xml"
-    )
+    deleted_record = Marc.parse_source_file("tests/fixtures/marc/marc_record_deleted.xml")
     assert Marc.record_is_deleted(next(deleted_record)) is True
 
 
 def test_record_is_deleted_returns_false_if_not_deleted():
-    marc_record = Marc.parse_source_file(
-        "tests/fixtures/marc/marc_record_all_fields.xml"
-    )
+    marc_record = Marc.parse_source_file("tests/fixtures/marc/marc_record_all_fields.xml")
     assert Marc.record_is_deleted(next(marc_record)) is False

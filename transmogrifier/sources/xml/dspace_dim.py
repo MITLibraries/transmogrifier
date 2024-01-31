@@ -1,7 +1,6 @@
 import logging
-from typing import Dict, List, Optional
 
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date, validate_date_range
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 class DspaceDim(XMLTransformer):
     """DSpace DIM transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
+    def get_optional_fields(self, xml: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a DSpace DIM XML record.
 
@@ -93,9 +92,7 @@ class DspaceDim(XMLTransformer):
                 if date.get("qualifier") == "issued":
                     d = timdex.Date(value=date_value, kind="Publication date")
                 else:
-                    d = timdex.Date(
-                        value=date_value, kind=date.get("qualifier") or None
-                    )
+                    d = timdex.Date(value=date_value, kind=date.get("qualifier") or None)
                 fields.setdefault("dates", []).append(d)
 
         for coverage in [
@@ -113,7 +110,7 @@ class DspaceDim(XMLTransformer):
                     source_record_id,
                 ):
                     d = timdex.Date(
-                        range=timdex.Date_Range(
+                        range=timdex.DateRange(
                             gte=gte_date,
                             lte=lte_date,
                         ),
@@ -161,9 +158,7 @@ class DspaceDim(XMLTransformer):
 
         # language
         fields["languages"] = [
-            la.string
-            for la in xml.find_all("dim:field", element="language")
-            if la.string
+            la.string for la in xml.find_all("dim:field", element="language") if la.string
         ] or None
 
         # links, uses identifiers list retrieved for identifiers field
@@ -239,7 +234,7 @@ class DspaceDim(XMLTransformer):
             fields.setdefault("rights", []).append(rg)
 
         # subjects
-        subjects_dict: Dict[str, List[str]] = {}
+        subjects_dict: dict[str, list[str]] = {}
         for subject in [
             s for s in xml.find_all("dim:field", element="subject") if s.string
         ]:
@@ -248,9 +243,7 @@ class DspaceDim(XMLTransformer):
                     subject.string
                 )
             else:
-                subjects_dict.setdefault(subject["qualifier"], []).append(
-                    subject.string
-                )
+                subjects_dict.setdefault(subject["qualifier"], []).append(subject.string)
         for key, value in subjects_dict.items():
             fields.setdefault("subjects", []).append(
                 timdex.Subject(value=value, kind=key)
@@ -265,7 +258,7 @@ class DspaceDim(XMLTransformer):
         return fields
 
     @classmethod
-    def get_content_types(cls, xml: Tag) -> Optional[list[str]]:
+    def get_content_types(cls, xml: Tag) -> list[str] | None:
         """
         Retrieve content types from a DSpace DIM XML record.
 
@@ -308,7 +301,7 @@ class DspaceDim(XMLTransformer):
         return xml.header.identifier.string.split(":")[2]
 
     @classmethod
-    def valid_content_types(cls, content_type_list: List[str]) -> bool:
+    def valid_content_types(cls, _content_type_list: list[str]) -> bool:
         """
         Validate a list of content_type values from a DSpace DIM XML record.
 

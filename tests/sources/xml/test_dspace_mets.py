@@ -95,9 +95,7 @@ def test_dspace_mets_transform_with_all_fields_transforms_correctly():
         title="Magneto-thermal Transport and Machine Learning-assisted Investigation "
         "of Magnetic Materials",
         alternate_titles=[
-            timdex.AlternateTitle(
-                kind="alternative", value="A Slightly Different Title"
-            )
+            timdex.AlternateTitle(kind="alternative", value="A Slightly Different Title")
         ],
         citation='Tatsumi, Yuki. "Magneto-thermal Transport and Machine '
         'Learning-assisted Investigation of Magnetic Materials." Massachusetts '

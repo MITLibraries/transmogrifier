@@ -53,7 +53,10 @@ class MITAardvark(JSONTransformer):
 
     @classmethod
     def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: dict[str, JSON]
+        cls,
+        source: str,
+        source_record_id: str,
+        _source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -85,19 +88,17 @@ class MITAardvark(JSONTransformer):
         """
         Determine whether record has a status of deleted.
 
-        ## WIP - defining to enable instantiation of MITAardvark instance.
-
         Args:
             source_record: A JSON object representing a source record.
         """
         if isinstance(source_record["gbl_suppressed_b"], bool):
             return source_record["gbl_suppressed_b"]
-        else:
-            message = (
-                f"Record ID '{cls.get_source_record_id(source_record)}': "
-                "'gbl_suppressed_b' value is not a boolean"
-            )
-            raise ValueError(message)
+
+        message = (
+            f"Record ID '{cls.get_source_record_id(source_record)}': "
+            "'gbl_suppressed_b' value is not a boolean"
+        )
+        raise ValueError(message)
 
     def get_optional_fields(self, source_record: dict) -> dict | None:
         """
@@ -141,9 +142,7 @@ class MITAardvark(JSONTransformer):
         fields["links"] = self.get_links(source_record, source_record_id) or None
 
         # locations
-        fields["locations"] = (
-            self.get_locations(source_record, source_record_id) or None
-        )
+        fields["locations"] = self.get_locations(source_record, source_record_id) or None
 
         # notes
         fields["notes"] = self.get_notes(source_record) or None
@@ -207,16 +206,19 @@ class MITAardvark(JSONTransformer):
         coverage_dates = []
         coverage_date_values = []
         coverage_date_values.extend(source_record.get("dct_temporal_sm", []))
-        for date_value in [
-            str(date_value)
-            for date_value in source_record.get("gbl_indexYear_im", [])
-            if str(date_value) not in coverage_date_values
-        ]:
-            coverage_date_values.append(date_value)
-        for coverage_date_value in coverage_date_values:
-            coverage_dates.append(
+        coverage_date_values.extend(
+            [
+                str(date_value)
+                for date_value in source_record.get("gbl_indexYear_im", [])
+                if str(date_value) not in coverage_date_values
+            ]
+        )
+        coverage_dates.extend(
+            [
                 timdex.Date(value=coverage_date_value, kind="Coverage")
-            )
+                for coverage_date_value in coverage_date_values
+            ]
+        )
         return coverage_dates
 
     @classmethod
@@ -225,17 +227,14 @@ class MITAardvark(JSONTransformer):
     ) -> list[timdex.Date]:
         """Get values for issued dates."""
         range_dates = []
-        for date_range_string in [
-            date_range_strings
-            for date_range_strings in source_record.get("gbl_dateRange_drsim", [])
-        ]:
+        for date_range_string in source_record.get("gbl_dateRange_drsim", []):
             date_range_values = cls.parse_solr_date_range_string(
                 date_range_string, source_record_id
             )
             range_dates.append(
                 timdex.Date(
                     kind="Coverage",
-                    range=timdex.Date_Range(
+                    range=timdex.DateRange(
                         gte=date_range_values[0], lte=date_range_values[1]
                     ),
                 )
@@ -263,7 +262,7 @@ class MITAardvark(JSONTransformer):
                 f"Record ID '{source_record_id}': "
                 f"Unable to parse date range string '{date_range_string}'"
             )
-            raise ValueError(message)
+            raise ValueError(message) from None
 
     @staticmethod
     def get_identifiers(source_record: dict) -> list[timdex.Identifier]:
@@ -297,10 +296,11 @@ class MITAardvark(JSONTransformer):
                 ]
             )
         except ValueError:
-            logger.warning(
+            message = (
                 f"Record ID '{source_record_id}': Unable to parse "
                 f"links string '{links_string}' as JSON"
             )
+            logger.warning(message)
         return links
 
     @staticmethod
@@ -375,13 +375,13 @@ class MITAardvark(JSONTransformer):
             ]
         )
 
-        for aardvark_rights_field in ["dct_rights_sm", "dct_rightsHolder_sm"]:
-            if aardvark_rights_field in source_record:
-                rights.append(
-                    timdex.Rights(
-                        description=". ".join(source_record[aardvark_rights_field])
-                    )
-                )
+        rights.extend(
+            [
+                timdex.Rights(description=". ".join(source_record[aardvark_rights_field]))
+                for aardvark_rights_field in ["dct_rights_sm", "dct_rightsHolder_sm"]
+                if aardvark_rights_field in source_record
+            ]
+        )
 
         return rights
 
@@ -411,12 +411,12 @@ class MITAardvark(JSONTransformer):
             "gbl_resourceType_sm": "Subject scheme not provided",
         }
 
-        for aardvark_subject_field, kind_value in {
-            key: value
-            for key, value in aardvark_subject_fields.items()
-            if key in source_record
-        }.items():
-            for subject in source_record[aardvark_subject_field]:
-                subjects.append(timdex.Subject(value=[subject], kind=kind_value))
+        for subject_field, subject_kind in aardvark_subject_fields.items():
+            subjects.extend(
+                [
+                    timdex.Subject(value=[subject], kind=subject_kind)
+                    for subject in source_record.get(subject_field, [])
+                ]
+            )
 
         return subjects

@@ -1,3 +1,4 @@
+# ruff: noqa: PLR2004
 from transmogrifier.sources.xml.whoas import Whoas
 
 

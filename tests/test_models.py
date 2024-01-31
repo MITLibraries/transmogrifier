@@ -1,10 +1,10 @@
-from pytest import raises
+import pytest
 
 from transmogrifier.models import (
     AlternateTitle,
     Contributor,
     Date,
-    Date_Range,
+    DateRange,
     Identifier,
     Link,
     Note,
@@ -92,14 +92,10 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
         == "Creator (PubYear): Title. Publisher. (resourceTypeGeneral). ID"
     )
     assert timdex_record_all_fields_and_subfields.source == "A Cool Repository"
-    assert (
-        timdex_record_all_fields_and_subfields.source_link == "https://example.com/123"
-    )
+    assert timdex_record_all_fields_and_subfields.source_link == "https://example.com/123"
     assert timdex_record_all_fields_and_subfields.timdex_record_id == "cool-repo:123"
     assert timdex_record_all_fields_and_subfields.title == "Some Data About Trees"
-    assert (
-        timdex_record_all_fields_and_subfields.alternate_titles[0].value == "Alt title"
-    )
+    assert timdex_record_all_fields_and_subfields.alternate_titles[0].value == "Alt title"
     assert (
         timdex_record_all_fields_and_subfields.alternate_titles[0].kind == "alternative"
     )
@@ -152,9 +148,7 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
     )
     assert timdex_record_all_fields_and_subfields.holdings[0].collection == "Stacks"
     assert timdex_record_all_fields_and_subfields.holdings[0].format == "Print volume"
-    assert (
-        timdex_record_all_fields_and_subfields.holdings[0].location == "Hayden Library"
-    )
+    assert timdex_record_all_fields_and_subfields.holdings[0].location == "Hayden Library"
     assert timdex_record_all_fields_and_subfields.holdings[0].note == "Holdings note"
     assert timdex_record_all_fields_and_subfields.identifiers[0].value == "123"
     assert timdex_record_all_fields_and_subfields.identifiers[0].kind == "doi"
@@ -197,9 +191,7 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
         timdex_record_all_fields_and_subfields.physical_description
         == "1 online resource (1 sound file)"
     )
-    assert timdex_record_all_fields_and_subfields.publication_frequency == [
-        "Semiannual"
-    ]
+    assert timdex_record_all_fields_and_subfields.publication_frequency == ["Semiannual"]
     assert timdex_record_all_fields_and_subfields.publication_information == [
         "Version 1.0"
     ]
@@ -343,10 +335,13 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
 def test_timdex_record_date_range_both_gt_and_gte_raises_error(
     timdex_record_required_fields,
 ):
-    with raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="range may have a 'gt' or 'gte' value, but not both;",
+    ):
         timdex_record_required_fields.dates = [
             Date(
-                range=Date_Range(gt="2019-01-01", gte="2019-01-01", lt="2019-06-30"),
+                range=DateRange(gt="2019-01-01", gte="2019-01-01", lt="2019-06-30"),
             )
         ]
 
@@ -354,24 +349,31 @@ def test_timdex_record_date_range_both_gt_and_gte_raises_error(
 def test_timdex_record_date_range_both_lt_and_lte_raises_error(
     timdex_record_required_fields,
 ):
-    with raises(ValueError):
+    with pytest.raises(
+        ValueError, match="range may have a 'lt' or 'lte' value, but not both;"
+    ):
         timdex_record_required_fields.dates = [
             Date(
-                range=Date_Range(gt="2019-01-01", lt="2019-06-30", lte="2019-06-30"),
+                range=DateRange(gt="2019-01-01", lt="2019-06-30", lte="2019-06-30"),
             )
         ]
 
 
 def test_timdex_record_empty_list_raises_error(timdex_record_required_fields):
-    with raises(ValueError):
+    with pytest.raises(ValueError, match="'dates' cannot be an empty list"):
         timdex_record_required_fields.dates = []
 
 
 def test_timdex_record_list_of_wrong_type_raises_error(timdex_record_required_fields):
-    with raises(TypeError):
+    with pytest.raises(
+        TypeError, match="'dates' must be <class 'transmogrifier.models.Date'>"
+    ):
         timdex_record_required_fields.dates = ["test"]
 
 
 def test_timdex_record_not_a_list_raises_error(timdex_record_required_fields):
-    with raises(TypeError):
+    with pytest.raises(
+        TypeError,
+        match="'dates' must be <class 'list'>",
+    ):
         timdex_record_required_fields.dates = "test"

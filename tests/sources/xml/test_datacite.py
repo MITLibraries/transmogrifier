@@ -2,7 +2,7 @@ from transmogrifier.models import (
     AlternateTitle,
     Contributor,
     Date,
-    Date_Range,
+    DateRange,
     Funder,
     Identifier,
     Link,
@@ -70,7 +70,7 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
             ),
             Date(
                 kind="Collected",
-                range=Date_Range(gte="2007-01-01", lte="2007-02-28"),
+                range=DateRange(gte="2007-01-01", lte="2007-02-28"),
             ),
         ],
         edition="1.2",
@@ -93,7 +93,7 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
                 funder_name="3ie, Nike Foundation",
                 funder_identifier="0987",
                 funder_identifier_type="Crossref FunderID",
-                award_number="OW1/1012 (3ie)",
+                award_number="OW1/1012 (3ie)",
                 award_uri="http://awards.example/7689",
             )
         ],
@@ -389,8 +389,7 @@ def test_generate_related_item_identifier_url_no_identifier_type(
     datacite_record_all_fields,
 ):
     assert (
-        next(datacite_record_all_fields).related_items[1].uri
-        == "10.5281/zenodo.5524464"
+        next(datacite_record_all_fields).related_items[1].uri == "10.5281/zenodo.5524464"
     )
 
 

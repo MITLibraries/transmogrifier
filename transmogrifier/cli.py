@@ -33,8 +33,10 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-v", "--verbose", is_flag=True, help="Pass to log at debug level instead of info"
 )
-def main(source, input_file, output_file, verbose):
-    START_TIME = perf_counter()
+def main(
+    source: str, input_file: str, output_file: str, verbose: bool  # noqa: FBT001
+) -> None:
+    start_time = perf_counter()
     root_logger = logging.getLogger()
     logger.info(configure_logger(root_logger, verbose))
     logger.info(configure_sentry())
@@ -54,7 +56,7 @@ def main(source, input_file, output_file, verbose):
         transformer.skipped_record_count,
         len(transformer.deleted_records),
     )
-    elapsed_time = perf_counter() - START_TIME
+    elapsed_time = perf_counter() - start_time
     logger.info(
         "Total time to complete transform: %s", str(timedelta(seconds=elapsed_time))
     )

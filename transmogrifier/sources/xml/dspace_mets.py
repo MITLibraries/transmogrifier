@@ -1,7 +1,8 @@
 """DSpace METS XML transform module."""
+
 import logging
 
-from bs4 import Tag
+from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
@@ -201,9 +202,7 @@ class DspaceMets(XMLTransformer):
             xml: A BeautifulSoup Tag representing a single DSpace METS XML record.
         """
         return [
-            t.string
-            for t in xml.find_all("mods:title", string=True)
-            if not t.get("type")
+            t.string for t in xml.find_all("mods:title", string=True) if not t.get("type")
         ]
 
     @classmethod

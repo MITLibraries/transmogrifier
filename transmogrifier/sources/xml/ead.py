@@ -1,7 +1,7 @@
 import logging
-from typing import Generator, Optional, Union
+from collections.abc import Generator
 
-from bs4 import NavigableString, Tag
+from bs4 import NavigableString, Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
@@ -11,15 +11,13 @@ from transmogrifier.sources.transformer import XMLTransformer
 logger = logging.getLogger(__name__)
 
 
-aspace_type_crosswalk = load_external_config(
-    "config/aspace_type_crosswalk.json", "json"
-)
+aspace_type_crosswalk = load_external_config("config/aspace_type_crosswalk.json", "json")
 
 
 class Ead(XMLTransformer):
     """EAD transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> Optional[dict]:
+    def get_optional_fields(self, xml: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from an EAD XML record.
 
@@ -35,18 +33,20 @@ class Ead(XMLTransformer):
         if collection_description := xml.metadata.find("archdesc", level="collection"):
             pass
         else:
-            logger.error(
+            message = (
                 f"Record ID {self.get_source_record_id(xml)} is missing archdesc element"
             )
+            logger.error(message)
             return None
 
         if collection_description_did := collection_description.did:
             pass
         else:
-            logger.error(
-                f"Record ID {self.get_source_record_id(xml)} is missing archdesc > did "
-                "element"
+            message = (
+                f"Record ID {self.get_source_record_id(xml)} is missing archdesc > "
+                "did element"
             )
+            logger.error(message)
             return None
 
         control_access_elements = collection_description.find_all(
@@ -65,7 +65,7 @@ class Ead(XMLTransformer):
         # call_numbers field not used in EAD
 
         # citation
-        if citation_element := collection_description.find(
+        if citation_element := collection_description.find(  # noqa: SIM102
             "prefercite", recursive=False
         ):
             if citation_value := self.create_string_from_mixed_value(
@@ -94,7 +94,7 @@ class Ead(XMLTransformer):
 
         # contributors
         for origination_element in collection_description_did.find_all("origination"):
-            for name_element in origination_element.find_all(True, recursive=False):
+            for name_element in origination_element.find_all(name=True, recursive=False):
                 if name_value := self.create_string_from_mixed_value(name_element, " "):
                     fields.setdefault("contributors", []).append(
                         timdex.Contributor(
@@ -121,9 +121,7 @@ class Ead(XMLTransformer):
         # holdings omitted pending discussion on how to map originalsloc and physloc
 
         # identifiers
-        for id_element in collection_description_did.find_all(
-            "unitid", recursive=False
-        ):
+        for id_element in collection_description_did.find_all("unitid", recursive=False):
             if id_element.get("type") == "aspace_uri":
                 continue
             if id_value := self.create_string_from_mixed_value(
@@ -168,17 +166,14 @@ class Ead(XMLTransformer):
             ],
             recursive=False,
         ):
-            if note_element.name == "bibliography":
-                subelement_tag = "bibref"
-            else:
-                subelement_tag = "p"
+            subelement_tag = "bibref" if note_element.name == "bibliography" else "p"
             note_value = []
             for subelement in note_element.find_all(subelement_tag, recursive=False):
                 if subelement_value := self.create_string_from_mixed_value(
                     subelement,
                     " ",
                 ):
-                    note_value.append(subelement_value)
+                    note_value.append(subelement_value)  # noqa: PERF401
             if note_value:
                 note_head_element = note_element.find("head", string=True)
                 fields.setdefault("notes", []).append(
@@ -204,14 +199,16 @@ class Ead(XMLTransformer):
             if physical_description_value := self.create_string_from_mixed_value(
                 physical_description_element, " "
             ):
-                physical_descriptions.append(physical_description_value)
+                physical_descriptions.append(physical_description_value)  # noqa: PERF401
         if physical_descriptions:
             fields["physical_description"] = "; ".join(physical_descriptions)
 
         # publication_frequency field not used in EAD
 
         # publication_information
-        if publication_element := collection_description_did.find("repository"):
+        if publication_element := collection_description_did.find(  # noqa: SIM102
+            "repository"
+        ):
             if publication_value := self.create_string_from_mixed_value(
                 publication_element, " "
             ):
@@ -270,7 +267,7 @@ class Ead(XMLTransformer):
         # subjects
         for control_access_element in control_access_elements:
             for subject_element in control_access_element.find_all(
-                True, recursive=False
+                name=True, recursive=False
             ):
                 if subject_value := self.create_string_from_mixed_value(
                     subject_element, " "
@@ -279,9 +276,7 @@ class Ead(XMLTransformer):
                     fields.setdefault("subjects", []).append(
                         timdex.Subject(
                             value=[subject_value],
-                            kind=aspace_type_crosswalk.get(
-                                subject_source, subject_source
-                            )
+                            kind=aspace_type_crosswalk.get(subject_source, subject_source)
                             or None,
                         ),
                     )
@@ -294,14 +289,14 @@ class Ead(XMLTransformer):
             if abstract_value := self.create_string_from_mixed_value(
                 abstract_element, " "
             ):
-                abstract_values.append(abstract_value)
+                abstract_values.append(abstract_value)  # noqa: PERF401
         fields["summary"] = abstract_values or None
 
         return fields
 
     @classmethod
     def create_list_from_mixed_value(
-        cls, xml_element: Tag, skipped_elements: Optional[list[str]] = None
+        cls, xml_element: Tag, skipped_elements: list[str] | None = None
     ) -> list:
         """
         Create a list of strings from an XML element value that contains a mix of strings
@@ -327,7 +322,7 @@ class Ead(XMLTransformer):
         cls,
         xml_element: Tag,
         separator: str = "",
-        skipped_elements: Optional[list[str]] = None,
+        skipped_elements: list[str] | None = None,
     ) -> str:
         """
         Create a joined string from a list of strings from an XML element value
@@ -345,7 +340,7 @@ class Ead(XMLTransformer):
         )
 
     @classmethod
-    def generate_name_identifier_url(cls, name_element: Tag) -> Optional[list]:
+    def generate_name_identifier_url(cls, name_element: Tag) -> list | None:
         """
         Generate a full name identifier URL with the specified scheme.
 
@@ -364,8 +359,7 @@ class Ead(XMLTransformer):
             else:
                 base_url = ""
             return [base_url + identifier]
-        else:
-            return None
+        return None
 
     @classmethod
     def get_main_titles(cls, xml: Tag) -> list[str]:
@@ -378,9 +372,9 @@ class Ead(XMLTransformer):
             xml: A BeautifulSoup Tag representing a single EAD XML record.
         """
         try:
-            unit_titles = xml.metadata.find(
-                "archdesc", level="collection"
-            ).did.find_all("unittitle")
+            unit_titles = xml.metadata.find("archdesc", level="collection").did.find_all(
+                "unittitle"
+            )
         except AttributeError:
             return []
         return [
@@ -404,8 +398,8 @@ class Ead(XMLTransformer):
     @classmethod
     def parse_mixed_value(
         cls,
-        item: Union[NavigableString, Tag],
-        skipped_elements: Optional[list[str]] = None,
+        item: NavigableString | Tag,
+        skipped_elements: list[str] | None = None,
     ) -> Generator:
         """
         Parse an item in a mixed value of XML elements and strings according to its type.
@@ -434,7 +428,6 @@ class Ead(XMLTransformer):
         but in the event they are not (or two identical values for the range) a single
         date value is produced.
         """
-
         dates = []
         for date_element in collection_description_did.find_all("unitdate"):
             normal_date = date_element.get("normal", "").strip()
@@ -452,7 +445,7 @@ class Ead(XMLTransformer):
                         lte_date,
                         source_record_id,
                     ):
-                        date_instance.range = timdex.Date_Range(
+                        date_instance.range = timdex.DateRange(
                             gte=gte_date,
                             lte=lte_date,
                         )
@@ -465,12 +458,8 @@ class Ead(XMLTransformer):
                         date_instance.value = date_str
 
             # fallback on single date
-            else:
-                if validate_date(
-                    normal_date,
-                    source_record_id,
-                ):
-                    date_instance.value = normal_date
+            elif validate_date(normal_date, source_record_id):
+                date_instance.value = normal_date
 
             # include @datechar and @certainty attributes
             date_instance.kind = date_element.get("datechar")

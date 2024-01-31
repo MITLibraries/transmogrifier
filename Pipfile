@@ -13,17 +13,17 @@ python-dateutil = "*"
 sentry-sdk = "*"
 smart-open = {version = "*", extras = ["s3"]}
 types-python-dateutil = "*"
+lxml-stubs = "*"
 
 [dev-packages]
-bandit = "*"
 black = "*"
-coverage = "*"
 coveralls = "*"
-flake8 = "*"
-isort = "*"
 mypy = "*"
 pytest = "*"
 ipython = "*"
+pre-commit = "*"
+ruff = "*"
+safety = "*"
 
 [requires]
 python_version = "3.11"

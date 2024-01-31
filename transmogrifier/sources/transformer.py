@@ -1,4 +1,5 @@
 """Transformer module."""
+
 from __future__ import annotations
 
 import json
@@ -6,12 +7,12 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from importlib import import_module
-from typing import Iterator, Optional, TypeAlias, final
+from typing import TYPE_CHECKING, TypeAlias, final
 
 import jsonlines
-import smart_open
+import smart_open  # type: ignore[import-untyped]
 from attrs import asdict
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag  # type: ignore[import-untyped]
 
 # Note: the lxml module in defusedxml is deprecated, so we have to use the
 # regular lxml library. Transmogrifier only parses data from known sources so this
@@ -19,8 +20,11 @@ from bs4 import BeautifulSoup, Tag
 from lxml import etree  # nosec B410
 
 from transmogrifier.config import SOURCES
-from transmogrifier.helpers import DeletedRecord, generate_citation
+from transmogrifier.helpers import DeletedRecordEvent, generate_citation
 from transmogrifier.models import TimdexRecord
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 logger = logging.getLogger(__name__)
 
@@ -63,15 +67,14 @@ class Transformer(ABC):
             self.processed_record_count += 1
             try:
                 record = self.transform(source_record)
-            except DeletedRecord as error:
+            except DeletedRecordEvent as error:
                 self.deleted_records.append(error.timdex_record_id)
                 continue
             if record:
                 self.transformed_record_count += 1
                 return record
-            else:
-                self.skipped_record_count += 1
-                continue
+            self.skipped_record_count += 1
+            continue
 
     @final
     def transform_and_write_output_files(self, output_file: str) -> None:
@@ -82,16 +85,13 @@ class Transformer(ABC):
         """
         self._write_timdex_records_to_json_file(output_file)
         if self.processed_record_count == 0:
-            raise ValueError(
-                "No records processed from input file, needs investigation"
-            )
+            message = "No records processed from input file, needs investigation"
+            raise ValueError(message)
         if deleted_records := self.deleted_records:
             deleted_output_file = output_file.replace("index", "delete").replace(
                 "json", "txt"
             )
-            self._write_deleted_records_to_txt_file(
-                deleted_records, deleted_output_file
-            )
+            self._write_deleted_records_to_txt_file(deleted_records, deleted_output_file)
 
     @final
     def _write_timdex_records_to_json_file(self, output_file: str) -> int:
@@ -111,18 +111,21 @@ class Transformer(ABC):
             while record:
                 file.write(
                     json.dumps(
-                        asdict(record, filter=lambda attr, value: value is not None),
+                        asdict(
+                            record,
+                            filter=lambda _, value: value is not None,
+                        ),
                         indent=2,
                     )
                 )
                 count += 1
-                if count % int(os.getenv("STATUS_UPDATE_INTERVAL", 1000)) == 0:
+                if count % int(os.getenv("STATUS_UPDATE_INTERVAL", "1000")) == 0:
                     logger.info(
                         "Status update: %s records written to output file so far!",
                         count,
                     )
                 try:
-                    record: TimdexRecord = next(self)  # type: ignore[no-redef]  # noqa: E501
+                    record: TimdexRecord = next(self)  # type: ignore[no-redef]
                 except StopIteration:
                     break
                 file.write(",\n")
@@ -133,7 +136,7 @@ class Transformer(ABC):
     @staticmethod
     def _write_deleted_records_to_txt_file(
         deleted_records: list[str], output_file: str
-    ):
+    ) -> None:
         """Write deleted records to the specified text file.
 
         Args:
@@ -156,8 +159,7 @@ class Transformer(ABC):
         """
         transformer_class = cls.get_transformer(source)
         source_records = transformer_class.parse_source_file(source_file)
-        transformer = transformer_class(source, source_records)
-        return transformer
+        return transformer_class(source, source_records)
 
     @final
     @classmethod
@@ -223,12 +225,9 @@ class Transformer(ABC):
         Args:
             source_file: A file containing source records to be transformed.
         """
-        pass
 
     @final
-    def _transform(
-        self, source_record: dict[str, JSON] | Tag
-    ) -> Optional[TimdexRecord]:
+    def _transform(self, source_record: dict[str, JSON] | Tag) -> TimdexRecord | None:
         """
         Private method called for both XML and JSON transformations, where
         all logic is shared except source_record type.
@@ -243,26 +242,26 @@ class Transformer(ABC):
             timdex_record_id = self.get_timdex_record_id(
                 self.source, source_record_id, source_record
             )
-            raise DeletedRecord(timdex_record_id)
+            raise DeletedRecordEvent(timdex_record_id)
         optional_fields = self.get_optional_fields(source_record)
         if optional_fields is None:
             return None
-        else:
-            fields = {
-                **self.get_required_fields(source_record),
-                **optional_fields,
-            }
 
-            # If citation field was not present, generate citation from other fields
-            if fields.get("citation") is None:
-                fields["citation"] = generate_citation(fields)
-            if fields.get("content_type") is None:
-                fields["content_type"] = ["Not specified"]
+        fields = {
+            **self.get_required_fields(source_record),
+            **optional_fields,
+        }
 
-            return TimdexRecord(**fields)
+        # If citation field was not present, generate citation from other fields
+        if fields.get("citation") is None:
+            fields["citation"] = generate_citation(fields)
+        if fields.get("content_type") is None:
+            fields["content_type"] = ["Not specified"]
+
+        return TimdexRecord(**fields)
 
     @abstractmethod
-    def transform(self, source_record: dict[str, JSON] | Tag) -> Optional[TimdexRecord]:
+    def transform(self, source_record: dict[str, JSON] | Tag) -> TimdexRecord | None:
         """
         Call Transformer._transform method to transform source record to TIMDEX record.
 
@@ -271,7 +270,6 @@ class Transformer(ABC):
         Args:
             source_record: A single source record.
         """
-        pass
 
     @abstractmethod
     def get_required_fields(self, source_record: dict[str, JSON] | Tag) -> dict:
@@ -283,7 +281,6 @@ class Transformer(ABC):
         Args:
             source_record: A single source record.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -296,7 +293,6 @@ class Transformer(ABC):
         Args:
             source_record: A single source record.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -316,7 +312,6 @@ class Transformer(ABC):
             source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -333,7 +328,6 @@ class Transformer(ABC):
             source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -346,7 +340,6 @@ class Transformer(ABC):
         Args:
             source_record: A single source record.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -359,11 +352,8 @@ class Transformer(ABC):
         Args:
             source_record: A single source record.
         """
-        pass
 
-    def get_optional_fields(
-        self, source_record: dict[str, JSON] | Tag
-    ) -> Optional[dict]:
+    def get_optional_fields(self, _source_record: dict[str, JSON] | Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a source record.
 
@@ -391,13 +381,11 @@ class JSONTransformer(Transformer):
         Args:
             source_file: A file containing source records to be transformed.
         """
-        with smart_open.open(source_file, "r") as source_file_object:
-            with jsonlines.Reader(source_file_object) as records:
-                for record in records.iter(type=dict):
-                    yield record
+        with jsonlines.Reader(smart_open.open(source_file, "r")) as records:
+            yield from records.iter(type=dict)
 
     @final
-    def transform(self, source_record: dict[str, JSON]) -> Optional[TimdexRecord]:
+    def transform(self, source_record: dict[str, JSON]) -> TimdexRecord | None:
         """
         Call Transformer._transform method to transform JSON record to TIMDEX record.
 
@@ -447,11 +435,13 @@ class JSONTransformer(Transformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-        pass
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, source_record: dict[str, JSON]
+        cls,
+        source_base_url: str,
+        source_record_id: str,
+        _source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the source link for the item.
@@ -471,7 +461,10 @@ class JSONTransformer(Transformer):
 
     @classmethod
     def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: dict[str, JSON]
+        cls,
+        source: str,
+        source_record_id: str,
+        _source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -500,7 +493,6 @@ class JSONTransformer(Transformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -513,9 +505,8 @@ class JSONTransformer(Transformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-        pass
 
-    def get_optional_fields(self, source_record: dict[str, JSON]) -> Optional[dict]:
+    def get_optional_fields(self, _source_record: dict[str, JSON]) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a JSON record.
 
@@ -554,7 +545,7 @@ class XMLTransformer(Transformer):
                 element.clear()
 
     @final
-    def transform(self, source_record: Tag) -> Optional[TimdexRecord]:
+    def transform(self, source_record: Tag) -> TimdexRecord | None:
         """
         Call Transformer._transform method to transform XML record to TIMDEX record.
 
@@ -594,7 +585,7 @@ class XMLTransformer(Transformer):
         }
 
     @classmethod
-    def get_main_titles(cls, source_record: Tag) -> list[Tag]:
+    def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
         """
         Retrieve main title(s) from an XML record.
 
@@ -607,7 +598,10 @@ class XMLTransformer(Transformer):
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, source_record: Tag
+        cls,
+        source_base_url: str,
+        source_record_id: str,
+        _source_record: Tag,
     ) -> str:
         """
         Class method to set the source link for the item.
@@ -627,7 +621,7 @@ class XMLTransformer(Transformer):
 
     @classmethod
     def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: Tag
+        cls, source: str, source_record_id: str, _source_record: Tag
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -671,7 +665,7 @@ class XMLTransformer(Transformer):
             return True
         return False
 
-    def get_optional_fields(self, source_record: Tag) -> Optional[dict]:
+    def get_optional_fields(self, _source_record: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from an XML record.
 

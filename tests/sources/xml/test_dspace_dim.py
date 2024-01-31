@@ -8,7 +8,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
     )
     output_records = DspaceDim("cool-repo", source_records)
     assert next(output_records) == timdex.TimdexRecord(
-        citation="Journal of Geophysical Research: Solid Earth 121 (2016): 5859–5879",
+        citation="Journal of Geophysical Research: Solid Earth 121 (2016): 5859-5879",
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
         timdex_record_id="cool-repo:1912-2641",
@@ -42,7 +42,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
             timdex.Date(kind="coverage", note="1201-01-01 - 1965-12-21"),
             timdex.Date(
                 kind="coverage",
-                range=timdex.Date_Range(gte="1201-01-01", lte="1965-12-21"),
+                range=timdex.DateRange(gte="1201-01-01", lte="1965-12-21"),
             ),
         ],
         file_formats=[

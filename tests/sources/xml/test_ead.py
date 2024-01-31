@@ -59,7 +59,7 @@ def test_ead_record_all_fields_transform_correctly():
             timdex.Date(
                 kind="creation",
                 note="approximate",
-                range=timdex.Date_Range(gte="1905", lte="2012"),
+                range=timdex.DateRange(gte="1905", lte="2012"),
             )
         ],
         identifiers=[timdex.Identifier(value="1234", kind="Collection Identifier")],
@@ -384,23 +384,23 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
         contents=["Data not enclosed in subelement"],
         dates=[
             timdex.Date(
-                range=timdex.Date_Range(gte="1905", lte="2012"),
+                range=timdex.DateRange(gte="1905", lte="2012"),
             ),
             timdex.Date(
                 kind="creation",
-                range=timdex.Date_Range(gte="1905", lte="2012"),
+                range=timdex.DateRange(gte="1905", lte="2012"),
             ),
             timdex.Date(
                 note="approximate",
-                range=timdex.Date_Range(gte="1905", lte="2012"),
+                range=timdex.DateRange(gte="1905", lte="2012"),
             ),
             timdex.Date(
                 kind="creation",
                 note="approximate",
-                range=timdex.Date_Range(gte="1905", lte="2012"),
+                range=timdex.DateRange(gte="1905", lte="2012"),
             ),
             timdex.Date(
-                range=timdex.Date_Range(gte="1953-11-09", lte="1953-11-10"),
+                range=timdex.DateRange(gte="1953-11-09", lte="1953-11-10"),
             ),
             timdex.Date(value="1969-03-04"),
             timdex.Date(value="2023"),
@@ -414,16 +414,12 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
         notes=[
             timdex.Note(value=["Data with blank head element"], kind="Bibliography"),
             timdex.Note(value=["Data with no head element"], kind="Bibliography"),
-            timdex.Note(
-                value=["Data with blank head tag"], kind="Biography or History"
-            ),
+            timdex.Note(value=["Data with blank head tag"], kind="Biography or History"),
             timdex.Note(value=["Data with no head tag"], kind="Biography or History"),
             timdex.Note(
                 value=["Data with blank head tag"], kind="Scope and Contents Note"
             ),
-            timdex.Note(
-                value=["Data with no head tag"], kind="Scope and Contents Note"
-            ),
+            timdex.Note(value=["Data with no head tag"], kind="Scope and Contents Note"),
         ],
         physical_description="Data not enclosed in subelement",
         publication_information=["Data not enclosed in subelement"],
@@ -489,6 +485,7 @@ def test_ead_record_with_blank_optional_fields_transforms_correctly():
 
 
 def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
+    caplog.set_level(logging.DEBUG)
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )

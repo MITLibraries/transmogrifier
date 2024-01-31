@@ -1,25 +1,31 @@
-from typing import Optional
+from collections.abc import Callable
+from typing import Any
 
+import attrs
 from attrs import asdict, define, field, validators
 from attrs.validators import instance_of, optional
 
 
-def check_range(instance, attribute, value):
+def check_range(
+    _instance: "Date", attribute: "attrs.Attribute", value: "DateRange"
+) -> None:
     if value is None:
         return
     if value.gt and value.gte:
-        raise ValueError(
+        message = (
             f"{attribute.name} may have a 'gt' or 'gte' value, but not both; "
             f"received {value}"
         )
+        raise ValueError(message)
     if value.lt and value.lte:
-        raise ValueError(
+        message = (
             f"{attribute.name} may have a 'lt' or 'lte' value, but not both; "
             f"received {value}"
         )
+        raise ValueError(message)
 
 
-def list_of(item_type):
+def list_of(item_type: Any) -> Callable:  # noqa: ANN401
     return validators.and_(
         validators.deep_iterable(
             member_validator=instance_of(item_type),
@@ -29,136 +35,117 @@ def list_of(item_type):
     )
 
 
-def not_empty(instance, attribute, value):
+def not_empty(
+    _instance: "TimdexRecord", attribute: "attrs.Attribute", value: "list"
+) -> None:
     if len(value) == 0:
-        raise ValueError(
-            f"'{attribute.name}' cannot be an empty list, received: '{value}'."
-        )
+        message = f"'{attribute.name}' cannot be an empty list, received: '{value}'."
+        raise ValueError(message)
 
 
 @define
 class AlternateTitle:
     value: str = field(validator=instance_of(str))  # Required subfield
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Contributor:
     value: str = field(validator=instance_of(str))  # Required subfield
-    affiliation: Optional[list[str]] = field(
-        default=None, validator=optional(list_of(str))
-    )
-    identifier: Optional[list[str]] = field(
-        default=None, validator=optional(list_of(str))
-    )
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    mit_affiliated: Optional[bool] = field(
+    affiliation: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    identifier: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
+    mit_affiliated: bool | None = field(
         default=None, validator=optional(instance_of(bool))
     )
 
 
 @define
-class Date_Range:
-    gt: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    gte: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    lt: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    lte: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+class DateRange:
+    gt: str | None = field(default=None, validator=optional(instance_of(str)))
+    gte: str | None = field(default=None, validator=optional(instance_of(str)))
+    lt: str | None = field(default=None, validator=optional(instance_of(str)))
+    lte: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Date:
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    note: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    range: Optional[Date_Range] = field(
-        default=None, validator=[optional(instance_of(Date_Range)), check_range]
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
+    note: str | None = field(default=None, validator=optional(instance_of(str)))
+    range: DateRange | None = field(  # type: ignore[misc]
+        default=None, validator=[optional(instance_of(DateRange)), check_range]
     )
-    value: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    value: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Funder:
-    funder_name: Optional[str] = field(
+    funder_name: str | None = field(default=None, validator=optional(instance_of(str)))
+    funder_identifier: str | None = field(
         default=None, validator=optional(instance_of(str))
     )
-    funder_identifier: Optional[str] = field(
+    funder_identifier_type: str | None = field(
         default=None, validator=optional(instance_of(str))
     )
-    funder_identifier_type: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    award_number: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    award_uri: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    award_number: str | None = field(default=None, validator=optional(instance_of(str)))
+    award_uri: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Holding:
-    call_number: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    collection: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    format: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    location: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    note: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    call_number: str | None = field(default=None, validator=optional(instance_of(str)))
+    collection: str | None = field(default=None, validator=optional(instance_of(str)))
+    format: str | None = field(default=None, validator=optional(instance_of(str)))
+    location: str | None = field(default=None, validator=optional(instance_of(str)))
+    note: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Identifier:
     value: str = field(validator=instance_of(str))  # Required subfield
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Link:
     url: str = field(validator=instance_of(str))  # Required subfield
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    restrictions: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    text: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
+    restrictions: str | None = field(default=None, validator=optional(instance_of(str)))
+    text: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Location:
-    value: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    geoshape: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    value: str | None = field(default=None, validator=optional(instance_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
+    geoshape: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Note:
     value: list[str] = field(validator=list_of(str))  # Required subfield
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class RelatedItem:
-    description: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    item_type: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    relationship: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    uri: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    description: str | None = field(default=None, validator=optional(instance_of(str)))
+    item_type: str | None = field(default=None, validator=optional(instance_of(str)))
+    relationship: str | None = field(default=None, validator=optional(instance_of(str)))
+    uri: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Rights:
-    description: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    uri: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    description: str | None = field(default=None, validator=optional(instance_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
+    uri: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
 class Subject:
     value: list[str] = field(validator=list_of(str))  # Required subfield
-    kind: Optional[str] = field(default=None, validator=optional(instance_of(str)))
+    kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
 
 @define
@@ -170,68 +157,54 @@ class TimdexRecord:
     title: str = field(validator=instance_of(str))
 
     # Optional fields
-    alternate_titles: Optional[list[AlternateTitle]] = field(
+    alternate_titles: list[AlternateTitle] | None = field(
         default=None, validator=optional(list_of(AlternateTitle))
     )
-    call_numbers: Optional[list[str]] = field(
-        default=None, validator=optional(list_of(str))
-    )
-    citation: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    content_type: Optional[list[str]] = field(
-        default=None, validator=optional(list_of(str))
-    )
-    contents: Optional[list[str]] = field(
-        default=None, validator=optional(list_of(str))
-    )
-    contributors: Optional[list[Contributor]] = field(
+    call_numbers: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    citation: str | None = field(default=None, validator=optional(instance_of(str)))
+    content_type: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    contents: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    contributors: list[Contributor] | None = field(
         default=None, validator=optional(list_of(Contributor))
     )
-    dates: Optional[list[Date]] = field(default=None, validator=optional(list_of(Date)))
-    edition: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    file_formats: Optional[list[str]] = field(
-        default=None, validator=optional(list_of(str))
-    )
-    format: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    funding_information: Optional[list[Funder]] = field(
+    dates: list[Date] | None = field(default=None, validator=optional(list_of(Date)))
+    edition: str | None = field(default=None, validator=optional(instance_of(str)))
+    file_formats: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    format: str | None = field(default=None, validator=optional(instance_of(str)))
+    funding_information: list[Funder] | None = field(
         default=None, validator=optional(list_of(Funder))
     )
-    holdings: Optional[list[Holding]] = field(
+    holdings: list[Holding] | None = field(
         default=None, validator=optional(list_of(Holding))
     )
-    identifiers: Optional[list[Identifier]] = field(
+    identifiers: list[Identifier] | None = field(
         default=None, validator=optional(list_of(Identifier))
     )
-    languages: Optional[list[str]] = field(
-        default=None, validator=optional(list_of(str))
-    )
-    links: Optional[list[Link]] = field(default=None, validator=optional(list_of(Link)))
-    literary_form: Optional[str] = field(
-        default=None, validator=optional(instance_of(str))
-    )
-    locations: Optional[list[Location]] = field(
+    languages: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    links: list[Link] | None = field(default=None, validator=optional(list_of(Link)))
+    literary_form: str | None = field(default=None, validator=optional(instance_of(str)))
+    locations: list[Location] | None = field(
         default=None, validator=optional(list_of(Location))
     )
-    notes: Optional[list[Note]] = field(default=None, validator=optional(list_of(Note)))
-    numbering: Optional[str] = field(default=None, validator=optional(instance_of(str)))
-    physical_description: Optional[str] = field(
+    notes: list[Note] | None = field(default=None, validator=optional(list_of(Note)))
+    numbering: str | None = field(default=None, validator=optional(instance_of(str)))
+    physical_description: str | None = field(
         default=None, validator=optional(instance_of(str))
     )
-    publication_frequency: Optional[list[str]] = field(
+    publication_frequency: list[str] | None = field(
         default=None, validator=optional(list_of(str))
     )
-    publication_information: Optional[list[str]] = field(
+    publication_information: list[str] | None = field(
         default=None, validator=optional(list_of(str))
     )
-    related_items: Optional[list[RelatedItem]] = field(
+    related_items: list[RelatedItem] | None = field(
         default=None, validator=optional(list_of(RelatedItem))
     )
-    rights: Optional[list[Rights]] = field(
-        default=None, validator=optional(list_of(Rights))
-    )
-    subjects: Optional[list[Subject]] = field(
+    rights: list[Rights] | None = field(default=None, validator=optional(list_of(Rights)))
+    subjects: list[Subject] | None = field(
         default=None, validator=optional(list_of(Subject))
     )
-    summary: Optional[list[str]] = field(default=None, validator=optional(list_of(str)))
+    summary: list[str] | None = field(default=None, validator=optional(list_of(str)))
 
-    def asdict(self):
-        return asdict(self, filter=lambda attr, value: value is not None)
+    def asdict(self) -> dict[str, Any]:
+        return asdict(self, filter=lambda _, value: value is not None)
