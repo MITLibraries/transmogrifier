@@ -353,9 +353,7 @@ class Transformer(ABC):
             source_record: A single source record.
         """
 
-    def get_optional_fields(
-        self, source_record: dict[str, JSON] | Tag  # noqa: ARG002
-    ) -> dict | None:
+    def get_optional_fields(self, _source_record: dict[str, JSON] | Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a source record.
 
@@ -443,7 +441,7 @@ class JSONTransformer(Transformer):
         cls,
         source_base_url: str,
         source_record_id: str,
-        source_record: dict[str, JSON],  # noqa: ARG003
+        _source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the source link for the item.
@@ -466,7 +464,7 @@ class JSONTransformer(Transformer):
         cls,
         source: str,
         source_record_id: str,
-        source_record: dict[str, JSON],  # noqa: ARG003
+        _source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -508,9 +506,7 @@ class JSONTransformer(Transformer):
             source_record: A JSON object representing a source record.
         """
 
-    def get_optional_fields(
-        self, source_record: dict[str, JSON]  # noqa: ARG002
-    ) -> dict | None:
+    def get_optional_fields(self, _source_record: dict[str, JSON]) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a JSON record.
 
@@ -589,7 +585,7 @@ class XMLTransformer(Transformer):
         }
 
     @classmethod
-    def get_main_titles(cls, source_record: Tag) -> list[Tag]:  # noqa: ARG003
+    def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
         """
         Retrieve main title(s) from an XML record.
 
@@ -605,7 +601,7 @@ class XMLTransformer(Transformer):
         cls,
         source_base_url: str,
         source_record_id: str,
-        source_record: Tag,  # noqa: ARG003
+        _source_record: Tag,
     ) -> str:
         """
         Class method to set the source link for the item.
@@ -625,7 +621,7 @@ class XMLTransformer(Transformer):
 
     @classmethod
     def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: Tag  # noqa: ARG003
+        cls, source: str, source_record_id: str, _source_record: Tag
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -669,7 +665,7 @@ class XMLTransformer(Transformer):
             return True
         return False
 
-    def get_optional_fields(self, source_record: Tag) -> dict | None:  # noqa: ARG002
+    def get_optional_fields(self, _source_record: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from an XML record.
 

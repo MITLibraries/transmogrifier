@@ -301,7 +301,7 @@ class DspaceDim(XMLTransformer):
         return xml.header.identifier.string.split(":")[2]
 
     @classmethod
-    def valid_content_types(cls, content_type_list: list[str]) -> bool:  # noqa: ARG003
+    def valid_content_types(cls, _content_type_list: list[str]) -> bool:
         """
         Validate a list of content_type values from a DSpace DIM XML record.
 

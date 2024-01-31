@@ -56,7 +56,7 @@ class MITAardvark(JSONTransformer):
         cls,
         source: str,
         source_record_id: str,
-        source_record: dict[str, JSON],  # noqa: ARG003
+        _source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the TIMDEX record id.

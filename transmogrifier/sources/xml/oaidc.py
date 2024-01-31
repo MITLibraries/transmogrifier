@@ -136,9 +136,7 @@ class OaiDc(XMLTransformer):
                     dates.append(timdex.Date(value=date_str, kind="Unknown"))
         return dates
 
-    def get_links(
-        self, source_record_id: str, xml: Tag  # noqa: ARG002
-    ) -> list[timdex.Link] | None:
+    def get_links(self, _source_record_id: str, _xml: Tag) -> list[timdex.Link] | None:
         """
         Method to get TIMDEX "links" field. This method broken out to allow subclasses
         to override.

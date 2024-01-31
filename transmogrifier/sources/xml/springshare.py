@@ -77,7 +77,7 @@ class SpringshareOaiDc(OaiDc):
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, xml: Tag  # noqa: ARG003
+        cls, _source_base_url: str, _source_record_id: str, xml: Tag
     ) -> str:
         """
         Override for default source_link behavior.

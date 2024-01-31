@@ -7,7 +7,7 @@ from attrs.validators import instance_of, optional
 
 
 def check_range(
-    instance: "Date", attribute: "attrs.Attribute", value: "DateRange"  # noqa: ARG001
+    _instance: "Date", attribute: "attrs.Attribute", value: "DateRange"
 ) -> None:
     if value is None:
         return
@@ -36,7 +36,7 @@ def list_of(item_type: Any) -> Callable:  # noqa: ANN401
 
 
 def not_empty(
-    instance: "TimdexRecord", attribute: "attrs.Attribute", value: "list"  # noqa: ARG001
+    _instance: "TimdexRecord", attribute: "attrs.Attribute", value: "list"
 ) -> None:
     if len(value) == 0:
         message = f"'{attribute.name}' cannot be an empty list, received: '{value}'."
