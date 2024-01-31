@@ -411,14 +411,12 @@ class MITAardvark(JSONTransformer):
             "gbl_resourceType_sm": "Subject scheme not provided",
         }
 
-        for aardvark_subject_field, kind_value in {
-            key: value
-            for key, value in aardvark_subject_fields.items()
-            if key in source_record
-        }.items():
-            for subject in source_record[aardvark_subject_field]:
-                subjects.append(  # noqa: PERF401
-                    timdex.Subject(value=[subject], kind=kind_value)
-                )
+        for subject_field, subject_kind in aardvark_subject_fields.items():
+            subjects.extend(
+                [
+                    timdex.Subject(value=[subject], kind=subject_kind)
+                    for subject in source_record.get(subject_field, [])
+                ]
+            )
 
         return subjects

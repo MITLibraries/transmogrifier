@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup, Tag  # type: ignore[import-untyped]
 from lxml import etree  # nosec B410
 
 from transmogrifier.config import SOURCES
-from transmogrifier.helpers import DeletedRecordError, generate_citation
+from transmogrifier.helpers import DeletedRecordEvent, generate_citation
 from transmogrifier.models import TimdexRecord
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ class Transformer(ABC):
             self.processed_record_count += 1
             try:
                 record = self.transform(source_record)
-            except DeletedRecordError as error:
+            except DeletedRecordEvent as error:
                 self.deleted_records.append(error.timdex_record_id)
                 continue
             if record:
@@ -113,7 +113,7 @@ class Transformer(ABC):
                     json.dumps(
                         asdict(
                             record,
-                            filter=lambda attr, value: value is not None,  # noqa: ARG005
+                            filter=lambda _, value: value is not None,
                         ),
                         indent=2,
                     )
@@ -242,7 +242,7 @@ class Transformer(ABC):
             timdex_record_id = self.get_timdex_record_id(
                 self.source, source_record_id, source_record
             )
-            raise DeletedRecordError(timdex_record_id)
+            raise DeletedRecordEvent(timdex_record_id)
         optional_fields = self.get_optional_fields(source_record)
         if optional_fields is None:
             return None

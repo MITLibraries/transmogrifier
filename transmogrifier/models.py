@@ -207,4 +207,4 @@ class TimdexRecord:
     summary: list[str] | None = field(default=None, validator=optional(list_of(str)))
 
     def asdict(self) -> dict[str, Any]:
-        return asdict(self, filter=lambda attr, value: value is not None)  # noqa: ARG005
+        return asdict(self, filter=lambda _, value: value is not None)

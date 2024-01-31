@@ -134,7 +134,7 @@ def validate_date_range(
     return False
 
 
-class DeletedRecordError(Exception):
+class DeletedRecordEvent(Exception):  # noqa: N818
     """Exception raised for records with a deleted status.
 
     Attributes:
