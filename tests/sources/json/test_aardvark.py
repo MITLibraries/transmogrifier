@@ -180,7 +180,7 @@ def test_aardvark_get_links_success(aardvark_record_all_fields):
             text="Data",
         ),
         timdex.Link(
-            url="https://search.libraries.mit.edu/record/gismit"
+            url="https://geodata.libraries.mit.edu/record/gismit"
             ":GISPORTAL_GISOWNER01_BOSTONWATER95",
             kind="Website",
             text="Website",

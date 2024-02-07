@@ -274,7 +274,14 @@ class MITAardvark(JSONTransformer):
 
     @staticmethod
     def get_links(source_record: dict, source_record_id: str) -> list[timdex.Link]:
-        """Get values from source record for TIMDEX links field."""
+        """Get values from source record for TIMDEX links field.
+
+        The dct_references_s is a JSON string following a particular format defined here:
+        https://opengeometadata.org/ogm-aardvark/#references.  Keys in the parsed JSON
+        object define what kind of URL it is.  This is a flat mapping of namespace:url,
+        except in the case of 'http://schema.org/downloadUrl' which will be an array of
+        complex objects.
+        """
         links = []
         links_string = source_record["dct_references_s"]
         try:
@@ -287,14 +294,8 @@ class MITAardvark(JSONTransformer):
                     for link in links_object.get("http://schema.org/downloadUrl", [])
                 ]
             )
-            links.extend(
-                [
-                    timdex.Link(
-                        url=link.get("url"), kind="Website", text=link.get("label")
-                    )
-                    for link in links_object.get("http://schema.org/url", [])
-                ]
-            )
+            if schema_url := links_object.get("http://schema.org/url"):
+                links.append(timdex.Link(url=schema_url, kind="Website", text="Website"))
         except ValueError:
             message = (
                 f"Record ID '{source_record_id}': Unable to parse "
