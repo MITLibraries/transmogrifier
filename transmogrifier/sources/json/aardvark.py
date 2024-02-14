@@ -3,6 +3,7 @@ import logging
 import re
 
 import transmogrifier.models as timdex
+from transmogrifier.helpers import validate_date
 from transmogrifier.sources.transformer import JSON, JSONTransformer
 
 logger = logging.getLogger(__name__)
@@ -183,12 +184,25 @@ class MITAardvark(JSONTransformer):
 
     @classmethod
     def get_dates(cls, source_record: dict, source_record_id: str) -> list[timdex.Date]:
-        """Get values from source record for TIMDEX dates field."""
-        return (
+        """Get values from source record for TIMDEX dates field.
+
+        This method aggregates dates from a variety of Aardvark fields.  Once aggregated,
+        the results are filtered to allow only well formed DateRanges or validated date
+        strings.
+        """
+        dates = (
             cls._issued_dates(source_record)
             + cls._coverage_dates(source_record)
             + cls._range_dates(source_record, source_record_id)
         )
+        return [
+            date
+            for date in dates
+            # skip value validation for DateRange type dates
+            if isinstance(date.range, timdex.DateRange)
+            # validate date string if not None
+            or (date.value is not None and validate_date(date.value, source_record_id))
+        ]
 
     @classmethod
     def _issued_dates(cls, source_record: dict) -> list[timdex.Date]:
@@ -228,9 +242,13 @@ class MITAardvark(JSONTransformer):
         """Get values for issued dates."""
         range_dates = []
         for date_range_string in source_record.get("gbl_dateRange_drsim", []):
-            date_range_values = cls.parse_solr_date_range_string(
-                date_range_string, source_record_id
-            )
+            try:
+                date_range_values = cls.parse_solr_date_range_string(
+                    date_range_string, source_record_id
+                )
+            except ValueError as exc:
+                logger.warning(exc)
+                continue
             range_dates.append(
                 timdex.Date(
                     kind="Coverage",
