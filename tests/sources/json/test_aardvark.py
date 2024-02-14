@@ -137,6 +137,32 @@ def test_aardvark_get_dates_success(aardvark_record_all_fields):
     ]
 
 
+def test_aardvark_get_dates_drops_dates_with_invalid_strings(aardvark_record_all_fields):
+    record = next(aardvark_record_all_fields)
+    record["dct_issued_s"] = "1933?"  # dropped
+    record["dct_temporal_sm"] = [
+        "2000-01-01",
+        "1999",
+        "approximately 1569",  # dropped
+        "absolute junky date",  # dropped
+    ]
+    record["gbl_dateRange_drsim"] = ["[1943 TO 1946]"]
+    assert MITAardvark.get_dates(record, "123") == [
+        timdex.Date(kind="Coverage", note=None, range=None, value="2000-01-01"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1999"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1943"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1944"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1945"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1946"),
+        timdex.Date(
+            kind="Coverage",
+            note=None,
+            range=timdex.DateRange(gt=None, gte="1943", lt=None, lte="1946"),
+            value=None,
+        ),
+    ]
+
+
 def test_aardvark_parse_solr_date_range_string_success():
     assert MITAardvark.parse_solr_date_range_string("[1932 TO 1937]", "123") == (
         "1932",
