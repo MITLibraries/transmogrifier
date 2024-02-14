@@ -32,25 +32,33 @@ class MITAardvark(JSONTransformer):
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, source_record: dict[str, JSON]
+        cls,
+        _source_base_url: str,
+        source_record_id: str,
+        source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the source link for the item.
 
         May be overridden by source subclasses if needed.
 
-        Default behavior is to concatenate the source base URL + source record id.
+        Unlike other Transmogrifier sources that dynamically build a source link,
+        MITAardvark files are expected to have a fully formed and appropriate source link
+        in the metadata already.  This method relies on that data.
 
         Args:
-            source_base_url: Source base URL.
+            _source_base_url: Source base URL.  Not used for MITAardvark transforms.
             source_record_id: Record identifier for the source record.
             source_record: A BeautifulSoup Tag representing a single XML record.
                 - not used by default implementation, but could be useful for subclass
                     overrides
         """
-        return source_base_url + cls.get_timdex_record_id(
-            "gismit", source_record_id, source_record
-        )
+        links = cls.get_links(source_record, source_record_id)
+        url_links = [link for link in links if link.kind == "Website"]
+        if len(url_links) == 1:
+            return url_links[0].url
+        message = "Could not locate a kind=Website link to pull the source link from."
+        raise ValueError(message)
 
     @classmethod
     def get_timdex_record_id(
