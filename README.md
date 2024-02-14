@@ -4,7 +4,7 @@ An application to transform source records to the TIMDEX data model to facilitat
 
 ## Description
 
-TIMDEX ingests records from various sources with different metadata formats, necessitating an application to transform those source records to a common metadata format. This application processes both XML and JSON source records and outputs a JSON file of records formatted according to the TIMDEX data model. 
+TIMDEX ingests records from various sources with different metadata formats, necessitating an application to transform those source records to a common metadata format, the TIMDEX data model in this case. This application processes both XML and JSON source records and outputs a JSON file of records formatted according to the TIMDEX data model. 
 
 ```mermaid
 ---
@@ -28,7 +28,7 @@ flowchart TD
 
 The TIMDEX data model is designed to produce records that can be successfully ingested into an OpenSearch index and contains data fields that are broadly applicable to various types of records. `transmogrifier` contains different validators to ensure that the record is structured properly and that certain types of values, such as dates, align with OpenSearch's expectations.
 
-Each source is defined with configuration values and a dedicated transform class to process records from that source. For each transform class, various errors and warnings are logged. Some errors are logged and the entire source record is skipped because it is incorrectly formatted, while others are merely logged as warnings for later review. The application also determines which records are marked as deleted in each source and removes those record from the OpenSearch index. 
+Each source is defined with configuration values and a dedicated transform class to process records from that source. For each transform class, various errors and warnings are logged. Some errors are logged and the entire source record is skipped because the severity implies it should not be processed until fixed, while others are merely logged as warnings for later review. The application also determines which records are marked as deleted in each source and removes those record from the OpenSearch index. 
 
 After the JSON file of transformed records is produced, it is processed by `timdex-index-manager` for ingest into an OpenSearch index.
 
