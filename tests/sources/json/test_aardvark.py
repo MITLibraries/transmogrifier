@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -32,7 +33,7 @@ def test_aardvark_get_required_fields_returns_expected_values(aardvark_records):
     transformer = MITAardvark("cool-repo", aardvark_records)
     assert transformer.get_required_fields(next(aardvark_records)) == {
         "source": "A Cool Repository",
-        "source_link": "https://example.com/gismit:123",
+        "source_link": "https://geodata.libraries.mit.edu/record/abc:123",
         "timdex_record_id": "cool-repo:123",
         "title": "Test title 1",
     }
@@ -42,12 +43,21 @@ def test_aardvark_transform_returns_timdex_record(aardvark_records):
     transformer = MITAardvark("cool-repo", aardvark_records)
     assert next(transformer) == timdex.TimdexRecord(
         source="A Cool Repository",
-        source_link="https://example.com/gismit:123",
+        source_link="https://geodata.libraries.mit.edu/record/abc:123",
         timdex_record_id="cool-repo:123",
         title="Test title 1",
-        citation="Test title 1. Geospatial data. https://example.com/gismit:123",
+        citation="Test title 1. Geospatial data. "
+        "https://geodata.libraries.mit.edu/record/abc:123",
         content_type=["Geospatial data"],
         rights=[timdex.Rights(description="Access rights", kind="Access")],
+        links=[
+            timdex.Link(
+                url="https://geodata.libraries.mit.edu/record/abc:123",
+                kind="Website",
+                restrictions=None,
+                text="Website",
+            )
+        ],
     )
 
 
@@ -135,6 +145,39 @@ def test_aardvark_get_dates_success(aardvark_record_all_fields):
             range=timdex.DateRange(gte="1943", lte="1946"),
         ),
     ]
+
+
+def test_aardvark_get_dates_drops_dates_with_invalid_strings(
+    caplog, aardvark_record_all_fields
+):
+    caplog.set_level("DEBUG")
+    record = next(aardvark_record_all_fields)
+    record["dct_issued_s"] = "1933?"  # dropped
+    record["dct_temporal_sm"] = [
+        "2000-01-01",
+        "1999",
+        "approximately 1569",  # dropped
+        "absolute junky date",  # dropped
+    ]
+    record["gbl_dateRange_drsim"] = [
+        "[1943 TO 1946]",
+        "[apples TO oranges]",  # logged and dropped
+    ]
+    assert MITAardvark.get_dates(record, "123") == [
+        timdex.Date(kind="Coverage", note=None, range=None, value="2000-01-01"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1999"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1943"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1944"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1945"),
+        timdex.Date(kind="Coverage", note=None, range=None, value="1946"),
+        timdex.Date(
+            kind="Coverage",
+            note=None,
+            range=timdex.DateRange(gt=None, gte="1943", lt=None, lte="1946"),
+            value=None,
+        ),
+    ]
+    assert "Unable to parse date range string" in caplog.text
 
 
 def test_aardvark_parse_solr_date_range_string_success():
@@ -277,3 +320,39 @@ def test_aardvark_get_subjects_success(aardvark_record_all_fields):
         timdex.Subject(value=["Dataset"], kind="Subject scheme not provided"),
         timdex.Subject(value=["Vector data"], kind="Subject scheme not provided"),
     ]
+
+
+def test_aardvark_record_get_source_link_success(
+    aardvark_record_all_fields,
+):
+    record = next(aardvark_record_all_fields)
+    url_from_aardvark_record = "https://geodata.libraries.mit.edu/record/abc:123"
+    record["dct_references_s"] = json.dumps(
+        {"http://schema.org/url": url_from_aardvark_record}
+    )
+    assert (
+        MITAardvark.get_source_link(
+            "None",
+            "abc:123",
+            record,
+        )
+        == url_from_aardvark_record
+    )
+
+
+def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error(
+    aardvark_record_all_fields,
+):
+    record = next(aardvark_record_all_fields)
+    record["dct_references_s"] = json.dumps(
+        {"missing data": "from aardvark from geoharvester"}
+    )
+    with pytest.raises(
+        ValueError,
+        match="Could not locate a kind=Website link to pull the source link from.",
+    ):
+        MITAardvark.get_source_link(
+            "None",
+            "abc:123",
+            record,
+        )

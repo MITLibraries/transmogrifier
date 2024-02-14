@@ -106,13 +106,13 @@ SOURCES = {
     },
     "gismit": {
         "name": "MIT GIS Resources",
-        "base-url": "https://search.libraries.mit.edu/record/",
+        "base-url": "None",
         "transform-class": "transmogrifier.sources.json.aardvark.MITAardvark",
     },
     "gisogm": {
         "name": "OpenGeoMetadata GIS Resources",
-        "base-url": "https://search.libraries.mit.edu/record/",
-        "transform-class": "transmogrifier.sources.json.aardvark.OGMAardvark",
+        "base-url": "None",
+        "transform-class": "transmogrifier.sources.json.aardvark.MITAardvark",
     },
     "researchdatabases": {
         "name": "Research Databases",

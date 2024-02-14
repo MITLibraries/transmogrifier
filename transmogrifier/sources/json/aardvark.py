@@ -3,6 +3,7 @@ import logging
 import re
 
 import transmogrifier.models as timdex
+from transmogrifier.helpers import validate_date
 from transmogrifier.sources.transformer import JSON, JSONTransformer
 
 logger = logging.getLogger(__name__)
@@ -31,25 +32,33 @@ class MITAardvark(JSONTransformer):
 
     @classmethod
     def get_source_link(
-        cls, source_base_url: str, source_record_id: str, source_record: dict[str, JSON]
+        cls,
+        _source_base_url: str,
+        source_record_id: str,
+        source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the source link for the item.
 
         May be overridden by source subclasses if needed.
 
-        Default behavior is to concatenate the source base URL + source record id.
+        Unlike other Transmogrifier sources that dynamically build a source link,
+        MITAardvark files are expected to have a fully formed and appropriate source link
+        in the metadata already.  This method relies on that data.
 
         Args:
-            source_base_url: Source base URL.
+            _source_base_url: Source base URL.  Not used for MITAardvark transforms.
             source_record_id: Record identifier for the source record.
             source_record: A BeautifulSoup Tag representing a single XML record.
                 - not used by default implementation, but could be useful for subclass
                     overrides
         """
-        return source_base_url + cls.get_timdex_record_id(
-            "gismit", source_record_id, source_record
-        )
+        links = cls.get_links(source_record, source_record_id)
+        url_links = [link for link in links if link.kind == "Website"]
+        if len(url_links) == 1:
+            return url_links[0].url
+        message = "Could not locate a kind=Website link to pull the source link from."
+        raise ValueError(message)
 
     @classmethod
     def get_timdex_record_id(
@@ -183,12 +192,25 @@ class MITAardvark(JSONTransformer):
 
     @classmethod
     def get_dates(cls, source_record: dict, source_record_id: str) -> list[timdex.Date]:
-        """Get values from source record for TIMDEX dates field."""
-        return (
+        """Get values from source record for TIMDEX dates field.
+
+        This method aggregates dates from a variety of Aardvark fields.  Once aggregated,
+        the results are filtered to allow only well formed DateRanges or validated date
+        strings.
+        """
+        dates = (
             cls._issued_dates(source_record)
             + cls._coverage_dates(source_record)
             + cls._range_dates(source_record, source_record_id)
         )
+        return [
+            date
+            for date in dates
+            # skip value validation for DateRange type dates
+            if isinstance(date.range, timdex.DateRange)
+            # validate date string if not None
+            or (date.value is not None and validate_date(date.value, source_record_id))
+        ]
 
     @classmethod
     def _issued_dates(cls, source_record: dict) -> list[timdex.Date]:
@@ -228,9 +250,13 @@ class MITAardvark(JSONTransformer):
         """Get values for issued dates."""
         range_dates = []
         for date_range_string in source_record.get("gbl_dateRange_drsim", []):
-            date_range_values = cls.parse_solr_date_range_string(
-                date_range_string, source_record_id
-            )
+            try:
+                date_range_values = cls.parse_solr_date_range_string(
+                    date_range_string, source_record_id
+                )
+            except ValueError as exc:
+                logger.warning(exc)
+                continue
             range_dates.append(
                 timdex.Date(
                     kind="Coverage",
@@ -292,6 +318,7 @@ class MITAardvark(JSONTransformer):
                         url=link.get("url"), kind="Download", text=link.get("label")
                     )
                     for link in links_object.get("http://schema.org/downloadUrl", [])
+                    if isinstance(link.get("url", {}), str)
                 ]
             )
             if schema_url := links_object.get("http://schema.org/url"):
