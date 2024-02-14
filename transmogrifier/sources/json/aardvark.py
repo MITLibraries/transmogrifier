@@ -292,6 +292,7 @@ class MITAardvark(JSONTransformer):
                         url=link.get("url"), kind="Download", text=link.get("label")
                     )
                     for link in links_object.get("http://schema.org/downloadUrl", [])
+                    if isinstance(link.get("url", {}), str)
                 ]
             )
             if schema_url := links_object.get("http://schema.org/url"):
