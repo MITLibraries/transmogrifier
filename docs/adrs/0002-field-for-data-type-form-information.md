@@ -124,6 +124,28 @@ Cons:
   * would require reworking the transformations + re-indexing any sources that use `literary_form`
   * nested field type, a bit harder to query for aggregations
 
+#### Option 4 - Use `file_formats` for current `format` values and `format` for Data Type values
+
+In this approach, the current `MITAardvark.format` values would shift to the previously unused `MITAardvark.file_formats` property and the Data Type values would be stored in `MITAardvark.format`
+
+Example:
+```json
+
+{
+    "content_type": "Geospatial data",
+    "format": ["Polygon", "Point", "Raster", "Image"],
+    "file_formats": ["Shapefile", "TIFF", "GeoTIFF", "JPEG"]
+}
+```
+
+Pros:
+  * does not require TIMDEX data model changes
+
+Cons:
+  * `file_formats` has previously only stored MIME type values, such as `application/pdf`
+  * may require explanation of the facet mapping in the UI documentation
+  * may require updates of other transform classes for consistency
+
 ## Decision
 
 It is proposed to move forward with **Option 3: Create new, multivalued objects field `form`; collapse `literary_form` into this**. 
