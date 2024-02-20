@@ -393,7 +393,7 @@ class MITAardvark(JSONTransformer):
         rights.append(
             timdex.Rights(
                 description=source_record["dct_accessRights_s"],
-                kind="Access",
+                kind="Access rights",
             )
         )
 
@@ -405,7 +405,7 @@ class MITAardvark(JSONTransformer):
             if source_record["dct_accessRights_s"] == "Restricted":
                 rights.append(
                     timdex.Rights(
-                        description="Requires MIT authentication",
+                        description="MIT authentication",
                         kind=kind_access_to_files,
                     )
                 )

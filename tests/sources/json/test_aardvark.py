@@ -49,7 +49,7 @@ def test_aardvark_transform_returns_timdex_record(aardvark_records):
         citation="Test title 1. Geospatial data. "
         "https://geodata.libraries.mit.edu/record/abc:123",
         content_type=["Geospatial data"],
-        rights=[timdex.Rights(description="Access rights", kind="Access")],
+        rights=[timdex.Rights(description="Access rights", kind="Access rights")],
         links=[
             timdex.Link(
                 url="https://geodata.libraries.mit.edu/record/abc:123",
@@ -300,7 +300,7 @@ def test_aardvark_get_publication_information_success(aardvark_record_all_fields
 
 def test_aardvark_get_rights_success(aardvark_record_all_fields):
     assert MITAardvark.get_rights("source", next(aardvark_record_all_fields)) == [
-        timdex.Rights(description="Access note", kind="Access"),
+        timdex.Rights(description="Access note", kind="Access rights"),
         timdex.Rights(uri="http://license.license"),
         timdex.Rights(uri="http://another_license.another_license"),
         timdex.Rights(description="Some person has the rights"),
@@ -314,10 +314,8 @@ def test_aardvark_get_rights_mit_restricted_success(aardvark_record_all_fields):
     aardvark_record = next(aardvark_record_all_fields)
     aardvark_record["dct_accessRights_s"] = "Restricted"
     assert MITAardvark.get_rights("gismit", aardvark_record) == [
-        timdex.Rights(description="Restricted", kind="Access"),
-        timdex.Rights(
-            description="Requires MIT authentication", kind="Access to files"
-        ),
+        timdex.Rights(description="Restricted", kind="Access rights"),
+        timdex.Rights(description="MIT authentication", kind="Access to files"),
         timdex.Rights(uri="http://license.license"),
         timdex.Rights(uri="http://another_license.another_license"),
         timdex.Rights(description="Some person has the rights"),
@@ -331,7 +329,7 @@ def test_aardvark_get_rights_mit_public_success(aardvark_record_all_fields):
     aardvark_record = next(aardvark_record_all_fields)
     aardvark_record["dct_accessRights_s"] = "Public"
     assert MITAardvark.get_rights("gismit", aardvark_record) == [
-        timdex.Rights(description="Public", kind="Access"),
+        timdex.Rights(description="Public", kind="Access rights"),
         timdex.Rights(description="Free/open to all", kind="Access to files"),
         timdex.Rights(uri="http://license.license"),
         timdex.Rights(uri="http://another_license.another_license"),
@@ -346,7 +344,7 @@ def test_aardvark_get_rights_external_restricted_success(aardvark_record_all_fie
     aardvark_record = next(aardvark_record_all_fields)
     aardvark_record["dct_accessRights_s"] = "Restricted"
     assert MITAardvark.get_rights("gisogm", aardvark_record) == [
-        timdex.Rights(description="Restricted", kind="Access"),
+        timdex.Rights(description="Restricted", kind="Access rights"),
         timdex.Rights(description="Not owned by MIT", kind="Access to files"),
         timdex.Rights(uri="http://license.license"),
         timdex.Rights(uri="http://another_license.another_license"),
@@ -361,7 +359,7 @@ def test_aardvark_get_rights_external_public_success(aardvark_record_all_fields)
     aardvark_record = next(aardvark_record_all_fields)
     aardvark_record["dct_accessRights_s"] = "Public"
     assert MITAardvark.get_rights("gisogm", aardvark_record) == [
-        timdex.Rights(description="Public", kind="Access"),
+        timdex.Rights(description="Public", kind="Access rights"),
         timdex.Rights(description="Not owned by MIT", kind="Access to files"),
         timdex.Rights(uri="http://license.license"),
         timdex.Rights(uri="http://another_license.another_license"),
