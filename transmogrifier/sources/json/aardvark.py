@@ -164,7 +164,7 @@ class MITAardvark(JSONTransformer):
         # related_items not used in MITAardvark
 
         # rights
-        fields["rights"] = self.get_rights(source_record) or None
+        fields["rights"] = self.get_rights(self.source, source_record) or None
 
         # subjects
         fields["subjects"] = self.get_subjects(source_record) or None
@@ -385,16 +385,36 @@ class MITAardvark(JSONTransformer):
         return publication_information
 
     @staticmethod
-    def get_rights(source_record: dict) -> list[timdex.Rights]:
+    def get_rights(source: str, source_record: dict) -> list[timdex.Rights]:
         """Get values from source record for TIMDEX rights field."""
         rights = []
+        kind_access_to_files = "Access to files"
 
-        if "dct_accessRights_s" in source_record:
-            rights.append(
-                timdex.Rights(
-                    description=source_record["dct_accessRights_s"], kind="Access"
-                )
+        rights.append(
+            timdex.Rights(
+                description=source_record["dct_accessRights_s"],
+                kind="Access rights",
             )
+        )
+
+        if source == "gisogm":
+            rights.append(
+                timdex.Rights(description="Not owned by MIT", kind=kind_access_to_files)
+            )
+        elif source == "gismit":
+            if source_record["dct_accessRights_s"] == "Restricted":
+                rights.append(
+                    timdex.Rights(
+                        description="MIT authentication",
+                        kind=kind_access_to_files,
+                    )
+                )
+            else:
+                rights.append(
+                    timdex.Rights(
+                        description="Free/open to all", kind=kind_access_to_files
+                    )
+                )
 
         rights.extend(
             [
