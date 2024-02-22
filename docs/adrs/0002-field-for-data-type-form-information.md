@@ -1,4 +1,4 @@
-# 1. Field for Data Type / Form Information
+# 2. Data Model Fields to Support "Format" and "Data Type" UI Filters
 
 Follows: https://mitlibraries.github.io/guides/misc/adr.html
 
@@ -10,175 +10,126 @@ Proposed
 
 ## Context
 
-### Need
+### Goal
 
-Identify a pre-existing, or new, TIMDEX field to store information about GIS datasets that will support required facet filters, while also potentially serving other TIMDEX data sources.
+Identify TIMDEX fields to store information about GIS resources that will support "Format" and "Data Type" UI facet filters for the GDT project.
 
 ### Overview
-During a project that introduced geospatial data into TIMDEX, two new sources were added `gisogm` and `gismit`, both of which use the new Transmogrifier transformer 
-`MITAardvark`. Records for these sources come from the [GeoHarvester](https://github.com/MITLibraries/geo-harvester) which produces [Aardvark metadata schema](https://opengeometadata.org/ogm-aardvark/) JSON records.    
 
-During work on a new geospatial TIMDEX UI, the question was raised as to what fields should be used for two new required facet filters to mirror functionality in the [current Geoweb application](https://geodata.mit.edu/):
+With the addition of geospatial data to TIMDEX, and a new "geo" focused UI, the question was raised as to what fields should be used for two new UI facet filters:
 
   * "Data Type"
-    * values like: `[Polygon, Point, Raster, Image, etc.]`
+    * values like: `[Polygon, Point, Raster, Image, ...]`
   * "Format"
-    * values like: `[Shapefile, TIFF, GeoTIFF, JPEG, etc.]`
+    * values like: `[Shapefile, TIFF, GeoTIFF, JPEG, ...]`
 
-This revealed a potential gap in the TIMDEX data model.  While the TIMDEX field `format` is a great fit for the "Format" values we expect to see in that facet filter, there does not appear to be 
-an appropriate field to hold values that would populate the "Data Type" facet filter.
+This would mirror functionality in the [current "Geoweb" application](https://geodata.mit.edu/) that is slated to be sunsetted.
 
-It is worth noting that the facet filter "Content Types", driven by the TIMDEX field `content_type`, is set statically for these records as `Geospatial data`.  This allows them to sit next to 
-other TIMDEX records with `content_type` values like `[Language material, Musical sound recording, Thesis, etc.]`, thereby also removing `content_type` as a possible field for the issue at hand. 
+The source records come from a new [GeoHarvester](https://github.com/MITLibraries/geo-harvester), which normalizes geospatial metadata from a variety of formats to the
+geospatial, discovery scoped metadata format [Aardvark](https://opengeometadata.org/ogm-aardvark/).  Transmogrifier then converts these Aardvark records into TIMDEX records.
 
-Analysis of the source `MITAardvark` records suggests that the Aardvark field `gbl_resourceType_sm` contains the values we'll want for the facet filter "Data Type".  The 
-Aardvark schema defines this field as:
+Data for both UI filters will be controlled terms in the Aardvark records created by GeoHarvester:
 
-> "...categories for classifying the spatial type or structure of a dataset"
-
-In this way, the TIMDEX data model is lacking a field that can be used to describe the "spatial type or structure of a dataset".  Maybe stated more generally, a field that describes
-the structure of the data _inside_ the format noted in `format`.
-
-It is also worth noting that data values for both facets -- present in fields `dct_format_s` and `gbl_resourceType_sm` from the Aardvark records -- will be controlled values
-when written by the GeoHarvester:
-
-  * "Format" values:
+  * UI filter "Format" from Aardvark field `dct_format_s`:
     * https://opengeometadata.org/ogm-aardvark/#format-values (e.g. "Shapefile", "GeoTIFF", "TIFF" etc.)
-  * "Data Type" values (from either list):
-    * https://opengeometadata.org/ogm-aardvark/#resource-type-values-loc (e.g. "Atlases", "Cadastral maps", "Quadrangle maps")
-    * https://opengeometadata.org/ogm-aardvark/#resource-type-values-ogm (e.g. "Polygon", "Raster", "Line", "Point")
+  * UI filter "Data Type" from Aardvark field `gbl_resourceType_sm` (from either list):
+    * https://opengeometadata.org/ogm-aardvark/#resource-type-values-loc (e.g. `[Atlases, Cadastral maps, Quadrangle maps]`)
+    * https://opengeometadata.org/ogm-aardvark/#resource-type-values-ogm (e.g. `[Polygon data, Raster data, Line data, Point data]`)
 
-### Possible Solutions
+The first iteration mapped in the following way:
+  * `TIMDEX.content_type` = "Geospatial data" (static value for all records)
+  * `TIMDEX.format` = values from `Aardvark.dct_format_s`
+  * `TIMDEX.subjects@kind="Subject scheme not provided"` = values from `Aardvark.gbl_resourceType_sm`
 
-#### Option 1- Use `subjects` with `kind="Data Type"`
-
-In this approach, "Data Type" values would be stored as `subjects` with `kind="Data Type"`.
-
-Example:
+This resulted in a TIMDEX record like:
 ```json
-{
-    "subjects": [
-        {
-            "value": "Polygon",
-            "kind": "Data Type"
-        },
-        {
-            "value": "Vector",
-            "kind": "Data Type"
-        }
-    ]
-}
-```
-
-Pros:
-  * does not require a change to TIMDEX data model anywhere
-
-Cons:
-  * these "Data Type" values don't feel like subjects; they are not really _about_ the resource so much as describing its type/structure/form 
-
-
-#### Option 2- Create new, multivalued string field `form`
-
-In this approach, "Data Type" value would be stored in a new, multivalued string field `form`:
-
-Example:
-```json
-{
-    "form": ["Polygon", "Vector"]
-}
-```
-
-Pros:
-  * purely additive change to data model
-  * simple, top level property makes aggregations very simple
-
-Cons:
-  * still require, and sit along next to, `literary_form` field for describing text sources as "Fiction" or "Nonfiction"
-
-
-#### Option 3- Create new, multivalued objects field `form`; collapse `literary_form` into this
-
-In this approach, "Data Type" value would be stored in a new, multivalued object field `form`:
-
-Example:
-```json
-{
-    "form": [
-        {
-            "value": "Polygon",
-            "kind": "Data Type"
-        },
-        {
-            "value": "Vector",
-            "kind": "Data Type"
-        }
-    ]
-}
-```
-
-Pros:
-  * allows collapsing of `literary_form` field; noting some shared sentiment that this field might be too source-specific for TIMDEX
-  * like other object fields, leaves the door open for adding a `uri` property at a later time
-
-Cons:
-  * would require reworking the transformations + re-indexing any sources that use `literary_form`
-  * nested field type, a bit harder to query for aggregations
-
-#### Option 4 - Use `file_formats` for current `format` values and `format` for Data Type values
-
-In this approach, the current `MITAardvark.format` values would shift to the previously unused `MITAardvark.file_formats` property and the Data Type values would be stored in `MITAardvark.format`
-
-Example:
-```json
-
 {
     "content_type": "Geospatial data",
-    "format": ["Polygon", "Point", "Raster", "Image"],
-    "file_formats": ["Shapefile", "TIFF", "GeoTIFF", "JPEG"]
+    "format": "Shapefile",
+    "subjects": [
+        {
+            "value": "Polygon data",
+            "kind": "Subject scheme not provided"
+        },
+        {
+            "value": "Vector data",
+            "kind": "Subject scheme not provided"
+        }
+    ]
 }
 ```
 
-Pros:
-  * does not require TIMDEX data model changes
+#### 1- The static value "Geospatial data" for `content_type` removes `content_type` as an option for these other data points
 
-Cons:
-  * `file_formats` has previously only stored MIME type values, such as `application/pdf`
-  * may require explanation of the facet mapping in the UI documentation
-  * may require updates of other transform classes for consistency
+It was originally thought that `content_type` was a very high level bucket, allowing various TIMDEX sources to share a facet with values like,
+[Geospatial data, Language materials, Musical sound recording, Projected medium, ...].
+
+However, on further analysis it was observed that `content_type` _could_ be a good fit for values like `Polygon data` or `Raster data`, as the long tail of the current `content_type` data shows quite a few examples
+of hierarchically and thematically similar values for other sources like [Thesis, Article, Diaries, Scrapbooks, ...].  These values are concerned with the conceptual or structural makeup of the resource,
+not the container or external form which field `format` is more aligned with.
+
+#### 2- DSpace is currently the only TIMDEX source that writes to `format` with a hardcoded value `electronic resource`
+
+Analyzing the use of `format` revealed that _only_ the DSpace source was writing to this TIMDEX field.  This obscured the possibility that some external/container oriented terms
+currently found in `content_type` -- from various pre-existing TIMDEX sources -- might make more sense as `format` values.  And, that other TIMDEX sources could begin writing to this field for 
+the first time.
+
+Better understanding this, the external container values found in `Aardvark.dct_format_s` like "Shapefile" or "GeoTIFF" seems aligned with the `format` field.  And, what should
+not be ignored, this results in naming parity across all hops: `Aardvark.dct_format_s --> TIMDEX.format --> UI:Format`.
+
+#### 3- The "resource type" data (from `Aardvark.gbl_resourceType_sm`) are arguably not subjects, and furthermore do not have a qualifier that allows cherry-picking them for aggregation
+
+While it was initially convenient to place values from `Aardvark.gbl_resourceType_sm` in `subjects`, it was generally agreed upon that they are not subjects.  Furthermore, even
+with a `kind` qualifier, it would be awkward at best to access them, or at worst reduce the meaning and usefulness of `subjects` across all TIMDEX sources.
+
+Still thinking that `content_type` was tied up with the static "Geospatial data" value, this was a primary blocker.  `content_type` is ultimately a better fit for these values, is already
+multivalued, and has precedence with other source mappings like source `datacite` where a source metadata field `ResourceType.resourceTypeGeneral` maps to `content_type` (note the metadata 
+field naming parity with Aaardvark).
+
+#### 4- Where do we encode "Geospatial data" then?
+
+Considering all above, where then _can_ we encode "Geospatial data" to differentiate 100k GIS records from 1m ebooks in Alma?  How can a user quickly cull _all_ of TIMDEX down to just records that
+likely have geospatial data (i.e. GIS layers) without needing to immediately jump to much more granular distinctions like "Polygon data" or "Raster data", thereby also removing relevant records from their
+search/browsing?
+
+This might indicate an area where the TIMDEX data model could grow: adding a higher level, highly controlled, "categorical" field that would group records at this level.  An
+example is Primo, which has a "Resource Type" filter which filters at this level (ignoring the naming collision of Aardvark's `gbl_resourceType_sm` field which has a narrower scope).  While 
+TIMDEX is not Primo, it is also not _not_ Primo insofar as it aggregates metadata records from fairly disparate platforms and sources.  This act of aggregation might require an additional level of 
+categorical hierarchy to filter records by.  
+
+A potentially important note: we might _not_ expect to find the values/terms for this high level, categorical field in the metadata records themselves, because their descriptive focus is not 
+concerned with that level of description.
+
+Examples:
+- a GIS FGDC XML file does not need to indicate "Geospatial data" anywhere in the record
+- an ArchivesSpace EAD record does not need to indicate "Archival material" anywhere in the record
+- Alma is trickier: MARC records often _do_ attempt to classify at this high level, and some of these have ended up in `content_type` and likely could be "pushed up" to this new field
+
+Given the presence of `content_type` already, to model after other aggregation platforms and metadata schemas, this new field might be something along the lines of `content_class`.  These values may 
+be static per TIMDEX source (e.g. ASpace = "Archival Materials", GIS = "Geospatial data") or the source's metadata records may contribute to the logic (e.g. MARC's `006` and `008` field relationship 
+that might provide `content_class` level terms like ["Books", "Music", "Visual Materials", "Maps", ...]).
+
+It is likely beyond the scope of this ADR to propose the addition of that field, but introducing it as a thought experiment takes some conceptual pressure off of `content_type` which could operate
+as intended, and to some degree already is, as more granular "type" or "form" information about the resource.
 
 ## Decision
 
-It is proposed to move forward with **Option 3: Create new, multivalued objects field `form`; collapse `literary_form` into this**. 
+- GIS TIMDEX sources
+  - continue to map Aardvark `dct_format_s` to TIMDEX `format`, driving the new "Format" UI filter
+  - map Aardvark `gbl_resourceType_sm` to TIMDEX `content_type`, driving the new "Data Type" UI filter
+    - this "Data Type" UI filter, pulling from `content_type`, likely only makes sense in the Geo TIMDEX UI context
+    - a "Content Type" facet filter across all TIMDEX records would have values like ["Short stories", "Polygon data", "Thesis", ...] sitting next to each other
+  - accept that "Geospatial data" is not an available, high level value to facet on until a field like `content_class` is modeled and added
 
-This approach would:
-  * readily support the "Data Type" values needed by the new geospatial TIMDEX UI's facet filters
-  * cover values currently stored in the field `literary_form` which may have been too source-specific to begin with
-  * allow future application of URIs
-  * support other "form"-like values we may not have encountered yet, with the flexibility and additional granularity of the `kind` qualifier 
-
-The decision to add a new `form` field would rely on a shared and documented understanding of how `form` differs from `format`.  Proposing a couple
-shorthand distinctions:
-
-  * `format`:
-    * describes the _external_ nature of the resource
-    * e.g. TIFF, Shapefile, PDF, Print book, Electronic resource, Online archival collection, etc.
-  * `form`
-    * describes the _internal_ structure or conceptual arrangement of the resource, regardless of its external format
-    * e.g. Polygon, Image, Raster, Nonfiction, Novel, Textbook, Poetry, Biography, Reference Book, Personal papers, Organizational records, etc.
+- Other TIMDEX sources
+  - DSpace
+    - remove blanket `format=electronic resource` and instead derive `format` values from available `file_formats` mimetypes for friendly forms
+    - e.g. `application/pdf` suggests "PDF", or `text/csv` suggests "CSV", to name a couple example
+    - there are python libraries that can handle 90% of these conversions, if a friendly form is not present in the library
 
 ## Consequences
 
-Adding this new field to the TIMDEX data model would require the following work and changes:
-  * Transmogrifier
-    * `TimdexRecord` class definition
-    * any pre-existing applications of the `literay_form` field
-    * check if `subjects@kind=Genre/Form` applied anywhere, if so, consider `form`
-  * timdex-index-manager (TIM)
-    * Opensearch mapping
-  * re-run an sources that used `literary_form`
-  * dynamically apply mapping update to ALL indexes to include new field `form`
-    * NOTE: this action was needed already for the new field `locations.geoshape`
-  * GraphQL API
-    * add `form` to schema
-    * add to documentation
-    * deprecate `literary_form` field
+For GIS records, both the "Format" and "Data Type" UI filters will mirror those same filters in the legacy "Geoweb" system, with the same or highly similar values.
+
+For other TIMDEX sources, given the decision outlined above, there should be little to no effect.  However, as discussed, the inability to encode "Geospatial data" may suggest that a new, higher level
+TIMDEX categorical field would be beneficial, and this would require work in Transmogrifier to provide a meaningful value for this new field for all sources.
