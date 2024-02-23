@@ -112,7 +112,111 @@ that might provide `content_class` level terms like ["Books", "Music", "Visual M
 It is likely beyond the scope of this ADR to propose the addition of that field, but introducing it as a thought experiment takes some conceptual pressure off of `content_type` which could operate
 as intended, and to some degree already is, as more granular "type" or "form" information about the resource.
 
-## Decision
+### Possible Solutions
+
+#### Option 1- Use `subjects` with `kind="Data Type"`
+
+In this approach, "Data Type" values would be stored as `subjects` with `kind="Data Type"`.
+
+Example:
+```json
+{
+    "subjects": [
+        {
+            "value": "Polygon",
+            "kind": "Data Type"
+        },
+        {
+            "value": "Vector",
+            "kind": "Data Type"
+        }
+    ]
+}
+```
+
+Pros:
+  * does not require a change to TIMDEX data model anywhere
+
+Cons:
+  * these "Data Type" values don't feel like subjects; they are not really _about_ the resource so much as describing its type/structure/form 
+
+
+#### Option 2- Create new, multivalued string field `form`
+
+In this approach, "Data Type" value would be stored in a new, multivalued string field `form`:
+
+Example:
+```json
+{
+    "form": ["Polygon", "Vector"]
+}
+```
+
+Pros:
+  * purely additive change to data model
+  * simple, top level property makes aggregations very simple
+
+Cons:
+  * still require, and sit along next to, `literary_form` field for describing text sources as "Fiction" or "Nonfiction"
+
+
+#### Option 3- Create new, multivalued objects field `form`; collapse `literary_form` into this
+
+In this approach, "Data Type" value would be stored in a new, multivalued object field `form`:
+
+Example:
+```json
+{
+    "form": [
+        {
+            "value": "Polygon",
+            "kind": "Data Type"
+        },
+        {
+            "value": "Vector",
+            "kind": "Data Type"
+        }
+    ]
+}
+```
+
+Pros:
+  * allows collapsing of `literary_form` field; noting some shared sentiment that this field might be too source-specific for TIMDEX
+  * like other object fields, leaves the door open for adding a `uri` property at a later time
+
+Cons:
+  * would require reworking the transformations + re-indexing any sources that use `literary_form`
+  * nested field type, a bit harder to query for aggregations
+
+#### Option 4 - Use `file_formats` for current `format` values and `format` for Data Type values
+
+In this approach, the current `MITAardvark.format` values would shift to the previously unused `MITAardvark.file_formats` property and the Data Type values would be stored in `MITAardvark.format`
+
+Example:
+```json
+
+{
+    "content_type": "Geospatial data",
+    "format": ["Polygon", "Point", "Raster", "Image"],
+    "file_formats": ["Shapefile", "TIFF", "GeoTIFF", "JPEG"]
+}
+```
+
+Pros:
+  * does not require TIMDEX data model changes
+
+Cons:
+  * `file_formats` has previously only stored MIME type values, such as `application/pdf`
+  * may require explanation of the facet mapping in the UI documentation
+  * may require updates of other transform classes for consistency
+
+#### Option 5 - Map `format` to "Format" filter, map 'content_type' to "Data Type" filter
+
+In this approach, there would be **no** immediate data model changes.  As outlined above, both the pre-existing `format` and `content_type` fields would be sufficient
+for mapping data from the Aardvark records in such a way to support "Format" and "Data Type" UI filters.
+
+This option **does** implicitly propose a new higher level TIMDEX field, something along the lines of `content_class`, but this is not an immediate requirement, and it 
+might be helpful to decouple that from this decision at hand.
 
 - GIS TIMDEX sources
   - continue to map Aardvark `dct_format_s` to TIMDEX `format`, driving the new "Format" UI filter
@@ -126,6 +230,25 @@ as intended, and to some degree already is, as more granular "type" or "form" in
     - remove blanket `format=electronic resource` and instead derive `format` values from available `file_formats` mimetypes for friendly forms
     - e.g. `application/pdf` suggests "PDF", or `text/csv` suggests "CSV", to name a couple example
     - there are python libraries that can handle 90% of these conversions, if a friendly form is not present in the library
+
+Examples:
+```json
+{
+    "content_type": ["Polygon data"],
+    "format": "Shapefile"
+}
+```
+
+```json
+{
+    "content_type": ["Raster data", "Image"],
+    "format": "GeoTIFF"
+}
+```
+
+## Decision
+
+TBD
 
 ## Consequences
 
