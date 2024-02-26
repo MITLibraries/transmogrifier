@@ -231,20 +231,15 @@ might be helpful to decouple that from this decision at hand.
     - e.g. `application/pdf` suggests "PDF", or `text/csv` suggests "CSV", to name a couple example
     - there are python libraries that can handle 90% of these conversions, if a friendly form is not present in the library
 
-Examples:
-```json
-{
-    "content_type": ["Polygon data"],
-    "format": "Shapefile"
-}
-```
+Examples across multiple sources:
 
-```json
-{
-    "content_type": ["Raster data", "Image"],
-    "format": "GeoTIFF"
-}
-```
+| `source`       | `content_class :str` [_proposed but not exists_] | `content_type :list[str]`   | `format :str` | `file_formats :list[str]`      |
+|----------------|--------------------------------------------------|-----------------------------|---------------|--------------------------------|
+| gismit/gisogm  | Geospatial data                                  | [Raster data, Image data]   | GeoTIFF       | [image/tiff]                   |
+| gismit/gisogm  | Geospatial data                                  | [Polygon data, Vector data] | Shapefile     | [application/zipped-shapefile] |
+| alma           | Language material                                | [Short stories]             | EPub Ebook    | [application/epub+zip]         |
+| alma           | Cartographic material                            | [Quadrangle map]            | Scanned map   | [image/jpeg]                   |
+| dspace         | Language material                                | [Academic thesis]           | PDF           | [application/pdf]              |
 
 ## Decision
 
