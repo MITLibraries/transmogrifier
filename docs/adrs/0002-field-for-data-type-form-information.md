@@ -6,7 +6,7 @@ Date: 2024-02-15
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -210,7 +210,7 @@ Cons:
   * may require explanation of the facet mapping in the UI documentation
   * may require updates of other transform classes for consistency
 
-#### Option 5 - Map `format` to "Format" filter, map 'content_type' to "Data Type" filter
+#### Option 5 - Map `format` to "Format" filter, map `content_type` to "Data Type" filter
 
 In this approach, there would be **no** immediate data model changes.  As outlined above, both the pre-existing `format` and `content_type` fields would be sufficient
 for mapping data from the Aardvark records in such a way to support "Format" and "Data Type" UI filters.
@@ -243,7 +243,7 @@ Examples across multiple sources:
 
 ## Decision
 
-TBD
+The decision is to go with Option 5: Map `format` to "Format" filter, map `content_type` to "Data Type" filter.
 
 ## Consequences
 
