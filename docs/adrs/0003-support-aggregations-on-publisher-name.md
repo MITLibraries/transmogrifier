@@ -38,11 +38,13 @@ Create a new object `PublicationInfo` and map data into it. Most sources just us
 
 ```json
 {
-  publicationInfo: [{
-    name: String
-    location: String
-    date: String (ideally dates would be dates... but that may be out of scope for now)
-  }]
+  "publicationInfo": [
+    {
+      "name": "String",
+      "location": "String",
+      "date": "String (ideally dates would be dates... but that may be out of scope for now)"
+    }
+  ]
 }
 ```
 
@@ -68,9 +70,9 @@ GraphQL would collapse the new object and continue to serve it as the deprecated
 
 ### Proposed mappings (Option 2)
 
-Move some of the Alma data to other existing objects, and create a new top level `Publisher` array of string.
+Move some of the Alma data to other existing objects, and create a new top level `Publisher` array of strings.
 
-All sources except Alma remap to use `PublicationInfo` instead of `PublicationInformation` with no other changes at this time.
+All sources except Alma remap to use `Publisher` instead of `PublicationInformation` with no other changes at this time.
 
 This decouples our data model more from MARC where we seem to have modeled a set of data to match 260/264 in a way that doesn't seem to map to our other sources. Additionally, we already have other places for the extra info from 260/264 to map that may be more useful than as a new Object or embedded into the original String.
 
