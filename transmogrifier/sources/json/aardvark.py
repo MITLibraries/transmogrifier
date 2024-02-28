@@ -156,6 +156,9 @@ class MITAardvark(JSONTransformer):
         # notes
         fields["notes"] = self.get_notes(source_record) or None
 
+        # provider
+        fields["provider"] = source_record.get("schema_provider_s")
+
         # publication_information
         fields["publication_information"] = (
             self.get_publication_information(source_record) or None
@@ -378,9 +381,6 @@ class MITAardvark(JSONTransformer):
 
         if "dct_publisher_sm" in source_record:
             publication_information.extend(source_record["dct_publisher_sm"])
-
-        if "schema_provider_s" in source_record:
-            publication_information.append(source_record["schema_provider_s"])
 
         return publication_information
 
