@@ -46,9 +46,8 @@ def test_aardvark_transform_returns_timdex_record(aardvark_records):
         source_link="https://geodata.libraries.mit.edu/record/abc:123",
         timdex_record_id="cool-repo:123",
         title="Test title 1",
-        citation="Test title 1. Geospatial data. "
-        "https://geodata.libraries.mit.edu/record/abc:123",
-        content_type=["Geospatial data"],
+        citation="Test title 1. https://geodata.libraries.mit.edu/record/abc:123",
+        content_type=["Not specified"],
         rights=[timdex.Rights(description="Access rights", kind="Access rights")],
         links=[
             timdex.Link(
@@ -66,6 +65,7 @@ def test_aardvark_get_optional_fields_non_field_method_values_success(
 ):
     transformer = MITAardvark("cool-repo", aardvark_record_all_fields)
     record = next(transformer)
+    assert record.content_type == ["Vector data"]
     assert record.format == "Shapefile"
     assert record.languages == ["eng"]
     assert record.summary == ["A description"]
@@ -378,7 +378,6 @@ def test_aardvark_get_subjects_success(aardvark_record_all_fields):
         timdex.Subject(value=["Geography"], kind="Dublin Core; Subject"),
         timdex.Subject(value=["Earth"], kind="Dublin Core; Subject"),
         timdex.Subject(value=["Dataset"], kind="Subject scheme not provided"),
-        timdex.Subject(value=["Vector data"], kind="Subject scheme not provided"),
     ]
 
 
