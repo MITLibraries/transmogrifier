@@ -191,6 +191,7 @@ class TimdexRecord:
     physical_description: str | None = field(
         default=None, validator=optional(instance_of(str))
     )
+    provider: str | None = field(default=None, validator=optional(instance_of(str)))
     publication_frequency: list[str] | None = field(
         default=None, validator=optional(list_of(str))
     )
