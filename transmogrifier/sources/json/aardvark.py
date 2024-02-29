@@ -126,7 +126,7 @@ class MITAardvark(JSONTransformer):
         fields["alternate_titles"] = self.get_alternate_titles(source_record) or None
 
         # content_type
-        fields["content_type"] = ["Geospatial data"]
+        fields["content_type"] = source_record.get("gbl_resourceType_sm")
 
         # contributors
         fields["contributors"] = self.get_contributors(source_record) or None
@@ -456,7 +456,6 @@ class MITAardvark(JSONTransformer):
             "dct_spatial_sm": "Dublin Core; Spatial",
             "dct_subject_sm": "Dublin Core; Subject",
             "gbl_resourceClass_sm": "Subject scheme not provided",
-            "gbl_resourceType_sm": "Subject scheme not provided",
         }
 
         for subject_field, subject_kind in aardvark_subject_fields.items():
