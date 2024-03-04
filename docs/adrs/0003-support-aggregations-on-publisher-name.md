@@ -70,9 +70,11 @@ GraphQL would collapse the new object and continue to serve it as the deprecated
 
 ### Proposed mappings (Option 2)
 
-Move some of the Alma data to other existing objects, and create a new top level `Publisher` array of strings.
+Create a new top level `Publisher` array of strings.
 
-All sources except Alma remap to use `Publisher` instead of `PublicationInformation` with no other changes at this time.
+All sources (including Alma) would begin to write the publisher name to the new multivalued string `Publisher` field.
+
+Additionally, any sources (most commonly Alma) that have publisher date or location information, could extract and write that data to other appropriate fields, e.g. `Dates` or `Locations` with a qualifier like `@kind="Published"`.
 
 This decouples our data model more from MARC where we seem to have modeled a set of data to match 260/264 in a way that doesn't seem to map to our other sources. Additionally, we already have other places for the extra info from 260/264 to map that may be more useful than as a new Object or embedded into the original String.
 
