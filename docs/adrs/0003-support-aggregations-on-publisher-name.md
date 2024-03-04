@@ -88,6 +88,84 @@ GraphQL would continue to serve `PublicationInformation`, but replace it with th
 | Alma | [MARC 260$c](https://www.loc.gov/marc/bibliographic/bd260.html) | Dates.kind=PublicationDate |  (this may already happen?) |
 | Alma | [MARC 264$c](https://www.loc.gov/marc/bibliographic/bd264.html) | Dates.kind=PublicationDate |  (this may already happen?) |
 
+### Proposed mappings (Option 3)
+
+This option is a combination of Option 1 and 2.
+
+In this scenario:
+- **From Option 1**: all sources write publisher information to a multivalued object field `PublicationInfo` with fields like `[name, date, location, etc.]` 
+  - there is no normalization or parsing of the data; strings are written as found from the original record
+- **From Option 2**: where data is available (most commonly with Alma) sources extract date and location from the publisher information and write those values to `Dates` and `Locations` respectively, with a `@kind=Publisher` qualifier
+  - in the case of dates, we _could_ normalize and validate the date string to ensure it's a valid and meaningful Opensearch date
+
+Advantages of this option:
+- all information for a specific publisher (e.g. name, date, location) is contextualized together as a complex object under `PublicationInfo`
+  - e.g. we can know "the published date via the 'Great Writings' publisher is 1930" 
+- for TIMDEX UI search and item pages, and GraphQL aggregations, there is no need to dig into complex objects
+  - simply look to `Dates` or `Locations` for that information where this data has been duplicated
+- logic for extracting dates and locations from publisher information could be shared across all Transmogrifier sources
+  - e.g. it could be an automatically applied, secondary step after the `PublicationInfo` objects are created, pulling from `PublicationInfo.date` and `Publication.location`
+  - allows for more thorough date parsing for `Dates` entries, without losing meaningful strings from the source record that can remain in the `PublicationInfo` object
+
+Example record:
+```json
+{
+  "publication_info": [
+    {
+      "name": "Great Writings",
+      "date": "1930",
+      "location": "Bend, OR"
+    },
+    {
+      "name": "Amazon Reprints",
+      "date": "2020",
+      "location": "Seattle, WA"
+    },
+    {
+      "name": "Ebooks Inc.",
+      "date": "Circa 2023?"
+    }
+  ],
+  "dates": [
+    {
+      "kind": "Published",
+      "value": "1930"
+    },
+    {
+      "kind": "Published",
+      "value": "2020"
+    }
+  ],
+  "locations": [
+    {
+      "kind": "Published",
+      "value": "Bend, OR"
+    },
+    {
+      "kind": "Published",
+      "value": "Seattle, WA"
+    }
+  ]
+}
+```
+- note that bad or missing data from publisher "Ebooks Inc." is skipped for `dates` and `locations` extraction
+
+This avoids some subtle but potentially confusing scenarios:
+
+- **Option 1**: a user clicks date facet "1910" in search UI but does not see "1910" under "Dates" in the item page
+  - **Reason**: the UI item page didn't know it should reach into `PublicationInfo` objects for dates to show under "Dates", as this was custom logic applied to GraphQL aggregations and search facets
+  - **Option 3 fix**: GraphQL, UI search, and UI item pages all pull publishers from publishers, dates from dates, locations from locations, etc., no logic required
+
+- **Option 2**: a user is viewing an item page for the geospatial record "Fires in 1999 Dataset" but sees a strange "2020" under the "Dates" section
+  - **Reason**: the item page "Publisher" section only shows "GIS Pro Inc.", as "2020" was decoupled from the publisher (`Date` object would contain `@kind=Published` qualifier, but we'd need to then include that in the item page)
+  - **Option 3 fix**: the "Publisher" section in the item page clearly also shows "2020", because still part of a complex object, thereby contextualizing that date
+
+Option 3 achieves data where and when needed, and with the appropriate amount of context, by _extracting and duplicating_ some data like dates and locations:  
+
+- a user wants details about a publisher, look at full and complex `PublicationInfo` object in the record
+- the API or UI wants to pull all meaningful dates or locations from a record, look to the `Dates` or `Locations` fields
+
+In either situation, no additional logic, mapping, or documentation is needed. 
 
 ## Decision
 
