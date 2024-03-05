@@ -171,7 +171,12 @@ In either situation, no additional logic, mapping, or documentation is needed.
 
 ## Decision
 
-Coming soon
+Proceed with Option 3:
+
+- create new, top level, multivalued object field `PublicationInfo` with properties `[name, date, location]`
+- where possible, further parse dates and locations from `PublicationInfo` objects into `Dates` and `Locations` fields, with `@kind=Publisher` qualifier
+- all pre-existing transformations begin writing to `PublicationInfo` instead of current multivalued string `publication_information`
+- deprecate `publication_information` in GraphQL, point to new object field `PublicationInfo`
 
 ## Consequences
 
