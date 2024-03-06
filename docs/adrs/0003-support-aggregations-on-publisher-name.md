@@ -95,24 +95,25 @@ GraphQL would continue to serve `PublicationInformation`, but replace it with th
 This option is a combination of Option 1 and 2.
 
 In this scenario:
-- **From Option 1**: all sources write publisher information to a multivalued object field `PublicationInfo` with fields like `[name, date, location, etc.]` 
+- **From Option 1**: all sources write publisher information to a multivalued object field `Publishers` (slight field name update) with fields like `[name, date, location, etc.]` 
   - there is no normalization or parsing of the data; strings are written as found from the original record
 - **From Option 2**: where data is available (most commonly with Alma) sources extract date and location from the publisher information and write those values to `Dates` and `Locations` respectively, with a `@kind=Publisher` qualifier
   - in the case of dates, we _could_ normalize and validate the date string to ensure it's a valid and meaningful Opensearch date
 
 Advantages of this option:
-- all information for a specific publisher (e.g. name, date, location) is contextualized together as a complex object under `PublicationInfo`
+- all information for a specific publisher (e.g. name, date, location) is contextualized together as a complex object under `Publishers`
   - e.g. we can know "the published date via the 'Great Writings' publisher is 1930" 
 - for TIMDEX UI search and item pages, and GraphQL aggregations, there is no need to dig into complex objects
   - simply look to `Dates` or `Locations` for that information where this data has been duplicated
 - logic for extracting dates and locations from publisher information could be shared across all Transmogrifier sources
-  - e.g. it could be an automatically applied, secondary step after the `PublicationInfo` objects are created, pulling from `PublicationInfo.date` and `Publication.location`
-  - allows for more thorough date parsing for `Dates` entries, without losing meaningful strings from the source record that can remain in the `PublicationInfo` object
+  - e.g. it could be an automatically applied, secondary step after the `Publishers` objects are created, pulling from `Publishers.date` and `Publication.location`
+  - allows for more thorough date parsing for `Dates` entries, without losing meaningful strings from the source record that can remain in the `Publishers` object
+- able to deprecate `publication_information` in GraphQL as the new field `publishers` does not conflict
 
-Example record:
+Example TIMDEX record:
 ```json
 {
-  "publication_info": [
+  "publishers": [
     {
       "name": "Great Writings",
       "date": "1930",
@@ -155,7 +156,7 @@ Example record:
 This avoids some subtle but potentially confusing scenarios:
 
 - **Option 1**: a user clicks date facet "1910" in search UI but does not see "1910" under "Dates" in the item page
-  - **Reason**: the UI item page didn't know it should reach into `PublicationInfo` objects for dates to show under "Dates", as this was custom logic applied to GraphQL aggregations and search facets
+  - **Reason**: the UI item page didn't know it should reach into `Publishers` objects for dates to show under "Dates", as this was custom logic applied to GraphQL aggregations and search facets
   - **Option 3 fix**: GraphQL, UI search, and UI item pages all pull publishers from publishers, dates from dates, locations from locations, etc., no logic required
 
 - **Option 2**: a user is viewing an item page for the geospatial record "Fires in 1999 Dataset" but sees a strange "2020" under the "Dates" section
@@ -164,7 +165,7 @@ This avoids some subtle but potentially confusing scenarios:
 
 Option 3 achieves data where and when needed, and with the appropriate amount of context, by _extracting and duplicating_ some data like dates and locations:  
 
-- a user wants details about a publisher, look at full and complex `PublicationInfo` object in the record
+- a user wants details about a publisher, look at full and complex `Publishers` object in the record
 - the API or UI wants to pull all meaningful dates or locations from a record, look to the `Dates` or `Locations` fields
 
 In either situation, no additional logic, mapping, or documentation is needed. 
@@ -173,11 +174,11 @@ In either situation, no additional logic, mapping, or documentation is needed.
 
 Proceed with Option 3:
 
-- create new, top level, multivalued object field `PublicationInfo` with properties `[name, date, location]`
-- where possible, further parse dates and locations from `PublicationInfo` objects into `Dates` and `Locations` fields, with `@kind=Publisher` qualifier
-- all pre-existing transformations begin writing to `PublicationInfo` instead of current multivalued string `publication_information`
-- deprecate `publication_information` in GraphQL, point to new object field `PublicationInfo`
+- create new, top level, multivalued object field `Publishers` with properties `[name, date, location]`
+- where possible, further parse dates and locations from `Publishers` objects into `Dates` and `Locations` fields, with `@kind=Publisher` qualifier
+- all pre-existing transformations begin writing to `Publishers` instead of current multivalued string `publication_information`
+- deprecate `publication_information` in GraphQL, point to new object field `Publishers`
 
 ## Consequences
 
-Either option will provide more normalized/consistent data. By ensuring we have a field that represents just the publisher name -- either via `PublicationInfo.name` or `Publisher` -- we will be able to add an additional mapping of `keyword` and allow for aggregation in OpenSearch/GraphQL/consuming applications such as TIMDEX UI.
+Any option will provide more normalized/consistent data. By ensuring we have a field that represents just the publisher name -- either via `Publishers.name` or `Publisher` -- we will be able to add an additional mapping of `keyword` and allow for aggregation in OpenSearch/GraphQL/consuming applications such as TIMDEX UI.
