@@ -571,6 +571,25 @@ class Marc(XMLTransformer):
                         publication_information_value.rstrip(" .")
                     )
 
+        # publishers
+        for publisher_marc_field in ["260", "264"]:
+            for datafield in xml.find_all("datafield", tag=publisher_marc_field):
+                publisher_name = self.get_single_subfield_string(datafield, "b")
+                publisher_date = self.get_single_subfield_string(datafield, "c")
+                publisher_location = self.get_single_subfield_string(datafield, "a")
+                if any([publisher_name, publisher_date, publisher_location]):
+                    fields.setdefault("publishers", []).append(
+                        timdex.Publisher(
+                            name=publisher_name.rstrip(",") if publisher_name else None,
+                            date=publisher_date.rstrip(".") if publisher_date else None,
+                            location=(
+                                publisher_location.rstrip(" :")
+                                if publisher_location
+                                else None
+                            ),
+                        )
+                    )
+
         # related_items
         related_item_marc_fields = [
             {

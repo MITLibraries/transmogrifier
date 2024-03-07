@@ -255,6 +255,15 @@ class Datacite(XMLTransformer):
                 source_record_id,
             )
 
+        # publishers
+        if publisher := xml.metadata.find("publisher", string=True):
+            fields["publishers"] = [timdex.Publisher(name=publisher.string)]
+        else:
+            logger.warning(
+                "Datacite record %s missing required Datacite field publisher",
+                source_record_id,
+            )
+
         # related_items, uses related_identifiers retrieved for identifiers
         for related_identifier in [
             ri for ri in related_identifiers if ri.get("relationType") != "IsIdenticalTo"

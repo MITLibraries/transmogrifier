@@ -125,6 +125,7 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
             )
         ],
         publication_information=["MIT Libraries"],
+        publishers=[timdex.Publisher(name="MIT Libraries")],
         subjects=[
             timdex.Subject(
                 value=["Engineering", "Science"],

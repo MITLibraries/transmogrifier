@@ -110,6 +110,12 @@ def test_ead_record_all_fields_transform_correctly():
             "Massachusetts Institute of Technology. Libraries. Department of Distinctive "
             "Collections"
         ],
+        publishers=[
+            timdex.Publisher(
+                name="Massachusetts Institute of Technology. Libraries. Department of "
+                "Distinctive Collections"
+            )
+        ],
         related_items=[
             timdex.RelatedItem(
                 description=(
@@ -423,6 +429,7 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
         ],
         physical_description="Data not enclosed in subelement",
         publication_information=["Data not enclosed in subelement"],
+        publishers=[timdex.Publisher(name="Data not enclosed in subelement")],
         related_items=[
             timdex.RelatedItem(
                 description="Data with blank head tag",

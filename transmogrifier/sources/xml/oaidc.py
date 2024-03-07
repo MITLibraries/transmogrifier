@@ -93,6 +93,13 @@ class OaiDc(XMLTransformer):
             str(p.string) for p in xml.find_all("dc:publisher") if p.string
         ] or None
 
+        # publication_information
+        fields["publishers"] = [
+            timdex.Publisher(name=str(p.string))
+            for p in xml.find_all("dc:publisher")
+            if p.string
+        ] or None
+
         # related_items: not set in this transformation
 
         # rights: not set in this transformation

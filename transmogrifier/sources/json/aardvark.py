@@ -136,6 +136,8 @@ class MITAardvark(JSONTransformer):
 
         # edition not used in MITAardvark
 
+        # file_formats not used in MITAardvark
+
         # format
         fields["format"] = source_record.get("dct_format_s")
 
@@ -163,6 +165,9 @@ class MITAardvark(JSONTransformer):
         fields["publication_information"] = (
             self.get_publication_information(source_record) or None
         )
+
+        # publishers
+        fields["publishers"] = self.get_publishers(source_record) or None
 
         # related_items not used in MITAardvark
 
@@ -383,6 +388,19 @@ class MITAardvark(JSONTransformer):
             publication_information.extend(source_record["dct_publisher_sm"])
 
         return publication_information
+
+    @staticmethod
+    def get_publishers(source_record: dict) -> list[timdex.Publisher]:
+        """Get values from source record for TIMDEX publishers field."""
+        publishers = []
+        if "dct_publisher_sm" in source_record:
+            publishers.extend(
+                [
+                    timdex.Publisher(name=publisher)
+                    for publisher in source_record["dct_publisher_sm"]
+                ]
+            )
+        return publishers
 
     @staticmethod
     def get_rights(source: str, source_record: dict) -> list[timdex.Rights]:

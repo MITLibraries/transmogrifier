@@ -206,6 +206,13 @@ class DspaceDim(XMLTransformer):
             p.string for p in xml.find_all("dim:field", element="publisher") if p.string
         ] or None
 
+        # publishers
+        fields["publishers"] = [
+            timdex.Publisher(name=p.string)
+            for p in xml.find_all("dim:field", element="publisher")
+            if p.string
+        ] or None
+
         # related_items
         for related_item in [
             r for r in xml.find_all("dim:field", element="relation") if r.string

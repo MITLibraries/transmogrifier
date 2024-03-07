@@ -358,6 +358,12 @@ def test_marc_record_all_fields_transform_correctly():
             "France : Alpha, [2022]",
             "℗2022, ©2022",
         ],
+        publishers=[
+            timdex.Publisher(name="New Press :", date="2005", location="New York"),
+            timdex.Publisher(name="Wiley", date="c1992", location="New York"),
+            timdex.Publisher(name="Alpha", date="[2022]", location="France"),
+            timdex.Publisher(date="℗2022,"),
+        ],
         related_items=[
             timdex.RelatedItem(
                 description="Java 2 in plain English",
@@ -642,6 +648,10 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         physical_description="a b c e f g",
         publication_information=["a b c d e f", "a b c"],
+        publishers=[
+            timdex.Publisher(name="b", date="c", location="a"),
+            timdex.Publisher(name="b", date="c", location="a"),
+        ],
         related_items=[
             timdex.RelatedItem(
                 description="a b c d g h i k m n o r s t u w x y z",

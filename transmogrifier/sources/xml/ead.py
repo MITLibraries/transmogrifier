@@ -214,6 +214,15 @@ class Ead(XMLTransformer):
             ):
                 fields["publication_information"] = [publication_value]
 
+        # publishers
+        if publication_element := collection_description_did.find(  # noqa: SIM102
+            "repository"
+        ):
+            if publication_value := self.create_string_from_mixed_value(
+                publication_element, " "
+            ):
+                fields["publishers"] = [timdex.Publisher(name=publication_value)]
+
         # related_items
         for related_item_element in collection_description.find_all(
             ["altformavail", "separatedmaterial"],

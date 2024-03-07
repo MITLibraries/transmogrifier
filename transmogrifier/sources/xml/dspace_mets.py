@@ -151,6 +151,12 @@ class DspaceMets(XMLTransformer):
         for publisher in xml.find_all("mods:publisher", string=True):
             fields.setdefault("publication_information", []).append(publisher.string)
 
+        # publishers
+        for publisher in xml.find_all("mods:publisher", string=True):
+            fields.setdefault("publishers", []).append(
+                timdex.Publisher(name=publisher.string)
+            )
+
         # related_items
         # Excludes related items with type of "series" because the data in that field
         # seems to more accurately map to the numbering field.
