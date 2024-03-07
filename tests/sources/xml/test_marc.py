@@ -352,12 +352,6 @@ def test_marc_record_all_fields_transform_correctly():
             "(4 3/4 in.). 1 vocal score (248 p.) ; 31 cm."
         ),
         publication_frequency=["Six no. a year", "Three times a year"],
-        publication_information=[
-            "New York : New Press, 2005",
-            "New York : Wiley, c1992",
-            "France : Alpha, [2022]",
-            "℗2022, ©2022",
-        ],
         publishers=[
             timdex.Publisher(name="New Press", date="2005", location="New York"),
             timdex.Publisher(name="Wiley", date="c1992", location="New York"),
@@ -647,7 +641,6 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             timdex.Note(value=["a"], kind="Local Note"),
         ],
         physical_description="a b c e f g",
-        publication_information=["a b c d e f", "a b c"],
         publishers=[
             timdex.Publisher(name="b", date="c", location="a"),
             timdex.Publisher(name="b", date="c", location="a"),

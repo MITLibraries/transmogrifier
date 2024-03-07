@@ -205,15 +205,6 @@ class Ead(XMLTransformer):
 
         # publication_frequency field not used in EAD
 
-        # publication_information
-        if publication_element := collection_description_did.find(  # noqa: SIM102
-            "repository"
-        ):
-            if publication_value := self.create_string_from_mixed_value(
-                publication_element, " "
-            ):
-                fields["publication_information"] = [publication_value]
-
         # publishers
         if publication_element := collection_description_did.find(  # noqa: SIM102
             "repository"

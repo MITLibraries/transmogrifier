@@ -37,7 +37,7 @@ def test_timdex_record_required_fields_only(timdex_record_required_fields):
     assert timdex_record_required_fields.numbering is None
     assert timdex_record_required_fields.publication_frequency is None
     assert timdex_record_required_fields.physical_description is None
-    assert timdex_record_required_fields.publication_information is None
+    assert timdex_record_required_fields.publishers is None
     assert timdex_record_required_fields.related_items is None
     assert timdex_record_required_fields.rights is None
     assert timdex_record_required_fields.subjects is None
@@ -80,7 +80,7 @@ def test_timdex_record_required_subfields_only(timdex_record_required_fields):
     assert timdex_record_required_fields.numbering is None
     assert timdex_record_required_fields.physical_description is None
     assert timdex_record_required_fields.publication_frequency is None
-    assert timdex_record_required_fields.publication_information is None
+    assert timdex_record_required_fields.publishers is None
     assert timdex_record_required_fields.rights is None
     assert timdex_record_required_fields.subjects[0].value == ["Stuff"]
     assert timdex_record_required_fields.summary is None
@@ -192,9 +192,6 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
         == "1 online resource (1 sound file)"
     )
     assert timdex_record_all_fields_and_subfields.publication_frequency == ["Semiannual"]
-    assert timdex_record_all_fields_and_subfields.publication_information == [
-        "Version 1.0"
-    ]
     assert (
         timdex_record_all_fields_and_subfields.related_items[0].description
         == "This item is related to this other item"
@@ -311,7 +308,7 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
         "numbering": "Began with v. 32, issue 1 (Jan./June 2005).",
         "physical_description": "1 online resource (1 sound file)",
         "publication_frequency": ["Semiannual"],
-        "publication_information": ["Version 1.0"],
+        "publishers": [{"name": "Publisher", "date": "2014", "location": "A place"}],
         "related_items": [
             {
                 "description": "This item is related to this other item",

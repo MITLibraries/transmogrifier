@@ -124,7 +124,6 @@ def test_libguide_transform_with_all_fields_transforms_correctly():
                 text="LibGuide URL",
             )
         ],
-        publication_information=["MIT Libraries"],
         publishers=[timdex.Publisher(name="MIT Libraries")],
         subjects=[
             timdex.Subject(

@@ -201,11 +201,6 @@ class DspaceDim(XMLTransformer):
                 )
             )
 
-        # publication_information
-        fields["publication_information"] = [
-            p.string for p in xml.find_all("dim:field", element="publisher") if p.string
-        ] or None
-
         # publishers
         fields["publishers"] = [
             timdex.Publisher(name=p.string)

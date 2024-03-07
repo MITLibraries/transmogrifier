@@ -202,9 +202,6 @@ class TimdexRecord:
     publication_frequency: list[str] | None = field(
         default=None, validator=optional(list_of(str))
     )
-    publication_information: list[str] | None = field(
-        default=None, validator=optional(list_of(str))
-    )
     publishers: list[Publisher] | None = field(
         default=None, validator=optional(list_of(Publisher))
     )

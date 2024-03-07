@@ -106,10 +106,6 @@ def test_ead_record_all_fields_transform_correctly():
             "4.5 Cubic Feet (10 manuscript boxes, 1 legal manuscript "
             "box, 1 cassette box); 1.5 Cubic Feet (2 manuscript boxes)"
         ),
-        publication_information=[
-            "Massachusetts Institute of Technology. Libraries. Department of Distinctive "
-            "Collections"
-        ],
         publishers=[
             timdex.Publisher(
                 name="Massachusetts Institute of Technology. Libraries. Department of "
@@ -428,7 +424,6 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
             timdex.Note(value=["Data with no head tag"], kind="Scope and Contents Note"),
         ],
         physical_description="Data not enclosed in subelement",
-        publication_information=["Data not enclosed in subelement"],
         publishers=[timdex.Publisher(name="Data not enclosed in subelement")],
         related_items=[
             timdex.RelatedItem(

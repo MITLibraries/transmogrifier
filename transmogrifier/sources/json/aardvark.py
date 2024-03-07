@@ -161,11 +161,6 @@ class MITAardvark(JSONTransformer):
         # provider
         fields["provider"] = source_record.get("schema_provider_s")
 
-        # publication_information
-        fields["publication_information"] = (
-            self.get_publication_information(source_record) or None
-        )
-
         # publishers
         fields["publishers"] = self.get_publishers(source_record) or None
 
@@ -378,16 +373,6 @@ class MITAardvark(JSONTransformer):
             timdex.Note(value=[note_value], kind="Display note")
             for note_value in source_record.get("gbl_displayNote_sm", [])
         ]
-
-    @staticmethod
-    def get_publication_information(source_record: dict) -> list[str]:
-        """Get values from source record for TIMDEX publication_information field."""
-        publication_information = []
-
-        if "dct_publisher_sm" in source_record:
-            publication_information.extend(source_record["dct_publisher_sm"])
-
-        return publication_information
 
     @staticmethod
     def get_publishers(source_record: dict) -> list[timdex.Publisher]:

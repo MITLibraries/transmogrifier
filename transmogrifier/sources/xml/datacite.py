@@ -246,15 +246,6 @@ class Datacite(XMLTransformer):
                     )
                 )
 
-        # publication_information
-        if publisher := xml.metadata.find("publisher", string=True):
-            fields["publication_information"] = [publisher.string]
-        else:
-            logger.warning(
-                "Datacite record %s missing required Datacite field publisher",
-                source_record_id,
-            )
-
         # publishers
         if publisher := xml.metadata.find("publisher", string=True):
             fields["publishers"] = [timdex.Publisher(name=publisher.string)]

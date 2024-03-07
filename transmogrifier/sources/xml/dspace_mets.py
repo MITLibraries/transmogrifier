@@ -147,10 +147,6 @@ class DspaceMets(XMLTransformer):
 
         # publication_frequency field not used in DSpace
 
-        # publication_information
-        for publisher in xml.find_all("mods:publisher", string=True):
-            fields.setdefault("publication_information", []).append(publisher.string)
-
         # publishers
         for publisher in xml.find_all("mods:publisher", string=True):
             fields.setdefault("publishers", []).append(

@@ -547,30 +547,6 @@ class Marc(XMLTransformer):
                     publication_frequency_value
                 )
 
-        # publication_information
-        publication_information_marc_fields = [
-            {
-                "tag": "260",
-                "subfields": "abcdef",
-            },
-            {
-                "tag": "264",
-                "subfields": "abc",
-            },
-        ]
-        for publication_information_marc_field in publication_information_marc_fields:
-            for datafield in xml.find_all(
-                "datafield", tag=publication_information_marc_field["tag"]
-            ):
-                if publication_information_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield, publication_information_marc_field["subfields"], " "
-                    )
-                ):
-                    fields.setdefault("publication_information", []).append(
-                        publication_information_value.rstrip(" .")
-                    )
-
         # publishers
         for publisher_marc_field in ["260", "264"]:
             for datafield in xml.find_all("datafield", tag=publisher_marc_field):

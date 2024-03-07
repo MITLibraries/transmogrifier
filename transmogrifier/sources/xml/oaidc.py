@@ -88,12 +88,7 @@ class OaiDc(XMLTransformer):
 
         # publication_frequency: not set in this transformation
 
-        # publication_information
-        fields["publication_information"] = [
-            str(p.string) for p in xml.find_all("dc:publisher") if p.string
-        ] or None
-
-        # publication_information
+        # publishers
         fields["publishers"] = [
             timdex.Publisher(name=str(p.string))
             for p in xml.find_all("dc:publisher")

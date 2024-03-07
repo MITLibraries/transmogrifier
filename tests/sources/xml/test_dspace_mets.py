@@ -125,7 +125,6 @@ def test_dspace_mets_transform_with_all_fields_transforms_correctly():
             )
         ],
         numbering="MIT-CSAIL-TR-2018-016",
-        publication_information=["Massachusetts Institute of Technology"],
         publishers=[timdex.Publisher(name="Massachusetts Institute of Technology")],
         related_items=[
             timdex.RelatedItem(description="Nature Communications", relationship="host")

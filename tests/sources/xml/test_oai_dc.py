@@ -41,7 +41,6 @@ def test_oaidctransform_with_all_fields_transforms_correctly():
         identifiers=[
             timdex.Identifier(value="oai:libguides.com:guides/175846", kind="OAI-PMH")
         ],
-        publication_information=["MIT Libraries"],
         publishers=[timdex.Publisher(name="MIT Libraries")],
         subjects=[
             timdex.Subject(
