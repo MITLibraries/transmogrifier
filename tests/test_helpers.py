@@ -127,9 +127,9 @@ def test_generate_citation_includes_only_first_publisher():
         "source_link": "https://example.com/paper",
         "contributors": [timdex.Contributor(kind="author", value="Smith, Susie Q.")],
         "dates": [timdex.Date(kind="Publication date", value="2022")],
-        "publication_information": [
-            "Massachusetts Institute of Technology",
-            "Additional publication information",
+        "publishers": [
+            timdex.Publisher(name="Massachusetts Institute of Technology"),
+            timdex.Publisher(name="Additional publication information"),
         ],
     }
     assert (
@@ -145,7 +145,7 @@ def test_generate_citation_with_no_resource_type():
         "source_link": "https://example.com/paper",
         "contributors": [timdex.Contributor(kind="author", value="Smith, Susie Q.")],
         "dates": [timdex.Date(kind="Publication date", value="2022")],
-        "publication_information": ["Massachusetts Institute of Technology"],
+        "publishers": [timdex.Publisher(name="Massachusetts Institute of Technology")],
     }
     assert (
         generate_citation(extracted_data)
@@ -161,7 +161,7 @@ def test_generate_citation_includes_all_resource_types():
         "content_type": ["Article", "Paper"],
         "contributors": [timdex.Contributor(kind="author", value="Smith, Susie Q.")],
         "dates": [timdex.Date(kind="Publication date", value="2022")],
-        "publication_information": ["Massachusetts Institute of Technology"],
+        "publishers": [timdex.Publisher(name="Massachusetts Institute of Technology")],
     }
     assert (
         generate_citation(extracted_data)
@@ -180,7 +180,7 @@ def test_generate_citation_with_all_fields():
             timdex.Contributor(kind="creator", value="Jones, John J."),
         ],
         "dates": [timdex.Date(kind="Publication date", value="2022")],
-        "publication_information": ["Massachusetts Institute of Technology"],
+        "publishers": [timdex.Publisher(name="Massachusetts Institute of Technology")],
     }
     assert (
         generate_citation(extracted_data)

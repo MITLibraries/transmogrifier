@@ -57,7 +57,7 @@ def test_marc_record_all_fields_transform_correctly():
         ],
         citation=(
             "Célébration : 10 siècles de musique de noël. 2016. "
-            "New York : New Press : Distributed by W.W. Norton, 2005. Language material. "
+            "New York : New Press. Language material. "
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
             "01MIT_INST:MIT&docid=alma990027185640106761"
         ),
@@ -353,13 +353,13 @@ def test_marc_record_all_fields_transform_correctly():
         ),
         publication_frequency=["Six no. a year", "Three times a year"],
         publication_information=[
-            "New York : New Press : Distributed by W.W. Norton, 2005",
+            "New York : New Press, 2005",
             "New York : Wiley, c1992",
             "France : Alpha, [2022]",
             "℗2022, ©2022",
         ],
         publishers=[
-            timdex.Publisher(name="New Press :", date="2005", location="New York"),
+            timdex.Publisher(name="New Press", date="2005", location="New York"),
             timdex.Publisher(name="Wiley", date="c1992", location="New York"),
             timdex.Publisher(name="Alpha", date="[2022]", location="France"),
             timdex.Publisher(date="℗2022,"),
@@ -522,7 +522,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         call_numbers=["a", "a"],
         citation=(
-            "a b f g k n p s. 2016. a b c d e f. Manuscript language material. "
+            "a b f g k n p s. 2016. a : b. Manuscript language material. "
             "https://mit.primo.exlibrisgroup.com/discovery/"
             "fulldisplay?vid=01MIT_INST:MIT&docid=alma990027185640106761"
         ),

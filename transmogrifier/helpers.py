@@ -17,9 +17,8 @@ def generate_citation(extracted_data: dict) -> str:
     title = extracted_data["title"]
     url_string = f" {extracted_data['source_link']}"
 
-    if not extracted_data.get("contributors"):
-        creator_string = None
-    else:
+    creator_string = ""
+    if extracted_data.get("contributors"):
         creator_names = [
             contributor.value
             for contributor in extracted_data["contributors"]
@@ -28,13 +27,10 @@ def generate_citation(extracted_data: dict) -> str:
         ]
         creator_string = (", ").join(creator_names)
 
-    if not extracted_data.get("dates"):
-        publication_dates = None
-    else:
-        publication_dates = [
-            date.value
-            for date in extracted_data["dates"]
-            if date.kind == "Publication date" and date.value
+    publication_dates = ""
+    if dates := extracted_data.get("dates"):
+        publication_dates = [  # type: ignore[assignment]
+            date.value for date in dates if date.kind == "Publication date" and date.value
         ]
 
     if creator_string and publication_dates:
@@ -46,8 +42,12 @@ def generate_citation(extracted_data: dict) -> str:
     else:
         citation += f"{title}."
 
-    publisher_field = extracted_data.get("publication_information")
-    publisher_string = f" {publisher_field[0]}." if publisher_field else ""
+    publisher_string = ""
+    if publishers_field := extracted_data.get("publishers"):
+        if publisher_location := publishers_field[0].location:
+            publisher_string = f" {publisher_location} :"
+        if publisher_name := publishers_field[0].name:
+            publisher_string += f" {publisher_name}."
 
     resource_types = extracted_data.get("content_type")
     resource_type_string = f" {(', ').join(resource_types)}." if resource_types else ""
