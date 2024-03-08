@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from transmogrifier.models import TimdexRecord
+import transmogrifier.models as timdex
 from transmogrifier.sources.transformer import Transformer, XMLTransformer
 from transmogrifier.sources.xml.datacite import Datacite
 
@@ -28,6 +28,21 @@ def test_transformer_get_transformer_source_wrong_class_name_raises_error():
 def test_transformer_get_transformer_source_wrong_module_path_raises_error():
     with pytest.raises(ImportError):
         Transformer.get_transformer("bad-module-path")
+
+
+def test_create_dates_and_locations_from_publishers_success():
+    fields = {
+        "publishers": [
+            timdex.Publisher(name="Publisher", date="Date", location="Location")
+        ],
+    }
+    assert Transformer.create_dates_and_locations_from_publishers(fields) == {
+        "publishers": [
+            timdex.Publisher(name="Publisher", date="Date", location="Location")
+        ],
+        "dates": [timdex.Date(kind="Publication date", value="Date")],
+        "locations": [timdex.Location(value="Location", kind="Publisher")],
+    }
 
 
 def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
@@ -110,7 +125,7 @@ def test_xmltransformer_get_required_fields_returns_expected_values(oai_pmh_reco
 
 def test_xmltransformer_transform_returns_timdex_record(oai_pmh_records):
     transformer = XMLTransformer("cool-repo", oai_pmh_records)
-    assert next(transformer) == TimdexRecord(
+    assert next(transformer) == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/12345",
         timdex_record_id="cool-repo:12345",

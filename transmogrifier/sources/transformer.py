@@ -19,9 +19,9 @@ from bs4 import BeautifulSoup, Tag  # type: ignore[import-untyped]
 # should not be a security issue.
 from lxml import etree  # nosec B410
 
+import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES
 from transmogrifier.helpers import DeletedRecordEvent, generate_citation
-from transmogrifier.models import TimdexRecord
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -55,12 +55,12 @@ class Transformer(ABC):
         self.deleted_records: list[str] = []
 
     @final
-    def __iter__(self) -> Iterator[TimdexRecord]:
+    def __iter__(self) -> Iterator[timdex.TimdexRecord]:
         """Iterate over transformed records."""
         return self
 
     @final
-    def __next__(self) -> TimdexRecord:
+    def __next__(self) -> timdex.TimdexRecord:
         """Return next transformed record."""
         while True:
             source_record = next(self.source_records)
@@ -103,7 +103,7 @@ class Transformer(ABC):
         """
         count = 0
         try:
-            record: TimdexRecord = next(self)
+            record: timdex.TimdexRecord = next(self)
         except StopIteration:
             return count
         with smart_open.open(output_file, "w") as file:
@@ -125,7 +125,7 @@ class Transformer(ABC):
                         count,
                     )
                 try:
-                    record: TimdexRecord = next(self)  # type: ignore[no-redef]
+                    record: timdex.TimdexRecord = next(self)  # type: ignore[no-redef]
                 except StopIteration:
                     break
                 file.write(",\n")
@@ -227,7 +227,9 @@ class Transformer(ABC):
         """
 
     @final
-    def _transform(self, source_record: dict[str, JSON] | Tag) -> TimdexRecord | None:
+    def _transform(
+        self, source_record: dict[str, JSON] | Tag
+    ) -> timdex.TimdexRecord | None:
         """
         Private method called for both XML and JSON transformations, where
         all logic is shared except source_record type.
@@ -251,6 +253,7 @@ class Transformer(ABC):
             **self.get_required_fields(source_record),
             **optional_fields,
         }
+        fields = self.create_dates_and_locations_from_publishers(fields)
 
         # If citation field was not present, generate citation from other fields
         if fields.get("citation") is None:
@@ -258,10 +261,12 @@ class Transformer(ABC):
         if fields.get("content_type") is None:
             fields["content_type"] = ["Not specified"]
 
-        return TimdexRecord(**fields)
+        return timdex.TimdexRecord(**fields)
 
     @abstractmethod
-    def transform(self, source_record: dict[str, JSON] | Tag) -> TimdexRecord | None:
+    def transform(
+        self, source_record: dict[str, JSON] | Tag
+    ) -> timdex.TimdexRecord | None:
         """
         Call Transformer._transform method to transform source record to TIMDEX record.
 
@@ -364,6 +369,30 @@ class Transformer(ABC):
         """
         return {}
 
+    @final
+    @staticmethod
+    def create_dates_and_locations_from_publishers(fields: dict) -> dict:
+        """Add Date and Location objects based on data in publishers field.
+
+        Args:
+            fields: A dict of fields representing a TIMDEX record.
+        """
+        if fields.get("publishers"):
+            for publisher in fields["publishers"]:
+                if publisher.date:
+                    publisher_date = timdex.Date(
+                        kind="Publication date", value=publisher.date
+                    )
+                    if publisher_date not in fields.setdefault("dates", []):
+                        fields["dates"].append(publisher_date)
+                if publisher.location:
+                    publisher_location = timdex.Location(
+                        kind="Publisher", value=publisher.location
+                    )
+                    if publisher_location not in fields.setdefault("locations", []):
+                        fields["locations"].append(publisher_location)
+        return fields
+
 
 class JSONTransformer(Transformer):
     """JSON transformer class."""
@@ -385,7 +414,7 @@ class JSONTransformer(Transformer):
             yield from records.iter(type=dict)
 
     @final
-    def transform(self, source_record: dict[str, JSON]) -> TimdexRecord | None:
+    def transform(self, source_record: dict[str, JSON]) -> timdex.TimdexRecord | None:
         """
         Call Transformer._transform method to transform JSON record to TIMDEX record.
 
@@ -545,7 +574,7 @@ class XMLTransformer(Transformer):
                 element.clear()
 
     @final
-    def transform(self, source_record: Tag) -> TimdexRecord | None:
+    def transform(self, source_record: Tag) -> timdex.TimdexRecord | None:
         """
         Call Transformer._transform method to transform XML record to TIMDEX record.
 

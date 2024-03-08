@@ -149,7 +149,13 @@ def test_marc_record_all_fields_transform_correctly():
                 kind="singer",
             ),
         ],
-        dates=[timdex.Date(kind="Publication date", value="2016")],
+        dates=[
+            timdex.Date(kind="Publication date", value="2016"),
+            timdex.Date(kind="Publication date", value="2005"),
+            timdex.Date(kind="Publication date", value="c1992"),
+            timdex.Date(kind="Publication date", value="[2022]"),
+            timdex.Date(kind="Publication date", value="℗2022,"),
+        ],
         edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
         holdings=[
             timdex.Holding(
@@ -249,6 +255,8 @@ def test_marc_record_all_fields_transform_correctly():
                 kind="Hierarchical Place Name",
             ),
             timdex.Location(value="Austria - Vienna", kind="Hierarchical Place Name"),
+            timdex.Location(value="New York", kind="Publisher"),
+            timdex.Location(value="France", kind="Publisher"),
         ],
         notes=[
             timdex.Note(
@@ -536,7 +544,10 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 kind="e",
             ),
         ],
-        dates=[timdex.Date(kind="Publication date", value="2016")],
+        dates=[
+            timdex.Date(kind="Publication date", value="2016"),
+            timdex.Date(kind="Publication date", value="c"),
+        ],
         edition="a b",
         holdings=[
             timdex.Holding(
@@ -623,6 +634,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 value="a - b - c - d - e - f - g - h",
                 kind="Hierarchical Place Name",
             ),
+            timdex.Location(value="a", kind="Publisher"),
         ],
         notes=[
             timdex.Note(value=["c"], kind="Title Statement of Responsibility"),
