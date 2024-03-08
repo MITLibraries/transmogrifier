@@ -5,7 +5,7 @@ from bs4 import Tag  # type: ignore[import-untyped]
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import XMLTransformer
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 

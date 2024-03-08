@@ -3,8 +3,9 @@ from click.testing import CliRunner
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
-from transmogrifier.sources.transformer import JSONTransformer, XMLTransformer
+from transmogrifier.sources.jsontransformer import JSONTransformer
 from transmogrifier.sources.xml.datacite import Datacite
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 
 @pytest.fixture(autouse=True)

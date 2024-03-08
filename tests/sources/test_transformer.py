@@ -5,8 +5,9 @@ from unittest.mock import patch
 import pytest
 
 import transmogrifier.models as timdex
-from transmogrifier.sources.transformer import Transformer, XMLTransformer
+from transmogrifier.sources.transformer import Transformer
 from transmogrifier.sources.xml.datacite import Datacite
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 
 def test_transformer_get_transformer_returns_correct_class_name():
@@ -65,7 +66,7 @@ def test_xmltransformer_iterates_successfully_if_get_optional_fields_returns_non
     oai_pmh_records,
 ):
     with patch(
-        "transmogrifier.sources.transformer.XMLTransformer.get_optional_fields"
+        "transmogrifier.sources.xmltransformer.XMLTransformer.get_optional_fields"
     ) as m:
         m.return_value = None
         output_records = XMLTransformer("cool-repo", oai_pmh_records)

@@ -4,7 +4,8 @@ import re
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import JSON, JSONTransformer
+from transmogrifier.sources.jsontransformer import JSONTransformer
+from transmogrifier.sources.transformer import JSON
 
 logger = logging.getLogger(__name__)
 
