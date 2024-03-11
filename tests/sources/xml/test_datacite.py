@@ -8,6 +8,7 @@ from transmogrifier.models import (
     Link,
     Location,
     Note,
+    Publisher,
     RelatedItem,
     Rights,
     Subject,
@@ -115,7 +116,7 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
             Note(value=["Survey Data"], kind="Datacite resource type"),
             Note(value=["Stata, 13"], kind="TechnicalInfo"),
         ],
-        publication_information=["Harvard Dataverse"],
+        publishers=[Publisher(name="Harvard Dataverse")],
         related_items=[
             RelatedItem(
                 relationship="IsCitedBy",

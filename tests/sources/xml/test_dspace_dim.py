@@ -82,7 +82,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
             ),
             timdex.Note(value=["2026-01"], kind="embargo"),
         ],
-        publication_information=["Woods Hole Oceanographic Institution"],
+        publishers=[timdex.Publisher(name="Woods Hole Oceanographic Institution")],
         related_items=[
             timdex.RelatedItem(
                 description="A low resolution version of this movie was published as "

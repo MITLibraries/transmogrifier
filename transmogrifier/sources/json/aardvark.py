@@ -4,7 +4,8 @@ import re
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import JSON, JSONTransformer
+from transmogrifier.sources.jsontransformer import JSONTransformer
+from transmogrifier.sources.transformer import JSON
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +137,8 @@ class MITAardvark(JSONTransformer):
 
         # edition not used in MITAardvark
 
+        # file_formats not used in MITAardvark
+
         # format
         fields["format"] = source_record.get("dct_format_s")
 
@@ -159,10 +162,8 @@ class MITAardvark(JSONTransformer):
         # provider
         fields["provider"] = source_record.get("schema_provider_s")
 
-        # publication_information
-        fields["publication_information"] = (
-            self.get_publication_information(source_record) or None
-        )
+        # publishers
+        fields["publishers"] = self.get_publishers(source_record) or None
 
         # related_items not used in MITAardvark
 
@@ -375,14 +376,17 @@ class MITAardvark(JSONTransformer):
         ]
 
     @staticmethod
-    def get_publication_information(source_record: dict) -> list[str]:
-        """Get values from source record for TIMDEX publication_information field."""
-        publication_information = []
-
+    def get_publishers(source_record: dict) -> list[timdex.Publisher]:
+        """Get values from source record for TIMDEX publishers field."""
+        publishers = []
         if "dct_publisher_sm" in source_record:
-            publication_information.extend(source_record["dct_publisher_sm"])
-
-        return publication_information
+            publishers.extend(
+                [
+                    timdex.Publisher(name=publisher)
+                    for publisher in source_record["dct_publisher_sm"]
+                ]
+            )
+        return publishers
 
     @staticmethod
     def get_rights(source: str, source_record: dict) -> list[timdex.Rights]:

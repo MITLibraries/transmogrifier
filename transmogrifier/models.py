@@ -128,6 +128,13 @@ class Note:
 
 
 @define
+class Publisher:
+    name: str | None = field(default=None, validator=optional(instance_of(str)))
+    date: str | None = field(default=None, validator=optional(instance_of(str)))
+    location: str | None = field(default=None, validator=optional(instance_of(str)))
+
+
+@define
 class RelatedItem:
     description: str | None = field(default=None, validator=optional(instance_of(str)))
     item_type: str | None = field(default=None, validator=optional(instance_of(str)))
@@ -195,8 +202,8 @@ class TimdexRecord:
     publication_frequency: list[str] | None = field(
         default=None, validator=optional(list_of(str))
     )
-    publication_information: list[str] | None = field(
-        default=None, validator=optional(list_of(str))
+    publishers: list[Publisher] | None = field(
+        default=None, validator=optional(list_of(Publisher))
     )
     related_items: list[RelatedItem] | None = field(
         default=None, validator=optional(list_of(RelatedItem))

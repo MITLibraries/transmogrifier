@@ -5,7 +5,7 @@ from bs4 import Tag  # type: ignore[import-untyped]
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import XMLTransformer
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -547,28 +547,23 @@ class Marc(XMLTransformer):
                     publication_frequency_value
                 )
 
-        # publication_information
-        publication_information_marc_fields = [
-            {
-                "tag": "260",
-                "subfields": "abcdef",
-            },
-            {
-                "tag": "264",
-                "subfields": "abc",
-            },
-        ]
-        for publication_information_marc_field in publication_information_marc_fields:
-            for datafield in xml.find_all(
-                "datafield", tag=publication_information_marc_field["tag"]
-            ):
-                if publication_information_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield, publication_information_marc_field["subfields"], " "
-                    )
-                ):
-                    fields.setdefault("publication_information", []).append(
-                        publication_information_value.rstrip(" .")
+        # publishers
+        for publisher_marc_field in ["260", "264"]:
+            for datafield in xml.find_all("datafield", tag=publisher_marc_field):
+                publisher_name = self.get_single_subfield_string(datafield, "b")
+                publisher_date = self.get_single_subfield_string(datafield, "c")
+                publisher_location = self.get_single_subfield_string(datafield, "a")
+                if any([publisher_name, publisher_date, publisher_location]):
+                    fields.setdefault("publishers", []).append(
+                        timdex.Publisher(
+                            name=publisher_name.rstrip(",") if publisher_name else None,
+                            date=publisher_date.rstrip(".") if publisher_date else None,
+                            location=(
+                                publisher_location.rstrip(" :")
+                                if publisher_location
+                                else None
+                            ),
+                        )
                     )
 
         # related_items

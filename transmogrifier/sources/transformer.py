@@ -9,22 +9,20 @@ from abc import ABC, abstractmethod
 from importlib import import_module
 from typing import TYPE_CHECKING, TypeAlias, final
 
-import jsonlines
 import smart_open  # type: ignore[import-untyped]
 from attrs import asdict
-from bs4 import BeautifulSoup, Tag  # type: ignore[import-untyped]
 
 # Note: the lxml module in defusedxml is deprecated, so we have to use the
 # regular lxml library. Transmogrifier only parses data from known sources so this
 # should not be a security issue.
-from lxml import etree  # nosec B410
-
+import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES
 from transmogrifier.helpers import DeletedRecordEvent, generate_citation
-from transmogrifier.models import TimdexRecord
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from bs4 import Tag  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -55,12 +53,12 @@ class Transformer(ABC):
         self.deleted_records: list[str] = []
 
     @final
-    def __iter__(self) -> Iterator[TimdexRecord]:
+    def __iter__(self) -> Iterator[timdex.TimdexRecord]:
         """Iterate over transformed records."""
         return self
 
     @final
-    def __next__(self) -> TimdexRecord:
+    def __next__(self) -> timdex.TimdexRecord:
         """Return next transformed record."""
         while True:
             source_record = next(self.source_records)
@@ -103,7 +101,7 @@ class Transformer(ABC):
         """
         count = 0
         try:
-            record: TimdexRecord = next(self)
+            record: timdex.TimdexRecord = next(self)
         except StopIteration:
             return count
         with smart_open.open(output_file, "w") as file:
@@ -125,7 +123,7 @@ class Transformer(ABC):
                         count,
                     )
                 try:
-                    record: TimdexRecord = next(self)  # type: ignore[no-redef]
+                    record: timdex.TimdexRecord = next(self)  # type: ignore[no-redef]
                 except StopIteration:
                     break
                 file.write(",\n")
@@ -227,7 +225,9 @@ class Transformer(ABC):
         """
 
     @final
-    def _transform(self, source_record: dict[str, JSON] | Tag) -> TimdexRecord | None:
+    def _transform(
+        self, source_record: dict[str, JSON] | Tag
+    ) -> timdex.TimdexRecord | None:
         """
         Private method called for both XML and JSON transformations, where
         all logic is shared except source_record type.
@@ -252,16 +252,20 @@ class Transformer(ABC):
             **optional_fields,
         }
 
+        fields = self.create_dates_and_locations_from_publishers(fields)
+
         # If citation field was not present, generate citation from other fields
         if fields.get("citation") is None:
             fields["citation"] = generate_citation(fields)
         if fields.get("content_type") is None:
             fields["content_type"] = ["Not specified"]
 
-        return TimdexRecord(**fields)
+        return timdex.TimdexRecord(**fields)
 
     @abstractmethod
-    def transform(self, source_record: dict[str, JSON] | Tag) -> TimdexRecord | None:
+    def transform(
+        self, source_record: dict[str, JSON] | Tag
+    ) -> timdex.TimdexRecord | None:
         """
         Call Transformer._transform method to transform source record to TIMDEX record.
 
@@ -364,314 +368,27 @@ class Transformer(ABC):
         """
         return {}
 
-
-class JSONTransformer(Transformer):
-    """JSON transformer class."""
-
     @final
-    @classmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[dict[str, JSON]]:
-        """
-        Parse JSON file and return source records as JSON objects via an iterator.
-
-        May not be overridden.
-
-        Validates that records in the file are dicts for proper processing.
+    @staticmethod
+    def create_dates_and_locations_from_publishers(fields: dict) -> dict:
+        """Add Date and Location objects based on data in publishers field.
 
         Args:
-            source_file: A file containing source records to be transformed.
+            fields: A dict of fields representing a TIMDEX record.
         """
-        with jsonlines.Reader(smart_open.open(source_file, "r")) as records:
-            yield from records.iter(type=dict)
-
-    @final
-    def transform(self, source_record: dict[str, JSON]) -> TimdexRecord | None:
-        """
-        Call Transformer._transform method to transform JSON record to TIMDEX record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-        return self._transform(source_record)
-
-    @final
-    def get_required_fields(self, source_record: dict[str, JSON]) -> dict:
-        """
-        Get required TIMDEX fields from an JSON record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-        source_record_id = self.get_source_record_id(source_record)
-
-        # run methods to generate required fields
-        source_link = self.get_source_link(
-            self.source_base_url, source_record_id, source_record
-        )
-        timdex_record_id = self.get_timdex_record_id(
-            self.source, source_record_id, source_record
-        )
-        title = self.get_valid_title(source_record_id, source_record)
-
-        return {
-            "source": self.source_name,
-            "source_link": source_link,
-            "timdex_record_id": timdex_record_id,
-            "title": title,
-        }
-
-    @classmethod
-    @abstractmethod
-    def get_main_titles(cls, source_record: dict[str, JSON]) -> list[str]:
-        """
-        Retrieve main title(s) from a JSON record.
-
-        Must be overridden by source subclasses.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-
-    @classmethod
-    def get_source_link(
-        cls,
-        source_base_url: str,
-        source_record_id: str,
-        _source_record: dict[str, JSON],
-    ) -> str:
-        """
-        Class method to set the source link for the item.
-
-        May be overridden by source subclasses if needed.
-
-        Default behavior is to concatenate the source base URL + source record id.
-
-        Args:
-            source_base_url: Source base URL.
-            source_record_id: Record identifier for the source record.
-            source_record: A JSON object representing a source record.
-                - not used by default implementation, but could be useful for subclass
-                    overrides
-        """
-        return source_base_url + source_record_id
-
-    @classmethod
-    def get_timdex_record_id(
-        cls,
-        source: str,
-        source_record_id: str,
-        _source_record: dict[str, JSON],
-    ) -> str:
-        """
-        Class method to set the TIMDEX record id.
-
-        May be overridden by source subclasses if needed.
-
-        Default behavior is to concatenate the source name + source record id.
-
-        Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
-            source_record: A JSON object representing a source record.
-                - not used by default implementation, but could be useful for subclass
-                overrides
-        """
-        return f"{source}:{source_record_id.replace('/', '-')}"
-
-    @classmethod
-    @abstractmethod
-    def get_source_record_id(cls, source_record: dict[str, JSON]) -> str:
-        """
-        Get or generate a source record ID from a JSON record.
-
-        May be overridden by source subclasses if needed.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-
-    @classmethod
-    @abstractmethod
-    def record_is_deleted(cls, source_record: dict[str, JSON]) -> bool:
-        """
-        Determine whether record has a status of deleted.
-
-        May be overridden by source subclasses if needed.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-
-    def get_optional_fields(self, _source_record: dict[str, JSON]) -> dict | None:
-        """
-        Retrieve optional TIMDEX fields from a JSON record.
-
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-        return {}
-
-
-class XMLTransformer(Transformer):
-    """XML transformer class."""
-
-    @final
-    @classmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[Tag]:
-        """
-        Parse XML file and return source records as bs4 Tags via an iterator.
-
-        May not be overridden.
-
-        Args:
-            source_file: A file containing source records to be transformed.
-        """
-        with smart_open.open(source_file, "rb") as file:
-            for _, element in etree.iterparse(
-                file,
-                tag="{*}record",
-                encoding="utf-8",
-                recover=True,
-            ):
-                record_string = etree.tostring(element, encoding="utf-8")
-                record = BeautifulSoup(record_string, "xml")
-                yield record
-                element.clear()
-
-    @final
-    def transform(self, source_record: Tag) -> TimdexRecord | None:
-        """
-        Call Transformer._transform method to transform XML record to TIMDEX record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record.
-        """
-        return self._transform(source_record)
-
-    @final
-    def get_required_fields(self, source_record: Tag) -> dict:
-        """
-        Get required TIMDEX fields from an XML record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single source record.
-        """
-        source_record_id = self.get_source_record_id(source_record)
-
-        # run methods to generate required fields
-        source_link = self.get_source_link(
-            self.source_base_url, source_record_id, source_record
-        )
-        timdex_record_id = self.get_timdex_record_id(
-            self.source, source_record_id, source_record
-        )
-        title = self.get_valid_title(source_record_id, source_record)
-
-        return {
-            "source": self.source_name,
-            "source_link": source_link,
-            "timdex_record_id": timdex_record_id,
-            "title": title,
-        }
-
-    @classmethod
-    def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
-        """
-        Retrieve main title(s) from an XML record.
-
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record.
-        """
-        return []
-
-    @classmethod
-    def get_source_link(
-        cls,
-        source_base_url: str,
-        source_record_id: str,
-        _source_record: Tag,
-    ) -> str:
-        """
-        Class method to set the source link for the item.
-
-        May be overridden by source subclasses if needed.
-
-        Default behavior is to concatenate the source base URL + source record id.
-
-        Args:
-            source_base_url: Source base URL.
-            source_record_id: Record identifier for the source record.
-            source_record: A BeautifulSoup Tag representing a single XML record.
-                - not used by default implementation, but could be useful for subclass
-                    overrides
-        """
-        return source_base_url + source_record_id
-
-    @classmethod
-    def get_timdex_record_id(
-        cls, source: str, source_record_id: str, _source_record: Tag
-    ) -> str:
-        """
-        Class method to set the TIMDEX record id.
-
-        May be overridden by source subclasses if needed.
-
-        Default behavior is to concatenate the source name + source record id.
-
-        Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
-            source_record: A BeautifulSoup Tag representing a single XML record.
-                - not used by default implementation, but could be useful for subclass
-                overrides
-        """
-        return f"{source}:{source_record_id.replace('/', '-')}"
-
-    @classmethod
-    def get_source_record_id(cls, source_record: Tag) -> str:
-        """
-        Get or generate a source record ID from an XML record.
-
-        May be overridden by source subclasses if needed.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record.
-        """
-        return str(source_record.header.find("identifier").string)
-
-    @classmethod
-    def record_is_deleted(cls, source_record: Tag) -> bool:
-        """
-        Determine whether record has a status of deleted.
-
-        May be overridden by source subclasses if needed.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        if source_record.find("header", status="deleted"):
-            return True
-        return False
-
-    def get_optional_fields(self, _source_record: Tag) -> dict | None:
-        """
-        Retrieve optional TIMDEX fields from an XML record.
-
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        return {}
+        if not fields.get("publishers"):
+            return fields
+        for publisher in fields["publishers"]:
+            if publisher.date:
+                publisher_date = timdex.Date(
+                    kind="Publication date", value=publisher.date
+                )
+                if publisher_date not in fields.setdefault("dates", []):
+                    fields["dates"].append(publisher_date)
+            if publisher.location:
+                publisher_location = timdex.Location(
+                    kind="Place of Publication", value=publisher.location
+                )
+                if publisher_location not in fields.setdefault("locations", []):
+                    fields["locations"].append(publisher_location)
+        return fields

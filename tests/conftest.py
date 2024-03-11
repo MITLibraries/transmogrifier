@@ -3,8 +3,9 @@ from click.testing import CliRunner
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
-from transmogrifier.sources.transformer import JSONTransformer, XMLTransformer
+from transmogrifier.sources.jsontransformer import JSONTransformer
 from transmogrifier.sources.xml.datacite import Datacite
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 
 @pytest.fixture(autouse=True)
@@ -166,7 +167,7 @@ def timdex_record_all_fields_and_subfields():
         numbering="Began with v. 32, issue 1 (Jan./June 2005).",
         physical_description="1 online resource (1 sound file)",
         publication_frequency=["Semiannual"],
-        publication_information=["Version 1.0"],
+        publishers=[timdex.Publisher(name="Publisher", date="2014", location="A place")],
         related_items=[
             timdex.RelatedItem(
                 description="This item is related to this other item",

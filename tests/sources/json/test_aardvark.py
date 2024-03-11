@@ -291,9 +291,9 @@ def test_aardvark_get_notes_success(aardvark_record_all_fields):
     ]
 
 
-def test_aardvark_get_publication_information_success(aardvark_record_all_fields):
-    assert MITAardvark.get_publication_information(next(aardvark_record_all_fields)) == [
-        "ML InfoMap (Firm)"
+def test_aardvark_get_publishers(aardvark_record_all_fields):
+    assert MITAardvark.get_publishers(next(aardvark_record_all_fields)) == [
+        timdex.Publisher(name="ML InfoMap (Firm)")
     ]
 
 

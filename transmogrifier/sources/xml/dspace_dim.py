@@ -4,7 +4,7 @@ from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date, validate_date_range
-from transmogrifier.sources.transformer import XMLTransformer
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -201,9 +201,11 @@ class DspaceDim(XMLTransformer):
                 )
             )
 
-        # publication_information
-        fields["publication_information"] = [
-            p.string for p in xml.find_all("dim:field", element="publisher") if p.string
+        # publishers
+        fields["publishers"] = [
+            timdex.Publisher(name=p.string)
+            for p in xml.find_all("dim:field", element="publisher")
+            if p.string
         ] or None
 
         # related_items

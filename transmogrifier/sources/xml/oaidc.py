@@ -4,7 +4,7 @@ from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import XMLTransformer
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -88,9 +88,11 @@ class OaiDc(XMLTransformer):
 
         # publication_frequency: not set in this transformation
 
-        # publication_information
-        fields["publication_information"] = [
-            str(p.string) for p in xml.find_all("dc:publisher") if p.string
+        # publishers
+        fields["publishers"] = [
+            timdex.Publisher(name=str(p.string))
+            for p in xml.find_all("dc:publisher")
+            if p.string
         ] or None
 
         # related_items: not set in this transformation

@@ -6,7 +6,7 @@ from bs4 import NavigableString, Tag  # type: ignore[import-untyped]
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
 from transmogrifier.helpers import validate_date, validate_date_range
-from transmogrifier.sources.transformer import XMLTransformer
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -205,14 +205,14 @@ class Ead(XMLTransformer):
 
         # publication_frequency field not used in EAD
 
-        # publication_information
+        # publishers
         if publication_element := collection_description_did.find(  # noqa: SIM102
             "repository"
         ):
             if publication_value := self.create_string_from_mixed_value(
                 publication_element, " "
             ):
-                fields["publication_information"] = [publication_value]
+                fields["publishers"] = [timdex.Publisher(name=publication_value)]
 
         # related_items
         for related_item_element in collection_description.find_all(

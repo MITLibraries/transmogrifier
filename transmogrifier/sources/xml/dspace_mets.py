@@ -6,7 +6,7 @@ from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date
-from transmogrifier.sources.transformer import XMLTransformer
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -147,9 +147,11 @@ class DspaceMets(XMLTransformer):
 
         # publication_frequency field not used in DSpace
 
-        # publication_information
+        # publishers
         for publisher in xml.find_all("mods:publisher", string=True):
-            fields.setdefault("publication_information", []).append(publisher.string)
+            fields.setdefault("publishers", []).append(
+                timdex.Publisher(name=publisher.string)
+            )
 
         # related_items
         # Excludes related items with type of "series" because the data in that field

@@ -4,7 +4,7 @@ from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.helpers import validate_date, validate_date_range
-from transmogrifier.sources.transformer import XMLTransformer
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -246,9 +246,9 @@ class Datacite(XMLTransformer):
                     )
                 )
 
-        # publication_information
+        # publishers
         if publisher := xml.metadata.find("publisher", string=True):
-            fields["publication_information"] = [publisher.string]
+            fields["publishers"] = [timdex.Publisher(name=publisher.string)]
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field publisher",

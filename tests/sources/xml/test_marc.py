@@ -57,7 +57,7 @@ def test_marc_record_all_fields_transform_correctly():
         ],
         citation=(
             "Célébration : 10 siècles de musique de noël. 2016. "
-            "New York : New Press : Distributed by W.W. Norton, 2005. Language material. "
+            "New York : New Press. Language material. "
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
             "01MIT_INST:MIT&docid=alma990027185640106761"
         ),
@@ -149,7 +149,13 @@ def test_marc_record_all_fields_transform_correctly():
                 kind="singer",
             ),
         ],
-        dates=[timdex.Date(kind="Publication date", value="2016")],
+        dates=[
+            timdex.Date(kind="Publication date", value="2016"),
+            timdex.Date(kind="Publication date", value="2005"),
+            timdex.Date(kind="Publication date", value="c1992"),
+            timdex.Date(kind="Publication date", value="[2022]"),
+            timdex.Date(kind="Publication date", value="℗2022,"),
+        ],
         edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
         holdings=[
             timdex.Holding(
@@ -249,6 +255,7 @@ def test_marc_record_all_fields_transform_correctly():
                 kind="Hierarchical Place Name",
             ),
             timdex.Location(value="Austria - Vienna", kind="Hierarchical Place Name"),
+            timdex.Location(value="New York", kind="Place of Publication"),
         ],
         notes=[
             timdex.Note(
@@ -352,11 +359,11 @@ def test_marc_record_all_fields_transform_correctly():
             "(4 3/4 in.). 1 vocal score (248 p.) ; 31 cm."
         ),
         publication_frequency=["Six no. a year", "Three times a year"],
-        publication_information=[
-            "New York : New Press : Distributed by W.W. Norton, 2005",
-            "New York : Wiley, c1992",
-            "France : Alpha, [2022]",
-            "℗2022, ©2022",
+        publishers=[
+            timdex.Publisher(name="New Press", date="2005", location="New York"),
+            timdex.Publisher(name="Wiley", date="c1992", location="New York"),
+            timdex.Publisher(name="Alpha", date="[2022]", location="France"),
+            timdex.Publisher(date="℗2022,"),
         ],
         related_items=[
             timdex.RelatedItem(
@@ -516,7 +523,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         call_numbers=["a", "a"],
         citation=(
-            "a b f g k n p s. 2016. a b c d e f. Manuscript language material. "
+            "a b f g k n p s. 2016. a : b. Manuscript language material. "
             "https://mit.primo.exlibrisgroup.com/discovery/"
             "fulldisplay?vid=01MIT_INST:MIT&docid=alma990027185640106761"
         ),
@@ -536,7 +543,10 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 kind="e",
             ),
         ],
-        dates=[timdex.Date(kind="Publication date", value="2016")],
+        dates=[
+            timdex.Date(kind="Publication date", value="2016"),
+            timdex.Date(kind="Publication date", value="c"),
+        ],
         edition="a b",
         holdings=[
             timdex.Holding(
@@ -623,6 +633,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 value="a - b - c - d - e - f - g - h",
                 kind="Hierarchical Place Name",
             ),
+            timdex.Location(value="a", kind="Place of Publication"),
         ],
         notes=[
             timdex.Note(value=["c"], kind="Title Statement of Responsibility"),
@@ -641,7 +652,10 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             timdex.Note(value=["a"], kind="Local Note"),
         ],
         physical_description="a b c e f g",
-        publication_information=["a b c d e f", "a b c"],
+        publishers=[
+            timdex.Publisher(name="b", date="c", location="a"),
+            timdex.Publisher(name="b", date="c", location="a"),
+        ],
         related_items=[
             timdex.RelatedItem(
                 description="a b c d g h i k m n o r s t u w x y z",
