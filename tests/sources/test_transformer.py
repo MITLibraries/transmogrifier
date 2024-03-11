@@ -46,6 +46,30 @@ def test_create_dates_and_locations_from_publishers_success():
     }
 
 
+def test_create_locations_from_spatial_subjects():
+    fields = {
+        "subjects": [
+            timdex.Subject(
+                value=["Some city, Some country"], kind="Dublin Core; Spatial"
+            ),
+            timdex.Subject(value=["City 1", "City 2"], kind="Dublin Core; Spatial"),
+        ]
+    }
+    assert Transformer.create_locations_from_spatial_subjects(fields) == {
+        "subjects": [
+            timdex.Subject(
+                value=["Some city, Some country"], kind="Dublin Core; Spatial"
+            ),
+            timdex.Subject(value=["City 1", "City 2"], kind="Dublin Core; Spatial"),
+        ],
+        "locations": [
+            timdex.Location(value="Some city, Some country", kind="Place Name"),
+            timdex.Location(value="City 1", kind="Place Name"),
+            timdex.Location(value="City 2", kind="Place Name"),
+        ],
+    }
+
+
 def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
     transformer = XMLTransformer("cool-repo", oai_pmh_records)
     assert transformer.source == "cool-repo"

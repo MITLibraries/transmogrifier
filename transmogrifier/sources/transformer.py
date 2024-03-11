@@ -253,6 +253,7 @@ class Transformer(ABC):
         }
 
         fields = self.create_dates_and_locations_from_publishers(fields)
+        fields = self.create_locations_from_spatial_subjects(fields)
 
         # If citation field was not present, generate citation from other fields
         if fields.get("citation") is None:
@@ -391,4 +392,28 @@ class Transformer(ABC):
                 )
                 if publisher_location not in fields.setdefault("locations", []):
                     fields["locations"].append(publisher_location)
+        return fields
+
+    @final
+    @staticmethod
+    def create_locations_from_spatial_subjects(fields: dict) -> dict:
+        """Add Location objects for spatial subjects.
+
+        Args:
+           fields: A dict of fields representing a TIMDEX record.
+        """
+        if fields.get("subjects") is None:
+            return fields
+
+        spatial_subjects = [
+            subject
+            for subject in fields.get("subjects", [])  # defaults to empty list
+            if subject.kind == "Dublin Core; Spatial" and subject.value is not None
+        ]
+
+        for subject in spatial_subjects:
+            for place_name in subject.value:
+                subject_location = timdex.Location(value=place_name, kind="Place Name")
+                if subject_location not in fields.setdefault("locations", []):
+                    fields["locations"].append(subject_location)
         return fields
