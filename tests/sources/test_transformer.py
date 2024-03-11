@@ -42,7 +42,7 @@ def test_create_dates_and_locations_from_publishers_success():
             timdex.Publisher(name="Publisher", date="Date", location="Location")
         ],
         "dates": [timdex.Date(kind="Publication date", value="Date")],
-        "locations": [timdex.Location(value="Location", kind="Publisher")],
+        "locations": [timdex.Location(value="Location", kind="Place of Publication")],
     }
 
 

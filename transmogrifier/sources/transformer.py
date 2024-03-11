@@ -251,6 +251,7 @@ class Transformer(ABC):
             **self.get_required_fields(source_record),
             **optional_fields,
         }
+
         fields = self.create_dates_and_locations_from_publishers(fields)
 
         # If citation field was not present, generate citation from other fields
@@ -375,18 +376,19 @@ class Transformer(ABC):
         Args:
             fields: A dict of fields representing a TIMDEX record.
         """
-        if fields.get("publishers"):
-            for publisher in fields["publishers"]:
-                if publisher.date:
-                    publisher_date = timdex.Date(
-                        kind="Publication date", value=publisher.date
-                    )
-                    if publisher_date not in fields.setdefault("dates", []):
-                        fields["dates"].append(publisher_date)
-                if publisher.location:
-                    publisher_location = timdex.Location(
-                        kind="Publisher", value=publisher.location
-                    )
-                    if publisher_location not in fields.setdefault("locations", []):
-                        fields["locations"].append(publisher_location)
+        if not fields.get("publishers"):
+            return fields
+        for publisher in fields["publishers"]:
+            if publisher.date:
+                publisher_date = timdex.Date(
+                    kind="Publication date", value=publisher.date
+                )
+                if publisher_date not in fields.setdefault("dates", []):
+                    fields["dates"].append(publisher_date)
+            if publisher.location:
+                publisher_location = timdex.Location(
+                    kind="Place of Publication", value=publisher.location
+                )
+                if publisher_location not in fields.setdefault("locations", []):
+                    fields["locations"].append(publisher_location)
         return fields
