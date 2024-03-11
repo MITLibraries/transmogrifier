@@ -402,22 +402,16 @@ class Transformer(ABC):
         Args:
            fields: A dict of fields representing a TIMDEX record.
         """
-        if not (subjects := fields.get("subjects")):
+        if fields.get("subjects") is None:
             return fields
 
-        if not (
-            spatial_subjects := list(
-                filter(
-                    lambda subject: subject.kind == "Dublin Core; Spatial", subjects  # type: ignore[arg-type]
-                )
-            )
-        ):
-            return fields
+        spatial_subjects = [
+            subject
+            for subject in fields.get("subjects", [])  # defaults to empty list
+            if subject.kind == "Dublin Core; Spatial" and subject.value is not None
+        ]
 
         for subject in spatial_subjects:
-            if not subject.value:
-                continue
-
             for place_name in subject.value:
                 subject_location = timdex.Location(value=place_name, kind="Place Name")
                 if subject_location not in fields.setdefault("locations", []):
