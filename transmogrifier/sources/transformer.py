@@ -384,13 +384,17 @@ class Transformer(ABC):
                 publisher_date = timdex.Date(
                     kind="Publication date", value=publisher.date
                 )
-                if publisher_date not in fields.setdefault("dates", []):
+                if fields.get("dates") is None:
+                    fields["dates"] = []
+                if publisher_date not in fields["dates"]:
                     fields["dates"].append(publisher_date)
             if publisher.location:
                 publisher_location = timdex.Location(
                     kind="Place of Publication", value=publisher.location
                 )
-                if publisher_location not in fields.setdefault("locations", []):
+                if fields.get("locations") is None:
+                    fields["locations"] = []
+                if publisher_location not in fields["locations"]:
                     fields["locations"].append(publisher_location)
         return fields
 
@@ -414,6 +418,8 @@ class Transformer(ABC):
         for subject in spatial_subjects:
             for place_name in subject.value:
                 subject_location = timdex.Location(value=place_name, kind="Place Name")
-                if subject_location not in fields.setdefault("locations", []):
+                if fields.get("locations") is None:
+                    fields["locations"] = []
+                if subject_location not in fields["locations"]:
                     fields["locations"].append(subject_location)
         return fields
