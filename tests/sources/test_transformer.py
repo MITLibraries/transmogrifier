@@ -46,7 +46,24 @@ def test_create_dates_and_locations_from_publishers_success():
     }
 
 
-def test_create_locations_from_spatial_subjects():
+def test_create_dates_and_locations_from_publishers_when_fields_are_none_success():
+    fields = {
+        "publishers": [
+            timdex.Publisher(name="Publisher", date="Date", location="Location")
+        ],
+        "dates": None,
+        "locations": None,
+    }
+    assert Transformer.create_dates_and_locations_from_publishers(fields) == {
+        "publishers": [
+            timdex.Publisher(name="Publisher", date="Date", location="Location")
+        ],
+        "dates": [timdex.Date(kind="Publication date", value="Date")],
+        "locations": [timdex.Location(value="Location", kind="Place of Publication")],
+    }
+
+
+def test_create_locations_from_spatial_subjects_success():
     fields = {
         "subjects": [
             timdex.Subject(
@@ -54,6 +71,31 @@ def test_create_locations_from_spatial_subjects():
             ),
             timdex.Subject(value=["City 1", "City 2"], kind="Dublin Core; Spatial"),
         ]
+    }
+    assert Transformer.create_locations_from_spatial_subjects(fields) == {
+        "subjects": [
+            timdex.Subject(
+                value=["Some city, Some country"], kind="Dublin Core; Spatial"
+            ),
+            timdex.Subject(value=["City 1", "City 2"], kind="Dublin Core; Spatial"),
+        ],
+        "locations": [
+            timdex.Location(value="Some city, Some country", kind="Place Name"),
+            timdex.Location(value="City 1", kind="Place Name"),
+            timdex.Location(value="City 2", kind="Place Name"),
+        ],
+    }
+
+
+def test_create_locations_from_spatial_subjects_when_field_is_none_success():
+    fields = {
+        "subjects": [
+            timdex.Subject(
+                value=["Some city, Some country"], kind="Dublin Core; Spatial"
+            ),
+            timdex.Subject(value=["City 1", "City 2"], kind="Dublin Core; Spatial"),
+        ],
+        "locations": None,
     }
     assert Transformer.create_locations_from_spatial_subjects(fields) == {
         "subjects": [
