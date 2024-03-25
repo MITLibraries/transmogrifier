@@ -214,11 +214,12 @@
                 "s3"
             ],
             "hashes": [
-                "sha256:9507e38b43d1fd515c2085b9db2e41b592bb754b0e31395a085eb0d61d2410e5",
-                "sha256:c03d00e49483d8e5375720d4d6c1402107f23584bf96505db0b4e17f92339e56"
+                "sha256:7969ac4f1a04fd829d50f086fd106c6b84c8f68786666a4fac7bdc208f24f3b6",
+                "sha256:dfea0d6815798f843fd2f4dbeb2ddf2d4a2304ece749c5251a97ac5f2dcb1a8e"
             ],
-            "markers": "python_version >= '3.6' and python_version < '4.0'",
-            "version": "==7.0.1"
+            "index": "pypi",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
+            "version": "==7.0.3"
         },
         "soupsieve": {
             "hashes": [
