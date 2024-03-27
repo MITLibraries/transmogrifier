@@ -404,7 +404,7 @@ class MITAardvark(JSONTransformer):
         if source == "gisogm":
             rights.append(
                 timdex.Rights(
-                    description="Unknown: check with owning institution",
+                    description="unknown: check with owning institution",
                     kind=kind_access_to_files,
                 )
             )
@@ -419,7 +419,7 @@ class MITAardvark(JSONTransformer):
             else:
                 rights.append(
                     timdex.Rights(
-                        description="No authentication required",
+                        description="no authentication required",
                         kind=kind_access_to_files,
                     )
                 )
