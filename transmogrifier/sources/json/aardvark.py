@@ -403,20 +403,24 @@ class MITAardvark(JSONTransformer):
 
         if source == "gisogm":
             rights.append(
-                timdex.Rights(description="Not owned by MIT", kind=kind_access_to_files)
+                timdex.Rights(
+                    description="unknown: check with owning institution",
+                    kind=kind_access_to_files,
+                )
             )
         elif source == "gismit":
             if source_record["dct_accessRights_s"] == "Restricted":
                 rights.append(
                     timdex.Rights(
-                        description="MIT authentication",
+                        description="MIT authentication required",
                         kind=kind_access_to_files,
                     )
                 )
             else:
                 rights.append(
                     timdex.Rights(
-                        description="Free/open to all", kind=kind_access_to_files
+                        description="no authentication required",
+                        kind=kind_access_to_files,
                     )
                 )
 
