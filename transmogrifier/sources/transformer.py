@@ -17,7 +17,7 @@ from attrs import asdict
 # should not be a security issue.
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES
-from transmogrifier.helpers import DeletedRecordEvent, generate_citation
+from transmogrifier.helpers import DeletedRecordEvent, generate_citation, validate_date
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -380,7 +380,9 @@ class Transformer(ABC):
         if not fields.get("publishers"):
             return fields
         for publisher in fields["publishers"]:
-            if publisher.date:
+            if publisher.date and validate_date(
+                publisher.date, fields["timdex_record_id"]
+            ):
                 publisher_date = timdex.Date(
                     kind="Publication date", value=publisher.date
                 )

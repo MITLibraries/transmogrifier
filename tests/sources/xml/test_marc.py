@@ -152,9 +152,6 @@ def test_marc_record_all_fields_transform_correctly():
         dates=[
             timdex.Date(kind="Publication date", value="2016"),
             timdex.Date(kind="Publication date", value="2005"),
-            timdex.Date(kind="Publication date", value="c1992"),
-            timdex.Date(kind="Publication date", value="[2022]"),
-            timdex.Date(kind="Publication date", value="℗2022,"),
         ],
         edition="9th ed. / Nick Ray ... [et al.]. Unabridged.",
         holdings=[
@@ -545,7 +542,6 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         dates=[
             timdex.Date(kind="Publication date", value="2016"),
-            timdex.Date(kind="Publication date", value="c"),
         ],
         edition="a b",
         holdings=[

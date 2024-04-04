@@ -33,32 +33,54 @@ def test_transformer_get_transformer_source_wrong_module_path_raises_error():
 
 def test_create_dates_and_locations_from_publishers_success():
     fields = {
+        "timdex_record_id": "abc123",
+        "publishers": [
+            timdex.Publisher(name="Publisher", date="2018", location="Location")
+        ],
+    }
+    assert Transformer.create_dates_and_locations_from_publishers(fields) == {
+        "timdex_record_id": "abc123",
+        "publishers": [
+            timdex.Publisher(name="Publisher", date="2018", location="Location")
+        ],
+        "dates": [timdex.Date(kind="Publication date", value="2018")],
+        "locations": [timdex.Location(value="Location", kind="Place of Publication")],
+    }
+
+
+def test_create_dates_and_locations_from_publishers_drops_unparseable_dates(caplog):
+    caplog.set_level("DEBUG")
+    fields = {
+        "timdex_record_id": "abc123",
         "publishers": [
             timdex.Publisher(name="Publisher", date="Date", location="Location")
         ],
     }
     assert Transformer.create_dates_and_locations_from_publishers(fields) == {
+        "timdex_record_id": "abc123",
         "publishers": [
             timdex.Publisher(name="Publisher", date="Date", location="Location")
         ],
-        "dates": [timdex.Date(kind="Publication date", value="Date")],
         "locations": [timdex.Location(value="Location", kind="Place of Publication")],
     }
+    assert "Record ID 'abc123' has a date that couldn't be parsed: 'Date'" in caplog.text
 
 
 def test_create_dates_and_locations_from_publishers_when_fields_are_none_success():
     fields = {
+        "timdex_record_id": "abc123",
         "publishers": [
-            timdex.Publisher(name="Publisher", date="Date", location="Location")
+            timdex.Publisher(name="Publisher", date="2018", location="Location")
         ],
         "dates": None,
         "locations": None,
     }
     assert Transformer.create_dates_and_locations_from_publishers(fields) == {
+        "timdex_record_id": "abc123",
         "publishers": [
-            timdex.Publisher(name="Publisher", date="Date", location="Location")
+            timdex.Publisher(name="Publisher", date="2018", location="Location")
         ],
-        "dates": [timdex.Date(kind="Publication date", value="Date")],
+        "dates": [timdex.Date(kind="Publication date", value="2018")],
         "locations": [timdex.Location(value="Location", kind="Place of Publication")],
     }
 
