@@ -56,13 +56,7 @@ class DspaceDim(XMLTransformer):
                 return None
 
         # contents
-        fields["contents"] = [
-            t.string
-            for t in xml.find_all(
-                "dim:field", element="description", qualifier="tableofcontents"
-            )
-            if t.string
-        ] or None
+        fields["contents"] = self.get_contents(xml) or None
 
         # contributors
         for creator in [
@@ -86,39 +80,7 @@ class DspaceDim(XMLTransformer):
             )
 
         # dates
-        for date in xml.find_all("dim:field", element="date", string=True):
-            date_value = str(date.string.strip())
-            if validate_date(date_value, source_record_id):
-                if date.get("qualifier") == "issued":
-                    d = timdex.Date(value=date_value, kind="Publication date")
-                else:
-                    d = timdex.Date(value=date_value, kind=date.get("qualifier") or None)
-                fields.setdefault("dates", []).append(d)
-
-        for coverage in [
-            c.string
-            for c in xml.find_all("dim:field", element="coverage", qualifier="temporal")
-            if c.string
-        ]:
-            if "/" in coverage:
-                split = coverage.index("/")
-                gte_date = coverage[:split]
-                lte_date = coverage[split + 1 :]
-                if validate_date_range(
-                    gte_date,
-                    lte_date,
-                    source_record_id,
-                ):
-                    d = timdex.Date(
-                        range=timdex.DateRange(
-                            gte=gte_date,
-                            lte=lte_date,
-                        ),
-                        kind="coverage",
-                    )
-            else:
-                d = timdex.Date(note=coverage.string, kind="coverage")
-            fields.setdefault("dates", []).append(d)
+        fields["dates"] = self.get_dates(xml, source_record_id) or None
 
         # file_formats
         fields["file_formats"] = [
@@ -258,6 +220,73 @@ class DspaceDim(XMLTransformer):
             fields.setdefault("summary", []).append(description.string)
 
         return fields
+
+    @classmethod
+    def get_contents(cls, xml: Tag) -> list[str]:
+        return [
+            str(contents.string)
+            for contents in xml.find_all(
+                "dim:field",
+                element="description",
+                qualifier="tableofcontents",
+                string=True,
+            )
+        ]
+
+    @classmethod
+    def get_dates(cls, xml: Tag, source_record_id: str) -> list[timdex.Date]:
+        dates = []
+        for date_element in xml.find_all("dim:field", element="date", string=True):
+            date_value = str(date_element.string.strip())
+            if validate_date(date_value, source_record_id):
+                if date_element.get("qualifier") == "issued":
+                    date_object = timdex.Date(value=date_value, kind="Publication date")
+                else:
+                    date_object = timdex.Date(
+                        value=date_value, kind=date_element.get("qualifier") or None
+                    )
+                dates.append(date_object)
+        dates.extend(cls._get_coverage_dates(xml, source_record_id))
+        return dates
+
+    @classmethod
+    def _get_coverage_dates(cls, xml: Tag, source_record_id: str) -> list[timdex.Date]:
+        coverage_dates = []
+        for coverage_value in [
+            str(coverage_element.string)
+            for coverage_element in xml.find_all(
+                "dim:field", element="coverage", qualifier="temporal", string=True
+            )
+        ]:
+            if "/" in coverage_value:
+                date_object = cls._parse_date_range(coverage_value, source_record_id)
+            else:
+                date_object = timdex.Date(note=coverage_value, kind="coverage")
+            if date_object:
+                coverage_dates.append(date_object)
+        return coverage_dates
+
+    @classmethod
+    def _parse_date_range(
+        cls, coverage_value: Tag, source_record_id: str
+    ) -> timdex.Date | None:
+        """Parse date range value and return a Date object if it is validated."""
+        split = coverage_value.index("/")
+        gte_date = coverage_value[:split]
+        lte_date = coverage_value[split + 1 :]
+        if validate_date_range(
+            gte_date,
+            lte_date,
+            source_record_id,
+        ):
+            return timdex.Date(
+                range=timdex.DateRange(
+                    gte=gte_date,
+                    lte=lte_date,
+                ),
+                kind="coverage",
+            )
+        return None
 
     @classmethod
     def get_content_types(cls, xml: Tag) -> list[str] | None:

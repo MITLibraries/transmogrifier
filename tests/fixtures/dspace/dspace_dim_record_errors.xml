@@ -1,0 +1,12 @@
+<records>
+    <record>
+        <metadata>
+            <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"
+                xmlns:doc="http://www.lyncode.com/xoai"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+                <dim:field element="coverage" qualifier="temporal">2020-01-02/2019-01-01</dim:field>
+            </dim:dim>
+        </metadata>
+    </record>
+</records>

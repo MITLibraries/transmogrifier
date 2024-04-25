@@ -133,7 +133,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
 
 def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
     source_records = DspaceDim.parse_source_file(
-        "tests/fixtures/dspace/dspace_dim_record_attribute_variations.xml"
+        "tests/fixtures/dspace/dspace_dim_record_attribute_and_subfield_variations.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
     assert next(output_records) == timdex.TimdexRecord(
@@ -216,3 +216,48 @@ def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly(
         format="electronic resource",
         content_type=["Not specified"],
     )
+
+
+def test_get_contents_success(dspace_dim_record_all_fields):
+    assert DspaceDim.get_contents(dspace_dim_record_all_fields) == ["Chapter 1"]
+
+
+def test_get_contents_transforms_correctly_if_fields_blank(
+    dspace_dim_record_optional_fields_blank,
+):
+    assert DspaceDim.get_contents(dspace_dim_record_optional_fields_blank) == []
+
+
+def test_get_contents_transforms_correctly_if_fields_missing(
+    dspace_dim_record_optional_fields_missing,
+):
+    assert DspaceDim.get_contents(dspace_dim_record_optional_fields_missing) == []
+
+
+def test_get_dates_success(dspace_dim_record_all_fields):
+    assert DspaceDim.get_dates(dspace_dim_record_all_fields, "abc123") == [
+        timdex.Date(kind="accessioned", value="2009-01-08T16:24:37Z"),
+        timdex.Date(kind="available", value="2009-01-08T16:24:37Z"),
+        timdex.Date(kind="Publication date", value="2002-11"),
+        timdex.Date(kind="coverage", note="1201-01-01 - 1965-12-21"),
+        timdex.Date(
+            kind="coverage",
+            range=timdex.DateRange(gte="1201-01-01", lte="1965-12-21"),
+        ),
+    ]
+
+
+def test_get_dates_transforms_correctly_if_fields_blank(
+    dspace_dim_record_optional_fields_blank,
+):
+    assert DspaceDim.get_dates(dspace_dim_record_optional_fields_blank, "abc123") == []
+
+
+def test_get_dates_transforms_correctly_if_fields_missing(
+    dspace_dim_record_optional_fields_missing,
+):
+    assert DspaceDim.get_dates(dspace_dim_record_optional_fields_missing, "abc123") == []
+
+
+def test_get_dates_invalid_date_range_skipped(dspace_dim_record_errors):
+    assert DspaceDim.get_dates(dspace_dim_record_errors, "abc123") == []
