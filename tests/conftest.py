@@ -97,14 +97,6 @@ def dspace_dim_record_attribute_and_subfield_variations():
 
 
 @pytest.fixture
-def dspace_dim_record_errors():
-    source_records = DspaceDim.parse_source_file(
-        "tests/fixtures/dspace/dspace_dim_record_errors.xml"
-    )
-    return next(source_records)
-
-
-@pytest.fixture
 def dspace_dim_record_optional_fields_blank():
     source_records = DspaceDim.parse_source_file(
         "tests/fixtures/dspace/dspace_dim_record_optional_fields_blank.xml"

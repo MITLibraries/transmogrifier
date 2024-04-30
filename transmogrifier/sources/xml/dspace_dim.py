@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Iterator
 
 from bs4 import Tag  # type: ignore[import-untyped]
 
@@ -222,10 +223,10 @@ class DspaceDim(XMLTransformer):
         return fields
 
     @classmethod
-    def get_contents(cls, xml: Tag) -> list[str]:
+    def get_contents(cls, source_record: Tag) -> list[str]:
         return [
             str(contents.string)
-            for contents in xml.find_all(
+            for contents in source_record.find_all(
                 "dim:field",
                 element="description",
                 qualifier="tableofcontents",
@@ -234,9 +235,19 @@ class DspaceDim(XMLTransformer):
         ]
 
     @classmethod
-    def get_dates(cls, xml: Tag, source_record_id: str) -> list[timdex.Date]:
+    def get_dates(cls, source_record: Tag, source_record_id: str) -> list[timdex.Date]:
         dates = []
-        for date_element in xml.find_all("dim:field", element="date", string=True):
+        dates.extend(list(cls._parse_date_elements(source_record, source_record_id)))
+        dates.extend(list(cls._parse_coverage_elements(source_record, source_record_id)))
+        return dates
+
+    @classmethod
+    def _parse_date_elements(
+        cls, source_record: Tag, source_record_id: str
+    ) -> Iterator[timdex.Date]:
+        for date_element in source_record.find_all(
+            "dim:field", element="date", string=True
+        ):
             date_value = str(date_element.string.strip())
             if validate_date(date_value, source_record_id):
                 if date_element.get("qualifier") == "issued":
@@ -245,16 +256,15 @@ class DspaceDim(XMLTransformer):
                     date_object = timdex.Date(
                         value=date_value, kind=date_element.get("qualifier") or None
                     )
-                dates.append(date_object)
-        dates.extend(cls._get_coverage_dates(xml, source_record_id))
-        return dates
+                yield date_object
 
     @classmethod
-    def _get_coverage_dates(cls, xml: Tag, source_record_id: str) -> list[timdex.Date]:
-        coverage_dates = []
+    def _parse_coverage_elements(
+        cls, source_record: Tag, source_record_id: str
+    ) -> Iterator[timdex.Date]:
         for coverage_value in [
             str(coverage_element.string)
-            for coverage_element in xml.find_all(
+            for coverage_element in source_record.find_all(
                 "dim:field", element="coverage", qualifier="temporal", string=True
             )
         ]:
@@ -263,8 +273,7 @@ class DspaceDim(XMLTransformer):
             else:
                 date_object = timdex.Date(note=coverage_value, kind="coverage")
             if date_object:
-                coverage_dates.append(date_object)
-        return coverage_dates
+                yield date_object
 
     @classmethod
     def _parse_date_range(
