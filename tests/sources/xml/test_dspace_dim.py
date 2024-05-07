@@ -260,7 +260,7 @@ def test_get_contents_transforms_correctly_if_fields_missing(
     assert DspaceDim.get_contents(dspace_dim_record_optional_fields_missing) == []
 
 
-def test_get_dates_success():
+def test_get_dates_success(timdex_record_required_fields):
     source_record = create_dspace_dim_source_record_stub(
         """
         <dim:field mdschema="dc" element="coverage" qualifier="temporal">1201-01-01 - 1965-12-21</dim:field>
@@ -271,7 +271,7 @@ def test_get_dates_success():
         <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
         """
     )
-    assert DspaceDim.get_dates(source_record, "abc123") == [
+    assert DspaceDim.get_dates(source_record, timdex_record_required_fields) == [
         timdex.Date(kind="accessioned", value="2009-01-08T16:24:37Z"),
         timdex.Date(kind="available", value="2009-01-08T16:24:37Z"),
         timdex.Date(kind="Publication date", value="2002-11"),
@@ -284,22 +284,32 @@ def test_get_dates_success():
 
 
 def test_get_dates_transforms_correctly_if_fields_blank(
-    dspace_dim_record_optional_fields_blank,
+    dspace_dim_record_optional_fields_blank, timdex_record_required_fields
 ):
-    assert DspaceDim.get_dates(dspace_dim_record_optional_fields_blank, "abc123") == []
+    assert (
+        DspaceDim.get_dates(
+            dspace_dim_record_optional_fields_blank, timdex_record_required_fields
+        )
+        == []
+    )
 
 
 def test_get_dates_transforms_correctly_if_fields_missing(
-    dspace_dim_record_optional_fields_missing,
+    dspace_dim_record_optional_fields_missing, timdex_record_required_fields
 ):
-    assert DspaceDim.get_dates(dspace_dim_record_optional_fields_missing, "abc123") == []
+    assert (
+        DspaceDim.get_dates(
+            dspace_dim_record_optional_fields_missing, timdex_record_required_fields
+        )
+        == []
+    )
 
 
-def test_get_dates_invalid_date_range_skipped():
+def test_get_dates_invalid_date_range_skipped(timdex_record_required_fields):
     source_record = create_dspace_dim_source_record_stub(
         """
         <dim:field element="coverage" qualifier="temporal">2020-01-02/2019-01-01
         </dim:field>
         """
     )
-    assert DspaceDim.get_dates(source_record, "abc123") == []
+    assert DspaceDim.get_dates(source_record, timdex_record_required_fields) == []

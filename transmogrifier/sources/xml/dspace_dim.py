@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 class DspaceDim(XMLTransformer):
     """DSpace DIM transformer."""
 
-    def get_optional_fields(self, source_record: Tag) -> dict | None:
+    def get_optional_fields(
+        self, source_record: Tag, timdex_record: timdex.TimdexRecord
+    ) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a DSpace DIM XML record.
 
@@ -24,8 +26,6 @@ class DspaceDim(XMLTransformer):
             record.
         """
         fields: dict = {}
-
-        source_record_id = self.get_source_record_id(source_record)
 
         # alternate_titles
         for alternate_title in [
@@ -50,17 +50,17 @@ class DspaceDim(XMLTransformer):
         citation = source_record.find(
             "dim:field", element="identifier", qualifier="citation"
         )
-        fields["citation"] = citation.string if citation and citation.string else None
+        timdex_record.citation = citation.string if citation and citation.string else None
 
         # content_type
         if content_types := self.get_content_types(source_record):
             if self.valid_content_types(content_types):
-                fields["content_type"] = content_types
+                timdex_record.content_type = content_types
             else:
                 return None
 
         # contents
-        fields["contents"] = self.get_contents(source_record) or None
+        timdex_record.contents = self.get_contents(source_record) or None
 
         # contributors
         for creator in [
@@ -86,7 +86,7 @@ class DspaceDim(XMLTransformer):
             )
 
         # dates
-        fields["dates"] = self.get_dates(source_record, source_record_id) or None
+        timdex_record.dates = self.get_dates(source_record, timdex_record) or None
 
         # file_formats
         fields["file_formats"] = [
@@ -96,7 +96,7 @@ class DspaceDim(XMLTransformer):
         ] or None
 
         # format
-        fields["format"] = "electronic resource"
+        timdex_record.format = "electronic resource"
 
         # funding_information
         for funding_reference in [
@@ -228,8 +228,8 @@ class DspaceDim(XMLTransformer):
             d for d in descriptions if d.get("qualifier") == "abstract" and d.string
         ]:
             fields.setdefault("summary", []).append(description.string)
-
-        return fields
+        timdex_record.update(**fields)
+        return timdex_record
 
     @classmethod
     def get_contents(cls, source_record: Tag) -> list[str]:
@@ -244,21 +244,23 @@ class DspaceDim(XMLTransformer):
         ]
 
     @classmethod
-    def get_dates(cls, source_record: Tag, source_record_id: str) -> list[timdex.Date]:
+    def get_dates(
+        cls, source_record: Tag, timdex_record: timdex.TimdexRecord
+    ) -> list[timdex.Date]:
         dates = []
-        dates.extend(list(cls._parse_date_elements(source_record, source_record_id)))
-        dates.extend(list(cls._parse_coverage_elements(source_record, source_record_id)))
+        dates.extend(list(cls._parse_date_elements(source_record, timdex_record)))
+        dates.extend(list(cls._parse_coverage_elements(source_record, timdex_record)))
         return dates
 
     @classmethod
     def _parse_date_elements(
-        cls, source_record: Tag, source_record_id: str
+        cls, source_record: Tag, timdex_record: timdex.TimdexRecord
     ) -> Iterator[timdex.Date]:
         for date_element in source_record.find_all(
             "dim:field", element="date", string=True
         ):
             date_value = str(date_element.string.strip())
-            if validate_date(date_value, source_record_id):
+            if validate_date(date_value, timdex_record):
                 if date_element.get("qualifier") == "issued":
                     date_object = timdex.Date(value=date_value, kind="Publication date")
                 else:
@@ -269,7 +271,7 @@ class DspaceDim(XMLTransformer):
 
     @classmethod
     def _parse_coverage_elements(
-        cls, source_record: Tag, source_record_id: str
+        cls, source_record: Tag, timdex_record: timdex.TimdexRecord
     ) -> Iterator[timdex.Date]:
         for coverage_value in [
             str(coverage_element.string)
@@ -278,7 +280,7 @@ class DspaceDim(XMLTransformer):
             )
         ]:
             if "/" in coverage_value:
-                date_object = cls._parse_date_range(coverage_value, source_record_id)
+                date_object = cls._parse_date_range(coverage_value, timdex_record)
             else:
                 date_object = timdex.Date(note=coverage_value, kind="coverage")
             if date_object:
@@ -286,7 +288,7 @@ class DspaceDim(XMLTransformer):
 
     @classmethod
     def _parse_date_range(
-        cls, coverage_value: Tag, source_record_id: str
+        cls, coverage_value: Tag, timdex_record: timdex.TimdexRecord
     ) -> timdex.Date | None:
         """Parse date range value and return a Date object if it is validated."""
         split = coverage_value.index("/")
@@ -295,7 +297,7 @@ class DspaceDim(XMLTransformer):
         if validate_date_range(
             gte_date,
             lte_date,
-            source_record_id,
+            timdex_record.timdex_record_id,
         ):
             return timdex.Date(
                 range=timdex.DateRange(

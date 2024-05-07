@@ -243,25 +243,20 @@ class Transformer(ABC):
                 self.source, source_record_id, source_record
             )
             raise DeletedRecordEvent(timdex_record_id)
-        optional_fields = self.get_optional_fields(source_record)
-        if optional_fields is None:
-            return None
+        timdex_record = timdex.TimdexRecord(**self.get_required_fields(source_record))
+        timdex_record = self.get_optional_fields(source_record, timdex_record)
 
-        fields = {
-            **self.get_required_fields(source_record),
-            **optional_fields,
-        }
+        # fields = self.create_dates_and_locations_from_publishers(fields)
+        # fields = self.create_locations_from_spatial_subjects(fields)
 
-        fields = self.create_dates_and_locations_from_publishers(fields)
-        fields = self.create_locations_from_spatial_subjects(fields)
+        # # If citation field was not present, generate citation from other fields
+        if timdex_record.citation is None:
+            timdex_record.citation = generate_citation(timdex_record)
+        if timdex_record.content_type is None:
+            timdex_record.content_type = ["Not specified"]
 
-        # If citation field was not present, generate citation from other fields
-        if fields.get("citation") is None:
-            fields["citation"] = generate_citation(fields)
-        if fields.get("content_type") is None:
-            fields["content_type"] = ["Not specified"]
-
-        return timdex.TimdexRecord(**fields)
+        # return timdex.TimdexRecord(**fields)
+        return timdex_record
 
     @abstractmethod
     def transform(
