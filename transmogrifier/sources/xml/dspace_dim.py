@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Iterator
 
 from bs4 import Tag  # type: ignore[import-untyped]
 
@@ -12,23 +13,24 @@ logger = logging.getLogger(__name__)
 class DspaceDim(XMLTransformer):
     """DSpace DIM transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict | None:
+    def get_optional_fields(self, source_record: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a DSpace DIM XML record.
 
         Overrides metaclass get_optional_fields() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
+            source_record: A BeautifulSoup Tag representing a single DSpace DIM XML
+            record.
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(xml)
+        source_record_id = self.get_source_record_id(source_record)
 
         # alternate_titles
         for alternate_title in [
             t
-            for t in xml.find_all("dim:field", element="title")
+            for t in source_record.find_all("dim:field", element="title")
             if "qualifier" in t.attrs and t.string
         ]:
             fields.setdefault("alternate_titles", []).append(
@@ -38,35 +40,31 @@ class DspaceDim(XMLTransformer):
                 )
             )
         # If the record has more than one main title, add extras to alternate_titles
-        for index, title in enumerate(self.get_main_titles(xml)):
+        for index, title in enumerate(self.get_main_titles(source_record)):
             if index > 0:
                 fields.setdefault("alternate_titles", []).append(
                     timdex.AlternateTitle(value=title)
                 )
 
         # citation
-        citation = xml.find("dim:field", element="identifier", qualifier="citation")
+        citation = source_record.find(
+            "dim:field", element="identifier", qualifier="citation"
+        )
         fields["citation"] = citation.string if citation and citation.string else None
 
         # content_type
-        if content_types := self.get_content_types(xml):
+        if content_types := self.get_content_types(source_record):
             if self.valid_content_types(content_types):
                 fields["content_type"] = content_types
             else:
                 return None
 
         # contents
-        fields["contents"] = [
-            t.string
-            for t in xml.find_all(
-                "dim:field", element="description", qualifier="tableofcontents"
-            )
-            if t.string
-        ] or None
+        fields["contents"] = self.get_contents(source_record) or None
 
         # contributors
         for creator in [
-            c for c in xml.find_all("dim:field", element="creator") if c.string
+            c for c in source_record.find_all("dim:field", element="creator") if c.string
         ]:
             fields.setdefault("contributors", []).append(
                 timdex.Contributor(
@@ -76,7 +74,9 @@ class DspaceDim(XMLTransformer):
             )
 
         for contributor in [
-            c for c in xml.find_all("dim:field", element="contributor") if c.string
+            c
+            for c in source_record.find_all("dim:field", element="contributor")
+            if c.string
         ]:
             fields.setdefault("contributors", []).append(
                 timdex.Contributor(
@@ -86,44 +86,12 @@ class DspaceDim(XMLTransformer):
             )
 
         # dates
-        for date in xml.find_all("dim:field", element="date", string=True):
-            date_value = str(date.string.strip())
-            if validate_date(date_value, source_record_id):
-                if date.get("qualifier") == "issued":
-                    d = timdex.Date(value=date_value, kind="Publication date")
-                else:
-                    d = timdex.Date(value=date_value, kind=date.get("qualifier") or None)
-                fields.setdefault("dates", []).append(d)
-
-        for coverage in [
-            c.string
-            for c in xml.find_all("dim:field", element="coverage", qualifier="temporal")
-            if c.string
-        ]:
-            if "/" in coverage:
-                split = coverage.index("/")
-                gte_date = coverage[:split]
-                lte_date = coverage[split + 1 :]
-                if validate_date_range(
-                    gte_date,
-                    lte_date,
-                    source_record_id,
-                ):
-                    d = timdex.Date(
-                        range=timdex.DateRange(
-                            gte=gte_date,
-                            lte=lte_date,
-                        ),
-                        kind="coverage",
-                    )
-            else:
-                d = timdex.Date(note=coverage.string, kind="coverage")
-            fields.setdefault("dates", []).append(d)
+        fields["dates"] = self.get_dates(source_record, source_record_id) or None
 
         # file_formats
         fields["file_formats"] = [
             f.string
-            for f in xml.find_all("dim:field", element="format")
+            for f in source_record.find_all("dim:field", element="format")
             if f.get("qualifier") == "mimetype" and f.string
         ] or None
 
@@ -133,7 +101,7 @@ class DspaceDim(XMLTransformer):
         # funding_information
         for funding_reference in [
             f
-            for f in xml.find_all(
+            for f in source_record.find_all(
                 "dim:field", element="description", qualifier="sponsorship"
             )
             if f.string
@@ -145,7 +113,7 @@ class DspaceDim(XMLTransformer):
             )
 
         # identifiers
-        identifiers = xml.find_all("dim:field", element="identifier")
+        identifiers = source_record.find_all("dim:field", element="identifier")
         for identifier in [
             i for i in identifiers if i.get("qualifier") != "citation" and i.string
         ]:
@@ -158,7 +126,9 @@ class DspaceDim(XMLTransformer):
 
         # language
         fields["languages"] = [
-            la.string for la in xml.find_all("dim:field", element="language") if la.string
+            la.string
+            for la in source_record.find_all("dim:field", element="language")
+            if la.string
         ] or None
 
         # links, uses identifiers list retrieved for identifiers field
@@ -176,12 +146,14 @@ class DspaceDim(XMLTransformer):
         # locations
         fields["locations"] = [
             timdex.Location(value=lo.string)
-            for lo in xml.find_all("dim:field", element="coverage", qualifier="spatial")
+            for lo in source_record.find_all(
+                "dim:field", element="coverage", qualifier="spatial"
+            )
             if lo.string
         ] or None
 
         # notes
-        descriptions = xml.find_all("dim:field", element="description")
+        descriptions = source_record.find_all("dim:field", element="description")
         for description in [
             d
             for d in descriptions
@@ -204,13 +176,13 @@ class DspaceDim(XMLTransformer):
         # publishers
         fields["publishers"] = [
             timdex.Publisher(name=p.string)
-            for p in xml.find_all("dim:field", element="publisher")
+            for p in source_record.find_all("dim:field", element="publisher")
             if p.string
         ] or None
 
         # related_items
         for related_item in [
-            r for r in xml.find_all("dim:field", element="relation") if r.string
+            r for r in source_record.find_all("dim:field", element="relation") if r.string
         ]:
             if related_item.get("qualifier") == "uri":
                 ri = timdex.RelatedItem(
@@ -225,7 +197,7 @@ class DspaceDim(XMLTransformer):
 
         # rights
         for rights in [
-            r for r in xml.find_all("dim:field", element="rights") if r.string
+            r for r in source_record.find_all("dim:field", element="rights") if r.string
         ]:
             if rights.get("qualifier") == "uri":
                 rg = timdex.Rights(uri=rights.string)
@@ -238,7 +210,7 @@ class DspaceDim(XMLTransformer):
         # subjects
         subjects_dict: dict[str, list[str]] = {}
         for subject in [
-            s for s in xml.find_all("dim:field", element="subject") if s.string
+            s for s in source_record.find_all("dim:field", element="subject") if s.string
         ]:
             if not subject.get("qualifier"):
                 subjects_dict.setdefault("Subject scheme not provided", []).append(
@@ -260,7 +232,82 @@ class DspaceDim(XMLTransformer):
         return fields
 
     @classmethod
-    def get_content_types(cls, xml: Tag) -> list[str] | None:
+    def get_contents(cls, source_record: Tag) -> list[str]:
+        return [
+            str(contents.string)
+            for contents in source_record.find_all(
+                "dim:field",
+                element="description",
+                qualifier="tableofcontents",
+                string=True,
+            )
+        ]
+
+    @classmethod
+    def get_dates(cls, source_record: Tag, source_record_id: str) -> list[timdex.Date]:
+        dates = []
+        dates.extend(list(cls._parse_date_elements(source_record, source_record_id)))
+        dates.extend(list(cls._parse_coverage_elements(source_record, source_record_id)))
+        return dates
+
+    @classmethod
+    def _parse_date_elements(
+        cls, source_record: Tag, source_record_id: str
+    ) -> Iterator[timdex.Date]:
+        for date_element in source_record.find_all(
+            "dim:field", element="date", string=True
+        ):
+            date_value = str(date_element.string.strip())
+            if validate_date(date_value, source_record_id):
+                if date_element.get("qualifier") == "issued":
+                    date_object = timdex.Date(value=date_value, kind="Publication date")
+                else:
+                    date_object = timdex.Date(
+                        value=date_value, kind=date_element.get("qualifier") or None
+                    )
+                yield date_object
+
+    @classmethod
+    def _parse_coverage_elements(
+        cls, source_record: Tag, source_record_id: str
+    ) -> Iterator[timdex.Date]:
+        for coverage_value in [
+            str(coverage_element.string)
+            for coverage_element in source_record.find_all(
+                "dim:field", element="coverage", qualifier="temporal", string=True
+            )
+        ]:
+            if "/" in coverage_value:
+                date_object = cls._parse_date_range(coverage_value, source_record_id)
+            else:
+                date_object = timdex.Date(note=coverage_value, kind="coverage")
+            if date_object:
+                yield date_object
+
+    @classmethod
+    def _parse_date_range(
+        cls, coverage_value: Tag, source_record_id: str
+    ) -> timdex.Date | None:
+        """Parse date range value and return a Date object if it is validated."""
+        split = coverage_value.index("/")
+        gte_date = coverage_value[:split]
+        lte_date = coverage_value[split + 1 :]
+        if validate_date_range(
+            gte_date,
+            lte_date,
+            source_record_id,
+        ):
+            return timdex.Date(
+                range=timdex.DateRange(
+                    gte=gte_date,
+                    lte=lte_date,
+                ),
+                kind="coverage",
+            )
+        return None
+
+    @classmethod
+    def get_content_types(cls, source_record: Tag) -> list[str] | None:
         """
         Retrieve content types from a DSpace DIM XML record.
 
@@ -268,39 +315,43 @@ class DspaceDim(XMLTransformer):
         differently.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
+            source_record: A BeautifulSoup Tag representing a single DSpace DIM XML
+            record.
         """
         return [
-            t.string for t in xml.find_all("dim:field", element="type", string=True)
+            t.string
+            for t in source_record.find_all("dim:field", element="type", string=True)
         ] or None
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[str]:
+    def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from a DSpace DIM XML record.
 
         Overrides metaclass get_main_titles() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
+            source_record: A BeautifulSoup Tag representing a single DSpace DIM XML
+            record.
         """
         return [
             t.string
-            for t in xml.find_all("dim:field", element="title", string=True)
+            for t in source_record.find_all("dim:field", element="title", string=True)
             if "qualifier" not in t.attrs
         ]
 
     @classmethod
-    def get_source_record_id(cls, xml: Tag) -> str:
+    def get_source_record_id(cls, source_record: Tag) -> str:
         """
         Get the source record ID from a DSpace DIM XML record.
 
         Overrides metaclass get_source_record_id() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single DSpace DIM XML record.
+            source_record: A BeautifulSoup Tag representing a single DSpace DIM XML
+            record.
         """
-        return xml.header.identifier.string.split(":")[2]
+        return source_record.header.identifier.string.split(":")[2]
 
     @classmethod
     def valid_content_types(cls, _content_type_list: list[str]) -> bool:

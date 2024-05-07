@@ -1,5 +1,26 @@
+# ruff: noqa: E501
+from bs4 import BeautifulSoup
+
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.dspace_dim import DspaceDim
+
+
+def create_dspace_dim_source_record_stub(xml_insert: str) -> BeautifulSoup:
+    xml_str = f"""
+        <records>
+            <record>
+                <metadata>
+                    <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"
+                        xmlns:doc="http://www.lyncode.com/xoai"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+                        {xml_insert}
+                    </dim:dim>
+                </metadata>
+            </record>
+        </records>
+        """
+    return BeautifulSoup(xml_str, "xml")
 
 
 def test_dspace_dim_transform_with_all_fields_transforms_correctly():
@@ -133,7 +154,7 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
 
 def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
     source_records = DspaceDim.parse_source_file(
-        "tests/fixtures/dspace/dspace_dim_record_attribute_variations.xml"
+        "tests/fixtures/dspace/dspace_dim_record_attribute_and_subfield_variations.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
     assert next(output_records) == timdex.TimdexRecord(
@@ -216,3 +237,69 @@ def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly(
         format="electronic resource",
         content_type=["Not specified"],
     )
+
+
+def test_get_contents_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="description" qualifier="tableofcontents" lang="en">Chapter 1</dim:field>
+        """
+    )
+    assert DspaceDim.get_contents(source_record) == ["Chapter 1"]
+
+
+def test_get_contents_transforms_correctly_if_fields_blank(
+    dspace_dim_record_optional_fields_blank,
+):
+    assert DspaceDim.get_contents(dspace_dim_record_optional_fields_blank) == []
+
+
+def test_get_contents_transforms_correctly_if_fields_missing(
+    dspace_dim_record_optional_fields_missing,
+):
+    assert DspaceDim.get_contents(dspace_dim_record_optional_fields_missing) == []
+
+
+def test_get_dates_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="coverage" qualifier="temporal">1201-01-01 - 1965-12-21</dim:field>
+        <dim:field mdschema="dc" element="coverage" qualifier="temporal">1201-01-01/1965-12-21</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="accessioned">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="available">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
+        """
+    )
+    assert DspaceDim.get_dates(source_record, "abc123") == [
+        timdex.Date(kind="accessioned", value="2009-01-08T16:24:37Z"),
+        timdex.Date(kind="available", value="2009-01-08T16:24:37Z"),
+        timdex.Date(kind="Publication date", value="2002-11"),
+        timdex.Date(kind="coverage", note="1201-01-01 - 1965-12-21"),
+        timdex.Date(
+            kind="coverage",
+            range=timdex.DateRange(gte="1201-01-01", lte="1965-12-21"),
+        ),
+    ]
+
+
+def test_get_dates_transforms_correctly_if_fields_blank(
+    dspace_dim_record_optional_fields_blank,
+):
+    assert DspaceDim.get_dates(dspace_dim_record_optional_fields_blank, "abc123") == []
+
+
+def test_get_dates_transforms_correctly_if_fields_missing(
+    dspace_dim_record_optional_fields_missing,
+):
+    assert DspaceDim.get_dates(dspace_dim_record_optional_fields_missing, "abc123") == []
+
+
+def test_get_dates_invalid_date_range_skipped():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field element="coverage" qualifier="temporal">2020-01-02/2019-01-01
+        </dim:field>
+        """
+    )
+    assert DspaceDim.get_dates(source_record, "abc123") == []
