@@ -1,11 +1,11 @@
 # ruff: noqa: E501
-from bs4 import BeautifulSoup
+from lxml import etree
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.dspace_dim import DspaceDim
 
 
-def create_dspace_dim_source_record_stub(xml_insert: str) -> BeautifulSoup:
+def create_dspace_dim_source_record_stub(xml_insert: str) -> etree._Element:
     xml_str = f"""
         <records>
             <record>
@@ -20,7 +20,7 @@ def create_dspace_dim_source_record_stub(xml_insert: str) -> BeautifulSoup:
             </record>
         </records>
         """
-    return BeautifulSoup(xml_str, "xml")
+    return etree.fromstring(xml_str)
 
 
 def test_dspace_dim_transform_with_all_fields_transforms_correctly():

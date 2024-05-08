@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Iterator
 
+from lxml import etree
 from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
@@ -13,7 +14,11 @@ logger = logging.getLogger(__name__)
 class DspaceDim(XMLTransformer):
     """DSpace DIM transformer."""
 
-    def get_optional_fields(self, source_record: Tag) -> dict | None:
+    nsmap = {
+        "dim": "http://www.dspace.org/xmlns/dspace/dim",
+    }
+
+    def get_optional_fields(self, source_record: etree._Element) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a DSpace DIM XML record.
 
@@ -232,19 +237,17 @@ class DspaceDim(XMLTransformer):
         return fields
 
     @classmethod
-    def get_contents(cls, source_record: Tag) -> list[str]:
-        return [
-            str(contents.string)
-            for contents in source_record.find_all(
-                "dim:field",
-                element="description",
-                qualifier="tableofcontents",
-                string=True,
-            )
-        ]
+    def get_contents(cls, source_record: etree._Element) -> list[str]:
+        contents = cls.string_list_from_xpath(
+            source_record,
+            ".//dim:field[@element='description' and @qualifier='tableofcontents']",
+        )
+        return contents
 
     @classmethod
-    def get_dates(cls, source_record: Tag, source_record_id: str) -> list[timdex.Date]:
+    def get_dates(
+        cls, source_record: etree._Element, source_record_id: str
+    ) -> list[timdex.Date]:
         dates = []
         dates.extend(list(cls._parse_date_elements(source_record, source_record_id)))
         dates.extend(list(cls._parse_coverage_elements(source_record, source_record_id)))
@@ -252,31 +255,31 @@ class DspaceDim(XMLTransformer):
 
     @classmethod
     def _parse_date_elements(
-        cls, source_record: Tag, source_record_id: str
+        cls, source_record: etree._Element, source_record_id: str
     ) -> Iterator[timdex.Date]:
-        for date_element in source_record.find_all(
-            "dim:field", element="date", string=True
+        for date_element in cls.xpath_query(
+            source_record, ".//dim:field[@element='date']"
         ):
-            date_value = str(date_element.string.strip())
-            if validate_date(date_value, source_record_id):
-                if date_element.get("qualifier") == "issued":
-                    date_object = timdex.Date(value=date_value, kind="Publication date")
-                else:
-                    date_object = timdex.Date(
-                        value=date_value, kind=date_element.get("qualifier") or None
-                    )
-                yield date_object
+            if _date_string := date_element.text:
+                date_string = str(_date_string.strip())
+                if validate_date(date_string, source_record_id):
+                    if date_element.get("qualifier") == "issued":
+                        date_object = timdex.Date(
+                            value=date_string, kind="Publication date"
+                        )
+                    else:
+                        date_object = timdex.Date(
+                            value=date_string, kind=date_element.get("qualifier") or None
+                        )
+                    yield date_object
 
     @classmethod
     def _parse_coverage_elements(
-        cls, source_record: Tag, source_record_id: str
+        cls, source_record: etree._Element, source_record_id: str
     ) -> Iterator[timdex.Date]:
-        for coverage_value in [
-            str(coverage_element.string)
-            for coverage_element in source_record.find_all(
-                "dim:field", element="coverage", qualifier="temporal", string=True
-            )
-        ]:
+        for coverage_value in cls.string_list_from_xpath(
+            source_record, ".//dim:field[@element='coverage' and @qualifier='temporal']"
+        ):
             if "/" in coverage_value:
                 date_object = cls._parse_date_range(coverage_value, source_record_id)
             else:
@@ -364,3 +367,12 @@ class DspaceDim(XMLTransformer):
             content_type_list: A list of content_type values.
         """
         return True
+
+
+if __name__ == "__main__":
+    source_records = DspaceDim.parse_source_file(
+        "tests/fixtures/dspace/dspace_dim_record_all_fields.xml"
+    )
+    source_record = next(source_records)
+    print(DspaceDim.get_contents(source_record))
+    print(DspaceDim.get_dates(source_record, source_record_id="abc"))

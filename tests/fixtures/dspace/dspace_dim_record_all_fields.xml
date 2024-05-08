@@ -10,52 +10,90 @@
     <metadata>
       <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"
         xmlns:doc="http://www.lyncode.com/xoai"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
-        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">LaFountain, James R.</dim:field>
-        <dim:field mdschema="dc" element="contributor" qualifier="author" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">Oldenbourg, Rudolf</dim:field>
-        <dim:field mdschema="dc" element="coverage" qualifier="spatial">Central equatorial Pacific Ocean</dim:field>
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+        <dim:field mdschema="dc" element="contributor" qualifier="author"
+          authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">LaFountain, James R.</dim:field>
+        <dim:field mdschema="dc" element="contributor" qualifier="author"
+          authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">Oldenbourg, Rudolf</dim:field>
+        <dim:field mdschema="dc" element="coverage" qualifier="spatial">Central equatorial Pacific
+          Ocean</dim:field>
         <dim:field mdschema="dc" element="coverage" qualifier="temporal">1201-01-01 - 1965-12-21</dim:field>
         <dim:field mdschema="dc" element="coverage" qualifier="temporal">1201-01-01/1965-12-21</dim:field>
-        <dim:field mdschema="dc" element="creator" authority="0a81af48-388e-49c4-936a-547560e4ad1c" confidence="600">Jamerson, James</dim:field>
+        <dim:field mdschema="dc" element="creator" authority="0a81af48-388e-49c4-936a-547560e4ad1c"
+          confidence="600">Jamerson, James</dim:field>
         <dim:field mdschema="dc" element="date" qualifier="accessioned">2009-01-08T16:24:37Z</dim:field>
         <dim:field mdschema="dc" element="date" qualifier="available">2009-01-08T16:24:37Z</dim:field>
         <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
-        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
-        <dim:field mdschema="dc" element="identifier" qualifier="citation">Journal of Geophysical Research: Solid Earth 121 (2016): 5859-5879</dim:field>
-        <dim:field mdschema="dc" element="description" lang="en">Author Posting. © The Author(s), 2008. This is the author's version of the work. It is posted here by permission of John Wiley & Sons for personal use, not for redistribution. The definitive version was published in Journal of Field Robotics 25 (2008): 861-879, doi:10.1002/rob.20250.</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">
+          https://hdl.handle.net/1912/2641</dim:field>
+        <dim:field mdschema="dc" element="identifier" qualifier="citation">Journal of Geophysical
+          Research: Solid Earth 121 (2016): 5859-5879</dim:field>
+        <dim:field mdschema="dc" element="description" lang="en">Author Posting. © The Author(s),
+          2008. This is the author's version of the work. It is posted here by permission of John
+          Wiley & Sons for personal use, not for redistribution. The definitive version was
+          published in Journal of Field Robotics 25 (2008): 861-879, doi:10.1002/rob.20250.</dim:field>
         <dim:field mdschema="dc" element="description" qualifier="embargo" lang="en">2026-01</dim:field>
-        <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en">The events of meiosis I in a living spermatocyte obtained from the testis of a crane-fly larva are recorded in this time-lapse sequence beginning at diakinesis through telophase to the near completion of cytokinesis following meiosis I.</dim:field>
-        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Ann Devenish (adevenish@whoi.edu) on 2009-01-08T16:23:47Z&#13;
-No. of bitstreams: 2&#13;
-Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
-Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
-        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Ann Devenish(adevenish@whoi.edu) on 2009-01-08T16:24:36Z (GMT) No. of bitstreams: 2&#13;
-Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
-Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
-        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2009-01-08T16:24:37Z (GMT). No. of bitstreams: 2&#13;
-Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum: 726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
-Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum: 5b08f512dbf75681cfa76eb81d4f08b9 (MD5)&#13;
-  Previous issue date: 2002-11</dim:field>
-        <dim:field mdschema="dc" element="description" qualifier="sponsorship" lang="en">NSF Grant Numbers: OCE-1029305, OCE-1029411, OCE-1249353</dim:field>
-        <dim:field mdschema="dc" element="description" qualifier="tableofcontents" lang="en">Chapter 1</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en">The events of
+          meiosis I in a living spermatocyte obtained from the testis of a crane-fly larva are
+          recorded in this time-lapse sequence beginning at diakinesis through telophase to the near
+          completion of cytokinesis following meiosis I.</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by
+          Ann Devenish (adevenish@whoi.edu) on 2009-01-08T16:23:47Z&#13;
+          No. of bitstreams: 2&#13;
+          Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum:
+          726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+          Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum:
+          5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for
+          entry into archive by Ann Devenish(adevenish@whoi.edu) on 2009-01-08T16:24:36Z (GMT) No.
+          of bitstreams: 2&#13;
+          Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum:
+          726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+          Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum:
+          5b08f512dbf75681cfa76eb81d4f08b9 (MD5)</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made
+          available in DSpace on 2009-01-08T16:24:37Z (GMT). No. of bitstreams: 2&#13;
+          Movie01_LaFountainOldenbourg_MeiosisI_Long.doc: 28160 bytes, checksum:
+          726bff84cdac98aa2ec71395aae87456 (MD5)&#13;
+          Movie01_LaFountainOldenbourg_MeiosisI_MPEG4.mov: 31105110 bytes, checksum:
+          5b08f512dbf75681cfa76eb81d4f08b9 (MD5)&#13;
+          Previous issue date: 2002-11</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="sponsorship" lang="en">NSF Grant
+          Numbers: OCE-1029305, OCE-1029411, OCE-1249353</dim:field>
+        <dim:field mdschema="dc" element="description" qualifier="tableofcontents" lang="en">Chapter
+          1</dim:field>
         <dim:field mdschema="dc" element="format" qualifier="mimetype">application/msword</dim:field>
         <dim:field mdschema="dc" element="format" qualifier="mimetype">image/tiff</dim:field>
         <dim:field mdschema="dc" element="format" qualifier="mimetype">video/quicktime</dim:field>
         <dim:field mdschema="dc" element="language" qualifier="iso" lang="en_US">en_US</dim:field>
-        <dim:field mdschema="dc" element="publisher" lang="en_US">Woods Hole Oceanographic Institution</dim:field>
-        <dim:field mdschema="dc" element="relation">A low resolution version of this movie was published as supplemental material to: Rieder, C. L. and A. Khodjakov. Mitosis through the microscope: advances in seeing inside live dividing cells. Science 300 (2003): 91-96, doi: 10.1126/science.1082177</dim:field>
-        <dim:field mdschema="dc" element="relation" qualifier="ispartofseries" lang="en_US">International Association of Aquatic and Marine Science Libraries and Information Centers (38th : 2012: Anchorage, Alaska)</dim:field>
-        <dim:field mdschema="dc" element="relation" qualifier="uri">https://doi.org/10.1002/2016JB013228</dim:field>
-        <dim:field mdschema="dc" element="rights" lang="*">Attribution-NonCommercial-NoDerivatives 4.0 International</dim:field>
-        <dim:field mdschema="dc" element="rights" qualifier="uri" lang="*">http://creativecommons.org/licenses/by-nc-nd/4.0/</dim:field>
+        <dim:field mdschema="dc" element="publisher" lang="en_US">Woods Hole Oceanographic
+          Institution</dim:field>
+        <dim:field mdschema="dc" element="relation">A low resolution version of this movie was
+          published as supplemental material to: Rieder, C. L. and A. Khodjakov. Mitosis through the
+          microscope: advances in seeing inside live dividing cells. Science 300 (2003): 91-96, doi:
+          10.1126/science.1082177</dim:field>
+        <dim:field mdschema="dc" element="relation" qualifier="ispartofseries" lang="en_US">International
+          Association of Aquatic and Marine Science Libraries and Information Centers (38th : 2012:
+          Anchorage, Alaska)</dim:field>
+        <dim:field mdschema="dc" element="relation" qualifier="uri">
+          https://doi.org/10.1002/2016JB013228</dim:field>
+        <dim:field mdschema="dc" element="rights" lang="*">Attribution-NonCommercial-NoDerivatives
+          4.0 International</dim:field>
+        <dim:field mdschema="dc" element="rights" qualifier="uri" lang="*">
+          http://creativecommons.org/licenses/by-nc-nd/4.0/</dim:field>
         <dim:field mdschema="dc" element="rights" qualifier="license" lang="*">CC-BY-NC 4.0</dim:field>
         <dim:field mdschema="dc" element="subject" qualifier="lcsh" lang="en">Spermatocyte</dim:field>
         <dim:field mdschema="dc" element="subject" qualifier="lcsh" lang="en">Microtubules</dim:field>
-        <dim:field mdschema="dc" element="subject" qualifier="lcsh" lang="en">Kinetochore microtubules</dim:field>
+        <dim:field mdschema="dc" element="subject" qualifier="lcsh" lang="en">Kinetochore
+          microtubules</dim:field>
         <dim:field mdschema="dc" element="subject" lang="en">Polarized light microscopy</dim:field>
         <dim:field mdschema="dc" element="subject" lang="en">LC-PolScope</dim:field>
-        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis I in a living spermatocyte from the crane fly, Nephrotoma suturalis, viewed with polarized light microscopy</dim:field>
-        <dim:field mdschema="dc" element="title" qualifier="alternative" lang="en">An Alternative Title</dim:field>
+        <dim:field mdschema="dc" element="title" lang="en">Time lapse movie of meiosis I in a living
+          spermatocyte from the crane fly, Nephrotoma suturalis, viewed with polarized light
+          microscopy</dim:field>
+        <dim:field mdschema="dc" element="title" qualifier="alternative" lang="en">An Alternative
+          Title</dim:field>
         <dim:field mdschema="dc" element="type" lang="en">Moving Image</dim:field>
         <dim:field mdschema="dc" element="type" lang="en">Dataset</dim:field>
       </dim:dim>

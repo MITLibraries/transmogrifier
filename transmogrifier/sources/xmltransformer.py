@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup, Tag  # type: ignore[import-untyped]
 # should not be a security issue.
 from lxml import etree  # nosec B410
 
+from transmogrifier.helpers import dedupe_list_of_values
 from transmogrifier.sources.transformer import Transformer
 
 if TYPE_CHECKING:
@@ -21,9 +22,11 @@ if TYPE_CHECKING:
 class XMLTransformer(Transformer):
     """XML transformer class."""
 
+    nsmap: dict
+
     @final
     @classmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[Tag]:
+    def parse_source_file(cls, source_file: str) -> Iterator[etree._Element]:
         """
         Parse XML file and return source records as bs4 Tags via an iterator.
 
@@ -40,9 +43,58 @@ class XMLTransformer(Transformer):
                 recover=True,
             ):
                 record_string = etree.tostring(element, encoding="utf-8")
-                record = BeautifulSoup(record_string, "xml")
-                yield record
+                yield element
                 element.clear()
+
+    @final
+    @classmethod
+    def xpath_query(cls, element: etree._Element, xpath_expr: str):
+        return element.xpath(xpath_expr, namespaces=cls.nsmap)
+
+    @final
+    @staticmethod
+    def remove_whitespace(string: str | None) -> str | None:
+        """Removes newlines and excessive whitespace from a string."""
+        if string is None:
+            return None
+        cleaned = " ".join(string.split())
+        return cleaned if cleaned else None
+
+    @final
+    @classmethod
+    def single_string_from_xpath(
+        cls, element: etree._Element, xpath_expr: str
+    ) -> str | None:
+        """Return single string or None from an Xpath query.
+
+        If the XPath query returns MORE than one textual element, an exception will be
+        raised.
+        """
+        matches = cls.xpath_query(element, xpath_expr)
+        if not matches:
+            return None
+        if len(matches) > 1:
+            message = (
+                "Expected one or none matches for XPath query, "
+                f"but {len(matches)} were found."
+            )
+            raise ValueError(message)
+        return cls.remove_whitespace(matches[0].text)
+
+    @final
+    @classmethod
+    def string_list_from_xpath(cls, element: etree._Element, xpath_expr: str) -> list:
+        """Return unique list of strings from XPath matches.
+
+        A list will always be returned, though empty strings and None values will be
+        filtered out. Order will be order discovered via XPath.
+        """
+        matches = cls.xpath_query(element, xpath_expr)
+        strings = [cls.remove_whitespace(match.text) for match in matches]
+        strings = [string for string in strings if string]
+        if all(string is None or string == "" for string in strings):
+            return []
+        return dedupe_list_of_values(strings)
 
     @final
     def transform(self, source_record: Tag) -> timdex.TimdexRecord | None:

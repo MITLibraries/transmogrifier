@@ -6,6 +6,48 @@ from transmogrifier.config import DATE_FORMATS
 logger = logging.getLogger(__name__)
 
 
+def dedupe_list_of_values(list_of_values: list) -> list:
+    """Utility function to dedupe list of values in a list.
+
+    This function dedupes regardless of value casing (if string) or whitespace. If
+    duplicates are found, this utility has a preference order of:
+        - TitleCase
+        - UPPERCASE
+        - lowercase
+    """
+    if not list_of_values:
+        return list_of_values
+
+    temp_dict = {}
+
+    for item in list_of_values:
+        if isinstance(item, str):
+            key = item.lower().strip()
+            value = item.strip()
+            # Add key if not yet seen
+            if key not in temp_dict:
+                temp_dict[key] = value
+            else:  # noqa: PLR5501
+                # If current value is TitleCase, overwrite the value in the dictionary.
+                if value.istitle():  # noqa: SIM114
+                    temp_dict[key] = value
+                # If current value is UPPERCASE and the value in dictionary isn't
+                # TitleCase, overwrite it.
+                elif value.isupper() and not temp_dict[key].istitle():  # noqa: SIM114
+                    temp_dict[key] = value
+                # If the current value is lowercase and the dictionary value isn't
+                # UPPERCASE or TitleCase, overwrite it.
+                elif value.islower() and not (
+                    temp_dict[key].isupper() or temp_dict[key].istitle()
+                ):
+                    temp_dict[key] = value
+        else:
+            # Handle non-string items
+            temp_dict.setdefault(item, item)
+
+    return list(temp_dict.values())
+
+
 def generate_citation(extracted_data: dict) -> str:
     """Generate a citation in the Datacite schema format.
 
