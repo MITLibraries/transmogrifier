@@ -48,9 +48,9 @@ A `TimdexRecord` contains the following fields:
     * `subjects`
     * `summary`
 
-Currently much of the transformation logic for each source is found in the `get_optional_fields` method which extracts data for most of the fields. This results in very large methods as well as inefficient orchestration and testing. 
+Currently much of the transformation logic for each source is found in the `get_optional_fields` method which extracts data for all optional fields. This results in very large methods as well as inefficient orchestration and testing. 
 
-A field method approach would address many of these complications. All of the required fields have dedicated field methods as well as some of the complex fields that are called by `get_optional_fields`. This refactor can be seen as an extension of that approach.
+A field method approach would address many of these complications, where each `TimdexRecord` field has a corresponding method containing all of the logic related to extracting and formatting the values for that field. All of the required fields have dedicated field methods as well as some of the complex fields that are called by `get_optional_fields`. This refactor can be seen as an extension of that approach.
 
 ## Decision
 
@@ -62,6 +62,6 @@ Field methods should ultimately simplfy the source transforms, and the overall a
 
 Testing should also be significantly improved. The current testing suite is built around very large fixtures and unit tests meant to encompass the expected data scenarios for each source's records. They are not easy to parse and can be a barrier to new developers trying to understand the application. Separate tests for each field method should simplfy the testing infrastructure and make it easier to maintain.
 
-Logging and associated analytics should also be easier to manage and provide a better view of the data transformed by this application.
+Logging and associated analytics should also be easier to manage and provide a better view of the data transformed by this application. During orchestration of the transform, the field methods will provide a consistent and shared way of reporting errors or outlier behavior when transforming fields.
 
 During this refactor, there should be no changes to the records produced the application. However, the code changes will benefit developers by making the application easier to maintain, extend, and test.
