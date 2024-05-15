@@ -229,10 +229,11 @@ class DspaceDim(XMLTransformer):
             )
 
         # summary, uses description list retrieved for notes field
-        for description in [
-            d for d in descriptions if d.get("qualifier") == "abstract" and d.string
-        ]:
-            fields.setdefault("summary", []).append(description.string)
+        # for description in [
+        #     d for d in descriptions if d.get("qualifier") == "abstract" and d.string
+        # ]:
+        #     fields.setdefault("summary", []).append(description.string)
+        fields["summary"] = self.get_summary()
 
         return fields
 
@@ -344,6 +345,13 @@ class DspaceDim(XMLTransformer):
         ]
 
     @classmethod
+    def get_summary(cls, source_record: etree._Element):
+        return cls.string_list_from_xpath(
+            source_record,
+            ".//dim:field[@element='description' and @qualifier='abstract']",
+        )
+
+    @classmethod
     def get_source_record_id(cls, source_record: Tag) -> str:
         """
         Get the source record ID from a DSpace DIM XML record.
@@ -374,5 +382,6 @@ if __name__ == "__main__":
         "tests/fixtures/dspace/dspace_dim_record_all_fields.xml"
     )
     source_record = next(source_records)
+    DspaceDim.get_summary(source_record)
     print(DspaceDim.get_contents(source_record))
     print(DspaceDim.get_dates(source_record, source_record_id="abc"))

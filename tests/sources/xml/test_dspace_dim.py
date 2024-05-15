@@ -303,3 +303,36 @@ def test_get_dates_invalid_date_range_skipped():
         """
     )
     assert DspaceDim.get_dates(source_record, "abc123") == []
+
+
+def test_get_summary_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en">
+            This article discusses the basics of cheesemaking by integrating the practical steps 
+            that all cheesemakers use with the scientific principles on which those practices are based. 
+            The aim is to paint a conceptual picture in which the microbiology of cheese "fits together" 
+            with the basic practices of cheesemaking and the scientific principles that underlie them.
+        </dim:field>
+        """
+    )
+    assert DspaceDim.get_summary(source_record) == [
+        (
+            "This article discusses the basics of cheesemaking by integrating the practical steps "
+            "that all cheesemakers use with the scientific principles on which those practices are based. "
+            'The aim is to paint a conceptual picture in which the microbiology of cheese "fits together" '
+            "with the basic practices of cheesemaking and the scientific principles that underlie them."
+        )
+    ]
+
+
+def test_get_summary_transforms_correctly_if_fields_blank(
+    dspace_dim_record_optional_fields_blank,
+):
+    assert DspaceDim.get_summary(dspace_dim_record_optional_fields_blank) == []
+
+
+def test_get_dates_transforms_correctly_if_fields_missing(
+    dspace_dim_record_optional_fields_missing,
+):
+    assert DspaceDim.get_summary(dspace_dim_record_optional_fields_missing) == []
