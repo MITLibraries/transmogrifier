@@ -15,38 +15,38 @@ Simplify the application by refactoring it to use field methods to populate a `T
 A `TimdexRecord` contains the following fields: 
 
 * REQUIRED
-    * `source`
-    * `source_link`
-    * `timdex_record_id`
-    * `title`
+   * `source`
+   * `source_link`
+   * `timdex_record_id`
+   * `title`
 
-  * OPTIONAL
-    * `alternate_titles`
-    * `call_numbers`
-    * `citation`
-    * `content_type`
-    * `contents`
-    * `contributors`
-    * `dates`
-    * `edition`
-    * `file_formats`
-    * `format`
-    * `funding_information`
-    * `holdings`
-    * `identifiers`
-    * `languages`
-    * `links`
-    * `literary_form`
-    * `locations`
-    * `notes`
-    * `numbering`
-    * `physical_description`
-    * `publication_frequency`
-    * `publishers`
-    * `related_items`
-    * `rights`
-    * `subjects`
-    * `summary`
+* OPTIONAL
+   * `alternate_titles`
+   * `call_numbers`
+   * `citation`
+   * `content_type`
+   * `contents`
+   * `contributors`
+   * `dates`
+   * `edition`
+   * `file_formats`
+   * `format`
+   * `funding_information`
+   * `holdings`
+   * `identifiers`
+   * `languages`
+   * `links`
+   * `literary_form`
+   * `locations`
+   * `notes`
+   * `numbering`
+   * `physical_description`
+   * `publication_frequency`
+   * `publishers`
+   * `related_items`
+   * `rights`
+   * `subjects`
+   * `summary`
 
 Currently much of the transformation logic for each source is found in the `get_optional_fields` method which extracts data for all optional fields. This results in very large methods as well as inefficient orchestration and testing. 
 
