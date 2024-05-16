@@ -17,7 +17,8 @@ from attrs import asdict
 # should not be a security issue.
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES
-from transmogrifier.helpers import DeletedRecordEvent, generate_citation, validate_date
+from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
+from transmogrifier.helpers import generate_citation, validate_date
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -67,6 +68,9 @@ class Transformer(ABC):
                 record = self.transform(source_record)
             except DeletedRecordEvent as error:
                 self.deleted_records.append(error.timdex_record_id)
+                continue
+            except SkippedRecordEvent:
+                self.skipped_record_count += 1
                 continue
             if record:
                 self.transformed_record_count += 1
