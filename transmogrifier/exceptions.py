@@ -16,5 +16,6 @@ class SkippedRecordEvent(Exception):  # noqa: N818
         source_record_id: The ID for the source record.
     """
 
-    def __init__(self, source_record_id: str) -> None:
+    def __init__(self, source_record_id: str | None, message: str) -> None:
         self.source_record_id = source_record_id
+        self.message = message

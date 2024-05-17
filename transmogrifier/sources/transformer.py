@@ -72,11 +72,11 @@ class Transformer(ABC):
             except SkippedRecordEvent:
                 self.skipped_record_count += 1
                 continue
-            if record:
-                self.transformed_record_count += 1
-                return record
-            self.skipped_record_count += 1
-            continue
+            if not record:
+                self.skipped_record_count += 1
+                continue
+            self.transformed_record_count += 1
+            return record
 
     @final
     def transform_and_write_output_files(self, output_file: str) -> None:
