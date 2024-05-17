@@ -56,7 +56,7 @@ class Datacite(XMLTransformer):
                     fields["content_type"] = [content_type]
                 else:
                     message = f'Record skipped based on content type: "{content_type}"'
-                    raise SkippedRecordEvent(source_record_id, message)
+                    raise SkippedRecordEvent(message, source_record_id)
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
