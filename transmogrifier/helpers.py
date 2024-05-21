@@ -132,15 +132,3 @@ def validate_date_range(
         end_date,
     )
     return False
-
-
-class DeletedRecordEvent(Exception):  # noqa: N818
-    """Exception raised for records with a deleted status.
-
-    Attributes:
-        timdex_record_id: The TIMDEX record ID (not the source record ID) for the record
-
-    """
-
-    def __init__(self, timdex_record_id: str) -> None:
-        self.timdex_record_id = timdex_record_id

@@ -3,6 +3,7 @@ import logging
 from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.helpers import validate_date, validate_date_range
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
@@ -54,7 +55,8 @@ class Datacite(XMLTransformer):
                 if self.valid_content_types([content_type]):
                     fields["content_type"] = [content_type]
                 else:
-                    return None
+                    message = f'Record skipped based on content type: "{content_type}"'
+                    raise SkippedRecordEvent(message, source_record_id)
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
