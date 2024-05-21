@@ -43,11 +43,22 @@ def runner():
     return CliRunner()
 
 
+# aardvark ##########################
+
+
+@pytest.fixture
+def aardvark_records():
+    return JSONTransformer.parse_source_file("tests/fixtures/aardvark_records.jsonl")
+
+
 @pytest.fixture
 def aardvark_record_all_fields():
     return JSONTransformer.parse_source_file(
         "tests/fixtures/aardvark/aardvark_record_all_fields.jsonl"
     )
+
+
+# datacite ##########################
 
 
 @pytest.fixture
@@ -66,8 +77,22 @@ def datacite_record_all_fields():
 
 
 @pytest.fixture
-def aardvark_records():
-    return JSONTransformer.parse_source_file("tests/fixtures/aardvark_records.jsonl")
+def datacite_record_optional_fields_blank():
+    source_records = XMLTransformer.parse_source_file(
+        "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
+    )
+    return next(source_records)
+
+
+@pytest.fixture
+def datacite_record_optional_fields_missing():
+    source_records = XMLTransformer.parse_source_file(
+        "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
+    )
+    return next(source_records)
+
+
+# marc ##########################
 
 
 @pytest.fixture
@@ -80,9 +105,15 @@ def marc_content_type_crosswalk():
     return load_external_config("config/marc_content_type_crosswalk.json", "json")
 
 
+# oaidc ##########################
+
+
 @pytest.fixture
 def oai_pmh_records():
     return XMLTransformer.parse_source_file("tests/fixtures/oai_pmh_records.xml")
+
+
+# timdex ##########################
 
 
 @pytest.fixture
