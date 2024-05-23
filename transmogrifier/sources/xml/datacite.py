@@ -31,7 +31,7 @@ class Datacite(XMLTransformer):
         fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
         # content_type
-        fields["content_type"] = self.get_content_type(source_record, source_record_id)
+        fields["content_type"] = self.get_content_type(source_record)
 
         # contributors
         fields["contributors"] = self.get_contributors(source_record)
@@ -273,9 +273,7 @@ class Datacite(XMLTransformer):
                 yield timdex.AlternateTitle(value=title)
 
     @classmethod
-    def get_content_type(
-        cls, source_record: Tag, source_record_id: str
-    ) -> list[str] | None:
+    def get_content_type(cls, source_record: Tag) -> list[str] | None:
         content_types = []
         if resource_type := source_record.metadata.find("resourceType"):
             if content_type := resource_type.get("resourceTypeGeneral"):
@@ -283,11 +281,13 @@ class Datacite(XMLTransformer):
                     content_types.append(str(content_type))
                 else:
                     message = f'Record skipped based on content type: "{content_type}"'
-                    raise SkippedRecordEvent(message, source_record_id)
+                    raise SkippedRecordEvent(
+                        message, cls.get_source_record_id(source_record)
+                    )
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
-                source_record_id,
+                cls.get_source_record_id(source_record),
             )
         return content_types or None
 

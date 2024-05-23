@@ -19,11 +19,14 @@ from transmogrifier.models import (
 from transmogrifier.sources.xml.datacite import Datacite
 
 
-def create_datacite_source_record_stub(xml_insert: str) -> BeautifulSoup:
+def create_datacite_source_record_stub(xml_insert: str = "") -> BeautifulSoup:
     xml_string = f"""
         <records>
          <record xmlns="http://www.openarchives.org/OAI/2.0/"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <header>
+            <identifier>abc123</identifier>
+          <header>
           <metadata>
            <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://datacite.org/schema/kernel-4"
@@ -404,7 +407,7 @@ def test_get_alternate_titles_transforms_correctly_if_fields_blank():
 
 
 def test_get_alternate_titles_transforms_correctly_if_fields_missing():
-    source_record = create_datacite_source_record_stub("")
+    source_record = create_datacite_source_record_stub()
     assert Datacite.get_alternate_titles(source_record) is None
 
 
@@ -414,7 +417,7 @@ def test_get_content_type_success():
         <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
         """
     )
-    assert Datacite.get_content_type(source_record, "abc123") == ["Dataset"]
+    assert Datacite.get_content_type(source_record) == ["Dataset"]
 
 
 def test_get_content_type_transforms_correctly_if_fields_blank():
@@ -423,12 +426,12 @@ def test_get_content_type_transforms_correctly_if_fields_blank():
         <resourceType resourceTypeGeneral=""></resourceType>
         """
     )
-    assert Datacite.get_content_type(source_record, "abc123") is None
+    assert Datacite.get_content_type(source_record) is None
 
 
 def test_get_content_type_transforms_correctly_if_fields_missing():
-    source_record = create_datacite_source_record_stub("")
-    assert Datacite.get_content_type(source_record, "abc123") is None
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_content_type(source_record) is None
 
 
 def test_get_contributors_success():
@@ -510,7 +513,7 @@ def test_get_contributors_transforms_correctly_if_fields_blank():
 
 
 def test_get_contributors_transforms_correctly_if_fields_missing():
-    source_record = create_datacite_source_record_stub("")
+    source_record = create_datacite_source_record_stub()
     assert Datacite.get_contributors(source_record) is None
 
 
