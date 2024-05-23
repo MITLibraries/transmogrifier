@@ -76,22 +76,6 @@ def datacite_record_all_fields():
     return Datacite("cool-repo", source_records)
 
 
-@pytest.fixture
-def datacite_record_optional_fields_blank():
-    source_records = XMLTransformer.parse_source_file(
-        "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
-    )
-    return next(source_records)
-
-
-@pytest.fixture
-def datacite_record_optional_fields_missing():
-    source_records = XMLTransformer.parse_source_file(
-        "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
-    )
-    return next(source_records)
-
-
 # marc ##########################
 
 

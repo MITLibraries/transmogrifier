@@ -28,15 +28,13 @@ class Datacite(XMLTransformer):
         source_record_id = self.get_source_record_id(source_record)
 
         # alternate_titles
-        fields["alternate_titles"] = self.get_alternate_titles(source_record) or None
+        fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
         # content_type
-        fields["content_type"] = (
-            self.get_content_type(source_record, source_record_id) or None
-        )
+        fields["content_type"] = self.get_content_type(source_record, source_record_id)
 
         # contributors
-        fields["contributors"] = self.get_contributors(source_record) or None
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
         if publication_year := source_record.metadata.find(
@@ -248,7 +246,9 @@ class Datacite(XMLTransformer):
         return fields
 
     @classmethod
-    def get_alternate_titles(cls, source_record: Tag) -> list[timdex.AlternateTitle]:
+    def get_alternate_titles(
+        cls, source_record: Tag
+    ) -> list[timdex.AlternateTitle] | None:
         alternate_titles = []
         alternate_titles.extend(
             [
@@ -261,7 +261,7 @@ class Datacite(XMLTransformer):
             ]
         )
         alternate_titles.extend(list(cls._get_additional_titles(source_record)))
-        return alternate_titles
+        return alternate_titles or None
 
     @classmethod
     def _get_additional_titles(
@@ -273,7 +273,9 @@ class Datacite(XMLTransformer):
                 yield timdex.AlternateTitle(value=title)
 
     @classmethod
-    def get_content_type(cls, source_record: Tag, source_record_id: str) -> list[str]:
+    def get_content_type(
+        cls, source_record: Tag, source_record_id: str
+    ) -> list[str] | None:
         content_types = []
         if resource_type := source_record.metadata.find("resourceType"):
             if content_type := resource_type.get("resourceTypeGeneral"):
@@ -287,14 +289,14 @@ class Datacite(XMLTransformer):
                 "Datacite record %s missing required Datacite field resourceType",
                 source_record_id,
             )
-        return content_types
+        return content_types or None
 
     @classmethod
-    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor]:
+    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
         contributors = []
         contributors.extend(list(cls._get_creators(source_record)))
         contributors.extend(list(cls._get_contributors(source_record)))
-        return contributors
+        return contributors or None
 
     @classmethod
     def _get_creators(cls, source_record: Tag) -> Iterator[timdex.Contributor]:

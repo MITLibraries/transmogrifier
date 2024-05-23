@@ -396,16 +396,16 @@ def test_get_alternate_titles_success():
     ]
 
 
-def test_get_alternate_titles_transforms_correctly_if_fields_blank(
-    datacite_record_optional_fields_blank,
-):
-    assert Datacite.get_alternate_titles(datacite_record_optional_fields_blank) == []
+def test_get_alternate_titles_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        '<titles><title titleType="AlternativeTitle"></title></titles>'
+    )
+    assert Datacite.get_alternate_titles(source_record) is None
 
 
-def test_get_alternate_titles_transforms_correctly_if_fields_missing(
-    datacite_record_optional_fields_missing,
-):
-    assert Datacite.get_alternate_titles(datacite_record_optional_fields_missing) == []
+def test_get_alternate_titles_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub("")
+    assert Datacite.get_alternate_titles(source_record) is None
 
 
 def test_get_content_type_success():
@@ -417,20 +417,18 @@ def test_get_content_type_success():
     assert Datacite.get_content_type(source_record, "abc123") == ["Dataset"]
 
 
-def test_get_content_type_transforms_correctly_if_fields_blank(
-    datacite_record_optional_fields_blank,
-):
-    assert (
-        Datacite.get_content_type(datacite_record_optional_fields_blank, "abc123") == []
+def test_get_content_type_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        """
+        <resourceType resourceTypeGeneral=""></resourceType>
+        """
     )
+    assert Datacite.get_content_type(source_record, "abc123") is None
 
 
-def test_get_content_type_transforms_correctly_if_fields_missing(
-    datacite_record_optional_fields_missing,
-):
-    assert (
-        Datacite.get_content_type(datacite_record_optional_fields_missing, "abc123") == []
-    )
+def test_get_content_type_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub("")
+    assert Datacite.get_content_type(source_record, "abc123") is None
 
 
 def test_get_contributors_success():
@@ -498,16 +496,22 @@ def test_get_contributors_success():
     ]
 
 
-def test_get_contributors_transforms_correctly_if_fields_blank(
-    datacite_record_optional_fields_blank,
-):
-    assert Datacite.get_contributors(datacite_record_optional_fields_blank) == []
+def test_get_contributors_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        """
+        <creators>
+         <creator />
+        <contributors>
+         <contributor />
+        </contributors>
+        """
+    )
+    assert Datacite.get_contributors(source_record) is None
 
 
-def test_get_contributors_transforms_correctly_if_fields_missing(
-    datacite_record_optional_fields_missing,
-):
-    assert Datacite.get_contributors(datacite_record_optional_fields_missing) == []
+def test_get_contributors_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub("")
+    assert Datacite.get_contributors(source_record) is None
 
 
 def test_generate_name_identifier_url_orcid_scheme(datacite_record_all_fields):
