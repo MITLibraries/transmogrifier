@@ -1,3 +1,5 @@
+from bs4 import BeautifulSoup
+
 from transmogrifier.models import (
     AlternateTitle,
     Contributor,
@@ -15,6 +17,28 @@ from transmogrifier.models import (
     TimdexRecord,
 )
 from transmogrifier.sources.xml.datacite import Datacite
+
+
+def create_datacite_source_record_stub(xml_insert: str = "") -> BeautifulSoup:
+    xml_string = f"""
+        <records>
+         <record xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <header>
+            <identifier>abc123</identifier>
+          <header>
+          <metadata>
+           <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://datacite.org/schema/kernel-4"
+           xsi:schemaLocation="http://datacite.org/schema/kernel-4
+           http://schema.datacite.org/meta/kernel-4.1/metadata.xsd">
+           {xml_insert}
+           </resource>
+          </metadata>
+         </record>
+        </records>
+        """
+    return BeautifulSoup(xml_string, "xml")
 
 
 def test_datacite_transform_with_all_fields_transforms_correctly(
@@ -357,6 +381,140 @@ def test_datacite_with_attribute_and_subfield_variations_transforms_correctly():
         ],
         subjects=[Subject(value=["Subject One"], kind="Subject scheme not provided")],
     )
+
+
+def test_get_alternate_titles_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <titles>
+         <title>The Impact of Maternal Literacy and Participation Programs</title>
+         <title titleType="AlternativeTitle">An Alternative Title</title>
+         <title titleType="Subtitle">Baseline Data</title>
+        </titles>
+        """
+    )
+    assert Datacite.get_alternate_titles(source_record) == [
+        AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
+        AlternateTitle(value="Baseline Data", kind="Subtitle"),
+    ]
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        '<titles><title titleType="AlternativeTitle"></title></titles>'
+    )
+    assert Datacite.get_alternate_titles(source_record) is None
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_alternate_titles(source_record) is None
+
+
+def test_get_content_type_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
+        """
+    )
+    assert Datacite.get_content_type(source_record) == ["Dataset"]
+
+
+def test_get_content_type_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        """
+        <resourceType resourceTypeGeneral=""></resourceType>
+        """
+    )
+    assert Datacite.get_content_type(source_record) is None
+
+
+def test_get_content_type_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_content_type(source_record) is None
+
+
+def test_get_contributors_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <creators>
+         <creator>
+          <creatorName nameType="Personal">Banerji, Rukmini</creatorName>
+          <givenName>Rukmini</givenName>
+          <familyName>Banerji</familyName>
+          <affiliation>Pratham and ASER Centre</affiliation>
+        <nameIdentifier nameIdentifierScheme="ORCID">0000-0000-0000-0000</nameIdentifier>
+         </creator>
+         <creator>
+          <creatorName nameType="Personal">Berry, James</creatorName>
+          <givenName>James</givenName>
+          <familyName>Berry</familyName>
+          <affiliation>University of Delaware</affiliation>
+          <nameIdentifier nameIdentifierScheme="TREX">0000-0000-0000-0001</nameIdentifier>
+          </creator>
+         <creator>
+          <creatorName nameType="Personal">Shotland, Marc</creatorName>
+          <givenName>Marc</givenName>
+          <familyName>Shotland</familyName>
+          <affiliation>Abdul Latif Jameel Poverty Action Lab</affiliation>
+          <nameIdentifier>0000-0000-0000-0002</nameIdentifier>
+         </creator>
+         </creators>
+        <contributors>
+         <contributor contributorType="ContactPerson">
+          <contributorName nameType="Personal">Banerji, Rukmini</contributorName>
+          <givenName>Rukmini</givenName>
+          <familyName>Banerji</familyName>
+        <nameIdentifier nameIdentifierScheme="ORCID">0000-0000-0000-0000</nameIdentifier>
+          <affiliation>Pratham and ASER Centre</affiliation>
+         </contributor>
+        </contributors>
+        """
+    )
+    assert Datacite.get_contributors(source_record) == [
+        Contributor(
+            value="Banerji, Rukmini",
+            affiliation=["Pratham and ASER Centre"],
+            identifier=["https://orcid.org/0000-0000-0000-0000"],
+            kind="Creator",
+        ),
+        Contributor(
+            value="Berry, James",
+            affiliation=["University of Delaware"],
+            identifier=["0000-0000-0000-0001"],
+            kind="Creator",
+        ),
+        Contributor(
+            value="Shotland, Marc",
+            affiliation=["Abdul Latif Jameel Poverty Action Lab"],
+            identifier=["0000-0000-0000-0002"],
+            kind="Creator",
+        ),
+        Contributor(
+            value="Banerji, Rukmini",
+            affiliation=["Pratham and ASER Centre"],
+            identifier=["https://orcid.org/0000-0000-0000-0000"],
+            kind="ContactPerson",
+        ),
+    ]
+
+
+def test_get_contributors_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        """
+        <creators>
+         <creator />
+        <contributors>
+         <contributor />
+        </contributors>
+        """
+    )
+    assert Datacite.get_contributors(source_record) is None
+
+
+def test_get_contributors_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_contributors(source_record) is None
 
 
 def test_generate_name_identifier_url_orcid_scheme(datacite_record_all_fields):

@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Iterator
 
 from bs4 import Tag  # type: ignore[import-untyped]
 
@@ -13,100 +14,32 @@ logger = logging.getLogger(__name__)
 class Datacite(XMLTransformer):
     """Datacite transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict | None:
+    def get_optional_fields(self, source_record: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a Datacite XML record.
 
         Overrides metaclass get_optional_fields() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single Datacite record in
+            source_record: A BeautifulSoup Tag representing a single Datacite record in
                 oai_datacite XML.
         """
         fields: dict = {}
-        source_record_id = self.get_source_record_id(xml)
+        source_record_id = self.get_source_record_id(source_record)
 
         # alternate_titles
-        for alternate_title in [
-            t for t in xml.find_all("title", string=True) if t.get("titleType")
-        ]:
-            fields.setdefault("alternate_titles", []).append(
-                timdex.AlternateTitle(
-                    value=alternate_title.string,
-                    kind=alternate_title["titleType"],
-                )
-            )
-        # If the record has more than one main title, add extras to alternate_titles
-        for index, title in enumerate(self.get_main_titles(xml)):
-            if index > 0:
-                fields.setdefault("alternate_titles", []).append(
-                    timdex.AlternateTitle(value=title)
-                )
+        fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
         # content_type
-        if resource_type := xml.metadata.find("resourceType"):
-            if resource_type.string:
-                fields["notes"] = [
-                    timdex.Note(
-                        value=[resource_type.string], kind="Datacite resource type"
-                    )
-                ]
-            if content_type := resource_type.get("resourceTypeGeneral"):
-                if self.valid_content_types([content_type]):
-                    fields["content_type"] = [content_type]
-                else:
-                    message = f'Record skipped based on content type: "{content_type}"'
-                    raise SkippedRecordEvent(message, source_record_id)
-        else:
-            logger.warning(
-                "Datacite record %s missing required Datacite field resourceType",
-                source_record_id,
-            )
+        fields["content_type"] = self.get_content_type(source_record)
 
         # contributors
-        for creator in xml.metadata.find_all("creator"):
-            if creator_name := creator.find("creatorName", string=True):
-                fields.setdefault("contributors", []).append(
-                    timdex.Contributor(
-                        value=creator_name.string,
-                        affiliation=[
-                            a.string for a in creator.find_all("affiliation", string=True)
-                        ]
-                        or None,
-                        identifier=[
-                            self.generate_name_identifier_url(name_identifier)
-                            for name_identifier in creator.find_all(
-                                "nameIdentifier", string=True
-                            )
-                        ]
-                        or None,
-                        kind="Creator",
-                    )
-                )
-
-        for contributor in xml.metadata.find_all("contributor"):
-            if contributor_name := contributor.find("contributorName", string=True):
-                fields.setdefault("contributors", []).append(
-                    timdex.Contributor(
-                        value=contributor_name.string,
-                        affiliation=[
-                            a.string
-                            for a in contributor.find_all("affiliation", string=True)
-                        ]
-                        or None,
-                        identifier=[
-                            self.generate_name_identifier_url(name_identifier)
-                            for name_identifier in contributor.find_all(
-                                "nameIdentifier", string=True
-                            )
-                        ]
-                        or None,
-                        kind=contributor.get("contributorType") or "Not specified",
-                    )
-                )
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
-        if publication_year := xml.metadata.find("publicationYear", string=True):
+        if publication_year := source_record.metadata.find(
+            "publicationYear", string=True
+        ):
             publication_year = str(publication_year.string.strip())
             if validate_date(
                 publication_year,
@@ -121,7 +54,7 @@ class Datacite(XMLTransformer):
                 source_record_id,
             )
 
-        for date in xml.metadata.find_all("date"):
+        for date in source_record.metadata.find_all("date"):
             d = timdex.Date()
             if date_value := date.string:
                 date_value = str(date_value)
@@ -153,19 +86,19 @@ class Datacite(XMLTransformer):
                 fields.setdefault("dates", []).append(d)
 
         # edition
-        if edition := xml.metadata.find("version", string=True):
+        if edition := source_record.metadata.find("version", string=True):
             fields["edition"] = edition.string
 
         # file_formats
         fields["file_formats"] = [
-            f.string for f in xml.metadata.find_all("format", string=True)
+            f.string for f in source_record.metadata.find_all("format", string=True)
         ] or None
 
         # format
         fields["format"] = "electronic resource"
 
         # funding_information
-        for funding_reference in xml.metadata.find_all("fundingReference"):
+        for funding_reference in source_record.metadata.find_all("fundingReference"):
             f = timdex.Funder()
             if funder_name := funding_reference.find("funderName", string=True):
                 f.funder_name = funder_name.string
@@ -183,14 +116,14 @@ class Datacite(XMLTransformer):
                 fields.setdefault("funding_information", []).append(f)
 
         # identifiers
-        if identifier_xml := xml.metadata.find("identifier", string=True):
+        if identifier_xml := source_record.metadata.find("identifier", string=True):
             fields.setdefault("identifiers", []).append(
                 timdex.Identifier(
                     value=identifier_xml.string,
                     kind=identifier_xml.get("identifierType") or "Not specified",
                 )
             )
-        for alternate_identifier in xml.metadata.find_all(
+        for alternate_identifier in source_record.metadata.find_all(
             "alternateIdentifier", string=True
         ):
             fields.setdefault("identifiers", []).append(
@@ -201,7 +134,9 @@ class Datacite(XMLTransformer):
                 )
             )
 
-        related_identifiers = xml.metadata.find_all("relatedIdentifier", string=True)
+        related_identifiers = source_record.metadata.find_all(
+            "relatedIdentifier", string=True
+        )
         for related_identifier in [
             ri for ri in related_identifiers if ri.get("relationType") == "IsIdenticalTo"
         ]:
@@ -213,7 +148,7 @@ class Datacite(XMLTransformer):
             )
 
         # language
-        if language := xml.metadata.find("language", string=True):
+        if language := source_record.metadata.find("language", string=True):
             fields["languages"] = [language.string]
 
         # links
@@ -226,13 +161,20 @@ class Datacite(XMLTransformer):
         ]
 
         # locations
-        for location in xml.metadata.find_all("geoLocationPlace", string=True):
+        for location in source_record.metadata.find_all("geoLocationPlace", string=True):
             fields.setdefault("locations", []).append(
                 timdex.Location(value=location.string)
             )
 
         # notes
-        descriptions = xml.metadata.find_all("description", string=True)
+        if resource_type := source_record.metadata.find("resourceType", string=True):
+            fields.setdefault("notes", []).append(
+                timdex.Note(
+                    value=[str(resource_type.string)],
+                    kind="Datacite resource type",
+                )
+            )
+        descriptions = source_record.metadata.find_all("description", string=True)
         for description in descriptions:
             if "descriptionType" not in description.attrs:
                 logger.warning(
@@ -249,7 +191,7 @@ class Datacite(XMLTransformer):
                 )
 
         # publishers
-        if publisher := xml.metadata.find("publisher", string=True):
+        if publisher := source_record.metadata.find("publisher", string=True):
             fields["publishers"] = [timdex.Publisher(name=publisher.string)]
         else:
             logger.warning(
@@ -271,7 +213,9 @@ class Datacite(XMLTransformer):
 
         # rights
         for right in [
-            r for r in xml.metadata.find_all("rights") if r.string or r.get("rightsURI")
+            r
+            for r in source_record.metadata.find_all("rights")
+            if r.string or r.get("rightsURI")
         ]:
             fields.setdefault("rights", []).append(
                 timdex.Rights(
@@ -281,7 +225,7 @@ class Datacite(XMLTransformer):
 
         # subjects
         subjects_dict: dict[str, list[str]] = {}
-        for subject in xml.metadata.find_all("subject", string=True):
+        for subject in source_record.metadata.find_all("subject", string=True):
             if not subject.get("subjectScheme"):
                 subjects_dict.setdefault("Subject scheme not provided", []).append(
                     subject.string
@@ -302,20 +246,114 @@ class Datacite(XMLTransformer):
         return fields
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[str]:
+    def get_alternate_titles(
+        cls, source_record: Tag
+    ) -> list[timdex.AlternateTitle] | None:
+        alternate_titles = [
+            timdex.AlternateTitle(
+                value=str(title.string.strip()),
+                kind=title["titleType"],
+            )
+            for title in source_record.find_all("title", string=True)
+            if title.get("titleType")
+        ]
+        alternate_titles.extend(list(cls._get_additional_titles(source_record)))
+        return alternate_titles or None
+
+    @classmethod
+    def _get_additional_titles(
+        cls, source_record: Tag
+    ) -> Iterator[timdex.AlternateTitle]:
+        """Get additional titles from get_main_titles method."""
+        for index, title in enumerate(cls.get_main_titles(source_record)):
+            if index > 0:
+                yield timdex.AlternateTitle(value=title)
+
+    @classmethod
+    def get_content_type(cls, source_record: Tag) -> list[str] | None:
+        content_types = []
+        if resource_type := source_record.metadata.find("resourceType"):
+            if content_type := resource_type.get("resourceTypeGeneral"):
+                if cls.valid_content_types([content_type]):
+                    content_types.append(str(content_type))
+                else:
+                    message = f'Record skipped based on content type: "{content_type}"'
+                    raise SkippedRecordEvent(
+                        message, cls.get_source_record_id(source_record)
+                    )
+        else:
+            logger.warning(
+                "Datacite record %s missing required Datacite field resourceType",
+                cls.get_source_record_id(source_record),
+            )
+        return content_types or None
+
+    @classmethod
+    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
+        contributors = []
+        contributors.extend(list(cls._get_creators(source_record)))
+        contributors.extend(list(cls._get_contributors(source_record)))
+        return contributors or None
+
+    @classmethod
+    def _get_creators(cls, source_record: Tag) -> Iterator[timdex.Contributor]:
+        for creator in source_record.metadata.find_all("creator"):
+            if creator_name := creator.find("creatorName", string=True):
+                yield timdex.Contributor(
+                    value=str(creator_name.string),
+                    affiliation=[
+                        str(affiliation.string)
+                        for affiliation in creator.find_all("affiliation", string=True)
+                    ]
+                    or None,
+                    identifier=[
+                        cls.generate_name_identifier_url(name_identifier)
+                        for name_identifier in creator.find_all(
+                            "nameIdentifier", string=True
+                        )
+                    ]
+                    or None,
+                    kind="Creator",
+                )
+
+    @classmethod
+    def _get_contributors(cls, source_record: Tag) -> Iterator[timdex.Contributor]:
+        for contributor in source_record.metadata.find_all("contributor"):
+            if contributor_name := contributor.find("contributorName", string=True):
+                yield timdex.Contributor(
+                    value=contributor_name.string,
+                    affiliation=[
+                        str(affiliation.string)
+                        for affiliation in contributor.find_all(
+                            "affiliation", string=True
+                        )
+                    ]
+                    or None,
+                    identifier=[
+                        cls.generate_name_identifier_url(name_identifier)
+                        for name_identifier in contributor.find_all(
+                            "nameIdentifier", string=True
+                        )
+                    ]
+                    or None,
+                    kind=contributor.get("contributorType") or "Not specified",
+                )
+
+    @classmethod
+    def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from a Datacite XML record.
 
         Overrides metaclass get_main_titles() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single Datacite record in
+            source_record: A BeautifulSoup Tag representing a single Datacite record in
                 oai_datacite XML.
         """
         return [
-            t.string
-            for t in xml.metadata.find_all("title", string=True)
-            if not t.get("titleType")
+            str(title.string)
+            for title in source_record.metadata.find_all("title", string=True)
+            if not title.get("titleType")
         ]
 
     @classmethod
