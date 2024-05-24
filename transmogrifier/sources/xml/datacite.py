@@ -249,17 +249,14 @@ class Datacite(XMLTransformer):
     def get_alternate_titles(
         cls, source_record: Tag
     ) -> list[timdex.AlternateTitle] | None:
-        alternate_titles = []
-        alternate_titles.extend(
-            [
-                timdex.AlternateTitle(
-                    value=str(title.string.strip()),
-                    kind=title["titleType"],
-                )
-                for title in source_record.find_all("title", string=True)
-                if title.get("titleType")
-            ]
-        )
+        alternate_titles = [
+            timdex.AlternateTitle(
+                value=str(title.string.strip()),
+                kind=title["titleType"],
+            )
+            for title in source_record.find_all("title", string=True)
+            if title.get("titleType")
+        ]
         alternate_titles.extend(list(cls._get_additional_titles(source_record)))
         return alternate_titles or None
 
