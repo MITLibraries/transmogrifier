@@ -5,6 +5,7 @@ from bs4 import NavigableString, Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.helpers import validate_date, validate_date_range
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
@@ -17,85 +18,51 @@ aspace_type_crosswalk = load_external_config("config/aspace_type_crosswalk.json"
 class Ead(XMLTransformer):
     """EAD transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict | None:
+    def get_optional_fields(self, source_record: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from an EAD XML record.
 
         Overrides metaclass get_optional_fields() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single EAD XML record.
+            source_record: A BeautifulSoup Tag representing a single EAD XML record.
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(xml)
+        source_record_id = self.get_source_record_id(source_record)
 
-        if collection_description := xml.metadata.find("archdesc", level="collection"):
-            pass
-        else:
-            message = (
-                f"Record ID {self.get_source_record_id(xml)} is missing archdesc element"
-            )
-            logger.error(message)
-            return None
+        # <archdesc> and <did> elements are required when deriving optional fields
+        collection_description = self._get_collection_description(source_record)
+        collection_description_did = self._get_collection_description_did(source_record)
 
-        if collection_description_did := collection_description.did:
-            pass
-        else:
-            message = (
-                f"Record ID {self.get_source_record_id(xml)} is missing archdesc > "
-                "did element"
-            )
-            logger.error(message)
-            return None
-
-        control_access_elements = collection_description.find_all(
-            "controlaccess", recursive=False
-        )
+        # <controlaccess> element is optional (used by multiple optional fields)
+        control_access_elements = self._get_control_access(source_record)
 
         # alternate_titles
-
-        # If the record has more than one main title, add extras to alternate_titles
-        for index, title in enumerate(self.get_main_titles(xml)):
-            if index > 0 and title:
-                fields.setdefault("alternate_titles", []).append(
-                    timdex.AlternateTitle(value=title)
-                )
+        fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
         # call_numbers field not used in EAD
 
         # citation
-        if citation_element := collection_description.find(  # noqa: SIM102
-            "prefercite", recursive=False
-        ):
-            if citation_value := self.create_string_from_mixed_value(
-                citation_element, " ", ["head"]
-            ):
-                fields["citation"] = citation_value
+        fields["citation"] = self.get_citation(source_record)
 
         # content_type
-        fields["content_type"] = ["Archival materials"]
-        for control_access_element in control_access_elements:
-            for content_type_element in control_access_element.find_all("genreform"):
-                if content_type_value := self.create_string_from_mixed_value(
-                    content_type_element,
-                    " ",
-                ):
-                    fields["content_type"].append(content_type_value)
-
+        fields["content_type"] = self.get_content_type(source_record)
         # contents
         for arrangement_element in collection_description.find_all(
             "arrangement", recursive=False
         ):
             for arrangement_value in self.create_list_from_mixed_value(
-                arrangement_element, ["head"]
+                arrangement_element, skipped_elements=["head"]
             ):
                 fields.setdefault("contents", []).append(arrangement_value)
 
         # contributors
         for origination_element in collection_description_did.find_all("origination"):
             for name_element in origination_element.find_all(name=True, recursive=False):
-                if name_value := self.create_string_from_mixed_value(name_element, " "):
+                if name_value := self.create_string_from_mixed_value(
+                    name_element, separator=" "
+                ):
                     fields.setdefault("contributors", []).append(
                         timdex.Contributor(
                             value=name_value,
@@ -126,7 +93,7 @@ class Ead(XMLTransformer):
                 continue
             if id_value := self.create_string_from_mixed_value(
                 id_element,
-                " ",
+                separator=" ",
             ):
                 fields.setdefault("identifiers", []).append(
                     timdex.Identifier(value=id_value, kind="Collection Identifier")
@@ -151,7 +118,7 @@ class Ead(XMLTransformer):
             for location_element in control_access_element.find_all("geogname"):
                 if location_value := self.create_string_from_mixed_value(
                     location_element,
-                    " ",
+                    separator=" ",
                 ):
                     fields.setdefault("locations", []).append(
                         timdex.Location(value=location_value)
@@ -171,7 +138,7 @@ class Ead(XMLTransformer):
             for subelement in note_element.find_all(subelement_tag, recursive=False):
                 if subelement_value := self.create_string_from_mixed_value(
                     subelement,
-                    " ",
+                    separator=" ",
                 ):
                     note_value.append(subelement_value)  # noqa: PERF401
             if note_value:
@@ -197,7 +164,7 @@ class Ead(XMLTransformer):
             "physdesc", recursive=False
         ):
             if physical_description_value := self.create_string_from_mixed_value(
-                physical_description_element, " "
+                physical_description_element, separator=" "
             ):
                 physical_descriptions.append(physical_description_value)  # noqa: PERF401
         if physical_descriptions:
@@ -210,7 +177,7 @@ class Ead(XMLTransformer):
             "repository"
         ):
             if publication_value := self.create_string_from_mixed_value(
-                publication_element, " "
+                publication_element, separator=" "
             ):
                 fields["publishers"] = [timdex.Publisher(name=publication_value)]
 
@@ -220,7 +187,7 @@ class Ead(XMLTransformer):
             recursive=False,
         ):
             if related_item_value := self.create_string_from_mixed_value(
-                related_item_element, " ", ["head"]
+                related_item_element, separator=" ", skipped_elements=["head"]
             ):
                 fields.setdefault("related_items", []).append(
                     timdex.RelatedItem(
@@ -240,7 +207,7 @@ class Ead(XMLTransformer):
                 subelements = related_item_element.find_all("p", recursive=False)
             for subelement in subelements:
                 if related_item_value := self.create_string_from_mixed_value(
-                    subelement, " ", ["head"]
+                    subelement, separator=" ", skipped_elements=["head"]
                 ):
                     fields.setdefault("related_items", []).append(
                         timdex.RelatedItem(
@@ -253,7 +220,7 @@ class Ead(XMLTransformer):
             ["accessrestrict", "userestrict"], recursive=False
         ):
             if rights_value := self.create_string_from_mixed_value(
-                rights_element, " ", ["head"]
+                rights_element, separator=" ", skipped_elements=["head"]
             ):
                 fields.setdefault("rights", []).append(
                     timdex.Rights(
@@ -270,7 +237,7 @@ class Ead(XMLTransformer):
                 name=True, recursive=False
             ):
                 if subject_value := self.create_string_from_mixed_value(
-                    subject_element, " "
+                    subject_element, separator=" "
                 ):
                     subject_source = subject_element.get("source")
                     fields.setdefault("subjects", []).append(
@@ -287,7 +254,7 @@ class Ead(XMLTransformer):
             "abstract", recursive=False
         ):
             if abstract_value := self.create_string_from_mixed_value(
-                abstract_element, " "
+                abstract_element, separator=" "
             ):
                 abstract_values.append(abstract_value)  # noqa: PERF401
         fields["summary"] = abstract_values or None
@@ -362,38 +329,139 @@ class Ead(XMLTransformer):
         return None
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[str]:
+    def _get_collection_description(cls, source_record: Tag) -> Tag:
+        """Get element with archival description for a collection.
+
+        For EAD-formatted XML, all of the information about a collection
+        that is relevant to the TIMDEX data model is
+        encapsulated within the <archdesc level="collection"> element.
+        If this element is missing, it suggests that there is a structural
+        error in the record.
+
+        This method is used by multiple field methods.
+        """
+        if collection_description := source_record.metadata.find(
+            "archdesc", level="collection"
+        ):
+            return collection_description
+        message = (
+            "Record skipped because key information is missing: "
+            '<archdesc level="collection">.'
+        )
+        raise SkippedRecordEvent(message)
+
+    @classmethod
+    def _get_collection_description_did(cls, source_record: Tag) -> Tag:
+        """Get element with descriptive identification for a collection.
+
+        For EAD-formatted XML, information essential
+        for identifying the material being described is encapsulated within
+        the <did> element (nested within the <archdesc> element).
+        If this element is missing, the required TIMDEX field 'title'
+        cannot be derived.
+
+        This method is used by multiple field methods.
+        """
+        collection_description = cls._get_collection_description(source_record)
+        if collection_description_did := collection_description.did:
+            return collection_description_did
+        message = "Record skipped because key information is missing: <did>."
+        raise SkippedRecordEvent(message)
+
+    @classmethod
+    def _get_control_access(cls, source_record: Tag) -> list[Tag]:
+        """Get elements with control access headings for a collection.
+
+        For EAD-formatted XML, information essential
+        for identifying the material being described is encapsulated within
+        the <did> element (nested within the <archdesc> element).
+        If this element is missing, the required TIMDEX field 'title'
+        cannot be derived.
+
+        This method is used by multiple field methods.
+        """
+        collection_description = cls._get_collection_description(source_record)
+        return collection_description.find_all("controlaccess", recursive=False)
+
+    @classmethod
+    def get_alternate_titles(
+        cls, source_record: Tag
+    ) -> list[timdex.AlternateTitle] | None:
+        """Retrieve extra titles from get_main_titles."""
+        return [
+            timdex.AlternateTitle(value=title)
+            for index, title in enumerate(cls.get_main_titles(source_record))
+            if index > 0 and title
+        ] or None
+
+    @classmethod
+    def get_citation(cls, source_record: Tag) -> str | None:
+        collection_description = cls._get_collection_description(source_record)
+        if (
+            citation_element := collection_description.find("prefercite", recursive=False)
+        ) and (
+            citation := cls.create_string_from_mixed_value(
+                citation_element, separator=" ", skipped_elements=["head"]
+            )
+        ):
+            return citation
+        return None
+
+    @classmethod
+    def get_content_type(cls, source_record: Tag) -> list[str] | None:
+        content_types = ["Archival materials"]
+        control_access_elements = cls._get_control_access(source_record)
+        for control_access_element in control_access_elements:
+            _content_types = [
+                content_type
+                for content_type_element in control_access_element.find_all("genreform")
+                if (
+                    content_type := cls.create_string_from_mixed_value(
+                        content_type_element, separator=" "
+                    )
+                )
+            ]
+            content_types.extend(_content_types)
+
+        return content_types or None
+
+    @classmethod
+    def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from an EAD XML record.
 
         Overrides metaclass get_main_titles() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single EAD XML record.
+            source_record: A BeautifulSoup Tag representing a single EAD XML record.
         """
         try:
-            unit_titles = xml.metadata.find("archdesc", level="collection").did.find_all(
-                "unittitle"
-            )
+            unit_titles = source_record.metadata.find(
+                "archdesc", level="collection"
+            ).did.find_all("unittitle")
         except AttributeError:
             return []
         return [
             title
             for unit_title in unit_titles
-            if (title := cls.create_string_from_mixed_value(unit_title, " ", ["num"]))
+            if (
+                title := cls.create_string_from_mixed_value(
+                    unit_title, separator=" ", skipped_elements=["num"]
+                )
+            )
         ]
 
     @classmethod
-    def get_source_record_id(cls, xml: Tag) -> str:
+    def get_source_record_id(cls, source_record: Tag) -> str:
         """
         Get the source record ID from an EAD XML record.
 
         Overrides metaclass get_source_record_id() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single EAD XML record.
+            source_record: A BeautifulSoup Tag representing a single EAD XML record.
         """
-        return xml.header.identifier.string.split("//")[1]
+        return source_record.header.identifier.string.split("//")[1]
 
     @classmethod
     def parse_mixed_value(
