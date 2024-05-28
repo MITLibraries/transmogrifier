@@ -3,6 +3,7 @@ import logging
 from bs4 import Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.helpers import validate_date
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
@@ -17,17 +18,14 @@ class OaiDc(XMLTransformer):
     anticipated this will most likely get extended by a source-specific transformer.
     """
 
-    def get_optional_fields(self, xml: Tag) -> dict | None:
+    def get_optional_fields(self, source_record: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from a generic OAI DC XML record.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single OAI DC XML record
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
         """
         fields: dict = {}
-
-        # extract source_record_id early for use and logging
-        source_record_id = self.get_source_record_id(xml)
 
         # alternate_titles: not set in this transformation
 
@@ -36,45 +34,34 @@ class OaiDc(XMLTransformer):
         # citation: uses fallback get_citation() method
 
         # content_type
-        fields["content_type"] = [self.source]
+        fields["content_type"] = self.get_content_type()
 
         # contents: not set in this transformation
 
         # contributors
-        for creator in [c for c in xml.find_all("dc:creator") if c.string]:
-            fields.setdefault("contributors", []).append(
-                timdex.Contributor(
-                    value=str(creator.string),
-                    kind="Creator",
-                )
-            )
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
-        fields["dates"] = self.get_dates(source_record_id, xml) or None
+        fields["dates"] = self.get_dates(source_record)
 
         # edition: not set in this transformation
 
         # file_formats: not set in this transformation
 
         # format
-        fields["format"] = "electronic resource"
+        fields["format"] = self.get_format()
 
         # funding_information: not set in this transformation
 
         # holdings: not set in this transformation
 
         # identifiers
-        fields.setdefault("identifiers", []).append(
-            timdex.Identifier(
-                value=str(xml.header.identifier.string),
-                kind="OAI-PMH",
-            )
-        )
+        fields["identifiers"] = self.get_identifiers(source_record)
 
         # languages: not set in this transformation
 
         # links
-        fields["links"] = self.get_links(source_record_id, xml) or None
+        fields["links"] = self.get_links(source_record)
 
         # literary_form: not set in this transformation
 
@@ -89,34 +76,31 @@ class OaiDc(XMLTransformer):
         # publication_frequency: not set in this transformation
 
         # publishers
-        fields["publishers"] = [
-            timdex.Publisher(name=str(p.string))
-            for p in xml.find_all("dc:publisher")
-            if p.string
-        ] or None
+        fields["publishers"] = self.get_publishers(source_record)
 
         # related_items: not set in this transformation
 
         # rights: not set in this transformation
 
         # subjects
-        subjects_dict: dict[str, list[str]] = {}
-        for subject in xml.metadata.find_all("dc:subject", string=True):
-            subjects_dict.setdefault("Subject scheme not provided", []).append(
-                str(subject.string)
-            )
-        fields["subjects"] = [
-            timdex.Subject(value=value, kind=key) for key, value in subjects_dict.items()
-        ] or None
+        fields["subjects"] = self.get_subjects(source_record)
 
         # summary
-        # uses description list retrieved for notes field
-        for description in [d for d in xml.find_all("dc:description") if d.string]:
-            fields.setdefault("summary", []).append(str(description.string))
-
+        fields["summary"] = self.get_summary(source_record)
         return fields
 
-    def get_dates(self, source_record_id: str, xml: Tag) -> list[timdex.Date]:
+    def get_content_type(self) -> list[str]:
+        return [self.source]
+
+    @classmethod
+    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
+        return [
+            timdex.Contributor(value=str(creator.string), kind="Creator")
+            for creator in source_record.find_all("dc:creator", string=True)
+        ] or None
+
+    @classmethod
+    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
         """
         Method to get TIMDEX "dates" field.  This method broken out to allow subclasses
         to override.
@@ -124,45 +108,86 @@ class OaiDc(XMLTransformer):
         Return list of timdex.Date's if valid and present.
 
         Args:
-            source_record_id: Source record id
-            xml: A BeautifulSoup Tag representing a single OAI DC XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
+
         """
         dates = []
-        if date_elements := xml.find_all("dc:date", string=True):
-            for date in date_elements:
-                date_str = str(date.string.strip())
-                if validate_date(
-                    date_str,
-                    source_record_id,
-                ):
-                    dates.append(timdex.Date(value=date_str, kind="Unknown"))
-        return dates
+        source_record_id = cls.get_source_record_id(source_record)
+        for date in source_record.find_all("dc:date", string=True):
+            date_value = str(date.string.strip())
+            if validate_date(date_value, source_record_id):
+                dates.append(timdex.Date(value=date_value, kind="Unknown"))
+        return dates or None
 
-    def get_links(self, _source_record_id: str, _xml: Tag) -> list[timdex.Link] | None:
+    @classmethod
+    def get_format(cls) -> str:
+        return "electronic resource"
+
+    @classmethod
+    def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
+        identifiers = []
+        if identifier := source_record.header.find("identifier", string=True):
+            identifiers.append(
+                timdex.Identifier(
+                    value=str(identifier.string),
+                    kind="OAI-PMH",
+                )
+            )
+        return identifiers or None
+
+    def get_links(
+        self,
+        _source_record: Tag,
+    ) -> list[timdex.Link] | None:
         """
         Method to get TIMDEX "links" field. This method broken out to allow subclasses
         to override.
 
         Args:
-            source_record_id: Source record id
-            xml: A BeautifulSoup Tag representing a single OAI DC XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
         """
-        return None
+        return [] or None
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[str]:
+    def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
+        return [
+            timdex.Publisher(name=str(publisher.string))
+            for publisher in source_record.find_all("dc:publisher", string=True)
+        ] or None
+
+    @classmethod
+    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+        subjects = [
+            str(subject.string)
+            for subject in source_record.find_all("dc:subject", string=True)
+        ]
+        if subjects:
+            return [timdex.Subject(value=subjects, kind="Subject scheme not provided")]
+        return [] or None
+
+    @classmethod
+    def get_summary(cls, source_record: Tag) -> list[str] | None:
+        return [
+            str(description.string)
+            for description in source_record.find_all("dc:description", string=True)
+        ] or None
+
+    @classmethod
+    def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from a generic OAI DC XML record.
 
         Overrides metaclass get_main_titles() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single OAI DC XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
         """
-        return [t.string for t in xml.find_all("dc:title", string=True)]
+        return [
+            str(title.string) for title in source_record.find_all("dc:title", string=True)
+        ]
 
     @classmethod
-    def get_source_record_id(cls, xml: Tag) -> str:
+    def get_source_record_id(cls, source_record: Tag) -> str:
         """
         Use OAI-PMH header identifier.  It is anticipated this will likely need to get
         overridden by subclasses with a meaningful identifier.
@@ -170,6 +195,12 @@ class OaiDc(XMLTransformer):
         Overrides metaclass get_source_record_id() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single OAI DC XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
         """
-        return xml.header.identifier.string.split(":")[-1]
+        if identifier := source_record.header.find("identifier", string=True):
+            return str(identifier.string).split(":")[-1]
+        message = (
+            "Record skipped because 'source_record_id' could not be derived. "
+            "The 'identifier' was either missing from the header element or blank."
+        )
+        raise SkippedRecordEvent(message)

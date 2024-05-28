@@ -89,15 +89,9 @@ def marc_content_type_crosswalk():
     return load_external_config("config/marc_content_type_crosswalk.json", "json")
 
 
-# oaidc ##########################
-
-
 @pytest.fixture
 def oai_pmh_records():
     return XMLTransformer.parse_source_file("tests/fixtures/oai_pmh_records.xml")
-
-
-# timdex ##########################
 
 
 @pytest.fixture

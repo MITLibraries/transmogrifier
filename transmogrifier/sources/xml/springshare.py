@@ -5,6 +5,7 @@ from dateutil.parser import ParserError
 from dateutil.parser import parse as date_parser
 
 import transmogrifier.models as timdex
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.helpers import validate_date
 from transmogrifier.sources.xml.oaidc import OaiDc
 
@@ -20,7 +21,8 @@ class SpringshareOaiDc(OaiDc):
         - researchdatabases
     """
 
-    def get_dates(self, source_record_id: str, xml: Tag) -> list[timdex.Date]:
+    @classmethod
+    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
         """
         Overrides OaiDc's default get_dates() logic for Springshare records.
 
@@ -31,11 +33,11 @@ class SpringshareOaiDc(OaiDc):
         Additionally, only a single date will is expected.
 
         Args:
-            source_record_id: Source record id
-            xml: A BeautifulSoup Tag representing a single OAI DC XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
         """
         dates = []
-        if date := xml.find("dc:date", string=True):
+        source_record_id = cls.get_source_record_id(source_record)
+        if date := source_record.find("dc:date", string=True):
             try:
                 date_iso_str = date_parser(str(date.string).strip()).isoformat()
                 if validate_date(
@@ -49,18 +51,18 @@ class SpringshareOaiDc(OaiDc):
                     source_record_id,
                     str(e),
                 )
-        return dates
+        return dates or None
 
-    def get_links(self, source_record_id: str, xml: Tag) -> list[timdex.Link] | None:
+    def get_links(self, source_record: Tag) -> list[timdex.Link] | None:
         """
         Overrides OaiDc's default get_links() logic for Springshare records.
 
         Args:
-            source_record_id: Source record id
-            xml: A BeautifulSoup Tag representing a single OAI DC XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
         """
         links = []
-        if identifier := xml.find("dc:identifier", string=True):
+        source_record_id = self.get_source_record_id(source_record)
+        if identifier := source_record.find("dc:identifier", string=True):
             singular_source_name = self.source_name.rstrip("s")
             links.append(
                 timdex.Link(
@@ -69,15 +71,19 @@ class SpringshareOaiDc(OaiDc):
                     url=str(identifier.string),
                 )
             )
+
         logger.debug(
             "Record ID %s has links that cannot be generated: missing dc:identifier",
             source_record_id,
         )
-        return links
+        return links or None
 
     @classmethod
     def get_source_link(
-        cls, _source_base_url: str, _source_record_id: str, xml: Tag
+        cls,
+        _source_base_url: str,
+        _source_record_id: str,
+        source_record: Tag,
     ) -> str:
         """
         Override for default source_link behavior.
@@ -99,8 +105,12 @@ class SpringshareOaiDc(OaiDc):
         link.
 
         Args:
-            source_base_url: Source base URL.
-            source_record_id: Record identifier for the source record.
-            xml: A BeautifulSoup Tag representing a single XML record.
+            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
         """
-        return str(xml.find("dc:identifier").string)
+        if source_link := source_record.find("dc:identifier", string=True):
+            return str(source_link.string)
+        message = (
+            "Record skipped because 'source_link' could not be derived. "
+            "The 'identifier' was either missing from the header element or blank."
+        )
+        raise SkippedRecordEvent(message)
