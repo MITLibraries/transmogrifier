@@ -17,7 +17,7 @@ aspace_type_crosswalk = load_external_config("config/aspace_type_crosswalk.json"
 class Ead(XMLTransformer):
     """EAD transformer."""
 
-    def get_optional_fields(self, xml: Tag) -> dict | None:
+    def get_optional_fields(self, source_record: Tag) -> dict | None:
         """
         Retrieve optional TIMDEX fields from an EAD XML record.
 
@@ -28,14 +28,14 @@ class Ead(XMLTransformer):
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(xml)
+        source_record_id = self.get_source_record_id(source_record)
 
-        if collection_description := xml.metadata.find("archdesc", level="collection"):
+        if collection_description := source_record.metadata.find(
+            "archdesc", level="collection"
+        ):
             pass
         else:
-            message = (
-                f"Record ID {self.get_source_record_id(xml)} is missing archdesc element"
-            )
+            message = f"Record ID {self.get_source_record_id(source_record)} is missing archdesc element"
             logger.error(message)
             return None
 
@@ -43,7 +43,7 @@ class Ead(XMLTransformer):
             pass
         else:
             message = (
-                f"Record ID {self.get_source_record_id(xml)} is missing archdesc > "
+                f"Record ID {self.get_source_record_id(source_record)} is missing archdesc > "
                 "did element"
             )
             logger.error(message)
@@ -56,7 +56,7 @@ class Ead(XMLTransformer):
         # alternate_titles
 
         # If the record has more than one main title, add extras to alternate_titles
-        for index, title in enumerate(self.get_main_titles(xml)):
+        for index, title in enumerate(self.get_main_titles(source_record)):
             if index > 0 and title:
                 fields.setdefault("alternate_titles", []).append(
                     timdex.AlternateTitle(value=title)
@@ -362,7 +362,7 @@ class Ead(XMLTransformer):
         return None
 
     @classmethod
-    def get_main_titles(cls, xml: Tag) -> list[str]:
+    def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from an EAD XML record.
 
@@ -372,9 +372,9 @@ class Ead(XMLTransformer):
             xml: A BeautifulSoup Tag representing a single EAD XML record.
         """
         try:
-            unit_titles = xml.metadata.find("archdesc", level="collection").did.find_all(
-                "unittitle"
-            )
+            unit_titles = source_record.metadata.find(
+                "archdesc", level="collection"
+            ).did.find_all("unittitle")
         except AttributeError:
             return []
         return [
@@ -384,7 +384,7 @@ class Ead(XMLTransformer):
         ]
 
     @classmethod
-    def get_source_record_id(cls, xml: Tag) -> str:
+    def get_source_record_id(cls, source_record: Tag) -> str:
         """
         Get the source record ID from an EAD XML record.
 
@@ -393,7 +393,7 @@ class Ead(XMLTransformer):
         Args:
             xml: A BeautifulSoup Tag representing a single EAD XML record.
         """
-        return xml.header.identifier.string.split("//")[1]
+        return source_record.header.identifier.string.split("//")[1]
 
     @classmethod
     def parse_mixed_value(
