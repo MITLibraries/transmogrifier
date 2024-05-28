@@ -1,7 +1,55 @@
 import logging
 
+import pytest
+from bs4 import BeautifulSoup
+
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.ead import Ead
+
+
+def create_ead_source_record_stub(
+    header_insert: str = "", metadata_insert: str = ""
+) -> BeautifulSoup:
+    """
+    Create source record for unit tests.
+
+    Args:
+        metadata_insert (str): For EAD-formatted XML, data for field methods
+            are located within the Archival Description (<archdesc>) element.
+            Values set for this parameter must be formatted as follows:
+
+            <archdesc level="collection">
+                <did>
+                    {elements}
+                </did>
+                {elements}
+            </archdesc
+
+            Note: {elements} refer to XML elements nested under the <archdesc> and <did>
+                elements.
+    """
+    xml_string = f"""
+        <records>
+            <record xmlns="http://www.openarchives.org/OAI/2.0/"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <header>
+                    {header_insert}
+                </header>
+                <metadata>
+                    <ead xmlns="urn:isbn:1-931666-22-9" xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd">
+                        <eadheader countryencoding="iso3166-1" dateencoding="iso8601"
+                            findaidstatus="completed" langencoding="iso639-2b" repositoryencoding="iso15511">
+                            <eadid countrycode="US" mainagencycode="US-mcm">VC-0002</eadid>
+                        </eadheader>
+                        {metadata_insert}
+                    </ead>
+                </metadata>
+            </record>
+        </records>
+    """
+    return BeautifulSoup(xml_string, "xml")
 
 
 def test_ead_record_all_fields_transform_correctly():
