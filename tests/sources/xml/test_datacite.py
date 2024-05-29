@@ -517,6 +517,246 @@ def test_get_contributors_transforms_correctly_if_fields_missing():
     assert Datacite.get_contributors(source_record) is None
 
 
+def test_get_dates_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <publicationYear>2017</publicationYear>
+        <dates>
+         <date dateType="Submitted">2017-02-27</date>
+         <date dateType="Updated"
+         dateInformation="This was updated on this date">2019-06-24</date>
+         <date dateType="Collected">2007-01-01/2007-02-28</date>
+        </dates>
+        """
+    )
+    assert Datacite.get_dates(source_record) == [
+        Date(kind="Publication date", value="2017"),
+        Date(kind="Submitted", value="2017-02-27"),
+        Date(kind="Updated", note="This was updated on this date", value="2019-06-24"),
+        Date(
+            kind="Collected",
+            range=DateRange(gte="2007-01-01", lte="2007-02-28"),
+        ),
+    ]
+
+
+def test_get_dates_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        """
+        <publicationYear />
+        <dates>
+         <date />
+        </dates>
+        """
+    )
+    assert Datacite.get_dates(source_record) is None
+
+
+def test_get_dates_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_dates(source_record) is None
+
+
+def test_get_edition_success():
+    source_record = create_datacite_source_record_stub("<version>1.2</version>")
+    assert Datacite.get_edition(source_record) == "1.2"
+
+
+def test_get_edition_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub("<version />")
+    assert Datacite.get_edition(source_record) is None
+
+
+def test_get_edition_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_edition(source_record) is None
+
+
+def test_get_file_formats_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <formats>
+         <format>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</format>
+         <format>application/pdf</format>
+         <format>application/pdf</format>
+         <format>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</format>
+         <format>application/pdf</format>
+         <format>application/x-stata-syntax</format>
+         <format>application/x-stata</format>
+         <format>application/x-stata</format>
+         <format>application/zip</format>
+         <format>application/pdf</format>
+         <format>application/pdf</format>
+        </formats>
+        """
+    )
+    assert Datacite.get_file_formats(source_record) == [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "application/x-stata-syntax",
+        "application/x-stata",
+        "application/x-stata",
+        "application/zip",
+        "application/pdf",
+        "application/pdf",
+    ]
+
+
+def test_get_file_formats_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub("<formats><format /></formats>")
+    assert Datacite.get_file_formats(source_record) is None
+
+
+def test_get_file_formats_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_file_formats(source_record) is None
+
+
+def test_get_format_success():
+    assert Datacite.get_format() == "electronic resource"
+
+
+def test_get_funding_information_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <fundingReferences>
+         <fundingReference>
+          <funderName>3ie, Nike Foundation</funderName>
+          <funderIdentifier
+          funderIdentifierType="Crossref FunderID">0987</funderIdentifier>
+          <awardNumber awardURI="http://awards.example/7689">OW1/1012 (3ie)</awardNumber>
+         </fundingReference>
+        </fundingReferences>
+        """
+    )
+    assert Datacite.get_funding_information(source_record) == [
+        Funder(
+            funder_name="3ie, Nike Foundation",
+            funder_identifier="0987",
+            funder_identifier_type="Crossref FunderID",
+            award_number="OW1/1012 (3ie)",
+            award_uri="http://awards.example/7689",
+        )
+    ]
+
+
+def test_get_funding_information_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        "<fundingReferences><fundingReference /></fundingReferences>"
+    )
+    assert Datacite.get_funding_information(source_record) is None
+
+
+def test_get_funding_information_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_funding_information(source_record) is None
+
+
+def test_get_identifiers_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <identifier identifierType="DOI">10.7910/DVN/19PPE7</identifier>
+        <alternateIdentifiers>
+         <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/5524465</alternateIdentifier>
+        </alternateIdentifiers>
+        <relatedIdentifiers>
+         <relatedIdentifier relatedIdentifierType="DOI" relationType="IsCitedBy">
+         10.1257/app.20150390</relatedIdentifier>
+         <relatedIdentifier relationType="IsVersionOf">10.5281/zenodo.5524464
+         </relatedIdentifier>
+         <relatedIdentifier relatedIdentifierType="ISBN"
+         relationType="IsIdenticalTo">1234567.5524464</relatedIdentifier>
+         <relatedIdentifier relatedIdentifierType="ISBN" relationType="Other">
+         1234567.5524464</relatedIdentifier>
+         <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">
+         https://zenodo.org/communities/astronomy-general</relatedIdentifier>
+        </relatedIdentifiers>
+        """
+    )
+    assert Datacite.get_identifiers(source_record) == [
+        Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
+        Identifier(value="https://zenodo.org/record/5524465", kind="url"),
+        Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
+    ]
+
+
+def test_get_identifiers_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        """
+        <identifier />
+        <alternateIdentifiers>
+         <alternateIdentifier />
+        </alternateIdentifiers>
+        <relatedIdentifiers>
+         <relatedIdentifier />
+        </relatedIdentifiers>
+        """
+    )
+    assert Datacite.get_identifiers(source_record) is None
+
+
+def test_get_identifiers_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_identifiers(source_record) is None
+
+
+def test_get_languages_success():
+    source_record = create_datacite_source_record_stub("<language>en_US</language>")
+    assert Datacite.get_languages(source_record) == ["en_US"]
+
+
+def test_get_languages_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub("<language />")
+    assert Datacite.get_languages(source_record) is None
+
+
+def test_get_languages_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_languages(source_record) is None
+
+
+def test_get_links_success(datacite_record_all_fields):
+    source_record = create_datacite_source_record_stub()
+    datacite_transformer = Datacite("jpal", datacite_record_all_fields)
+    assert datacite_transformer.get_links(source_record) == [
+        Link(
+            url="https://dataverse.harvard.edu/dataset.xhtml?persistentId=abc123",
+            kind="Digital object URL",
+            text="Digital object URL",
+        )
+    ]
+
+
+def test_get_locations_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <geoLocations>
+         <geoLocation>
+          <geoLocationPlace>A point on the globe</geoLocationPlace>
+         </geoLocation>
+        </geoLocations>
+        """
+    )
+    assert Datacite.get_locations(source_record) == [
+        Location(value="A point on the globe")
+    ]
+
+
+def test_get_locations_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        "<geoLocations><geoLocation><geoLocationPlace /></geoLocation></geoLocations>"
+    )
+    assert Datacite.get_locations(source_record) is None
+
+
+def test_get_locations_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_locations(source_record) is None
+
+
 def test_generate_name_identifier_url_orcid_scheme(datacite_record_all_fields):
     assert next(datacite_record_all_fields).contributors[0].identifier == [
         "https://orcid.org/0000-0000-0000-0000"
