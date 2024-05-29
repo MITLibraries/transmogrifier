@@ -5,6 +5,7 @@ from bs4 import NavigableString, Tag  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.helpers import validate_date, validate_date_range
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
@@ -24,90 +25,29 @@ class Ead(XMLTransformer):
         Overrides metaclass get_optional_fields() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single EAD XML record.
+            source_record (Tag): A BeautifulSoup Tag representing a single EAD XML record.
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(source_record)
-
-        if collection_description := source_record.metadata.find(
-            "archdesc", level="collection"
-        ):
-            pass
-        else:
-            message = f"Record ID {self.get_source_record_id(source_record)} is missing archdesc element"
-            logger.error(message)
-            return None
-
-        if collection_description_did := collection_description.did:
-            pass
-        else:
-            message = (
-                f"Record ID {self.get_source_record_id(source_record)} is missing archdesc > "
-                "did element"
-            )
-            logger.error(message)
-            return None
-
-        control_access_elements = collection_description.find_all(
-            "controlaccess", recursive=False
-        )
-
         # alternate_titles
-
-        # If the record has more than one main title, add extras to alternate_titles
-        for index, title in enumerate(self.get_main_titles(source_record)):
-            if index > 0 and title:
-                fields.setdefault("alternate_titles", []).append(
-                    timdex.AlternateTitle(value=title)
-                )
+        fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
         # call_numbers field not used in EAD
 
         # citation
-        if citation_element := collection_description.find(  # noqa: SIM102
-            "prefercite", recursive=False
-        ):
-            if citation_value := self.create_string_from_mixed_value(
-                citation_element, " ", ["head"]
-            ):
-                fields["citation"] = citation_value
+        fields["citation"] = self.get_citation(source_record)
 
         # content_type
-        fields["content_type"] = ["Archival materials"]
-        for control_access_element in control_access_elements:
-            for content_type_element in control_access_element.find_all("genreform"):
-                if content_type_value := self.create_string_from_mixed_value(
-                    content_type_element,
-                    " ",
-                ):
-                    fields["content_type"].append(content_type_value)
+        fields["content_type"] = self.get_content_type(source_record)
 
         # contents
-        for arrangement_element in collection_description.find_all(
-            "arrangement", recursive=False
-        ):
-            for arrangement_value in self.create_list_from_mixed_value(
-                arrangement_element, ["head"]
-            ):
-                fields.setdefault("contents", []).append(arrangement_value)
+        fields["contents"] = self.get_contents(source_record)
 
         # contributors
-        for origination_element in collection_description_did.find_all("origination"):
-            for name_element in origination_element.find_all(name=True, recursive=False):
-                if name_value := self.create_string_from_mixed_value(name_element, " "):
-                    fields.setdefault("contributors", []).append(
-                        timdex.Contributor(
-                            value=name_value,
-                            kind=origination_element.get("label") or None,
-                            identifier=self.generate_name_identifier_url(name_element),
-                        )
-                    )
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
-        dates = self.parse_dates(collection_description_did, source_record_id)
-        if dates:
-            fields.setdefault("dates", []).extend(dates)
+        fields["dates"] = self.get_dates(source_record)
 
         # edition field not used in EAD
 
@@ -121,176 +61,42 @@ class Ead(XMLTransformer):
         # holdings omitted pending discussion on how to map originalsloc and physloc
 
         # identifiers
-        for id_element in collection_description_did.find_all("unitid", recursive=False):
-            if id_element.get("type") == "aspace_uri":
-                continue
-            if id_value := self.create_string_from_mixed_value(
-                id_element,
-                " ",
-            ):
-                fields.setdefault("identifiers", []).append(
-                    timdex.Identifier(value=id_value, kind="Collection Identifier")
-                )
+        fields["identifiers"] = self.get_identifiers(source_record)
 
         # languages
-        for langmaterial_element in collection_description_did.find_all(
-            "langmaterial", recursive=False
-        ):
-            for language_element in langmaterial_element.find_all("language"):
-                if language_value := self.create_string_from_mixed_value(
-                    language_element
-                ):
-                    fields.setdefault("languages", []).append(language_value)
+        fields["languages"] = self.get_languages(source_record)
 
         # links, omitted pending decision on duplicating source_link
 
         # literary_form field not used in EAD
 
         # locations
-        for control_access_element in control_access_elements:
-            for location_element in control_access_element.find_all("geogname"):
-                if location_value := self.create_string_from_mixed_value(
-                    location_element,
-                    " ",
-                ):
-                    fields.setdefault("locations", []).append(
-                        timdex.Location(value=location_value)
-                    )
+        fields["locations"] = self.get_locations(source_record)
 
         # notes
-        for note_element in collection_description.find_all(
-            [
-                "bibliography",
-                "bioghist",
-                "scopecontent",
-            ],
-            recursive=False,
-        ):
-            subelement_tag = "bibref" if note_element.name == "bibliography" else "p"
-            note_value = []
-            for subelement in note_element.find_all(subelement_tag, recursive=False):
-                if subelement_value := self.create_string_from_mixed_value(
-                    subelement,
-                    " ",
-                ):
-                    note_value.append(subelement_value)  # noqa: PERF401
-            if note_value:
-                note_head_element = note_element.find("head", string=True)
-                fields.setdefault("notes", []).append(
-                    timdex.Note(
-                        value=note_value,
-                        kind=(
-                            note_head_element.string
-                            if note_head_element
-                            else aspace_type_crosswalk.get(
-                                note_element.name, note_element.name
-                            )
-                        ),
-                    )
-                )
+        fields["notes"] = self.get_notes(source_record)
 
         # numbering field not used in EAD
 
         # physical_description
-        physical_descriptions = []
-        for physical_description_element in collection_description_did.find_all(
-            "physdesc", recursive=False
-        ):
-            if physical_description_value := self.create_string_from_mixed_value(
-                physical_description_element, " "
-            ):
-                physical_descriptions.append(physical_description_value)  # noqa: PERF401
-        if physical_descriptions:
-            fields["physical_description"] = "; ".join(physical_descriptions)
+        fields["physical_description"] = self.get_physical_description(source_record)
 
         # publication_frequency field not used in EAD
 
         # publishers
-        if publication_element := collection_description_did.find(  # noqa: SIM102
-            "repository"
-        ):
-            if publication_value := self.create_string_from_mixed_value(
-                publication_element, " "
-            ):
-                fields["publishers"] = [timdex.Publisher(name=publication_value)]
+        fields["publishers"] = self.get_publishers(source_record)
 
         # related_items
-        for related_item_element in collection_description.find_all(
-            ["altformavail", "separatedmaterial"],
-            recursive=False,
-        ):
-            if related_item_value := self.create_string_from_mixed_value(
-                related_item_element, " ", ["head"]
-            ):
-                fields.setdefault("related_items", []).append(
-                    timdex.RelatedItem(
-                        description=related_item_value,
-                        relationship=aspace_type_crosswalk.get(
-                            related_item_element.name, related_item_element.name
-                        ),
-                    )
-                )
-        for related_item_element in collection_description.find_all(
-            ["relatedmaterial"],
-            recursive=False,
-        ):
-            if list_element := related_item_element.find("list"):
-                subelements = list_element.find_all("defitem")
-            else:
-                subelements = related_item_element.find_all("p", recursive=False)
-            for subelement in subelements:
-                if related_item_value := self.create_string_from_mixed_value(
-                    subelement, " ", ["head"]
-                ):
-                    fields.setdefault("related_items", []).append(
-                        timdex.RelatedItem(
-                            description=related_item_value,
-                        )
-                    )
+        fields["related_items"] = self.get_related_items(source_record)
 
         # rights
-        for rights_element in collection_description.find_all(
-            ["accessrestrict", "userestrict"], recursive=False
-        ):
-            if rights_value := self.create_string_from_mixed_value(
-                rights_element, " ", ["head"]
-            ):
-                fields.setdefault("rights", []).append(
-                    timdex.Rights(
-                        description=rights_value,
-                        kind=aspace_type_crosswalk.get(
-                            rights_element.name, rights_element.name
-                        ),
-                    )
-                )
+        fields["rights"] = self.get_rights(source_record)
 
         # subjects
-        for control_access_element in control_access_elements:
-            for subject_element in control_access_element.find_all(
-                name=True, recursive=False
-            ):
-                if subject_value := self.create_string_from_mixed_value(
-                    subject_element, " "
-                ):
-                    subject_source = subject_element.get("source")
-                    fields.setdefault("subjects", []).append(
-                        timdex.Subject(
-                            value=[subject_value],
-                            kind=aspace_type_crosswalk.get(subject_source, subject_source)
-                            or None,
-                        ),
-                    )
+        fields["subjects"] = self.get_subjects(source_record)
 
         # summary
-        abstract_values = []
-        for abstract_element in collection_description_did.find_all(
-            "abstract", recursive=False
-        ):
-            if abstract_value := self.create_string_from_mixed_value(
-                abstract_element, " "
-            ):
-                abstract_values.append(abstract_value)  # noqa: PERF401
-        fields["summary"] = abstract_values or None
+        fields["summary"] = self.get_summary(source_record)
 
         return fields
 
@@ -362,6 +168,350 @@ class Ead(XMLTransformer):
         return None
 
     @classmethod
+    def _get_collection_description(cls, source_record: Tag) -> Tag:
+        if collection_description := source_record.metadata.find(
+            "archdesc", level="collection"
+        ):
+            return collection_description
+        message = (
+            "Record skipped because key information is missing: "
+            '<archdesc level="collection">.'
+        )
+        raise SkippedRecordEvent(message)
+
+    @classmethod
+    def _get_collection_description_did(cls, source_record: Tag) -> Tag:
+        collection_description = cls._get_collection_description(source_record)
+        if collection_description_did := collection_description.did:
+            return collection_description_did
+        message = "Record skipped because key information is missing: <did>."
+        raise SkippedRecordEvent(message)
+
+    @classmethod
+    def _get_control_access(cls, source_record: Tag) -> Tag:
+        collection_description = cls._get_collection_description(source_record)
+        if control_access := collection_description.find_all(
+            "controlaccess", recursive=False
+        ):
+            return control_access
+        return None
+
+    @classmethod
+    def get_alternate_titles(
+        cls, source_record: Tag
+    ) -> list[timdex.AlternateTitle] | None:
+        return [
+            timdex.AlternateTitle(value=title)
+            for index, title in enumerate(cls.get_main_titles(source_record))
+            if index > 0 and title
+        ] or None
+
+    @classmethod
+    def get_citation(cls, source_record: Tag) -> str | None:
+        collection_description = cls._get_collection_description(source_record)
+        if citation_element := collection_description.find(  # noqa: SIM102
+            "prefercite", recursive=False
+        ):
+            if citation := cls.create_string_from_mixed_value(
+                citation_element, " ", ["head"]
+            ):
+                return citation
+        return None
+
+    @classmethod
+    def get_content_type(cls, source_record: Tag) -> list[str] | None:
+        content_type = ["Archival materials"]
+        if control_access := cls._get_control_access(source_record):
+            for control_access_element in control_access:
+                content_types = [
+                    content_type_value
+                    for content_type_element in control_access_element.find_all(
+                        "genreform"
+                    )
+                    if (
+                        content_type_value := cls.create_string_from_mixed_value(
+                            content_type_element,
+                            " ",
+                        )
+                    )
+                ]
+                content_type.extend(content_types)
+        return content_type or None
+
+    @classmethod
+    def get_contents(cls, source_record: Tag) -> list[str] | None:
+        contents = []
+        collection_description = cls._get_collection_description(source_record)
+        for arrangement_element in collection_description.find_all(
+            "arrangement", recursive=False
+        ):
+            for arrangement_value in cls.create_list_from_mixed_value(
+                arrangement_element, ["head"]
+            ):
+                contents.append(arrangement_value)  # noqa: PERF402
+        return contents or None
+
+    @classmethod
+    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
+        contributors = []
+        collection_description_did = cls._get_collection_description_did(source_record)
+        for origination_element in collection_description_did.find_all("origination"):
+            contributors.extend(
+                [
+                    timdex.Contributor(
+                        value=name_value,
+                        kind=origination_element.get("label") or None,
+                        identifier=cls.generate_name_identifier_url(name_element),
+                    )
+                    for name_element in origination_element.find_all(
+                        name=True, recursive=False
+                    )
+                    if (
+                        name_value := cls.create_string_from_mixed_value(
+                            name_element, " "
+                        )
+                    )
+                ]
+            )
+        return contributors or None
+
+    @classmethod
+    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
+        collection_description_did = cls._get_collection_description_did(source_record)
+        source_record_id = cls.get_source_record_id(source_record)
+        if dates := cls.parse_dates(collection_description_did, source_record_id):
+            return dates
+        return None
+
+    @classmethod
+    def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
+        identifiers = []
+        collection_description = cls._get_collection_description_did(source_record)
+        for id_element in collection_description.find_all("unitid", recursive=False):
+            if id_element.get("type") == "aspace_uri":
+                continue
+            if id_value := cls.create_string_from_mixed_value(
+                id_element,
+                " ",
+            ):
+                identifiers.append(
+                    timdex.Identifier(value=id_value, kind="Collection Identifier")
+                )
+        return identifiers or None
+
+    @classmethod
+    def get_languages(cls, source_record: Tag) -> list[str] | None:
+        languages = []
+        collection_description_did = cls._get_collection_description_did(source_record)
+        for langmaterial_element in collection_description_did.find_all(
+            "langmaterial", recursive=False
+        ):
+            languages.extend(
+                [
+                    language_value
+                    for language_element in langmaterial_element.find_all("language")
+                    if (
+                        language_value := cls.create_string_from_mixed_value(
+                            language_element
+                        )
+                    )
+                ]
+            )
+        return languages or None
+
+    @classmethod
+    def get_locations(cls, source_record: Tag) -> list[timdex.Location] | None:
+        locations = []
+        if control_access := cls._get_control_access(source_record):
+            for control_access_element in control_access:
+                locations.extend(
+                    [
+                        timdex.Location(value=location_value)
+                        for location_element in control_access_element.find_all(
+                            "geogname"
+                        )
+                        if (
+                            location_value := cls.create_string_from_mixed_value(
+                                location_element,
+                                " ",
+                            )
+                        )
+                    ]
+                )
+
+        return locations or None
+
+    @classmethod
+    def get_notes(cls, source_record: Tag) -> list[timdex.Note] | None:
+        notes = []
+        collection_description = cls._get_collection_description(source_record)
+        for note_element in collection_description.find_all(
+            [
+                "bibliography",
+                "bioghist",
+                "scopecontent",
+            ],
+            recursive=False,
+        ):
+            subelement_tag = "bibref" if note_element.name == "bibliography" else "p"
+            note_value = []
+            for subelement in note_element.find_all(subelement_tag, recursive=False):
+                if subelement_value := cls.create_string_from_mixed_value(
+                    subelement,
+                    " ",
+                ):
+                    note_value.append(subelement_value)  # noqa: PERF401
+            if note_value:
+                note_head_element = note_element.find("head", string=True)
+                notes.append(
+                    timdex.Note(
+                        value=note_value,
+                        kind=(
+                            note_head_element.string
+                            if note_head_element
+                            else aspace_type_crosswalk.get(
+                                note_element.name, note_element.name
+                            )
+                        ),
+                    )
+                )
+        return notes or None
+
+    @classmethod
+    def get_physical_description(cls, source_record: Tag) -> str | None:
+        collection_description_did = cls._get_collection_description_did(source_record)
+        physical_descriptions = [
+            physical_description_value
+            for physical_description_element in collection_description_did.find_all(
+                "physdesc", recursive=False
+            )
+            if (
+                physical_description_value := cls.create_string_from_mixed_value(
+                    physical_description_element, " "
+                )
+            )
+        ]
+        if physical_descriptions:
+            return "; ".join(physical_descriptions)
+        return None
+
+    @classmethod
+    def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
+        collection_description_did = cls._get_collection_description_did(source_record)
+        if publication_element := collection_description_did.find(  # noqa: SIM102
+            "repository"
+        ):
+            if publication_value := cls.create_string_from_mixed_value(
+                publication_element, " "
+            ):
+                return [timdex.Publisher(name=publication_value)]
+        return None
+
+    @classmethod
+    def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
+        related_items = []
+        collection_description = cls._get_collection_description(source_record)
+
+        related_items.extend(
+            [
+                timdex.RelatedItem(
+                    description=related_item_value,
+                    relationship=aspace_type_crosswalk.get(
+                        related_item_element.name, related_item_element.name
+                    ),
+                )
+                for related_item_element in collection_description.find_all(
+                    ["altformavail", "separatedmaterial"],
+                    recursive=False,
+                )
+                if (
+                    related_item_value := cls.create_string_from_mixed_value(
+                        related_item_element, " ", ["head"]
+                    )
+                )
+            ]
+        )
+
+        for related_item_element in collection_description.find_all(
+            ["relatedmaterial"],
+            recursive=False,
+        ):
+            if list_element := related_item_element.find("list"):
+                subelements = list_element.find_all("defitem")
+            else:
+                subelements = related_item_element.find_all("p", recursive=False)
+
+            related_material = [
+                timdex.RelatedItem(
+                    description=related_item_value,
+                )
+                for subelement in subelements
+                if (
+                    related_item_value := cls.create_string_from_mixed_value(
+                        subelement, " ", ["head"]
+                    )
+                )
+            ]
+            related_items.extend(related_material)
+        return related_items or None
+
+    @classmethod
+    def get_rights(cls, source_record: Tag) -> list[timdex.Rights] | None:
+        collection_description = cls._get_collection_description(source_record)
+        return [
+            timdex.Rights(
+                description=rights_value,
+                kind=aspace_type_crosswalk.get(rights_element.name, rights_element.name),
+            )
+            for rights_element in collection_description.find_all(
+                ["accessrestrict", "userestrict"], recursive=False
+            )
+            if (
+                rights_value := cls.create_string_from_mixed_value(
+                    rights_element, " ", ["head"]
+                )
+            )
+        ] or None
+
+    @classmethod
+    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+        subjects = []
+        if control_access := cls._get_control_access(source_record):
+            for control_access_element in control_access:
+                for subject_element in control_access_element.find_all(
+                    name=True, recursive=False
+                ):
+                    if subject_value := cls.create_string_from_mixed_value(
+                        subject_element, " "
+                    ):
+                        subject_source = subject_element.get("source")
+                        subjects.append(
+                            timdex.Subject(
+                                value=[subject_value],
+                                kind=aspace_type_crosswalk.get(
+                                    subject_source, subject_source
+                                )
+                                or None,
+                            ),
+                        )
+        return subjects or None
+
+    @classmethod
+    def get_summary(cls, source_record: Tag) -> list[str] | None:
+        collection_description_did = cls._get_collection_description_did(source_record)
+        return [
+            abstract_value
+            for abstract_element in collection_description_did.find_all(
+                "abstract", recursive=False
+            )
+            if (
+                abstract_value := cls.create_string_from_mixed_value(
+                    abstract_element, " "
+                )
+            )
+        ] or None
+
+    @classmethod
     def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from an EAD XML record.
@@ -369,14 +519,10 @@ class Ead(XMLTransformer):
         Overrides metaclass get_main_titles() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single EAD XML record.
+            source_record: A BeautifulSoup Tag representing a single EAD XML record.
         """
-        try:
-            unit_titles = source_record.metadata.find(
-                "archdesc", level="collection"
-            ).did.find_all("unittitle")
-        except AttributeError:
-            return []
+        collection_description_did = cls._get_collection_description_did(source_record)
+        unit_titles = collection_description_did.find_all("unittitle")
         return [
             title
             for unit_title in unit_titles
@@ -391,7 +537,7 @@ class Ead(XMLTransformer):
         Overrides metaclass get_source_record_id() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single EAD XML record.
+            source_record: A BeautifulSoup Tag representing a single EAD XML record.
         """
         return source_record.header.identifier.string.split("//")[1]
 
@@ -419,8 +565,9 @@ class Ead(XMLTransformer):
             for child in item.children:
                 yield from cls.parse_mixed_value(child, skipped_elements)
 
+    @classmethod
     def parse_dates(
-        self, collection_description_did: Tag, source_record_id: str
+        cls, collection_description_did: Tag, source_record_id: str
     ) -> list[timdex.Date]:
         """
         Dedicated method to parse dates.  Targeting archdesc.unitdata elements, using
