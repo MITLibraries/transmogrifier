@@ -4,6 +4,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 import transmogrifier.models as timdex
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.sources.xml.ead import Ead
 
 
@@ -52,15 +53,15 @@ def create_ead_source_record_stub(
     return BeautifulSoup(xml_string, "xml")
 
 
-def test_ead_record_all_fields_transform_correctly():
+def test_ead_transform_with_all_fields_transform_correctly():
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_all_fields.xml"
     )
-    output_records = Ead("aspace", ead_xml_records)
+    output_records = Ead("cool-repo", ead_xml_records)
     assert next(output_records) == timdex.TimdexRecord(
-        source="MIT ArchivesSpace",
+        source="A Cool Repository",
         source_link="https://archivesspace.mit.edu/repositories/2/resources/1",
-        timdex_record_id="aspace:repositories-2-resources-1",
+        timdex_record_id="cool-repo:repositories-2-resources-1",
         title="Charles J. Connick Stained Glass Foundation Collection",
         alternate_titles=[
             timdex.AlternateTitle(value="Title 2"),
@@ -266,35 +267,43 @@ def test_ead_record_all_fields_transform_correctly():
     )
 
 
-def test_ead_record_with_missing_archdesc_logs_error(caplog):
+def test_ead_transform_with_optional_fields_blank_transforms_correctly():
     ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_missing_archdesc.xml"
+        "tests/fixtures/ead/ead_record_blank_optional_fields.xml"
     )
-    output_records = Ead("aspace", ead_xml_records)
-    assert len(list(output_records)) == 0
-    assert output_records.processed_record_count == 1
-    assert (
-        "transmogrifier.sources.xml.ead",
-        logging.ERROR,
-        "Record ID repositories/2/resources/4 is missing archdesc element",
-    ) in caplog.record_tuples
+    output_records = Ead("cool-repo", ead_xml_records)
+    assert next(output_records) == timdex.TimdexRecord(
+        source="A Cool Repository",
+        source_link="https://archivesspace.mit.edu/repositories/2/resources/2",
+        timdex_record_id="cool-repo:repositories-2-resources-2",
+        title="Title not provided",
+        citation=(
+            "Title not provided. Archival materials. "
+            "https://archivesspace.mit.edu/repositories/2/resources/2"
+        ),
+        content_type=["Archival materials"],
+    )
 
 
-def test_ead_record_with_missing_archdesc_did_logs_error(caplog):
+def test_ead_transform_with_optional_fields_missing_transforms_correctly():
     ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_missing_archdesc_did.xml"
+        "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
     )
-    output_records = Ead("aspace", ead_xml_records)
-    assert len(list(output_records)) == 0
-    assert output_records.processed_record_count == 1
-    assert (
-        "transmogrifier.sources.xml.ead",
-        logging.ERROR,
-        "Record ID repositories/2/resources/3 is missing archdesc > did element",
-    ) in caplog.record_tuples
+    output_records = Ead("cool-repo", ead_xml_records)
+    assert next(output_records) == timdex.TimdexRecord(
+        source="A Cool Repository",
+        source_link="https://archivesspace.mit.edu/repositories/2/resources/5",
+        timdex_record_id="cool-repo:repositories-2-resources-5",
+        title="Title not provided",
+        citation=(
+            "Title not provided. Archival materials. "
+            "https://archivesspace.mit.edu/repositories/2/resources/5"
+        ),
+        content_type=["Archival materials"],
+    )
 
 
-def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly():
+def test_ead_transform_with_attribute_and_subfield_variations_transforms_correctly():
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
@@ -516,22 +525,55 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
     )
 
 
-def test_ead_record_with_blank_optional_fields_transforms_correctly():
-    ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_blank_optional_fields.xml"
+def test_ead_get_collection_description_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <archdesc level="collection"<did></did></archdesc>
+            """
+        )
     )
-    output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
-        source="MIT ArchivesSpace",
-        source_link="https://archivesspace.mit.edu/repositories/2/resources/2",
-        timdex_record_id="aspace:repositories-2-resources-2",
-        title="Title not provided",
-        citation=(
-            "Title not provided. Archival materials. "
-            "https://archivesspace.mit.edu/repositories/2/resources/2"
+    element = Ead._get_collection_description(source_record)
+    assert element.name == "archdesc"
+
+
+def test_ead_get_collection_description_raises_skipped_record_event_if_archdesc_missing():
+    source_record = create_ead_source_record_stub()
+    with pytest.raises(
+        SkippedRecordEvent,
+        match=(
+            "Record skipped because key information is missing: "
+            '<archdesc level="collection">.'
         ),
-        content_type=["Archival materials"],
+    ):
+        Ead._get_collection_description(source_record)
+
+
+def test_ead_get_collection_description_did_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <archdesc level="collection"<did></did></archdesc>
+            """
+        )
     )
+    element = Ead._get_collection_description_did(source_record)
+    assert element.name == "did"
+
+
+def test_ead_get_collection_description_did_raises_skipped_record_event_if_did_missing():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <archdesc level="collection"></archdesc>
+            """
+        )
+    )
+    with pytest.raises(
+        SkippedRecordEvent,
+        match=("Record skipped because key information is missing: <did>."),
+    ):
+        Ead._get_collection_description_did(source_record)
 
 
 def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
@@ -561,21 +603,3 @@ def test_ead_record_correct_identifiers_from_multiple_unitid(caplog):
     output_record = next(Ead("aspace", ead_xml_records))
     for identifier in output_record.identifiers:
         assert identifier.value != "unitid-that-should-not-be-identifier"
-
-
-def test_ead_record_with_missing_optional_fields_transforms_correctly():
-    ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
-    )
-    output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
-        source="MIT ArchivesSpace",
-        source_link="https://archivesspace.mit.edu/repositories/2/resources/5",
-        timdex_record_id="aspace:repositories-2-resources-5",
-        title="Title not provided",
-        citation=(
-            "Title not provided. Archival materials. "
-            "https://archivesspace.mit.edu/repositories/2/resources/5"
-        ),
-        content_type=["Archival materials"],
-    )
