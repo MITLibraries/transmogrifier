@@ -29,8 +29,6 @@ class Ead(XMLTransformer):
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(source_record)
-
         # <archdesc> and <did> elements are required when deriving optional fields
         collection_description = self._get_collection_description(source_record)
         collection_description_did = self._get_collection_description_did(source_record)
@@ -48,33 +46,15 @@ class Ead(XMLTransformer):
 
         # content_type
         fields["content_type"] = self.get_content_type(source_record)
+
         # contents
-        for arrangement_element in collection_description.find_all(
-            "arrangement", recursive=False
-        ):
-            for arrangement_value in self.create_list_from_mixed_value(
-                arrangement_element, skipped_elements=["head"]
-            ):
-                fields.setdefault("contents", []).append(arrangement_value)
+        fields["contents"] = self.get_contents(source_record)
 
         # contributors
-        for origination_element in collection_description_did.find_all("origination"):
-            for name_element in origination_element.find_all(name=True, recursive=False):
-                if name_value := self.create_string_from_mixed_value(
-                    name_element, separator=" "
-                ):
-                    fields.setdefault("contributors", []).append(
-                        timdex.Contributor(
-                            value=name_value,
-                            kind=origination_element.get("label") or None,
-                            identifier=self.generate_name_identifier_url(name_element),
-                        )
-                    )
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
-        dates = self.parse_dates(collection_description_did, source_record_id)
-        if dates:
-            fields.setdefault("dates", []).extend(dates)
+        fields["dates"] = self.get_dates(source_record)
 
         # edition field not used in EAD
 
@@ -88,16 +68,7 @@ class Ead(XMLTransformer):
         # holdings omitted pending discussion on how to map originalsloc and physloc
 
         # identifiers
-        for id_element in collection_description_did.find_all("unitid", recursive=False):
-            if id_element.get("type") == "aspace_uri":
-                continue
-            if id_value := self.create_string_from_mixed_value(
-                id_element,
-                separator=" ",
-            ):
-                fields.setdefault("identifiers", []).append(
-                    timdex.Identifier(value=id_value, kind="Collection Identifier")
-                )
+        fields["identifiers"] = self.get_identifiers(source_record)
 
         # languages
         for langmaterial_element in collection_description_did.find_all(
@@ -307,28 +278,6 @@ class Ead(XMLTransformer):
         )
 
     @classmethod
-    def generate_name_identifier_url(cls, name_element: Tag) -> list | None:
-        """
-        Generate a full name identifier URL with the specified scheme.
-
-        Args:
-            name_element: A BeautifulSoup Tag representing an EAD
-                name XML field.
-        """
-        if identifier := name_element.get("authfilenumber"):
-            source = name_element.get("source")
-            if source in ["lcnaf", "naf"]:
-                base_url = "https://lccn.loc.gov/"
-            elif source == "snac":
-                base_url = "https://snaccooperative.org/view/"
-            elif source == "viaf":
-                base_url = "http://viaf.org/viaf/"
-            else:
-                base_url = ""
-            return [base_url + identifier]
-        return None
-
-    @classmethod
     def _get_collection_description(cls, source_record: Tag) -> Tag:
         """Get element with archival description for a collection.
 
@@ -426,6 +375,156 @@ class Ead(XMLTransformer):
         return content_types or None
 
     @classmethod
+    def get_contents(cls, source_record: Tag) -> list[str] | None:
+        contents = []
+        collection_description = cls._get_collection_description(source_record)
+        for arrangement_element in collection_description.find_all(
+            "arrangement", recursive=False
+        ):
+            contents.extend(
+                cls.create_list_from_mixed_value(
+                    arrangement_element, skipped_elements=["head"]
+                )
+            )
+        return contents or None
+
+    @classmethod
+    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
+        contributors = []
+        collection_description_did = cls._get_collection_description_did(source_record)
+        for origination_element in collection_description_did.find_all("origination"):
+            contributors.extend(
+                [
+                    timdex.Contributor(
+                        value=contributor_name,
+                        kind=origination_element.get("label") or None,
+                        identifier=cls._get_contributor_identifier_url(
+                            contributor_element
+                        ),
+                    )
+                    for contributor_element in origination_element.find_all(
+                        name=True, recursive=False
+                    )
+                    if (
+                        contributor_name := cls.create_string_from_mixed_value(
+                            contributor_element, separator=" "
+                        )
+                    )
+                ]
+            )
+
+        return contributors or None
+
+    @classmethod
+    def _get_contributor_identifier_url(cls, name_element: Tag) -> list | None:
+        """Generate a full name identifier URL with the specified scheme.
+
+        Args:
+            name_element: A BeautifulSoup Tag representing an EAD
+                name XML field.
+        """
+        if identifier := name_element.get("authfilenumber"):
+            source = name_element.get("source")
+            if source in ["lcnaf", "naf"]:
+                base_url = "https://lccn.loc.gov/"
+            elif source == "snac":
+                base_url = "https://snaccooperative.org/view/"
+            elif source == "viaf":
+                base_url = "http://viaf.org/viaf/"
+            else:
+                base_url = ""
+            return [base_url + identifier]
+        return None
+
+    @classmethod
+    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
+        dates = []
+        collection_description_did = cls._get_collection_description_did(source_record)
+        source_record_id = cls.get_source_record_id(source_record)
+        dates.extend(
+            cls._parse_date_elements(collection_description_did, source_record_id)
+        )
+        return dates or None
+
+    @classmethod
+    def _parse_date_elements(
+        cls, collection_description_did: Tag, source_record_id: str
+    ) -> list[timdex.Date]:
+        """
+        Dates are derived from <archdesc><unitdate> elements with the @normal attribute.
+
+        The method will iterate over these elements, validating the values assigned to
+        the @normal attribute. If the date value passes validation, a timdex.Date
+        instance is created and added to the list of valid timdex.Dates that is
+        returned.
+
+        Note: If the date values in a provided date range are the same, a
+          single date is retrieved.
+        """
+        dates = []
+        for date_element in collection_description_did.find_all("unitdate", normal=True):
+            date_string = date_element.get("normal", "").strip()
+
+            if date_string == "":
+                continue
+
+            date_instance = timdex.Date()
+
+            # get valid date ranges or dates
+            if "/" in date_string:
+                date_instance = cls._parse_date_range(date_string, source_record_id)
+            elif validate_date(date_string, source_record_id):
+                date_instance.value = date_string
+
+            # include @datechar and @certainty attributes
+            date_instance.kind = date_element.get("datechar")
+            date_instance.note = date_element.get("certainty")
+
+            if date_instance.range or date_instance.value:
+                dates.append(date_instance)
+        return dates
+
+    @classmethod
+    def _parse_date_range(cls, date_string: str, source_record_id: str) -> timdex.Date:
+        date_instance = timdex.Date()
+        gte_date, lte_date = date_string.split("/")
+        if gte_date != lte_date:
+            if validate_date_range(
+                gte_date,
+                lte_date,
+                source_record_id,
+            ):
+                date_instance.range = timdex.DateRange(
+                    gte=gte_date,
+                    lte=lte_date,
+                )
+        else:
+            # get valid date (if dates in ranges are the same)
+            date_string = gte_date
+            if validate_date(
+                date_string,
+                source_record_id,
+            ):
+                date_instance.value = date_string
+        return date_instance
+
+    @classmethod
+    def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
+        identifiers = []
+        collection_description_did = cls._get_collection_description_did(source_record)
+        for id_element in collection_description_did.find_all("unitid", recursive=False):
+            if id_element.get("type") == "aspace_uri":
+                continue
+            if id_value := cls.create_string_from_mixed_value(
+                id_element,
+                separator=" ",
+            ):
+                identifiers.append(
+                    timdex.Identifier(value=id_value, kind="Collection Identifier")
+                )
+        return identifiers or None
+
+    @classmethod
     def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from an EAD XML record.
@@ -486,54 +585,3 @@ class Ead(XMLTransformer):
         elif isinstance(item, Tag) and item.name not in skipped_elements:
             for child in item.children:
                 yield from cls.parse_mixed_value(child, skipped_elements)
-
-    def parse_dates(
-        self, collection_description_did: Tag, source_record_id: str
-    ) -> list[timdex.Date]:
-        """
-        Dedicated method to parse dates.  Targeting archdesc.unitdata elements, using
-        only those with a @normal attribute value.  These are almost uniformly ranges,
-        but in the event they are not (or two identical values for the range) a single
-        date value is produced.
-        """
-        dates = []
-        for date_element in collection_description_did.find_all("unitdate"):
-            normal_date = date_element.get("normal", "").strip()
-            if normal_date == "":
-                continue
-
-            date_instance = timdex.Date()
-
-            # date range
-            if "/" in normal_date:
-                gte_date, lte_date = normal_date.split("/")
-                if gte_date != lte_date:
-                    if validate_date_range(
-                        gte_date,
-                        lte_date,
-                        source_record_id,
-                    ):
-                        date_instance.range = timdex.DateRange(
-                            gte=gte_date,
-                            lte=lte_date,
-                        )
-                else:
-                    date_str = gte_date  # arbitrarily take one
-                    if validate_date(
-                        date_str,
-                        source_record_id,
-                    ):
-                        date_instance.value = date_str
-
-            # fallback on single date
-            elif validate_date(normal_date, source_record_id):
-                date_instance.value = normal_date
-
-            # include @datechar and @certainty attributes
-            date_instance.kind = date_element.get("datechar")
-            date_instance.note = date_element.get("certainty")
-
-            if date_instance.range or date_instance.value:
-                dates.append(date_instance)
-
-        return dates

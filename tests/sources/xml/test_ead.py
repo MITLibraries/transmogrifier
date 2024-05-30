@@ -586,15 +586,6 @@ def test_ead_transform_with_invalid_date_and_date_range_omits_dates(caplog):
     assert ("has a later start date than end date: '2001', '1999'") in caplog.text
 
 
-def test_ead_transform_with_multiple_unitid_gets_valid_ids():
-    ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
-    )
-    output_record = next(Ead("aspace", ead_xml_records))
-    for identifier in output_record.identifiers:
-        assert identifier.value != "unitid-that-should-not-be-identifier"
-
-
 def test_get_alternate_titles_success():
     source_record = create_ead_source_record_stub(
         metadata_insert=(
@@ -737,6 +728,284 @@ def test_get_content_type_transforms_correctly_if_fields_missing():
         parent_element="archdesc",
     )
     assert Ead.get_content_type(source_record) == ["Archival materials"]
+
+
+def test_get_contents_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <arrangement>
+                <head>Arrangement</head>
+                <p>This collection is organized into ten series: </p>
+                <p>Series 1. Charles J. Connick and Connick Studio documents</p>
+                <p>Series 2. Charles J. Connick Studio and Associates job information</p>
+                <p>Series 3. Charles J. Connick Stained Glass Foundation documents</p>
+            </arrangement>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_contents(source_record) == [
+        "This collection is organized into ten series:",
+        "Series 1. Charles J. Connick and Connick Studio documents",
+        "Series 2. Charles J. Connick Studio and Associates job information",
+        "Series 3. Charles J. Connick Stained Glass Foundation documents",
+    ]
+
+
+def test_get_contents_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <arrangement></arrangement>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_contents(source_record) is None
+
+
+def test_get_contents_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="archdesc")
+    assert Ead.get_contents(source_record) is None
+
+
+def test_get_contributors_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <origination label="Creator">
+                <persname>
+                    Author, Best E.
+                    <part>( <emph> Best <emph>Ever</emph> </emph> )</part>
+                </persname>
+            </origination>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_contributors(source_record) == [
+        timdex.Contributor(value="Author, Best E. ( Best Ever )", kind="Creator")
+    ]
+
+
+def test_get_contributors_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <origination></origination>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_contributors(source_record) is None
+
+
+def test_get_contributors_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="did")
+    assert Ead.get_contributors(source_record) is None
+
+
+def test_get_contributors_transforms_correctly_if_multiple_contributors():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <origination label="Creator">
+                <persname>
+                    Author, Best E.
+                    <part>( <emph> Best <emph>Ever</emph> </emph> )</part>
+                </persname>
+                <persname>
+                    Author, Better
+                </persname>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_contributors(source_record) == [
+        timdex.Contributor(
+            value="Author, Best E. ( Best Ever )",
+            kind="Creator",
+        ),
+        timdex.Contributor(
+            value="Author, Better",
+            kind="Creator",
+        ),
+    ]
+
+
+def test_get_contributors_transforms_correctly_with_source_based_identifiers():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <origination label="Creator">
+                <persname authfilenumber="a001" source="naf">
+                    Author, Best E.
+                    <part>( <emph> Best <emph>Ever</emph> </emph> )</part>
+                </persname>
+                <persname authfilenumber="b001" source="viaf">
+                    Author, Better
+                </persname>
+            </origination>
+            <origination>
+                <famname authfilenumber="c001" source="snac">Fambam</famname>
+            </famname>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_contributors(source_record) == [
+        timdex.Contributor(
+            value="Author, Best E. ( Best Ever )",
+            identifier=["https://lccn.loc.gov/a001"],
+            kind="Creator",
+        ),
+        timdex.Contributor(
+            value="Author, Better",
+            identifier=["http://viaf.org/viaf/b001"],
+            kind="Creator",
+        ),
+        timdex.Contributor(
+            value="Fambam", identifier=["https://snaccooperative.org/view/c001"]
+        ),
+    ]
+
+
+def test_get_dates_success():
+    source_record = create_ead_source_record_stub(
+        header_insert=(
+            """
+            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            """
+        ),
+        metadata_insert=(
+            """
+            <unitdate certainty="approximate" datechar="creation" normal="1905/2012">
+                1905-2012
+            </unitdate>
+            <unitdate normal="2023-01-01">2023-01-01</unitdate>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_dates(source_record) == [
+        timdex.Date(
+            kind="creation",
+            note="approximate",
+            range=timdex.DateRange(gte="1905", lte="2012"),
+        ),
+        timdex.Date(value="2023-01-01"),
+    ]
+
+
+def test_get_dates_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        header_insert=(
+            """
+            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            """
+        ),
+        metadata_insert=(
+            """
+            <unitdate certainty="approximate" datechar="creation" normal=""></unitdate>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_dates(source_record) is None
+
+
+def test_get_dates_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(
+        header_insert=(
+            """
+            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_dates(source_record) is None
+
+
+def test_get_dates_transforms_correctly_if_date_invalid():
+    source_record = create_ead_source_record_stub(
+        header_insert=(
+            """
+            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            """
+        ),
+        metadata_insert=(
+            """
+            <unitdate certainty="approximate" datechar="creation" normal="">
+                INVALID
+            </unitdate>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_dates(source_record) is None
+
+
+def test_get_dates_transforms_correctly_if_normal_attribute_missing():
+    source_record = create_ead_source_record_stub(
+        header_insert=(
+            """
+            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            """
+        ),
+        metadata_insert=(
+            """
+            <unitdate certainty="approximate" datechar="creation">2024</unitdate>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_dates(source_record) is None
+
+
+def test_get_identifiers_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unitid>a001</unitid>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_identifiers(source_record) == [
+        timdex.Identifier(value="a001", kind="Collection Identifier")
+    ]
+
+
+def test_get_identifiers_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unitid></unitid>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_identifiers(source_record) is None
+
+
+def test_get_identifiers_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(
+        parent_element="did",
+    )
+    assert Ead.get_identifiers(source_record) is None
+
+
+def test_get_identifiers_transforms_correctly_if_type_attribute_invalid():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unitid type="aspace_uri">ignore-me</unitid>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_identifiers(source_record) is None
 
 
 def test_get_main_titles_success():
