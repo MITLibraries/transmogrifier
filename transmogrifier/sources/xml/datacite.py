@@ -191,7 +191,9 @@ class Datacite(XMLTransformer):
     def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
         contributors = []
         contributors.extend(list(cls._get_creators(source_record)))
-        contributors.extend(list(cls._get_contributors(source_record)))
+        contributors.extend(
+            list(cls._get_contributors_by_contributor_element(source_record))
+        )
         return contributors or None
 
     @classmethod
@@ -216,7 +218,9 @@ class Datacite(XMLTransformer):
                 )
 
     @classmethod
-    def _get_contributors(cls, source_record: Tag) -> Iterator[timdex.Contributor]:
+    def _get_contributors_by_contributor_element(
+        cls, source_record: Tag
+    ) -> Iterator[timdex.Contributor]:
         for contributor in source_record.metadata.find_all("contributor"):
             if contributor_name := contributor.find("contributorName", string=True):
                 yield timdex.Contributor(
@@ -245,7 +249,7 @@ class Datacite(XMLTransformer):
     ) -> list[timdex.Date] | None:
         dates = []
         dates.extend(list(cls._get_publication_year(source_record)))
-        dates.extend(list(cls._get_dates(source_record)))
+        dates.extend(list(cls._get_dates_by_date_element(source_record)))
         return dates or None
 
     @classmethod
@@ -266,7 +270,7 @@ class Datacite(XMLTransformer):
             )
 
     @classmethod
-    def _get_dates(cls, source_record: Tag) -> Iterator[timdex.Date]:
+    def _get_dates_by_date_element(cls, source_record: Tag) -> Iterator[timdex.Date]:
         for date_element in source_record.metadata.find_all("date"):
             date_object = timdex.Date()
             if date_value := date_element.string:
@@ -358,12 +362,12 @@ class Datacite(XMLTransformer):
                     kind=identifier_element.get("identifierType") or "Not specified",
                 )
             )
-        identifiers.extend(list(cls._get_alternateidentifiers(source_record)))
-        identifiers.extend(list(cls._get_relatedidentifiers(source_record)))
+        identifiers.extend(list(cls._get_alternate_identifiers(source_record)))
+        identifiers.extend(list(cls._get_related_identifiers(source_record)))
         return identifiers or None
 
     @classmethod
-    def _get_alternateidentifiers(
+    def _get_alternate_identifiers(
         cls,
         source_record: Tag,
     ) -> Iterator[timdex.Identifier]:
@@ -377,7 +381,7 @@ class Datacite(XMLTransformer):
             )
 
     @classmethod
-    def _get_relatedidentifiers(
+    def _get_related_identifiers(
         cls,
         source_record: Tag,
     ) -> Iterator[timdex.Identifier]:
