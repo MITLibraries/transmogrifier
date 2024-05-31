@@ -1,10 +1,80 @@
 import logging
+from typing import Literal
+
+from bs4 import BeautifulSoup
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.ead import Ead
 
 
-def test_ead_record_all_fields_transform_correctly():
+def create_ead_source_record_stub(
+    header_insert: str = "",
+    metadata_insert: str = "",
+    parent_element: Literal["archdesc", "did"] = None,  # noqa: RUF013
+) -> BeautifulSoup:
+    """
+    Create source record for unit tests.
+
+    Args:
+        header_insert (str): For EAD-formatted XML, the <header> element is used
+            in the derivation of 'source_record_id'.
+        metadata_insert (str): An string representing a metadata XML element.
+        parent_element (Literal["archdesc", "did"]): For EAD-formatted XML,
+            all of the information about a collection that is relevant to the
+            TIMDEX data model is encapsulated within the <archdesc level="collection">
+            element. Metadata will be formatted either as a direct descendant of
+            the <archdesc> element or a descendant of the <did> element.
+
+    Note: A source record for "missing" field method tests can be created by
+        leaving metadata_insert = "" (the default) and setting parent_element.
+    """
+    xml_string = """
+        <records>
+            <record xmlns="http://www.openarchives.org/OAI/2.0/"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <header>
+                    {header_insert}
+                </header>
+                <metadata>
+                    <ead xmlns="urn:isbn:1-931666-22-9" xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd">
+                        <eadheader countryencoding="iso3166-1" dateencoding="iso8601"
+                            findaidstatus="completed"
+                            langencoding="iso639-2b"
+                            repositoryencoding="iso15511">
+                            <eadid countrycode="US" mainagencycode="US-mcm">
+                                VC-0002
+                            </eadid>
+                        </eadheader>
+                        {metadata_insert}
+                    </ead>
+                </metadata>
+            </record>
+        </records>
+    """
+    if metadata_insert and parent_element is None:
+        message = (
+            "Argument 'parent_element' cannot be of NoneType "
+            "if 'metadata_insert' is set."
+        )
+        raise TypeError(message)
+    if parent_element == "archdesc":
+        _metadata_insert = f"""
+            <archdesc level="collection">{metadata_insert}</archdesc>
+            """
+    elif parent_element == "did":
+        _metadata_insert = f"""
+            <archdesc level="collection"><did>{metadata_insert}</did></archdesc>
+            """
+
+    return BeautifulSoup(
+        xml_string.format(header_insert=header_insert, metadata_insert=_metadata_insert),
+        "xml",
+    )
+
+
+def test_ead_transform_with_all_fields_transforms_correctly():
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_all_fields.xml"
     )
@@ -218,35 +288,43 @@ def test_ead_record_all_fields_transform_correctly():
     )
 
 
-def test_ead_record_with_missing_archdesc_logs_error(caplog):
+def test_ead_transform_with_optional_fields_blank_transforms_correctly():
     ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_missing_archdesc.xml"
+        "tests/fixtures/ead/ead_record_blank_optional_fields.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert len(list(output_records)) == 0
-    assert output_records.processed_record_count == 1
-    assert (
-        "transmogrifier.sources.xml.ead",
-        logging.ERROR,
-        "Record ID repositories/2/resources/4 is missing archdesc element",
-    ) in caplog.record_tuples
+    assert next(output_records) == timdex.TimdexRecord(
+        source="MIT ArchivesSpace",
+        source_link="https://archivesspace.mit.edu/repositories/2/resources/2",
+        timdex_record_id="aspace:repositories-2-resources-2",
+        title="Title not provided",
+        citation=(
+            "Title not provided. Archival materials. "
+            "https://archivesspace.mit.edu/repositories/2/resources/2"
+        ),
+        content_type=["Archival materials"],
+    )
 
 
-def test_ead_record_with_missing_archdesc_did_logs_error(caplog):
+def test_ead_transform_with_optional_fields_missing_transforms_correctly():
     ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_missing_archdesc_did.xml"
+        "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert len(list(output_records)) == 0
-    assert output_records.processed_record_count == 1
-    assert (
-        "transmogrifier.sources.xml.ead",
-        logging.ERROR,
-        "Record ID repositories/2/resources/3 is missing archdesc > did element",
-    ) in caplog.record_tuples
+    assert next(output_records) == timdex.TimdexRecord(
+        source="MIT ArchivesSpace",
+        source_link="https://archivesspace.mit.edu/repositories/2/resources/5",
+        timdex_record_id="aspace:repositories-2-resources-5",
+        title="Title not provided",
+        citation=(
+            "Title not provided. Archival materials. "
+            "https://archivesspace.mit.edu/repositories/2/resources/5"
+        ),
+        content_type=["Archival materials"],
+    )
 
 
-def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly():
+def test_ead_transform_with_attribute_and_subfield_variations_transforms_correctly():
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
@@ -468,25 +546,28 @@ def test_ead_record_with_attribute_and_subfield_variations_transforms_correctly(
     )
 
 
-def test_ead_record_with_blank_optional_fields_transforms_correctly():
+def test_ead_transform_with_missing_archdesc_skips_record():
     ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_blank_optional_fields.xml"
+        "tests/fixtures/ead/ead_record_missing_archdesc.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
-        source="MIT ArchivesSpace",
-        source_link="https://archivesspace.mit.edu/repositories/2/resources/2",
-        timdex_record_id="aspace:repositories-2-resources-2",
-        title="Title not provided",
-        citation=(
-            "Title not provided. Archival materials. "
-            "https://archivesspace.mit.edu/repositories/2/resources/2"
-        ),
-        content_type=["Archival materials"],
+    assert len(list(output_records)) == 0
+    assert output_records.processed_record_count == 1
+    assert output_records.skipped_record_count == 1
+
+
+def test_ead_transform_with_missing_archdesc_did_skips_record():
+    ead_xml_records = Ead.parse_source_file(
+        "tests/fixtures/ead/ead_record_missing_archdesc_did.xml"
     )
+    output_records = Ead("aspace", ead_xml_records)
+
+    assert len(list(output_records)) == 0
+    assert output_records.processed_record_count == 1
+    assert output_records.skipped_record_count == 1
 
 
-def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
+def test_ead_transform_with_invalid_date_and_date_range_omits_dates(caplog):
     caplog.set_level(logging.DEBUG)
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
@@ -501,12 +582,11 @@ def test_ead_record_invalid_date_and_date_range_are_omitted(caplog):
             assert date.range.lte != "1989"
             assert date.range.gte != "2001"
             assert date.range.lte != "1999"
-
     assert ("has a date that couldn't be parsed: 'undated'") in caplog.text
     assert ("has a later start date than end date: '2001', '1999'") in caplog.text
 
 
-def test_ead_record_correct_identifiers_from_multiple_unitid(caplog):
+def test_ead_transform_with_multiple_unitid_gets_valid_ids():
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
@@ -515,19 +595,190 @@ def test_ead_record_correct_identifiers_from_multiple_unitid(caplog):
         assert identifier.value != "unitid-that-should-not-be-identifier"
 
 
-def test_ead_record_with_missing_optional_fields_transforms_correctly():
-    ead_xml_records = Ead.parse_source_file(
-        "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
-    )
-    output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
-        source="MIT ArchivesSpace",
-        source_link="https://archivesspace.mit.edu/repositories/2/resources/5",
-        timdex_record_id="aspace:repositories-2-resources-5",
-        title="Title not provided",
-        citation=(
-            "Title not provided. Archival materials. "
-            "https://archivesspace.mit.edu/repositories/2/resources/5"
+def test_get_alternate_titles_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unittitle>
+                Charles J. Connick Stained Glass
+                <emph>
+                    Foundation
+                    <emph>Collection</emph>
+                </emph>
+                <num>VC.0002</num>
+            </unittitle>
+            <unittitle>
+                Title 2
+                <num>VC.0002</num>
+            </unittitle>
+            <unittitle>Title 3</unittitle>
+            """
         ),
-        content_type=["Archival materials"],
+        parent_element="did",
     )
+    assert Ead.get_alternate_titles(source_record) == [
+        timdex.AlternateTitle(value="Title 2"),
+        timdex.AlternateTitle(value="Title 3"),
+    ]
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unittitle>
+                Charles J. Connick Stained Glass
+                <emph>
+                    Foundation
+                    <emph>Collection</emph>
+                </emph>
+                <num>VC.0002</num>
+            </unittitle>
+            <unittitle></unittitle>
+            <unittitle></unittitle>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_alternate_titles(source_record) is None
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unittitle>
+                Charles J. Connick Stained Glass
+                <emph>
+                    Foundation
+                    <emph>Collection</emph>
+                </emph>
+                <num>VC.0002</num>
+            </unittitle>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_alternate_titles(source_record) is None
+
+
+def test_get_citation_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            "<prefercite><head>Preferred Citation</head><p>"
+            "Charles J. Connick Stained Glass Foundation Collection, "
+            "VC-0002, box X. Massachusetts Institute of Technology, "
+            "Department of Distinctive Collections, Cambridge, Massachusetts."
+            "</p></prefercite>"
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_citation(source_record) == (
+        "Charles J. Connick Stained Glass Foundation Collection, "
+        "VC-0002, box X. Massachusetts Institute of Technology, "
+        "Department of Distinctive Collections, Cambridge, Massachusetts."
+    )
+
+
+def test_get_citation_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            prefercite></prefercite>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_citation(source_record) is None
+
+
+def test_get_citation_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="archdesc")
+    assert Ead.get_citation(source_record) is None
+
+
+def test_get_content_type_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess>
+                <genreform>
+                    <part>Correspondence</part>
+                </genreform>
+            </controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_content_type(source_record) == ["Archival materials", "Correspondence"]
+
+
+def test_get_content_type_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess>
+                <genreform></genreform>
+            </controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_content_type(source_record) == ["Archival materials"]
+
+
+def test_get_content_type_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess></controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_content_type(source_record) == ["Archival materials"]
+
+
+def test_get_main_titles_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unittitle>
+                Charles J. Connick Stained Glass
+                <emph>
+                    Foundation
+                    <emph>Collection</emph>
+                </emph>
+                <num>VC.0002</num>
+            </unittitle>
+            <unittitle>
+                Title 2
+                <num>VC.0002</num>
+            </unittitle>
+            <unittitle>Title 3</unittitle>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_main_titles(source_record) == [
+        "Charles J. Connick Stained Glass Foundation Collection",
+        "Title 2",
+        "Title 3",
+    ]
+
+
+def test_get_main_titles_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <unittitle></unittitle>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_main_titles(source_record) == []
+
+
+def test_get_main_titles_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="did")
+    assert Ead.get_main_titles(source_record) == []
