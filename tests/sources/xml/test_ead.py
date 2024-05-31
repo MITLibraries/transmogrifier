@@ -1008,6 +1008,348 @@ def test_get_identifiers_transforms_correctly_if_type_attribute_invalid():
     assert Ead.get_identifiers(source_record) is None
 
 
+def test_get_languages_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <langmaterial>
+                <language>English</language>
+                ,
+                <language>French</language>
+                .
+            </langmaterial>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_languages(source_record) == ["English", "French"]
+
+
+def test_get_languages_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <langmaterial></langmaterial>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_languages(source_record) is None
+
+
+def test_get_languages_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="did")
+    assert Ead.get_languages(source_record) is None
+
+
+def test_get_locations_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess>
+                <geogname>Boston, MA</geogname>
+            </controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_locations(source_record) == [timdex.Location(value="Boston, MA")]
+
+
+def test_get_locations_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess>
+                <geogname></geogname>
+            </controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_locations(source_record) is None
+
+
+def test_get_locations_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="archdesc")
+    assert Ead.get_locations(source_record) is None
+
+
+def test_get_notes_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <bibliography>
+                <head>Bibliography</head>
+                <bibref>
+                    <title>
+                        <part>Affiches americaines</part>
+                    </title>
+                    San Domingo:
+                    <emph>Imprimerie</emph>
+                    royale du Cap, 1782. Nos. 30, 35.
+                </bibref>
+            </bibliography>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_notes(source_record) == [
+        timdex.Note(
+            value=[
+                (
+                    "Affiches americaines San Domingo: "
+                    "Imprimerie royale du Cap, 1782. Nos. 30, 35."
+                )
+            ],
+            kind="Bibliography",
+        )
+    ]
+
+
+def test_get_notes_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <bibliography></bibliography>
+            <bioghist></bioghist>
+            <scopecontent></scopecontent>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_notes(source_record) is None
+
+
+def test_get_notes_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="archdesc")
+    assert Ead.get_notes(source_record) is None
+
+
+def test_get_notes_transforms_correctly_with_multiple_kinds():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <bibliography>
+                <head>Bibliography</head>
+                <bibref>
+                    <title>
+                        <part>Affiches americaines</part>
+                    </title>
+                    San Domingo:
+                    <emph>Imprimerie</emph>
+                    royale du Cap, 1782. Nos. 30, 35.
+                </bibref>
+            </bibliography>
+            <bioghist>
+                <head>Biographical Note</head>
+                <p>
+            """
+            "Charles J. Connick (1875-1945) was an American "
+            "<emph>stained</emph> glass artist whose work may be found "
+            "in cities all across the United States."
+            """
+                </p>
+                <p>Connick founded his own studio in 1912 in Boston.</p>
+            </bioghist>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_notes(source_record) == [
+        timdex.Note(
+            value=[
+                (
+                    "Affiches americaines San Domingo: "
+                    "Imprimerie royale du Cap, 1782. Nos. 30, 35."
+                )
+            ],
+            kind="Bibliography",
+        ),
+        timdex.Note(
+            value=[
+                (
+                    "Charles J. Connick (1875-1945) was an American "
+                    "stained glass artist whose work may be found "
+                    "in cities all across the United States."
+                ),
+                "Connick founded his own studio in 1912 in Boston.",
+            ],
+            kind="Biographical Note",
+        ),
+    ]
+
+
+def test_get_notes_transforms_correctly_if_head_missing():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <bibliography>
+                <bibref>
+                    <title>
+                        <part>Affiches americaines</part>
+                    </title>
+                    San Domingo:
+                    <emph>Imprimerie</emph>
+                    royale du Cap, 1782. Nos. 30, 35.
+                </bibref>
+            </bibliography>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_notes(source_record) == [
+        timdex.Note(
+            value=[
+                (
+                    "Affiches americaines San Domingo: "
+                    "Imprimerie royale du Cap, 1782. Nos. 30, 35."
+                )
+            ],
+            kind="Bibliography",
+        )
+    ]
+
+
+def test_get_physical_description_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <physdesc>
+                <extent>4.5 Cubic Feet</extent>
+                <extent>
+                    (10 manuscript boxes, 1 legal manuscript box, 1 cassette box)
+                </extent>
+            </physdesc>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_physical_description(source_record) == (
+        "4.5 Cubic Feet (10 manuscript boxes, 1 legal manuscript box, 1 cassette box)"
+    )
+
+
+def test_get_physical_description_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <physdesc></physdesc>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_physical_description(source_record) is None
+
+
+def test_get_physical_description_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="did")
+    assert Ead.get_physical_description(source_record) is None
+
+
+def test_get_physical_description_transforms_correctly_if_multiple_physdesc():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <physdesc>
+                <extent>4.5 Cubic Feet</extent>
+                <extent>
+                    (10 manuscript boxes, 1 legal manuscript box, 1 cassette box)
+                </extent>
+            </physdesc>
+            <physdesc>
+                <extent>1.5 Cubic Feet</extent>
+                <extent>(2 manuscript boxes)</extent>
+            </physdesc>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_physical_description(source_record) == (
+        "4.5 Cubic Feet (10 manuscript boxes, 1 legal manuscript box, 1 cassette box); "
+        "1.5 Cubic Feet (2 manuscript boxes)"
+    )
+
+
+def test_get_publishers_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <repository>
+                <corpname>
+                    Massachusetts
+                    <emph>Institute</emph>
+                    of Technology. Libraries. Department of Distinctive Collections
+                </corpname>
+            </repository>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_publishers(source_record) == [
+        timdex.Publisher(
+            name=(
+                "Massachusetts Institute of Technology. Libraries. "
+                "Department of Distinctive Collections"
+            )
+        )
+    ]
+
+
+def test_get_publishers_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <repository></repository>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_publishers(source_record) is None
+
+
+def test_get_publishers_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="did")
+    assert Ead.get_publishers(source_record) is None
+
+
+def test_get_summary_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            "<abstract>"
+            "A record of the <emph>MIT</emph> faculty begins with "
+            "the minutes of the September 25, 1865, "
+            "meeting and continues to the present day."
+            "</abstract>"
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_summary(source_record) == [
+        (
+            "A record of the MIT faculty begins with "
+            "the minutes of the September 25, 1865, "
+            "meeting and continues to the present day."
+        )
+    ]
+
+
+def test_get_summary_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <abstract></abstract>
+            """
+        ),
+        parent_element="did",
+    )
+    assert Ead.get_summary(source_record) is None
+
+
+def test_get_summary_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="did")
+    assert Ead.get_summary(source_record) is None
+
+
 def test_get_main_titles_success():
     source_record = create_ead_source_record_stub(
         metadata_insert=(
