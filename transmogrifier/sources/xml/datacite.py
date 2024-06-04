@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from collections.abc import Iterator
 
 from bs4 import Tag  # type: ignore[import-untyped]
@@ -108,22 +109,18 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def get_content_type(cls, source_record: Tag) -> list[str] | None:
-        content_types = []
         if resource_type := source_record.metadata.find("resourceType"):
             if content_type := resource_type.get("resourceTypeGeneral"):
                 if cls.valid_content_types([content_type]):
-                    content_types.append(str(content_type))
-                else:
-                    message = f'Record skipped based on content type: "{content_type}"'
-                    raise SkippedRecordEvent(
-                        message, cls.get_source_record_id(source_record)
-                    )
+                    return [str(content_type)]
+                message = f'Record skipped based on content type: "{content_type}"'
+                raise SkippedRecordEvent(message, cls.get_source_record_id(source_record))
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
                 cls.get_source_record_id(source_record),
             )
-        return content_types or None
+        return None
 
     @classmethod
     def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
@@ -340,10 +337,9 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def get_languages(cls, source_record: Tag) -> list[str] | None:
-        languages = []
         if language := source_record.metadata.find("language", string=True):
-            languages.append(str(language.string))
-        return languages or None
+            return [str(language.string)]
+        return None
 
     def get_links(self, source_record: Tag) -> list[timdex.Link] | None:
         return [
@@ -380,31 +376,29 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def _get_description_notes(cls, source_record: Tag) -> Iterator[timdex.Note]:
-        descriptions = source_record.metadata.find_all("description", string=True)
-        for description in descriptions:
+        for description in source_record.metadata.find_all("description", string=True):
+            description_type = description.get("descriptionType")
             if "descriptionType" not in description.attrs:
                 logger.warning(
                     "Datacite record %s missing required Datacite attribute "
                     "@descriptionType",
                     cls.get_source_record_id(source_record),
                 )
-            if description.get("descriptionType") != "Abstract":
+            if description_type != "Abstract":
                 yield timdex.Note(
                     value=[str(description.string)],
-                    kind=description.get("descriptionType") or None,
+                    kind=description_type or None,
                 )
 
     @classmethod
     def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
-        publishers = []
         if publisher := source_record.metadata.find("publisher", string=True):
-            publishers.append(timdex.Publisher(name=str(publisher.string)))
-        else:
-            logger.warning(
-                "Datacite record %s missing required Datacite field publisher",
-                cls.get_source_record_id(source_record),
-            )
-        return publishers or None
+            return [timdex.Publisher(name=str(publisher.string))]
+        logger.warning(
+            "Datacite record %s missing required Datacite field publisher",
+            cls.get_source_record_id(source_record),
+        )
+        return None
 
     @classmethod
     def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
@@ -432,17 +426,11 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
-        subjects_dict: dict[str, list[str]] = {}
-
+        subjects_dict = defaultdict(list)
         for subject in source_record.metadata.find_all("subject", string=True):
-            if not subject.get("subjectScheme"):
-                subjects_dict.setdefault("Subject scheme not provided", []).append(
-                    str(subject.string)
-                )
-            else:
-                subjects_dict.setdefault(subject["subjectScheme"], []).append(
-                    str(subject.string)
-                )
+            subjects_dict[
+                subject.get("subjectScheme") or "Subject scheme not provided"
+            ].append(str(subject.string))
 
         return [
             timdex.Subject(value=subject_value, kind=subject_scheme)
