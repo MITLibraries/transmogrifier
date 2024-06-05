@@ -29,12 +29,6 @@ class Ead(XMLTransformer):
         """
         fields: dict = {}
 
-        # <archdesc> and <did> elements are required when deriving optional fields
-        collection_description = self._get_collection_description(source_record)
-
-        # <controlaccess> element is optional (used by multiple optional fields)
-        control_access_elements = self._get_control_access(source_record)
-
         # alternate_titles
         fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
@@ -93,71 +87,13 @@ class Ead(XMLTransformer):
         fields["publishers"] = self.get_publishers(source_record)
 
         # related_items
-        for related_item_element in collection_description.find_all(
-            ["altformavail", "separatedmaterial"],
-            recursive=False,
-        ):
-            if related_item_value := self.create_string_from_mixed_value(
-                related_item_element, separator=" ", skipped_elements=["head"]
-            ):
-                fields.setdefault("related_items", []).append(
-                    timdex.RelatedItem(
-                        description=related_item_value,
-                        relationship=aspace_type_crosswalk.get(
-                            related_item_element.name, related_item_element.name
-                        ),
-                    )
-                )
-        for related_item_element in collection_description.find_all(
-            ["relatedmaterial"],
-            recursive=False,
-        ):
-            if list_element := related_item_element.find("list"):
-                subelements = list_element.find_all("defitem")
-            else:
-                subelements = related_item_element.find_all("p", recursive=False)
-            for subelement in subelements:
-                if related_item_value := self.create_string_from_mixed_value(
-                    subelement, separator=" ", skipped_elements=["head"]
-                ):
-                    fields.setdefault("related_items", []).append(
-                        timdex.RelatedItem(
-                            description=related_item_value,
-                        )
-                    )
+        fields["related_items"] = self.get_related_items(source_record)
 
         # rights
-        for rights_element in collection_description.find_all(
-            ["accessrestrict", "userestrict"], recursive=False
-        ):
-            if rights_value := self.create_string_from_mixed_value(
-                rights_element, separator=" ", skipped_elements=["head"]
-            ):
-                fields.setdefault("rights", []).append(
-                    timdex.Rights(
-                        description=rights_value,
-                        kind=aspace_type_crosswalk.get(
-                            rights_element.name, rights_element.name
-                        ),
-                    )
-                )
+        fields["rights"] = self.get_rights(source_record)
 
         # subjects
-        for control_access_element in control_access_elements:
-            for subject_element in control_access_element.find_all(
-                name=True, recursive=False
-            ):
-                if subject_value := self.create_string_from_mixed_value(
-                    subject_element, separator=" "
-                ):
-                    subject_source = subject_element.get("source")
-                    fields.setdefault("subjects", []).append(
-                        timdex.Subject(
-                            value=[subject_value],
-                            kind=aspace_type_crosswalk.get(subject_source, subject_source)
-                            or None,
-                        ),
-                    )
+        fields["subjects"] = self.get_subjects(source_record)
 
         # summary
         fields["summary"] = self.get_summary(source_record)
@@ -556,6 +492,93 @@ class Ead(XMLTransformer):
         ):
             return [timdex.Publisher(name=publication_value)]
         return None
+
+    @classmethod
+    def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
+        related_items = []
+        collection_description = cls._get_collection_description(source_record)
+
+        for related_item_element in collection_description.find_all(
+            ["altformavail", "relatedmaterial", "separatedmaterial"], recursive=False
+        ):
+            if related_item_element.name == "relatedmaterial":
+                related_items.extend(
+                    cls._get_related_item_from_relatedmaterial(related_item_element)
+                )
+            elif related_item := cls.create_string_from_mixed_value(
+                related_item_element, separator=" ", skipped_elements=["head"]
+            ):
+                related_items.append(
+                    timdex.RelatedItem(
+                        description=related_item,
+                        relationship=aspace_type_crosswalk.get(
+                            related_item_element.name, related_item_element.name
+                        ),
+                    )
+                )
+        return related_items or None
+
+    @classmethod
+    def _get_related_item_from_relatedmaterial(
+        cls, related_material_element: Tag
+    ) -> list[timdex.RelatedItem]:
+        if list_element := related_material_element.find("list"):
+            subelements = list_element.find_all("defitem")
+        else:
+            subelements = related_material_element.find_all("p", recursive=False)
+
+        return [
+            timdex.RelatedItem(description=related_item)
+            for subelement in subelements
+            if (
+                related_item := cls.create_string_from_mixed_value(
+                    subelement, separator=" ", skipped_elements=["head"]
+                )
+            )
+        ]
+
+    @classmethod
+    def get_rights(cls, source_record: Tag) -> list[timdex.Rights] | None:
+        collection_description = cls._get_collection_description(source_record)
+        return [
+            timdex.Rights(
+                description=rights,
+                kind=aspace_type_crosswalk.get(rights_element.name, rights_element.name),
+            )
+            for rights_element in collection_description.find_all(
+                ["accessrestrict", "userestrict"], recursive=False
+            )
+            if (
+                rights := cls.create_string_from_mixed_value(
+                    rights_element, separator=" ", skipped_elements=["head"]
+                )
+            )
+        ] or None
+
+    @classmethod
+    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+        subjects = []
+        for control_access_element in cls._get_control_access(source_record):
+            subjects.extend(
+                [
+                    timdex.Subject(
+                        value=[subject_value],
+                        kind=aspace_type_crosswalk.get(
+                            subject_element.get("source"), subject_element.get("source")
+                        )
+                        or None,
+                    )
+                    for subject_element in control_access_element.find_all(
+                        name=True, recursive=False
+                    )
+                    if (
+                        subject_value := cls.create_string_from_mixed_value(
+                            subject_element, separator=" "
+                        )
+                    )
+                ]
+            )
+        return subjects or None
 
     @classmethod
     def get_summary(cls, source_record: Tag) -> list[str] | None:
