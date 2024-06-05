@@ -757,6 +757,193 @@ def test_get_locations_transforms_correctly_if_fields_missing():
     assert Datacite.get_locations(source_record) is None
 
 
+def test_get_notes_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
+        <descriptions>
+         <description descriptionType="TechnicalInfo">Stata, 13</description>
+        </descriptions>
+        """
+    )
+    assert Datacite.get_notes(source_record) == [
+        Note(value=["Survey Data"], kind="Datacite resource type"),
+        Note(value=["Stata, 13"], kind="TechnicalInfo"),
+    ]
+
+
+def test_get_notes_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        "<descriptions><description /></descriptions>"
+    )
+    assert Datacite.get_notes(source_record) is None
+
+
+def test_get_notes_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_notes(source_record) is None
+
+
+def test_get_publishers_success():
+    source_record = create_datacite_source_record_stub(
+        "<publisher>Harvard Dataverse</publisher>"
+    )
+    assert Datacite.get_publishers(source_record) == [Publisher(name="Harvard Dataverse")]
+
+
+def test_get_publishers_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub("<publisher />")
+    assert Datacite.get_publishers(source_record) is None
+
+
+def test_get_publishers_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_publishers(source_record) is None
+
+
+def test_get_related_items_success():
+    metadata_insert = (
+        '<relatedIdentifiers><relatedIdentifier relatedIdentifierType="DOI" '
+        'relationType="IsCitedBy">10.1257/app.20150390</relatedIdentifier>'
+        '<relatedIdentifier relationType="IsVersionOf">10.5281/zenodo.5524464'
+        '</relatedIdentifier><relatedIdentifier relatedIdentifierType="ISBN" '
+        'relationType="Other">1234567.5524464</relatedIdentifier><relatedIdentifier '
+        'relatedIdentifierType="URL" relationType="IsPartOf">'
+        "https://zenodo.org/communities/astronomy-general</relatedIdentifier>"
+        "</relatedIdentifiers>"
+    )
+    source_record = create_datacite_source_record_stub(metadata_insert)
+    assert Datacite.get_related_items(source_record) == [
+        RelatedItem(relationship="IsCitedBy", uri="https://doi.org/10.1257/app.20150390"),
+        RelatedItem(relationship="IsVersionOf", uri="10.5281/zenodo.5524464"),
+        RelatedItem(relationship="Other", uri="1234567.5524464"),
+        RelatedItem(
+            relationship="IsPartOf",
+            uri="https://zenodo.org/communities/astronomy-general",
+        ),
+    ]
+
+
+def test_get_related_items_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        "<relatedIdentifiers><relatedIdentifier /></relatedIdentifiers>"
+    )
+    assert Datacite.get_related_items(source_record) is None
+
+
+def test_get_related_items_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_related_items(source_record) is None
+
+
+def test_get_rights_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <rightsList>
+          <rights rightsURI="info:eu-repo/semantics/openAccess" />
+          <rights
+          rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
+        </rightsList>
+        """
+    )
+    assert Datacite.get_rights(source_record) == [
+        Rights(description=None, kind=None, uri="info:eu-repo/semantics/openAccess"),
+        Rights(
+            description="CC0 1.0",
+            kind=None,
+            uri="http://creativecommons.org/publicdomain/zero/1.0",
+        ),
+    ]
+
+
+def test_get_rights_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        "<rightsList><rights /></rightsList>"
+    )
+    assert Datacite.get_rights(source_record) is None
+
+
+def test_get_rights_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_rights(source_record) is None
+
+
+def test_get_subjects_success():
+    source_record = create_datacite_source_record_stub(
+        """
+        <subjects>
+         <subject>Social Sciences</subject>
+         <subject>Educational materials</subject>
+         <subject subjectScheme="LCSH"
+         >Adult education, education inputs, field experiments</subject>
+         <subject subjectScheme="LCSH">Education</subject>
+        </subjects>
+        """
+    )
+    assert Datacite.get_subjects(source_record) == [
+        Subject(
+            value=["Social Sciences", "Educational materials"],
+            kind="Subject scheme not provided",
+        ),
+        Subject(
+            value=[
+                "Adult education, education inputs, field experiments",
+                "Education",
+            ],
+            kind="LCSH",
+        ),
+    ]
+
+
+def test_get_subjects_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub("<subjects><subject /></subjects>")
+    assert Datacite.get_subjects(source_record) is None
+
+
+def test_get_subjects_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_subjects(source_record) is None
+
+
+def test_get_summary_success():
+    metadata_insert = (
+        '<descriptions><description descriptionType="Abstract">Using a '
+        "randomized field experiment in India, we evaluate the effectiveness of adult "
+        "literacy and parental involvement interventions in improving children's "
+        "learning. Households were assigned to receive either adult literacy (language "
+        "and math) classes for mothers, training for mothers on how to enhance their "
+        "children's learning at home, or a combination of the two programs. All three "
+        "interventions had significant but modest impacts on childrens math scores. The "
+        "interventions also increased mothers' test scores in both language and math, as "
+        "well as a range of other outcomes reflecting greater involvement of mothers in "
+        "their children's education.</description>"
+    )
+    source_record = create_datacite_source_record_stub(metadata_insert)
+    assert Datacite.get_summary(source_record) == [
+        "Using a randomized field experiment in India, we evaluate the effectiveness "
+        "of adult literacy and parental involvement interventions in improving "
+        "children's learning. Households were assigned to receive either adult "
+        "literacy (language and math) classes for mothers, training for mothers on "
+        "how to enhance their children's learning at home, or a combination of the "
+        "two programs. All three interventions had significant but modest impacts on "
+        "childrens math scores. The interventions also increased mothers' test scores"
+        " in both language and math, as well as a range of other outcomes reflecting "
+        "greater involvement of mothers in their children's education."
+    ]
+
+
+def test_get_summarty_transforms_correctly_if_fields_blank():
+    source_record = create_datacite_source_record_stub(
+        '<descriptions><description descriptionType="Abstract" /></descriptions>'
+    )
+    assert Datacite.get_summary(source_record) is None
+
+
+def test_get_summary_transforms_correctly_if_fields_missing():
+    source_record = create_datacite_source_record_stub()
+    assert Datacite.get_summary(source_record) is None
+
+
 def test_generate_name_identifier_url_orcid_scheme(datacite_record_all_fields):
     assert next(datacite_record_all_fields).contributors[0].identifier == [
         "https://orcid.org/0000-0000-0000-0000"

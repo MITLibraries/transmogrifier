@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from collections.abc import Iterator
 
 from bs4 import Tag  # type: ignore[import-untyped]
@@ -25,7 +26,6 @@ class Datacite(XMLTransformer):
                 oai_datacite XML.
         """
         fields: dict = {}
-        source_record_id = self.get_source_record_id(source_record)
 
         # alternate_titles
         fields["alternate_titles"] = self.get_alternate_titles(source_record)
@@ -64,83 +64,22 @@ class Datacite(XMLTransformer):
         fields["locations"] = self.get_locations(source_record)
 
         # notes
-        if resource_type := source_record.metadata.find("resourceType", string=True):
-            fields.setdefault("notes", []).append(
-                timdex.Note(
-                    value=[str(resource_type.string)],
-                    kind="Datacite resource type",
-                )
-            )
-        descriptions = source_record.metadata.find_all("description", string=True)
-        for description in descriptions:
-            if "descriptionType" not in description.attrs:
-                logger.warning(
-                    "Datacite record %s missing required Datacite attribute "
-                    "@descriptionType",
-                    source_record_id,
-                )
-            if description.get("descriptionType") != "Abstract":
-                fields.setdefault("notes", []).append(
-                    timdex.Note(
-                        value=[description.string],
-                        kind=description.get("descriptionType") or None,
-                    )
-                )
+        fields["notes"] = self.get_notes(source_record)
 
         # publishers
-        if publisher := source_record.metadata.find("publisher", string=True):
-            fields["publishers"] = [timdex.Publisher(name=publisher.string)]
-        else:
-            logger.warning(
-                "Datacite record %s missing required Datacite field publisher",
-                source_record_id,
-            )
+        fields["publishers"] = self.get_publishers(source_record)
 
         # related_items, uses related_identifiers retrieved for identifiers
-        for related_identifier in [
-            ri
-            for ri in source_record.metadata.find_all("relatedIdentifier", string=True)
-            if ri.get("relationType") != "IsIdenticalTo"
-        ]:
-            fields.setdefault("related_items", []).append(
-                timdex.RelatedItem(
-                    uri=self.generate_related_item_identifier_url(related_identifier),
-                    relationship=related_identifier.get("relationType")
-                    or "Not specified",
-                )
-            )
+        fields["related_items"] = self.get_related_items(source_record)
 
         # rights
-        for right in [
-            r
-            for r in source_record.metadata.find_all("rights")
-            if r.string or r.get("rightsURI")
-        ]:
-            fields.setdefault("rights", []).append(
-                timdex.Rights(
-                    description=right.string or None, uri=right.get("rightsURI") or None
-                )
-            )
+        fields["rights"] = self.get_rights(source_record)
 
         # subjects
-        subjects_dict: dict[str, list[str]] = {}
-        for subject in source_record.metadata.find_all("subject", string=True):
-            if not subject.get("subjectScheme"):
-                subjects_dict.setdefault("Subject scheme not provided", []).append(
-                    subject.string
-                )
-            else:
-                subjects_dict.setdefault(subject["subjectScheme"], []).append(
-                    subject.string
-                )
-        fields["subjects"] = [
-            timdex.Subject(value=value, kind=key) for key, value in subjects_dict.items()
-        ] or None
+        fields["subjects"] = self.get_subjects(source_record)
 
         # summary
-        fields["summary"] = [
-            d.string for d in descriptions if d.get("descriptionType") == "Abstract"
-        ] or None
+        fields["summary"] = self.get_summary(source_record)
 
         return fields
 
@@ -170,22 +109,18 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def get_content_type(cls, source_record: Tag) -> list[str] | None:
-        content_types = []
         if resource_type := source_record.metadata.find("resourceType"):
             if content_type := resource_type.get("resourceTypeGeneral"):
                 if cls.valid_content_types([content_type]):
-                    content_types.append(str(content_type))
-                else:
-                    message = f'Record skipped based on content type: "{content_type}"'
-                    raise SkippedRecordEvent(
-                        message, cls.get_source_record_id(source_record)
-                    )
+                    return [str(content_type)]
+                message = f'Record skipped based on content type: "{content_type}"'
+                raise SkippedRecordEvent(message, cls.get_source_record_id(source_record))
         else:
             logger.warning(
                 "Datacite record %s missing required Datacite field resourceType",
                 cls.get_source_record_id(source_record),
             )
-        return content_types or None
+        return None
 
     @classmethod
     def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
@@ -402,10 +337,9 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def get_languages(cls, source_record: Tag) -> list[str] | None:
-        languages = []
         if language := source_record.metadata.find("language", string=True):
-            languages.append(str(language.string))
-        return languages or None
+            return [str(language.string)]
+        return None
 
     def get_links(self, source_record: Tag) -> list[timdex.Link] | None:
         return [
@@ -423,6 +357,92 @@ class Datacite(XMLTransformer):
             for location in source_record.metadata.find_all(
                 "geoLocationPlace", string=True
             )
+        ] or None
+
+    @classmethod
+    def get_notes(cls, source_record: Tag) -> list[timdex.Note] | None:
+        notes = []
+        notes.extend(list(cls._get_resource_type_note(source_record)))
+        notes.extend(list(cls._get_description_notes(source_record)))
+        return notes or None
+
+    @classmethod
+    def _get_resource_type_note(cls, source_record: Tag) -> Iterator[timdex.Note]:
+        if resource_type := source_record.metadata.find("resourceType", string=True):
+            yield timdex.Note(
+                value=[str(resource_type.string)],
+                kind="Datacite resource type",
+            )
+
+    @classmethod
+    def _get_description_notes(cls, source_record: Tag) -> Iterator[timdex.Note]:
+        for description in source_record.metadata.find_all("description", string=True):
+            description_type = description.get("descriptionType")
+            if "descriptionType" not in description.attrs:
+                logger.warning(
+                    "Datacite record %s missing required Datacite attribute "
+                    "@descriptionType",
+                    cls.get_source_record_id(source_record),
+                )
+            if description_type != "Abstract":
+                yield timdex.Note(
+                    value=[str(description.string)],
+                    kind=description_type or None,
+                )
+
+    @classmethod
+    def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
+        if publisher := source_record.metadata.find("publisher", string=True):
+            return [timdex.Publisher(name=str(publisher.string))]
+        logger.warning(
+            "Datacite record %s missing required Datacite field publisher",
+            cls.get_source_record_id(source_record),
+        )
+        return None
+
+    @classmethod
+    def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
+        return [
+            timdex.RelatedItem(
+                uri=cls.generate_related_item_identifier_url(related_identifier),
+                relationship=related_identifier.get("relationType") or "Not specified",
+            )
+            for related_identifier in source_record.metadata.find_all(
+                "relatedIdentifier", string=True
+            )
+            if related_identifier.get("relationType") != "IsIdenticalTo"
+        ] or None
+
+    @classmethod
+    def get_rights(cls, source_record: Tag) -> list[timdex.Rights] | None:
+        return [
+            timdex.Rights(
+                description=rights.string or None,
+                uri=rights.get("rightsURI") or None,
+            )
+            for rights in source_record.metadata.find_all("rights")
+            if rights.string or rights.get("rightsURI")
+        ] or None
+
+    @classmethod
+    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+        subjects_dict = defaultdict(list)
+        for subject in source_record.metadata.find_all("subject", string=True):
+            subjects_dict[
+                subject.get("subjectScheme") or "Subject scheme not provided"
+            ].append(str(subject.string))
+
+        return [
+            timdex.Subject(value=subject_value, kind=subject_scheme)
+            for subject_scheme, subject_value in subjects_dict.items()
+        ] or None
+
+    @classmethod
+    def get_summary(cls, source_record: Tag) -> list[str] | None:
+        return [
+            str(description.string)
+            for description in source_record.metadata.find_all("description", string=True)
+            if description.get("descriptionType") == "Abstract"
         ] or None
 
     @classmethod
