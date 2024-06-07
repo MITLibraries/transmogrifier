@@ -189,9 +189,12 @@ class DspaceMets(XMLTransformer):
             if alternate_title.get("type")
         ]
         # If the record has more than one main title, add extras to alternate_titles
-        for index, title in enumerate(cls.get_main_titles(source_record)):
-            if index > 0:
-                alternate_titles.append(timdex.AlternateTitle(value=title))
+        alternate_titles.extend(
+            [
+                timdex.AlternateTitle(value=title)
+                for title in cls.get_main_titles(source_record)[1:]
+            ]
+        )
         return alternate_titles or None
 
     @classmethod

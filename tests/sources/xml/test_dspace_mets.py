@@ -233,6 +233,27 @@ def test_get_alternate_titles_transforms_correctly_if_fields_missing():
     assert DspaceMets.get_alternate_titles(source_record) is None
 
 
+def test_get_alternate_titles_multiple_titles_success():
+
+    source_record = create_dspace_mets_source_record_stub(
+        """
+        <mods:titleInfo>
+         <mods:title>Title 1</mods:title>"
+        </mods:titleInfo>
+        <mods:titleInfo>
+         <mods:title>Title 2</mods:title>
+        </mods:titleInfo>
+        <mods:titleInfo>
+         <mods:title>Title 3</mods:title>
+        </mods:titleInfo>
+        """
+    )
+    assert DspaceMets.get_alternate_titles(source_record) == [
+        timdex.AlternateTitle(value="Title 2"),
+        timdex.AlternateTitle(value="Title 3"),
+    ]
+
+
 def test_get_citation_success():
     xml_string = (
         '<mods:identifier type="citation">Tatsumi, Yuki. "Magneto-thermal '
