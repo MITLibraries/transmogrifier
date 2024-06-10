@@ -191,12 +191,6 @@ def test_ead_transform_with_all_fields_transforms_correctly():
                 relationship="Alternate Format",
             ),
             timdex.RelatedItem(
-                description=(
-                    "Issues of Twilight Zine were separated for library cataloging."
-                ),
-                relationship="Separated Material",
-            ),
-            timdex.RelatedItem(
                 description="MC-0423 James R. Killian Papers",
             ),
             timdex.RelatedItem(
@@ -243,6 +237,12 @@ def test_ead_transform_with_all_fields_transforms_correctly():
                     "Foundation may be found at their website "
                     "(http://www.cjconnick.org/)."
                 ),
+            ),
+            timdex.RelatedItem(
+                description=(
+                    "Issues of Twilight Zine were separated for library cataloging."
+                ),
+                relationship="Separated Material",
             ),
         ],
         rights=[
@@ -514,14 +514,6 @@ def test_ead_transform_with_attribute_and_subfield_variations_transforms_correct
             ),
             timdex.RelatedItem(
                 description="Data with blank head tag",
-                relationship="Separated Material",
-            ),
-            timdex.RelatedItem(
-                description="Data with no head tag",
-                relationship="Separated Material",
-            ),
-            timdex.RelatedItem(
-                description="Data with blank head tag",
             ),
             timdex.RelatedItem(
                 description="Data with no head tag",
@@ -531,6 +523,14 @@ def test_ead_transform_with_attribute_and_subfield_variations_transforms_correct
             ),
             timdex.RelatedItem(
                 description="List data with no head tag",
+            ),
+            timdex.RelatedItem(
+                description="Data with blank head tag",
+                relationship="Separated Material",
+            ),
+            timdex.RelatedItem(
+                description="Data with no head tag",
+                relationship="Separated Material",
             ),
         ],
         subjects=[
@@ -1144,11 +1144,7 @@ def test_get_notes_transforms_correctly_with_multiple_kinds():
             <bioghist>
                 <head>Biographical Note</head>
                 <p>
-            """
-            "Charles J. Connick (1875-1945) was an American "
-            "<emph>stained</emph> glass artist whose work may be found "
-            "in cities all across the United States."
-            """
+                    Charles J. Connick was an American <emph>stained</emph> glass artist.
                 </p>
                 <p>Connick founded his own studio in 1912 in Boston.</p>
             </bioghist>
@@ -1168,11 +1164,7 @@ def test_get_notes_transforms_correctly_with_multiple_kinds():
         ),
         timdex.Note(
             value=[
-                (
-                    "Charles J. Connick (1875-1945) was an American "
-                    "stained glass artist whose work may be found "
-                    "in cities all across the United States."
-                ),
+                "Charles J. Connick was an American stained glass artist.",
                 "Connick founded his own studio in 1912 in Boston.",
             ],
             kind="Biographical Note",
@@ -1311,6 +1303,234 @@ def test_get_publishers_transforms_correctly_if_fields_blank():
 def test_get_publishers_transforms_correctly_if_fields_missing():
     source_record = create_ead_source_record_stub(parent_element="did")
     assert Ead.get_publishers(source_record) is None
+
+
+def test_get_related_items_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <altformavail>
+                <head>Location of Copies</head>
+                <p>A use copy of photographic plates in box 4.</p>
+            </altformavail>
+            <separatedmaterial>
+                <head>Separated Materials</head>
+                <p>Issues of Twilight Zine were separated for library cataloging.</p>
+            </separatedmaterial>
+            <relatedmaterial>
+                <head>Related Materials</head>
+                    <list>
+                        <head>
+                            Collections at the Institute Archives and Special Collections,
+                            Massachusetts Institute of Technology
+                        </head>
+                        <defitem>
+                            <label>MC-0423</label>
+                            <item>James R. Killian Papers</item>
+                        </defitem>
+                    </list>
+            </relatedmaterial>
+            <relatedmaterial>
+                <head>Related Materials</head>
+                <p>The Charles J. Connick and Associates Archives (http://www.bpl.org/).</p>
+            </relatedmaterial>
+        """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_related_items(source_record) == [
+        timdex.RelatedItem(
+            description=("A use copy of photographic plates in box 4."),
+            relationship="Alternate Format",
+        ),
+        timdex.RelatedItem(
+            description="Issues of Twilight Zine were separated for library cataloging.",
+            relationship="Separated Material",
+        ),
+        timdex.RelatedItem(description="MC-0423 James R. Killian Papers"),
+        timdex.RelatedItem(
+            description=(
+                "The Charles J. Connick and Associates Archives (http://www.bpl.org/)."
+            ),
+        ),
+    ]
+
+
+def test_get_related_items_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <altformavail></altformavail>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_related_items(source_record) is None
+
+
+def test_get_related_items_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="archdesc")
+    assert Ead.get_related_items(source_record) is None
+
+
+def test_get_related_items_transforms_correctly_if_relatedmaterials_list_multi_item():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <relatedmaterial>
+                <head>Related Materials</head>
+                <list>
+                    <head>
+                        Collections at the Institute Archives and Special Collections,
+                        Massachusetts Institute of Technology
+                    </head>
+                    <defitem>
+                        <label>MC-0423</label>
+                        <item>James R. Killian Papers</item>
+                    </defitem>
+                    <defitem>
+                        <label>MC-0416</label>
+                        <item>Karl T. Compton Papers</item>
+                    </defitem>
+                </list>
+                </head
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_related_items(source_record) == [
+        timdex.RelatedItem(description="MC-0423 James R. Killian Papers"),
+        timdex.RelatedItem(description="MC-0416 Karl T. Compton Papers"),
+    ]
+
+
+def test_get_related_items_transforms_correctly_if_relatedmaterials_multi_par():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <relatedmaterial>
+                <head>Related Materials</head>
+                <p>The Charles J. Connick and Associates Archives (http://www.bpl.org/).</p>
+                <p>The Charles J. Connick papers, 1901-1949 (http://www.aaa.si.edu/).</p>
+                <p>Information on the Charles J. Connick Stained Glass Foundation.</p>
+            </relatedmaterial
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_related_items(source_record) == [
+        timdex.RelatedItem(
+            description="The Charles J. Connick and Associates Archives (http://www.bpl.org/)."
+        ),
+        timdex.RelatedItem(
+            description="The Charles J. Connick papers, 1901-1949 (http://www.aaa.si.edu/)."
+        ),
+        timdex.RelatedItem(
+            description="Information on the Charles J. Connick Stained Glass Foundation."
+        ),
+    ]
+
+
+def test_get_rights_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <accessrestrict>
+                <head>Conditions Governing Access</head>
+                <p>This collection is open.</p>
+            </accessrestrict>
+            <userestrict>
+                <head>Conditions Governing Use</head>
+                <p>
+                    Access to collections in the Department of Distinctive Collections.
+                </p>
+            </userestrict>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_rights(source_record) == [
+        timdex.Rights(
+            description="This collection is open.", kind="Conditions Governing Access"
+        ),
+        timdex.Rights(
+            description=(
+                "Access to collections in the Department of Distinctive Collections."
+            ),
+            kind="Conditions Governing Use",
+        ),
+    ]
+
+
+def test_get_rights_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <accessrestrict></accessrestrict>
+            <userestrict></userestrict>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_rights(source_record) is None
+
+
+def test_get_rights_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="archdesc")
+    assert Ead.get_rights(source_record) is None
+
+
+def test_get_subjects_success():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess>
+                <subject source="aat">Letters (Correspondence)</subject>
+            </controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_subjects(source_record) == [
+        timdex.Subject(
+            value=["Letters (Correspondence)"], kind="Art & Architecture Thesaurus"
+        )
+    ]
+
+
+def test_get_subjects_transforms_correctly_if_fields_blank():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess>
+                <subject source="aat"></subject>
+            </controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_subjects(source_record) is None
+
+
+def test_get_subjects_transforms_correctly_if_fields_missing():
+    source_record = create_ead_source_record_stub(parent_element="archdesc")
+    assert Ead.get_subjects(source_record) is None
+
+
+def test_get_subjects_transforms_correctly_if_source_attribute_missing():
+    source_record = create_ead_source_record_stub(
+        metadata_insert=(
+            """
+            <controlaccess>
+                <subject>Letters (Correspondence)</subject>
+            </controlaccess>
+            """
+        ),
+        parent_element="archdesc",
+    )
+    assert Ead.get_subjects(source_record) == [
+        timdex.Subject(value=["Letters (Correspondence)"])
+    ]
 
 
 def test_get_summary_success():
