@@ -4,13 +4,15 @@ import transmogrifier.models as timdex
 from transmogrifier.sources.xml.dspace_mets import DspaceMets
 
 
-def create_dspace_mets_source_record_stub(xml_insert: str = "") -> BeautifulSoup:
+def create_dspace_mets_source_record_stub(
+    dmdsec_insert: str = "", filesec_insert: str = ""
+) -> BeautifulSoup:
     xml_string = f"""
         <records>
          <record xmlns="http://www.openarchives.org/OAI/2.0/"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
           <header>
-            <identifier>abc123</identifier>
+            <identifier>oai:dspace:abc123</identifier>
           <header>
           <metadata>
            <mets xmlns="http://www.loc.gov/METS/"
@@ -24,11 +26,14 @@ def create_dspace_mets_source_record_stub(xml_insert: str = "") -> BeautifulSoup
                xsi:schemaLocation="http://www.loc.gov/mods/v3
                http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
                 <mods:mods>
-                {xml_insert}
+                {dmdsec_insert}
                 </mods:mods>
               </xmlData>
              </mdWrap>
             </dmdSec>
+            <fileSec>
+            {filesec_insert}
+            </fileSec>
            </mets>
           </metadata>
          </record>
@@ -210,7 +215,7 @@ def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly
 
 def test_get_alternate_titles_success():
     source_record = create_dspace_mets_source_record_stub(
-        """
+        dmdsec_insert="""
         <mods:titleInfo>
          <mods:title type="alternative">A Slightly Different Title</mods:title>
         </mods:titleInfo>
@@ -223,7 +228,7 @@ def test_get_alternate_titles_success():
 
 def test_get_alternate_titles_transforms_correctly_if_fields_blank():
     source_record = create_dspace_mets_source_record_stub(
-        '<titles><title titleType="AlternativeTitle"></title></titles>'
+        dmdsec_insert='<titles><title titleType="AlternativeTitle"></title></titles>'
     )
     assert DspaceMets.get_alternate_titles(source_record) is None
 
@@ -236,7 +241,7 @@ def test_get_alternate_titles_transforms_correctly_if_fields_missing():
 def test_get_alternate_titles_multiple_titles_success():
 
     source_record = create_dspace_mets_source_record_stub(
-        """
+        dmdsec_insert="""
         <mods:titleInfo>
          <mods:title>Title 1</mods:title>"
         </mods:titleInfo>
@@ -260,7 +265,7 @@ def test_get_citation_success():
         'Transport and Machine Learning-assisted Investigation of Magnetic Materials." '
         "Massachusetts Institute of Technology © 2022.</mods:identifier>"
     )
-    source_record = create_dspace_mets_source_record_stub(xml_string)
+    source_record = create_dspace_mets_source_record_stub(dmdsec_insert=xml_string)
     assert DspaceMets.get_citation(source_record) == (
         'Tatsumi, Yuki. "Magneto-thermal Transport and Machine Learning-assisted '
         'Investigation of Magnetic Materials." Massachusetts Institute of Technology '
@@ -270,7 +275,7 @@ def test_get_citation_success():
 
 def test_get_citation_transforms_correctly_if_fields_blank():
     source_record = create_dspace_mets_source_record_stub(
-        '<mods:identifier type="citation"></mods:identifier>'
+        dmdsec_insert='<mods:identifier type="citation"></mods:identifier>'
     )
     assert DspaceMets.get_citation(source_record) is None
 
@@ -282,16 +287,350 @@ def test_get_citation_transforms_correctly_if_fields_missing():
 
 def test_get_content_type_success():
     source_record = create_dspace_mets_source_record_stub(
-        "<mods:genre>Thesis</mods:genre>"
+        dmdsec_insert="<mods:genre>Thesis</mods:genre>"
     )
     assert DspaceMets.get_content_type(source_record) == ["Thesis"]
 
 
 def test_get_content_type_transforms_correctly_if_fields_blank():
-    source_record = create_dspace_mets_source_record_stub("<mods:genre />")
+    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="<mods:genre />")
     assert DspaceMets.get_content_type(source_record) is None
 
 
 def test_get_content_type_transforms_correctly_if_fields_missing():
     source_record = create_dspace_mets_source_record_stub()
     assert DspaceMets.get_content_type(source_record) is None
+
+
+def test_get_contribtuors_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:name>
+         <mods:role>
+          <mods:roleTerm type="text">advisor</mods:roleTerm>
+         </mods:role>
+         <mods:namePart>Checkelsky, Joseph</mods:namePart>
+        </mods:name>
+        <mods:name>
+         <mods:role>
+          <mods:roleTerm type="text">author</mods:roleTerm>
+         </mods:role>
+         <mods:namePart>Tatsumi, Yuki</mods:namePart>
+        </mods:name>
+        <mods:name>
+         <mods:role>
+           <mods:roleTerm type="text">department</mods:roleTerm>
+         </mods:role>
+         <mods:namePart>Massachusetts Institute of Technology. Department</mods:namePart>
+        </mods:name>
+        <mods:name>
+         <mods:namePart>Smith, Susie Q.</mods:namePart>
+        </mods:name>
+        """
+    )
+    assert DspaceMets.get_contributors(source_record) == [
+        timdex.Contributor(
+            value="Checkelsky, Joseph",
+            kind="advisor",
+        ),
+        timdex.Contributor(
+            value="Tatsumi, Yuki",
+            kind="author",
+        ),
+        timdex.Contributor(
+            value="Massachusetts Institute of Technology. Department",
+            kind="department",
+        ),
+        timdex.Contributor(
+            value="Smith, Susie Q.",
+            kind="Not specified",
+        ),
+    ]
+
+
+def test_get_contributors_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:name><mods:namePart /></mods:name>"
+    )
+    assert DspaceMets.get_contributors(source_record) is None
+
+
+def test_get_contributors_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_contributors(source_record) is None
+
+
+def test_get_dates_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:originInfo>
+         <mods:dateIssued encoding="iso8601">2021-09</mods:dateIssued>
+        </mods:originInfo>
+        """
+    )
+    assert DspaceMets.get_dates(source_record) == [
+        timdex.Date(kind="Publication date", value="2021-09")
+    ]
+
+
+def test_get_dates_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:originInfo><mods:dateIssued /></mods:originInfo>"
+    )
+    assert DspaceMets.get_dates(source_record) is None
+
+
+def test_get_dates_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_dates(source_record) is None
+
+
+def test_get_file_formats_success():
+    source_record = create_dspace_mets_source_record_stub(
+        filesec_insert="""
+        <fileGrp USE="ORIGINAL">
+         <file ID="BITSTREAM_ORIGINAL_1721.1_142832_1"
+        MIMETYPE="application/pdf">
+          <FLocat xlink:type="simple" LOCTYPE="URL"
+          xlink:href="https://dspace.mit.edu/bitstream/1721.1/142832/1/1.pdf"/>
+         </file>
+        </fileGrp>
+        <fileGrp USE="TEXT">
+          <file ID="BITSTREAM_TEXT_1721.1_142832_2" MIMETYPE="text/plain">
+          <FLocat xlink:type="simple" LOCTYPE="URL"
+          xlink:href="https://dspace.mit.edu/bitstream/1721.1/142832/2/1.pdf.txt"/>
+         </file>
+        </fileGrp>
+        """
+    )
+    assert DspaceMets.get_file_formats(source_record) == ["application/pdf"]
+
+
+def test_get_file_formats_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        '<fileGrp USE="ORIGINAL"><file MIMETYPE="" /></<fileGrp>'
+    )
+    assert DspaceMets.get_file_formats(source_record) is None
+
+
+def test_get_file_formats_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_file_formats(source_record) is None
+
+
+def test_get_format_success():
+    assert DspaceMets.get_format() == "electronic resource"
+
+
+def test_get_identifiers_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:identifier type="uri">https://hdl.handle.net/1721.1/142832</mods:identifier>
+        """
+    )
+    assert DspaceMets.get_identifiers(source_record) == [
+        timdex.Identifier(value="https://hdl.handle.net/1721.1/142832", kind="uri"),
+    ]
+
+
+def test_get_identifiers_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:identifier />"
+    )
+    assert DspaceMets.get_identifiers(source_record) is None
+
+
+def test_get_identifers_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_identifiers(source_record) is None
+
+
+def test_get_languages_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:language>
+         <mods:languageTerm authority="rfc3066">en_US</mods:languageTerm>
+        </mods:language>
+        """
+    )
+    assert DspaceMets.get_languages(source_record) == ["en_US"]
+
+
+def test_get_languages_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:language><mods:languageTerm /></mods:language>"
+    )
+    assert DspaceMets.get_languages(source_record) is None
+
+
+def test_get_languages_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_languages(source_record) is None
+
+
+def test_get_links_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:identifier type="uri">https://hdl.handle.net/1721.1/142832</mods:identifier>
+        """
+    )
+    assert DspaceMets.get_links(source_record) == [
+        timdex.Link(
+            url="https://hdl.handle.net/1721.1/142832",
+            kind="Digital object URL",
+            text="Digital object URL",
+        ),
+    ]
+
+
+def test_get_links_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:identifier />"
+    )
+    assert DspaceMets.get_links(source_record) is None
+
+
+def test_get_links_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_links(source_record) is None
+
+
+def test_get_numbering_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:relatedItem "
+        'type="series">MIT-CSAIL-TR-2018-016</mods:relatedItem>'
+    )
+    assert DspaceMets.get_numbering(source_record) == "MIT-CSAIL-TR-2018-016"
+
+
+def test_get_numbering_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert='<mods:relatedItem type="series" />'
+    )
+    assert DspaceMets.get_numbering(source_record) is None
+
+
+def test_get_numbering_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_numbering(source_record) is None
+
+
+def test_get_publishers_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:originInfo>
+         <mods:publisher>Massachusetts Institute of Technology</mods:publisher>
+        </mods:originInfo>
+        """
+    )
+    assert DspaceMets.get_publishers(source_record) == [
+        timdex.Publisher(name="Massachusetts Institute of Technology"),
+    ]
+
+
+def test_get_publishers_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:originInfo><mods:publisher /></mods:originInfo>"
+    )
+    assert DspaceMets.get_publishers(source_record) is None
+
+
+def test_get_publishers_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_publishers(source_record) is None
+
+
+def test_get_related_items_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:relatedItem type="host">Nature Communications</mods:relatedItem>
+        """
+    )
+    assert DspaceMets.get_related_items(source_record) == [
+        timdex.RelatedItem(description="Nature Communications", relationship="host"),
+    ]
+
+
+def test_get_related_items_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert='<mods:relatedItem type="host" />'
+    )
+    assert DspaceMets.get_related_items(source_record) is None
+
+
+def test_get_related_items_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_related_items(source_record) is None
+
+
+def test_get_rights_items_success():
+    dmdsec_insert = (
+        '<mods:accessCondition type="useAndReproduction">'
+        "In Copyright - Educational Use Permitted</mods:accessCondition>"
+    )
+    source_record = create_dspace_mets_source_record_stub(dmdsec_insert)
+    assert DspaceMets.get_rights(source_record) == [
+        timdex.Rights(
+            description="In Copyright - Educational Use Permitted",
+            kind="useAndReproduction",
+        ),
+    ]
+
+
+def test_get_rights_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:accessCondition />"
+    )
+    assert DspaceMets.get_rights(source_record) is None
+
+
+def test_get_rights_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_rights(source_record) is None
+
+
+def test_get_subjects_items_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
+        <mods:subject>
+         <mods:topic>Metallurgy and Materials Science</mods:topic>
+        </mods:subject>
+        """
+    )
+    assert DspaceMets.get_subjects(source_record) == [
+        timdex.Subject(
+            value=["Metallurgy and Materials Science"],
+            kind="Subject scheme not provided",
+        ),
+    ]
+
+
+def test_get_subjects_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:subject><mods:topic /></mods:subject>"
+    )
+    assert DspaceMets.get_subjects(source_record) is None
+
+
+def test_get_subjects_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_subjects(source_record) is None
+
+
+def test_get_summary_items_success():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:abstract>Heat is carried by different.</mods:abstract>"
+    )
+    assert DspaceMets.get_summary(source_record) == ["Heat is carried by different."]
+
+
+def test_get_summary_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="<mods:abstract />"
+    )
+    assert DspaceMets.get_summary(source_record) is None
+
+
+def test_get_summary_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_summary(source_record) is None

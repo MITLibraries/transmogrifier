@@ -26,8 +26,6 @@ class DspaceMets(XMLTransformer):
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(source_record)
-
         # alternate_titles
         fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
@@ -41,41 +39,18 @@ class DspaceMets(XMLTransformer):
         # mapped to the OAI-PMH METS output.
 
         # contributors
-        for contributor in source_record.find_all("mods:name"):
-            if name := contributor.find("mods:namePart", string=True):
-                if role := contributor.find("mods:roleTerm", string=True):
-                    kind = role.string
-                else:
-                    kind = "Not specified"
-                fields.setdefault("contributors", []).append(
-                    timdex.Contributor(
-                        kind=kind,
-                        value=name.string,
-                    )
-                )
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
-        # Only publication date is mapped from DSpace, other relevant date field (dc.
-        # coverage.temporal) is not mapped to the OAI-PMH METS output.
-        if publication_date := source_record.find("mods:dateIssued", string=True):
-            publication_date_value = str(publication_date.string.strip())
-            if validate_date(publication_date_value, source_record_id):
-                fields["dates"] = [
-                    timdex.Date(kind="Publication date", value=publication_date_value)
-                ]
+        fields["dates"] = self.get_dates(source_record)
 
         # edition field not used in DSpace
 
         # file_formats
-        # Only maps formats with attribute use="ORIGINAL" because other formats such as
-        # USE="TEXT" are used internally by DSpace and not made publicly available.
-        for file_group in source_record.find_all("fileGrp", USE="ORIGINAL"):
-            file = file_group.find("file")
-            if file and file.get("MIMETYPE"):
-                fields.setdefault("file_formats", []).append(file["MIMETYPE"])
+        fields["file_formats"] = self.get_file_formats(source_record)
 
         # format
-        fields["format"] = "electronic resource"
+        fields["format"] = self.get_format()
 
         # funding_information: relevant field in DSpace (dc.description.sponsorship) is
         # not mapped to the OAI-PMH METS output.
@@ -84,31 +59,13 @@ class DspaceMets(XMLTransformer):
 
         # identifiers
         # Exludes citation because we have a separate field for that
-        for identifier in [
-            i
-            for i in source_record.find_all("mods:identifier", string=True)
-            if i.get("type") != "citation"
-        ]:
-            fields.setdefault("identifiers", []).append(
-                timdex.Identifier(
-                    kind=identifier.get("type") or "Not specified",
-                    value=identifier.string,
-                )
-            )
+        fields["identifiers"] = self.get_identifiers(source_record)
 
         # languages
-        for language in source_record.find_all("mods:languageTerm", string=True):
-            fields.setdefault("languages", []).append(language.string)
+        fields["languages"] = self.get_languages(source_record)
 
         # links
-        for link in source_record.find_all("mods:identifier", string=True, type="uri"):
-            fields.setdefault("links", []).append(
-                timdex.Link(
-                    kind="Digital object URL",
-                    text="Digital object URL",
-                    url=link.string,
-                )
-            )
+        fields["links"] = self.get_links(source_record)
 
         # literary_form field not used in DSpace
 
@@ -119,10 +76,7 @@ class DspaceMets(XMLTransformer):
         # the OAI-PMH METS output.
 
         # numbering
-        if numbering := source_record.find(
-            "mods:relatedItem", string=True, type="series"
-        ):
-            fields["numbering"] = numbering.string
+        fields["numbering"] = self.get_numbering(source_record)
 
         # physical_description: relevant fields in DSpace (dc.format, dc.format.extent,
         # dc.format.medium) are not mapped to the OAI-PMH METS output.
@@ -130,49 +84,19 @@ class DspaceMets(XMLTransformer):
         # publication_frequency field not used in DSpace
 
         # publishers
-        for publisher in source_record.find_all("mods:publisher", string=True):
-            fields.setdefault("publishers", []).append(
-                timdex.Publisher(name=publisher.string)
-            )
+        fields["publishers"] = self.get_publishers(source_record)
 
         # related_items
-        # Excludes related items with type of "series" because the data in that field
-        # seems to more accurately map to the numbering field.
-        for related_item in [
-            ri
-            for ri in source_record.find_all("mods:relatedItem", string=True)
-            if ri.get("type") != "series"
-        ]:
-            fields.setdefault("related_items", []).append(
-                timdex.RelatedItem(
-                    description=related_item.string,
-                    relationship=related_item.get("type") or "Not specified",
-                )
-            )
+        fields["related_items"] = self.get_related_items(source_record)
 
         # rights
-        # Note: rights uri field in DSpace (dc.rights.uri) is not mapped to the OAI-PMH
-        # METS output.
-        for right in source_record.find_all("mods:accessCondition", string=True):
-            fields.setdefault("rights", []).append(
-                timdex.Rights(description=right.string, kind=right.get("type") or None)
-            )
+        fields["rights"] = self.get_rights(source_record)
 
         # subjects
-        # Note: subject fields with schemes in DSpace (dc.subject.<scheme>) are not
-        # mapped to the OAI-PMH METS output.
-        if topics := source_record.find_all("mods:topic", string=True):
-            fields["subjects"] = [
-                timdex.Subject(
-                    kind="Subject scheme not provided", value=[t.string for t in topics]
-                )
-            ]
+        fields["subjects"] = self.get_subjects(source_record)
 
         # summary
-        fields["summary"] = [
-            summary.string
-            for summary in source_record.find_all("mods:abstract", string=True)
-        ] or None
+        fields["summary"] = self.get_summary(source_record)
 
         return fields
 
@@ -213,6 +137,136 @@ class DspaceMets(XMLTransformer):
         ] or None
 
     @classmethod
+    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
+        contributors = []
+        for contributor in source_record.find_all("mods:name"):
+            if name := contributor.find("mods:namePart", string=True):
+                if role := contributor.find("mods:roleTerm", string=True):
+                    kind = str(role.string)
+                else:
+                    kind = "Not specified"
+                contributors.append(
+                    timdex.Contributor(
+                        kind=kind,
+                        value=str(name.string),
+                    )
+                )
+        return contributors or None
+
+    @classmethod
+    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
+        # Only publication date is mapped from DSpace, other relevant date field (dc.
+        # coverage.temporal) is not mapped to the OAI-PMH METS output.
+        if publication_date := source_record.find("mods:dateIssued", string=True):
+            publication_date_value = str(publication_date.string.strip())
+            if validate_date(
+                publication_date_value, cls.get_source_record_id(source_record)
+            ):
+                return [
+                    timdex.Date(kind="Publication date", value=publication_date_value)
+                ]
+        return None
+
+    @classmethod
+    def get_file_formats(cls, source_record: Tag) -> list[str] | None:
+        # Only maps formats with attribute use="ORIGINAL" because other formats such as
+        # USE="TEXT" are used internally by DSpace and not made publicly available.
+        file_formats = []
+        for file_group in source_record.find_all("fileGrp", USE="ORIGINAL"):
+            file = file_group.find("file")
+            if file and file.get("MIMETYPE"):
+                file_formats.append(file["MIMETYPE"])
+        return file_formats or None
+
+    @classmethod
+    def get_format(cls) -> str:
+        return "electronic resource"
+
+    @classmethod
+    def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
+        return [
+            timdex.Identifier(
+                kind=identifier.get("type") or "Not specified",
+                value=str(identifier.string),
+            )
+            for identifier in source_record.find_all("mods:identifier", string=True)
+            if identifier.get("type") != "citation"
+        ] or None
+
+    @classmethod
+    def get_languages(cls, source_record: Tag) -> list[str] | None:
+        return [
+            str(language.string)
+            for language in source_record.find_all("mods:languageTerm", string=True)
+        ] or None
+
+    @classmethod
+    def get_links(cls, source_record: Tag) -> list[timdex.Link] | None:
+        return [
+            timdex.Link(
+                kind="Digital object URL",
+                text="Digital object URL",
+                url=str(link.string),
+            )
+            for link in source_record.find_all("mods:identifier", string=True, type="uri")
+        ] or None
+
+    @classmethod
+    def get_numbering(cls, source_record: Tag) -> str | None:
+        if numbering := source_record.find(
+            "mods:relatedItem", string=True, type="series"
+        ):
+            return str(numbering.string)
+        return None
+
+    @classmethod
+    def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
+        return [
+            timdex.Publisher(name=str(publisher.string))
+            for publisher in source_record.find_all("mods:publisher", string=True)
+        ] or None
+
+    @classmethod
+    def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
+        return [
+            timdex.RelatedItem(
+                description=str(related_item.string),
+                relationship=related_item.get("type") or "Not specified",
+            )
+            for related_item in source_record.find_all("mods:relatedItem", string=True)
+            if related_item.get("type") != "series"
+        ] or None
+
+    @classmethod
+    def get_rights(cls, source_record: Tag) -> list[timdex.Rights] | None:
+        # Note: rights uri field in DSpace (dc.rights.uri) is not mapped to the OAI-PMH
+        # METS output.
+        return [
+            timdex.Rights(description=str(right.string), kind=right.get("type") or None)
+            for right in source_record.find_all("mods:accessCondition", string=True)
+        ] or None
+
+    @classmethod
+    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+        # Note: subject fields with schemes in DSpace (dc.subject.<scheme>) are not
+        # mapped to the OAI-PMH METS output.
+        if subjects := source_record.find_all("mods:topic", string=True):
+            return [
+                timdex.Subject(
+                    kind="Subject scheme not provided",
+                    value=[str(subject.string) for subject in subjects],
+                )
+            ]
+        return None
+
+    @classmethod
+    def get_summary(cls, source_record: Tag) -> list[str] | None:
+        return [
+            str(summary.string)
+            for summary in source_record.find_all("mods:abstract", string=True)
+        ] or None
+
+    @classmethod
     def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from a DSpace METS XML record.
@@ -224,9 +278,9 @@ class DspaceMets(XMLTransformer):
             record.
         """
         return [
-            t.string
-            for t in source_record.find_all("mods:title", string=True)
-            if not t.get("type")
+            str(title.string)
+            for title in source_record.find_all("mods:title", string=True)
+            if not title.get("type")
         ]
 
     @classmethod
