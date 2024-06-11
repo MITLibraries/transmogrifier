@@ -1,86 +1,40 @@
+from bs4 import BeautifulSoup
+
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.dspace_mets import DspaceMets
 
 
-def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly():
-    dspace_xml_records = DspaceMets.parse_source_file(
-        "tests/fixtures/dspace/dspace_mets_record_optional_fields_missing.xml"
-    )
-    output_records = DspaceMets("dspace", dspace_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
-        source="DSpace@MIT",
-        source_link="https://dspace.mit.edu/handle/1721.1/142832",
-        timdex_record_id="dspace:1721.1-142832",
-        title="Title not provided",
-        citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
-        format="electronic resource",
-        content_type=["Not specified"],
-    )
-
-
-def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly():
-    dspace_xml_records = DspaceMets.parse_source_file(
-        "tests/fixtures/dspace/dspace_mets_record_optional_fields_blank.xml"
-    )
-    output_records = DspaceMets("dspace", dspace_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
-        source="DSpace@MIT",
-        source_link="https://dspace.mit.edu/handle/1721.1/142832",
-        timdex_record_id="dspace:1721.1-142832",
-        title="Title not provided",
-        citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
-        format="electronic resource",
-        content_type=["Not specified"],
-    )
-
-
-def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly():
-    dspace_xml_records = DspaceMets.parse_source_file(
-        "tests/fixtures/dspace/dspace_mets_record_attribute_and_subfield_variations.xml"
-    )
-    output_records = DspaceMets("dspace", dspace_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
-        source="DSpace@MIT",
-        source_link="https://dspace.mit.edu/handle/1721.1/142832",
-        timdex_record_id="dspace:1721.1-142832",
-        title="Title with Blank Type",
-        citation="Title with Blank Type. 2021-09. Thesis. "
-        "https://dspace.mit.edu/handle/1721.1/142832",
-        alternate_titles=[timdex.AlternateTitle(value="Second Title with Blank Type")],
-        content_type=["Thesis"],
-        contributors=[
-            timdex.Contributor(value="One, Author", kind="Not specified"),
-            timdex.Contributor(value="Two, Author", kind="Not specified"),
-            timdex.Contributor(value="Three, Author", kind="Not specified"),
-        ],
-        dates=[timdex.Date(kind="Publication date", value="2021-09")],
-        file_formats=["application/pdf"],
-        format="electronic resource",
-        identifiers=[
-            timdex.Identifier(kind="Not specified", value="ID-no-type"),
-            timdex.Identifier(kind="Not specified", value="ID-blank-type"),
-            timdex.Identifier(kind="uri", value="https://link-to-item"),
-        ],
-        links=[
-            timdex.Link(
-                kind="Digital object URL",
-                text="Digital object URL",
-                url="https://link-to-item",
-            )
-        ],
-        related_items=[
-            timdex.RelatedItem(
-                description="Related item no type", relationship="Not specified"
-            ),
-            timdex.RelatedItem(
-                description="Related item blank type", relationship="Not specified"
-            ),
-        ],
-        rights=[
-            timdex.Rights(description="Access condition no type"),
-            timdex.Rights(description="Access condition blank type"),
-        ],
-    )
+def create_dspace_mets_source_record_stub(xml_insert: str = "") -> BeautifulSoup:
+    xml_string = f"""
+        <records>
+         <record xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <header>
+            <identifier>abc123</identifier>
+          <header>
+          <metadata>
+           <mets xmlns="http://www.loc.gov/METS/"
+                xmlns:doc="http://www.lyncode.com/xoai"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xsi:schemaLocation="http://www.loc.gov/METS/
+            <dmdSec ID="DMD_1721.1_142832">
+             <mdWrap MDTYPE="MODS">
+              <xmlData xmlns:mods="http://www.loc.gov/mods/v3"
+               xsi:schemaLocation="http://www.loc.gov/mods/v3
+               http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
+                <mods:mods>
+                {xml_insert}
+                </mods:mods>
+              </xmlData>
+             </mdWrap>
+            </dmdSec>
+           </mets>
+          </metadata>
+         </record>
+        </records>
+        """
+    return BeautifulSoup(xml_string, "xml")
 
 
 def test_dspace_mets_transform_with_all_fields_transforms_correctly():
@@ -171,3 +125,173 @@ def test_dspace_mets_transform_with_all_fields_transforms_correctly():
             "complex magnets are described."
         ],
     )
+
+
+def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly():
+    dspace_xml_records = DspaceMets.parse_source_file(
+        "tests/fixtures/dspace/dspace_mets_record_optional_fields_blank.xml"
+    )
+    output_records = DspaceMets("dspace", dspace_xml_records)
+    assert next(output_records) == timdex.TimdexRecord(
+        source="DSpace@MIT",
+        source_link="https://dspace.mit.edu/handle/1721.1/142832",
+        timdex_record_id="dspace:1721.1-142832",
+        title="Title not provided",
+        citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
+        format="electronic resource",
+        content_type=["Not specified"],
+    )
+
+
+def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly():
+    dspace_xml_records = DspaceMets.parse_source_file(
+        "tests/fixtures/dspace/dspace_mets_record_optional_fields_missing.xml"
+    )
+    output_records = DspaceMets("dspace", dspace_xml_records)
+    assert next(output_records) == timdex.TimdexRecord(
+        source="DSpace@MIT",
+        source_link="https://dspace.mit.edu/handle/1721.1/142832",
+        timdex_record_id="dspace:1721.1-142832",
+        title="Title not provided",
+        citation="Title not provided. https://dspace.mit.edu/handle/1721.1/142832",
+        format="electronic resource",
+        content_type=["Not specified"],
+    )
+
+
+def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly():
+    dspace_xml_records = DspaceMets.parse_source_file(
+        "tests/fixtures/dspace/dspace_mets_record_attribute_and_subfield_variations.xml"
+    )
+    output_records = DspaceMets("dspace", dspace_xml_records)
+    assert next(output_records) == timdex.TimdexRecord(
+        source="DSpace@MIT",
+        source_link="https://dspace.mit.edu/handle/1721.1/142832",
+        timdex_record_id="dspace:1721.1-142832",
+        title="Title with Blank Type",
+        citation="Title with Blank Type. 2021-09. Thesis. "
+        "https://dspace.mit.edu/handle/1721.1/142832",
+        alternate_titles=[timdex.AlternateTitle(value="Second Title with Blank Type")],
+        content_type=["Thesis"],
+        contributors=[
+            timdex.Contributor(value="One, Author", kind="Not specified"),
+            timdex.Contributor(value="Two, Author", kind="Not specified"),
+            timdex.Contributor(value="Three, Author", kind="Not specified"),
+        ],
+        dates=[timdex.Date(kind="Publication date", value="2021-09")],
+        file_formats=["application/pdf"],
+        format="electronic resource",
+        identifiers=[
+            timdex.Identifier(kind="Not specified", value="ID-no-type"),
+            timdex.Identifier(kind="Not specified", value="ID-blank-type"),
+            timdex.Identifier(kind="uri", value="https://link-to-item"),
+        ],
+        links=[
+            timdex.Link(
+                kind="Digital object URL",
+                text="Digital object URL",
+                url="https://link-to-item",
+            )
+        ],
+        related_items=[
+            timdex.RelatedItem(
+                description="Related item no type", relationship="Not specified"
+            ),
+            timdex.RelatedItem(
+                description="Related item blank type", relationship="Not specified"
+            ),
+        ],
+        rights=[
+            timdex.Rights(description="Access condition no type"),
+            timdex.Rights(description="Access condition blank type"),
+        ],
+    )
+
+
+def test_get_alternate_titles_success():
+    source_record = create_dspace_mets_source_record_stub(
+        """
+        <mods:titleInfo>
+         <mods:title type="alternative">A Slightly Different Title</mods:title>
+        </mods:titleInfo>
+        """
+    )
+    assert DspaceMets.get_alternate_titles(source_record) == [
+        timdex.AlternateTitle(value="A Slightly Different Title", kind="alternative")
+    ]
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        '<titles><title titleType="AlternativeTitle"></title></titles>'
+    )
+    assert DspaceMets.get_alternate_titles(source_record) is None
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_alternate_titles(source_record) is None
+
+
+def test_get_alternate_titles_multiple_titles_success():
+
+    source_record = create_dspace_mets_source_record_stub(
+        """
+        <mods:titleInfo>
+         <mods:title>Title 1</mods:title>"
+        </mods:titleInfo>
+        <mods:titleInfo>
+         <mods:title>Title 2</mods:title>
+        </mods:titleInfo>
+        <mods:titleInfo>
+         <mods:title>Title 3</mods:title>
+        </mods:titleInfo>
+        """
+    )
+    assert DspaceMets.get_alternate_titles(source_record) == [
+        timdex.AlternateTitle(value="Title 2"),
+        timdex.AlternateTitle(value="Title 3"),
+    ]
+
+
+def test_get_citation_success():
+    xml_string = (
+        '<mods:identifier type="citation">Tatsumi, Yuki. "Magneto-thermal '
+        'Transport and Machine Learning-assisted Investigation of Magnetic Materials." '
+        "Massachusetts Institute of Technology © 2022.</mods:identifier>"
+    )
+    source_record = create_dspace_mets_source_record_stub(xml_string)
+    assert DspaceMets.get_citation(source_record) == (
+        'Tatsumi, Yuki. "Magneto-thermal Transport and Machine Learning-assisted '
+        'Investigation of Magnetic Materials." Massachusetts Institute of Technology '
+        "© 2022."
+    )
+
+
+def test_get_citation_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub(
+        '<mods:identifier type="citation"></mods:identifier>'
+    )
+    assert DspaceMets.get_citation(source_record) is None
+
+
+def test_get_citation_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_citation(source_record) is None
+
+
+def test_get_content_type_success():
+    source_record = create_dspace_mets_source_record_stub(
+        "<mods:genre>Thesis</mods:genre>"
+    )
+    assert DspaceMets.get_content_type(source_record) == ["Thesis"]
+
+
+def test_get_content_type_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_mets_source_record_stub("<mods:genre />")
+    assert DspaceMets.get_content_type(source_record) is None
+
+
+def test_get_content_type_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_mets_source_record_stub()
+    assert DspaceMets.get_content_type(source_record) is None

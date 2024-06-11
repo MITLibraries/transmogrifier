@@ -1,21 +1,6 @@
 from bs4 import BeautifulSoup
 
-from transmogrifier.models import (
-    AlternateTitle,
-    Contributor,
-    Date,
-    DateRange,
-    Funder,
-    Identifier,
-    Link,
-    Location,
-    Note,
-    Publisher,
-    RelatedItem,
-    Rights,
-    Subject,
-    TimdexRecord,
-)
+import transmogrifier.models as timdex
 from transmogrifier.sources.xml.datacite import Datacite
 
 
@@ -44,7 +29,7 @@ def create_datacite_source_record_stub(xml_insert: str = "") -> BeautifulSoup:
 def test_datacite_transform_with_all_fields_transforms_correctly(
     datacite_record_all_fields,
 ):
-    assert next(datacite_record_all_fields) == TimdexRecord(
+    assert next(datacite_record_all_fields) == timdex.TimdexRecord(
         citation=(
             "Banerji, Rukmini, Berry, James, Shotland, Marc "
             "(2017): The Impact of Maternal Literacy and Participation Programs. Harvard "
@@ -55,30 +40,30 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
         title="The Impact of Maternal Literacy and Participation Programs",
         alternate_titles=[
-            AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
-            AlternateTitle(value="Baseline Data", kind="Subtitle"),
+            timdex.AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
+            timdex.AlternateTitle(value="Baseline Data", kind="Subtitle"),
         ],
         content_type=["Dataset"],
         contributors=[
-            Contributor(
+            timdex.Contributor(
                 value="Banerji, Rukmini",
                 affiliation=["Pratham and ASER Centre"],
                 identifier=["https://orcid.org/0000-0000-0000-0000"],
                 kind="Creator",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Berry, James",
                 affiliation=["University of Delaware"],
                 identifier=["0000-0000-0000-0001"],
                 kind="Creator",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Shotland, Marc",
                 affiliation=["Abdul Latif Jameel Poverty Action Lab"],
                 identifier=["0000-0000-0000-0002"],
                 kind="Creator",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Banerji, Rukmini",
                 affiliation=["Pratham and ASER Centre"],
                 identifier=["https://orcid.org/0000-0000-0000-0000"],
@@ -86,16 +71,16 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
             ),
         ],
         dates=[
-            Date(kind="Publication date", value="2017"),
-            Date(kind="Submitted", value="2017-02-27"),
-            Date(
+            timdex.Date(kind="Publication date", value="2017"),
+            timdex.Date(kind="Submitted", value="2017-02-27"),
+            timdex.Date(
                 kind="Updated",
                 note="This was updated on this date",
                 value="2019-06-24",
             ),
-            Date(
+            timdex.Date(
                 kind="Collected",
-                range=DateRange(gte="2007-01-01", lte="2007-02-28"),
+                range=timdex.DateRange(gte="2007-01-01", lte="2007-02-28"),
             ),
         ],
         edition="1.2",
@@ -114,7 +99,7 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
         ],
         format="electronic resource",
         funding_information=[
-            Funder(
+            timdex.Funder(
                 funder_name="3ie, Nike Foundation",
                 funder_identifier="0987",
                 funder_identifier_type="Crossref FunderID",
@@ -123,13 +108,13 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
             )
         ],
         identifiers=[
-            Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
-            Identifier(value="https://zenodo.org/record/5524465", kind="url"),
-            Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
+            timdex.Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
+            timdex.Identifier(value="https://zenodo.org/record/5524465", kind="url"),
+            timdex.Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
         ],
-        locations=[Location(value="A point on the globe")],
+        locations=[timdex.Location(value="A point on the globe")],
         links=[
-            Link(
+            timdex.Link(
                 url="https://example.com/doi:10.7910/DVN/19PPE7",
                 kind="Digital object URL",
                 text="Digital object URL",
@@ -137,41 +122,41 @@ def test_datacite_transform_with_all_fields_transforms_correctly(
         ],
         languages=["en_US"],
         notes=[
-            Note(value=["Survey Data"], kind="Datacite resource type"),
-            Note(value=["Stata, 13"], kind="TechnicalInfo"),
+            timdex.Note(value=["Survey Data"], kind="Datacite resource type"),
+            timdex.Note(value=["Stata, 13"], kind="TechnicalInfo"),
         ],
-        publishers=[Publisher(name="Harvard Dataverse")],
+        publishers=[timdex.Publisher(name="Harvard Dataverse")],
         related_items=[
-            RelatedItem(
+            timdex.RelatedItem(
                 relationship="IsCitedBy",
                 uri="https://doi.org/10.1257/app.20150390",
             ),
-            RelatedItem(
+            timdex.RelatedItem(
                 relationship="IsVersionOf",
                 uri="10.5281/zenodo.5524464",
             ),
-            RelatedItem(
+            timdex.RelatedItem(
                 relationship="Other",
                 uri="1234567.5524464",
             ),
-            RelatedItem(
+            timdex.RelatedItem(
                 relationship="IsPartOf",
                 uri="https://zenodo.org/communities/astronomy-general",
             ),
         ],
         rights=[
-            Rights(uri="info:eu-repo/semantics/openAccess"),
-            Rights(
+            timdex.Rights(uri="info:eu-repo/semantics/openAccess"),
+            timdex.Rights(
                 description="CC0 1.0",
                 uri="http://creativecommons.org/publicdomain/zero/1.0",
             ),
         ],
         subjects=[
-            Subject(
+            timdex.Subject(
                 value=["Social Sciences", "Educational materials"],
                 kind="Subject scheme not provided",
             ),
-            Subject(
+            timdex.Subject(
                 value=[
                     "Adult education, education inputs, field experiments",
                     "Education",
@@ -223,7 +208,7 @@ def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
         "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records) == TimdexRecord(
+    assert next(output_records) == timdex.TimdexRecord(
         citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
@@ -231,7 +216,7 @@ def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
         title="Title not provided",
         format="electronic resource",
         links=[
-            Link(
+            timdex.Link(
                 url="https://example.com/doi:10.7910/DVN/19PPE7",
                 kind="Digital object URL",
                 text="Digital object URL",
@@ -246,7 +231,7 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
         "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records) == TimdexRecord(
+    assert next(output_records) == timdex.TimdexRecord(
         citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
@@ -254,7 +239,7 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
         title="Title not provided",
         format="electronic resource",
         links=[
-            Link(
+            timdex.Link(
                 url="https://example.com/doi:10.7910/DVN/19PPE7",
                 kind="Digital object URL",
                 text="Digital object URL",
@@ -269,7 +254,7 @@ def test_datacite_with_attribute_and_subfield_variations_transforms_correctly():
         "tests/fixtures/datacite/datacite_record_attribute_and_subfield_variations.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records) == TimdexRecord(
+    assert next(output_records) == timdex.TimdexRecord(
         citation=(
             "Creator, No affiliation no identifier, Creator, Blank affiliation blank "
             "identifier, Creator, Identifier no scheme, Creator, Identifier blank "
@@ -280,106 +265,112 @@ def test_datacite_with_attribute_and_subfield_variations_transforms_correctly():
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
         timdex_record_id="cool-repo:doi:10.7910-DVN-19PPE7",
         title="Title with Blank titleType",
-        alternate_titles=[AlternateTitle(value="A Second Title with Blank titleType")],
+        alternate_titles=[
+            timdex.AlternateTitle(value="A Second Title with Blank titleType")
+        ],
         content_type=["Not specified"],
         contributors=[
-            Contributor(value="Creator, No affiliation no identifier", kind="Creator"),
-            Contributor(
+            timdex.Contributor(
+                value="Creator, No affiliation no identifier", kind="Creator"
+            ),
+            timdex.Contributor(
                 value="Creator, Blank affiliation blank identifier", kind="Creator"
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Creator, Identifier no scheme",
                 identifier=["0000-0000-0000-0000"],
                 kind="Creator",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Creator, Identifier blank scheme",
                 identifier=["0000-0000-0000-0000"],
                 kind="Creator",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Creator, No identifier with identifier scheme",
                 kind="Creator",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Contributor, No affiliation no identifier no type",
                 kind="Not specified",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Contributor, Blank affiliation blank identifier blank type",
                 kind="Not specified",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Contributor, Identifier no scheme",
                 identifier=["0000-0000-0000-0000"],
                 kind="Not specified",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Contributor, Identifier blank scheme",
                 identifier=["0000-0000-0000-0000"],
                 kind="Not specified",
             ),
-            Contributor(
+            timdex.Contributor(
                 value="Contributor, No identifier with identifier scheme",
                 kind="Not specified",
             ),
         ],
         dates=[
-            Date(value="2020-01-01"),
-            Date(note="OTHER"),
-            Date(value="2020-01-02"),
+            timdex.Date(value="2020-01-01"),
+            timdex.Date(note="OTHER"),
+            timdex.Date(value="2020-01-02"),
         ],
         format="electronic resource",
         funding_information=[
-            Funder(funder_name="Funder name no identifier no award"),
-            Funder(funder_name="Funder name blank identifier blank award"),
-            Funder(funder_identifier="Funder identifier no type"),
-            Funder(funder_identifier="Funder identifier blank type"),
-            Funder(award_number="Funder award no uri"),
-            Funder(award_number="Funder award blank uri"),
-            Funder(award_uri="Funder award uri without string"),
+            timdex.Funder(funder_name="Funder name no identifier no award"),
+            timdex.Funder(funder_name="Funder name blank identifier blank award"),
+            timdex.Funder(funder_identifier="Funder identifier no type"),
+            timdex.Funder(funder_identifier="Funder identifier blank type"),
+            timdex.Funder(award_number="Funder award no uri"),
+            timdex.Funder(award_number="Funder award blank uri"),
+            timdex.Funder(award_uri="Funder award uri without string"),
         ],
         identifiers=[
-            Identifier(value="ID-blank-type", kind="Not specified"),
-            Identifier(value="alternate-ID-no-type", kind="Not specified"),
-            Identifier(value="alternate-ID-blank-type", kind="Not specified"),
-            Identifier(
+            timdex.Identifier(value="ID-blank-type", kind="Not specified"),
+            timdex.Identifier(value="alternate-ID-no-type", kind="Not specified"),
+            timdex.Identifier(value="alternate-ID-blank-type", kind="Not specified"),
+            timdex.Identifier(
                 value="Related ID relationType IsIdenticalTo no relationIdentifierType",
                 kind="IsIdenticalTo",
             ),
-            Identifier(
+            timdex.Identifier(
                 value="Related ID relationType IsIdenticalTo blank "
                 "relationIdentifierType",
                 kind="IsIdenticalTo",
             ),
         ],
         links=[
-            Link(
+            timdex.Link(
                 url="https://example.com/doi:10.7910/DVN/19PPE7",
                 kind="Digital object URL",
                 text="Digital object URL",
             )
         ],
         notes=[
-            Note(value=["Description no type"]),
-            Note(value=["Description blank type"]),
+            timdex.Note(value=["Description no type"]),
+            timdex.Note(value=["Description blank type"]),
         ],
         related_items=[
-            RelatedItem(
+            timdex.RelatedItem(
                 relationship="Not specified",
                 uri="Related ID no relationType no relatedIdentifierType",
             ),
-            RelatedItem(
+            timdex.RelatedItem(
                 relationship="Not specified",
                 uri="Related ID blank relationType blank relatedIdentifierType",
             ),
         ],
         rights=[
-            Rights(description="Right no URI"),
-            Rights(description="Right blank URI"),
-            Rights(uri="Right URI without string"),
+            timdex.Rights(description="Right no URI"),
+            timdex.Rights(description="Right blank URI"),
+            timdex.Rights(uri="Right URI without string"),
         ],
-        subjects=[Subject(value=["Subject One"], kind="Subject scheme not provided")],
+        subjects=[
+            timdex.Subject(value=["Subject One"], kind="Subject scheme not provided")
+        ],
     )
 
 
@@ -394,8 +385,8 @@ def test_get_alternate_titles_success():
         """
     )
     assert Datacite.get_alternate_titles(source_record) == [
-        AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
-        AlternateTitle(value="Baseline Data", kind="Subtitle"),
+        timdex.AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
+        timdex.AlternateTitle(value="Baseline Data", kind="Subtitle"),
     ]
 
 
@@ -472,25 +463,25 @@ def test_get_contributors_success():
         """
     )
     assert Datacite.get_contributors(source_record) == [
-        Contributor(
+        timdex.Contributor(
             value="Banerji, Rukmini",
             affiliation=["Pratham and ASER Centre"],
             identifier=["https://orcid.org/0000-0000-0000-0000"],
             kind="Creator",
         ),
-        Contributor(
+        timdex.Contributor(
             value="Berry, James",
             affiliation=["University of Delaware"],
             identifier=["0000-0000-0000-0001"],
             kind="Creator",
         ),
-        Contributor(
+        timdex.Contributor(
             value="Shotland, Marc",
             affiliation=["Abdul Latif Jameel Poverty Action Lab"],
             identifier=["0000-0000-0000-0002"],
             kind="Creator",
         ),
-        Contributor(
+        timdex.Contributor(
             value="Banerji, Rukmini",
             affiliation=["Pratham and ASER Centre"],
             identifier=["https://orcid.org/0000-0000-0000-0000"],
@@ -530,12 +521,14 @@ def test_get_dates_success():
         """
     )
     assert Datacite.get_dates(source_record) == [
-        Date(kind="Publication date", value="2017"),
-        Date(kind="Submitted", value="2017-02-27"),
-        Date(kind="Updated", note="This was updated on this date", value="2019-06-24"),
-        Date(
+        timdex.Date(kind="Publication date", value="2017"),
+        timdex.Date(kind="Submitted", value="2017-02-27"),
+        timdex.Date(
+            kind="Updated", note="This was updated on this date", value="2019-06-24"
+        ),
+        timdex.Date(
             kind="Collected",
-            range=DateRange(gte="2007-01-01", lte="2007-02-28"),
+            range=timdex.DateRange(gte="2007-01-01", lte="2007-02-28"),
         ),
     ]
 
@@ -633,7 +626,7 @@ def test_get_funding_information_success():
         """
     )
     assert Datacite.get_funding_information(source_record) == [
-        Funder(
+        timdex.Funder(
             funder_name="3ie, Nike Foundation",
             funder_identifier="0987",
             funder_identifier_type="Crossref FunderID",
@@ -677,9 +670,9 @@ def test_get_identifiers_success():
         """
     )
     assert Datacite.get_identifiers(source_record) == [
-        Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
-        Identifier(value="https://zenodo.org/record/5524465", kind="url"),
-        Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
+        timdex.Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
+        timdex.Identifier(value="https://zenodo.org/record/5524465", kind="url"),
+        timdex.Identifier(value="1234567.5524464", kind="IsIdenticalTo"),
     ]
 
 
@@ -722,7 +715,7 @@ def test_get_links_success(datacite_record_all_fields):
     source_record = create_datacite_source_record_stub()
     datacite_transformer = Datacite("jpal", datacite_record_all_fields)
     assert datacite_transformer.get_links(source_record) == [
-        Link(
+        timdex.Link(
             url="https://dataverse.harvard.edu/dataset.xhtml?persistentId=abc123",
             kind="Digital object URL",
             text="Digital object URL",
@@ -741,7 +734,7 @@ def test_get_locations_success():
         """
     )
     assert Datacite.get_locations(source_record) == [
-        Location(value="A point on the globe")
+        timdex.Location(value="A point on the globe")
     ]
 
 
@@ -767,8 +760,8 @@ def test_get_notes_success():
         """
     )
     assert Datacite.get_notes(source_record) == [
-        Note(value=["Survey Data"], kind="Datacite resource type"),
-        Note(value=["Stata, 13"], kind="TechnicalInfo"),
+        timdex.Note(value=["Survey Data"], kind="Datacite resource type"),
+        timdex.Note(value=["Stata, 13"], kind="TechnicalInfo"),
     ]
 
 
@@ -788,7 +781,9 @@ def test_get_publishers_success():
     source_record = create_datacite_source_record_stub(
         "<publisher>Harvard Dataverse</publisher>"
     )
-    assert Datacite.get_publishers(source_record) == [Publisher(name="Harvard Dataverse")]
+    assert Datacite.get_publishers(source_record) == [
+        timdex.Publisher(name="Harvard Dataverse")
+    ]
 
 
 def test_get_publishers_transforms_correctly_if_fields_blank():
@@ -814,10 +809,12 @@ def test_get_related_items_success():
     )
     source_record = create_datacite_source_record_stub(metadata_insert)
     assert Datacite.get_related_items(source_record) == [
-        RelatedItem(relationship="IsCitedBy", uri="https://doi.org/10.1257/app.20150390"),
-        RelatedItem(relationship="IsVersionOf", uri="10.5281/zenodo.5524464"),
-        RelatedItem(relationship="Other", uri="1234567.5524464"),
-        RelatedItem(
+        timdex.RelatedItem(
+            relationship="IsCitedBy", uri="https://doi.org/10.1257/app.20150390"
+        ),
+        timdex.RelatedItem(relationship="IsVersionOf", uri="10.5281/zenodo.5524464"),
+        timdex.RelatedItem(relationship="Other", uri="1234567.5524464"),
+        timdex.RelatedItem(
             relationship="IsPartOf",
             uri="https://zenodo.org/communities/astronomy-general",
         ),
@@ -847,8 +844,10 @@ def test_get_rights_success():
         """
     )
     assert Datacite.get_rights(source_record) == [
-        Rights(description=None, kind=None, uri="info:eu-repo/semantics/openAccess"),
-        Rights(
+        timdex.Rights(
+            description=None, kind=None, uri="info:eu-repo/semantics/openAccess"
+        ),
+        timdex.Rights(
             description="CC0 1.0",
             kind=None,
             uri="http://creativecommons.org/publicdomain/zero/1.0",
@@ -881,11 +880,11 @@ def test_get_subjects_success():
         """
     )
     assert Datacite.get_subjects(source_record) == [
-        Subject(
+        timdex.Subject(
             value=["Social Sciences", "Educational materials"],
             kind="Subject scheme not provided",
         ),
-        Subject(
+        timdex.Subject(
             value=[
                 "Adult education, education inputs, field experiments",
                 "Education",
