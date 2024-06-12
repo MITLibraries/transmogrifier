@@ -155,8 +155,12 @@ class DspaceMets(XMLTransformer):
 
     @classmethod
     def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
-        # Only publication date is mapped from DSpace, other relevant date field (dc.
-        # coverage.temporal) is not mapped to the OAI-PMH METS output.
+        """
+        Field method for dates.
+
+        Only publication date is mapped from DSpace, other relevant date field
+        (dc.coverage.temporal) is not mapped to the OAI-PMH METS output.
+        """
         if publication_date := source_record.find("mods:dateIssued", string=True):
             publication_date_value = str(publication_date.string.strip())
             if validate_date(
@@ -169,8 +173,12 @@ class DspaceMets(XMLTransformer):
 
     @classmethod
     def get_file_formats(cls, source_record: Tag) -> list[str] | None:
-        # Only maps formats with attribute use="ORIGINAL" because other formats such as
-        # USE="TEXT" are used internally by DSpace and not made publicly available.
+        """
+        Field method for file_formats.
+
+        Only maps formats with attribute use="ORIGINAL" because other formats such as
+        USE="TEXT" are used internally by DSpace and not made publicly available.
+        """
         file_formats = []
         for file_group in source_record.find_all("fileGrp", USE="ORIGINAL"):
             file = file_group.find("file")
@@ -239,8 +247,12 @@ class DspaceMets(XMLTransformer):
 
     @classmethod
     def get_rights(cls, source_record: Tag) -> list[timdex.Rights] | None:
-        # Note: rights uri field in DSpace (dc.rights.uri) is not mapped to the OAI-PMH
-        # METS output.
+        """
+        Field method for rights.
+
+        Rights uri field in DSpace (dc.rights.uri) is not mapped to the OAI-PMH
+        METS output.
+        """
         return [
             timdex.Rights(description=str(right.string), kind=right.get("type") or None)
             for right in source_record.find_all("mods:accessCondition", string=True)
@@ -248,8 +260,12 @@ class DspaceMets(XMLTransformer):
 
     @classmethod
     def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
-        # Note: subject fields with schemes in DSpace (dc.subject.<scheme>) are not
-        # mapped to the OAI-PMH METS output.
+        """
+        Field method for subjects.
+
+        Subject fields with schemes in DSpace (dc.subject.<scheme>) are not
+        mapped to the OAI-PMH METS output.
+        """
         if subjects := source_record.find_all("mods:topic", string=True):
             return [
                 timdex.Subject(
