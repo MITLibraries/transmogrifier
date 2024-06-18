@@ -236,11 +236,9 @@ class DspaceDim(XMLTransformer):
 
     @classmethod
     def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
-        contributors = []
-        contributors.extend(list(cls._get_creators(source_record)))
-        contributors.extend(
-            list(cls._get_contributors_by_contributor_element(source_record))
-        )
+        contributors: list[timdex.Contributor] = []
+        contributors.extend(cls._get_creators(source_record))
+        contributors.extend(cls._get_contributors_by_contributor_element(source_record))
         return contributors or None
 
     @classmethod
@@ -278,7 +276,7 @@ class DspaceDim(XMLTransformer):
                         value=date_value, kind=date.get("qualifier") or None
                     )
                 dates.append(date_object)
-        dates.extend(list(cls._get_coverage_dates(source_record)))
+        dates.extend(cls._get_coverage_dates(source_record))
         return dates or None
 
     @classmethod
