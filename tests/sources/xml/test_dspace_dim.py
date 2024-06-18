@@ -1,5 +1,33 @@
+from bs4 import BeautifulSoup
+
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.dspace_dim import DspaceDim
+
+
+def create_dspace_dim_source_record_stub(xml_insert: str = "") -> BeautifulSoup:
+    xml_string = f"""
+        <records>
+         <record xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <header>
+           <identifier>oai:darchive.mblwhoilibrary.org:1912/2641</identifier>
+           <datestamp>2020-01-28T19:30:01Z</datestamp>
+           <setSpec>com_1912_3</setSpec>
+           <setSpec>col_1912_534</setSpec>
+          </header>
+          <metadata>
+           <dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"
+           xmlns:doc="http://www.lyncode.com/xoai"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim
+           http://www.dspace.org/schema/dim.xsd">
+           {xml_insert}
+           </dim:dim>
+          </metadata>
+         </record>
+        </records>
+        """
+    return BeautifulSoup(xml_string, "xml")
 
 
 def test_dspace_dim_transform_with_all_fields_transforms_correctly():
@@ -216,3 +244,231 @@ def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly(
         format="electronic resource",
         content_type=["Not specified"],
     )
+
+
+def test_get_alternate_titles_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="title"
+        qualifier="alternative" lang="en">An Alternative Title</dim:field>
+        """
+    )
+    assert DspaceDim.get_alternate_titles(source_record) == [
+        timdex.AlternateTitle(value="An Alternative Title", kind="alternative")
+    ]
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="title" qualifier="alternative" />'
+    )
+    assert DspaceDim.get_alternate_titles(source_record) is None
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_alternate_titles(source_record) is None
+
+
+def test_get_alternate_titles_multiple_titles_success():
+
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="title">Title 1</dim:field>
+        <dim:field mdschema="dc" element="title">Title 2</dim:field>
+        <dim:field mdschema="dc" element="title">Title 3</dim:field>
+        """
+    )
+    assert DspaceDim.get_alternate_titles(source_record) == [
+        timdex.AlternateTitle(value="Title 2"),
+        timdex.AlternateTitle(value="Title 3"),
+    ]
+
+
+def test_get_citation_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="identifier"
+        qualifier="citation"
+        >Journal of Geophysical Research: Solid Earth 121 (2016): 5859-5879</dim:field>
+        """
+    )
+    assert (
+        DspaceDim.get_citation(source_record)
+        == "Journal of Geophysical Research: Solid Earth 121 (2016): 5859-5879"
+    )
+
+
+def test_get_citation_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="identifier" qualifier="citation" />'
+    )
+    assert DspaceDim.get_citation(source_record) is None
+
+
+def test_get_citation_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_citation(source_record) is None
+
+
+def test_get_content_type_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="type">Moving Image</dim:field>
+        <dim:field mdschema="dc" element="type">Dataset</dim:field>
+        """
+    )
+    assert DspaceDim.get_content_type(source_record) == [
+        "Moving Image",
+        "Dataset",
+    ]
+
+
+def test_get_content_type_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="type" />'
+    )
+    assert DspaceDim.get_content_type(source_record) is None
+
+
+def test_get_content_type_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_content_type(source_record) is None
+
+
+def test_get_contents_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="description" qualifier="tableofcontents"
+        >Chapter 1</dim:field>
+        """
+    )
+    assert DspaceDim.get_contents(source_record) == ["Chapter 1"]
+
+
+def test_get_contents_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="description" qualifier="tableofcontents" />'
+    )
+    assert DspaceDim.get_contents(source_record) is None
+
+
+def test_get_contents_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_contents(source_record) is None
+
+
+def test_get_contributors_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="contributor"
+        qualifier="author">LaFountain, James R.</dim:field>
+        <dim:field mdschema="dc" element="contributor"
+        qualifier="author">Oldenbourg, Rudolf</dim:field>
+        <dim:field mdschema="dc" element="creator">Jamerson, James</dim:field>
+        """
+    )
+    assert DspaceDim.get_contributors(source_record) == [
+        timdex.Contributor(value="Jamerson, James", kind="Creator"),
+        timdex.Contributor(
+            value="LaFountain, James R.",
+            kind="author",
+        ),
+        timdex.Contributor(
+            value="Oldenbourg, Rudolf",
+            kind="author",
+        ),
+    ]
+
+
+def test_get_contributors_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="contributor" qualifier="author" />
+        <dim:field mdschema="dc" element="creator" />
+        """
+    )
+    assert DspaceDim.get_contributors(source_record) is None
+
+
+def test_get_contributors_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_contributors(source_record) is None
+
+
+def test_get_dates_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="coverage"
+        qualifier="temporal">1201-01-01 - 1965-12-21</dim:field>
+        <dim:field mdschema="dc" element="coverage"
+        qualifier="temporal">1201-01-01/1965-12-21</dim:field>
+        <dim:field mdschema="dc" element="date"
+        qualifier="accessioned">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date"
+        qualifier="available">2009-01-08T16:24:37Z</dim:field>
+        <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
+        """
+    )
+    assert DspaceDim.get_dates(source_record) == [
+        timdex.Date(kind="accessioned", value="2009-01-08T16:24:37Z"),
+        timdex.Date(kind="available", value="2009-01-08T16:24:37Z"),
+        timdex.Date(kind="Publication date", value="2002-11"),
+        timdex.Date(
+            kind="coverage",
+            note="1201-01-01 - 1965-12-21",
+        ),
+        timdex.Date(
+            kind="coverage",
+            range=timdex.DateRange(gte="1201-01-01", lte="1965-12-21"),
+        ),
+    ]
+
+
+def test_get_dates_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="coverage" qualifier="temporal" />
+        <dim:field mdschema="dc" element="date" qualifier="available" />
+        """
+    )
+    assert DspaceDim.get_dates(source_record) is None
+
+
+def test_get_dates_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_dates(source_record) is None
+
+
+def test_get_file_formats_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="format"
+        qualifier="mimetype">application/msword</dim:field>
+        <dim:field mdschema="dc" element="format"
+        qualifier="mimetype">image/tiff</dim:field>
+        <dim:field mdschema="dc" element="format"
+        qualifier="mimetype">video/quicktime</dim:field>
+        """
+    )
+    assert DspaceDim.get_file_formats(source_record) == [
+        "application/msword",
+        "image/tiff",
+        "video/quicktime",
+    ]
+
+
+def test_get_file_formats_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="format" qualifier="mimetype" />'
+    )
+    assert DspaceDim.get_file_formats(source_record) is None
+
+
+def test_get_file_formats_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_file_formats(source_record) is None
+
+
+def test_get_format_success():
+    assert DspaceDim.get_format() == "electronic resource"
