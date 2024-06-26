@@ -472,3 +472,308 @@ def test_get_file_formats_transforms_correctly_if_fields_missing():
 
 def test_get_format_success():
     assert DspaceDim.get_format() == "electronic resource"
+
+
+def test_get_funding_information_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="description" qualifier="sponsorship"
+        >NSF Grant Numbers: OCE-1029305, OCE-1029411, OCE-1249353</dim:field>
+        """
+    )
+    assert DspaceDim.get_funding_information(source_record) == [
+        timdex.Funder(
+            funder_name="NSF Grant Numbers: OCE-1029305, OCE-1029411, OCE-1249353",
+        )
+    ]
+
+
+def test_get_funding_information_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="description" qualifier="sponsorship" />'
+    )
+    assert DspaceDim.get_funding_information(source_record) is None
+
+
+def test_get_funding_information_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_funding_information(source_record) is None
+
+
+def test_get_identifiers_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
+        """
+    )
+    assert DspaceDim.get_identifiers(source_record) == [
+        timdex.Identifier(value="https://hdl.handle.net/1912/2641", kind="uri")
+    ]
+
+
+def test_get_identifiers_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="identifier" qualifier="uri" />'
+    )
+    assert DspaceDim.get_identifiers(source_record) is None
+
+
+def test_get_identifiers_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_identifiers(source_record) is None
+
+
+def test_languages_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="language" qualifier="iso">en_US</dim:field>
+        """
+    )
+    assert DspaceDim.get_languages(source_record) == ["en_US"]
+
+
+def test_get_languages_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="language" qualifier="iso" />'
+    )
+    assert DspaceDim.get_languages(source_record) is None
+
+
+def test_get_languages_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_languages(source_record) is None
+
+
+def test_get_links_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="identifier"
+        qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
+        """
+    )
+    assert DspaceDim.get_links(source_record) == [
+        timdex.Link(
+            url="https://hdl.handle.net/1912/2641",
+            kind="Digital object URL",
+            text="Digital object URL",
+        )
+    ]
+
+
+def test_get_links_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="identifier" qualifier="uri" />'
+    )
+    assert DspaceDim.get_links(source_record) is None
+
+
+def test_get_links_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_links(source_record) is None
+
+
+def test_get_locations_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="coverage"
+        qualifier="spatial">Central equatorial Pacific Ocean</dim:field>
+        """
+    )
+    assert DspaceDim.get_locations(source_record) == [
+        timdex.Location(value="Central equatorial Pacific Ocean")
+    ]
+
+
+def test_get_locations_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="coverage" qualifier="spatial" />'
+    )
+    assert DspaceDim.get_locations(source_record) is None
+
+
+def test_get_locations_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_locations(source_record) is None
+
+
+def test_get_notes_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc"
+        element="description">Author Posting. © The Author(s), 2008.</dim:field>
+        <dim:field mdschema="dc" element="description"
+        qualifier="embargo">2026-01</dim:field>
+        """
+    )
+    assert DspaceDim.get_notes(source_record) == [
+        timdex.Note(value=["Author Posting. © The Author(s), 2008."]),
+        timdex.Note(value=["2026-01"], kind="embargo"),
+    ]
+
+
+def test_get_notes_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="description" />'
+    )
+    assert DspaceDim.get_notes(source_record) is None
+
+
+def test_get_notes_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_notes(source_record) is None
+
+
+def test_get_publishers_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc"
+        element="publisher">Woods Hole Oceanographic Institution</dim:field>
+        """
+    )
+    assert DspaceDim.get_publishers(source_record) == [
+        timdex.Publisher(name="Woods Hole Oceanographic Institution")
+    ]
+
+
+def test_get_publishers_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="publisher" />'
+    )
+    assert DspaceDim.get_publishers(source_record) is None
+
+
+def test_get_publishers_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_publishers(source_record) is None
+
+
+def test_get_related_items_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="relation"
+        >A low resolution version of this movie was published.</dim:field>
+        <dim:field mdschema="dc" element="relation" qualifier="ispartofseries"
+        >International Association of Aquatic and Marine Science</dim:field>
+        <dim:field mdschema="dc" element="relation" qualifier="uri"
+        >https://doi.org/10.1002/2016JB013228</dim:field>
+        """
+    )
+    assert DspaceDim.get_related_items(source_record) == [
+        timdex.RelatedItem(
+            description="A low resolution version of this movie was published.",
+            relationship="Not specified",
+        ),
+        timdex.RelatedItem(
+            description="International Association of Aquatic and Marine Science",
+            relationship="ispartofseries",
+        ),
+        timdex.RelatedItem(
+            relationship="Not specified",
+            uri="https://doi.org/10.1002/2016JB013228",
+        ),
+    ]
+
+
+def test_get_related_items_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="relation" />'
+    )
+    assert DspaceDim.get_related_items(source_record) is None
+
+
+def test_get_related_items_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_related_items(source_record) is None
+
+
+def test_get_rights_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="rights"
+        >Attribution-NonCommercial-NoDerivatives 4.0 International</dim:field>
+        <dim:field mdschema="dc" element="rights"
+        qualifier="uri">http://creativecommons.org/licenses/by-nc-nd/4.0/</dim:field>
+        <dim:field mdschema="dc" element="rights"
+        qualifier="license">CC-BY-NC 4.0</dim:field>
+        """
+    )
+    assert DspaceDim.get_rights(source_record) == [
+        timdex.Rights(
+            description="Attribution-NonCommercial-NoDerivatives 4.0 International"
+        ),
+        timdex.Rights(uri="http://creativecommons.org/licenses/by-nc-nd/4.0/"),
+        timdex.Rights(description="CC-BY-NC 4.0", kind="license", uri=None),
+    ]
+
+
+def test_get_rights_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="rights" />'
+    )
+    assert DspaceDim.get_rights(source_record) is None
+
+
+def test_get_rights_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_rights(source_record) is None
+
+
+def test_get_subjects_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="subject"
+        qualifier="lcsh">Spermatocyte</dim:field>
+        <dim:field mdschema="dc" element="subject"
+        qualifier="lcsh">Microtubules</dim:field>
+        <dim:field mdschema="dc" element="subject"
+        qualifier="lcsh">Kinetochore microtubules</dim:field>
+        <dim:field mdschema="dc" element="subject">Polarized light microscopy</dim:field>
+        <dim:field mdschema="dc" element="subject">LC-PolScope</dim:field>
+        """
+    )
+    assert DspaceDim.get_subjects(source_record) == [
+        timdex.Subject(
+            value=["Spermatocyte", "Microtubules", "Kinetochore microtubules"],
+            kind="lcsh",
+        ),
+        timdex.Subject(
+            value=["Polarized light microscopy", "LC-PolScope"],
+            kind="Subject scheme not provided",
+        ),
+    ]
+
+
+def test_get_subjects_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="subject" />'
+    )
+    assert DspaceDim.get_subjects(source_record) is None
+
+
+def test_get_subjects_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_subjects(source_record) is None
+
+
+def test_get_summary_success():
+    source_record = create_dspace_dim_source_record_stub(
+        """
+        <dim:field mdschema="dc" element="description"
+        qualifier="abstract">The events of meiosis I in a living.</dim:field>
+        """
+    )
+    assert DspaceDim.get_summary(source_record) == [
+        "The events of meiosis I in a living."
+    ]
+
+
+def test_get_summary_transforms_correctly_if_fields_blank():
+    source_record = create_dspace_dim_source_record_stub(
+        '<dim:field mdschema="dc" element="description" qualifier="abstract" />'
+    )
+    assert DspaceDim.get_summary(source_record) is None
+
+
+def test_get_summary_transforms_correctly_if_fields_missing():
+    source_record = create_dspace_dim_source_record_stub()
+    assert DspaceDim.get_summary(source_record) is None
