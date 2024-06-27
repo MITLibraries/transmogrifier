@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from collections.abc import Iterator
 
 from bs4 import Tag  # type: ignore[import-untyped]
@@ -50,135 +51,37 @@ class DspaceDim(XMLTransformer):
         fields["format"] = self.get_format()
 
         # funding_information
-        for funding_reference in [
-            f
-            for f in source_record.find_all(
-                "dim:field", element="description", qualifier="sponsorship"
-            )
-            if f.string
-        ]:
-            fields.setdefault("funding_information", []).append(
-                timdex.Funder(
-                    funder_name=funding_reference.string,
-                )
-            )
+        fields["funding_information"] = self.get_funding_information(source_record)
 
         # identifiers
-        identifiers = source_record.find_all("dim:field", element="identifier")
-        for identifier in [
-            i for i in identifiers if i.get("qualifier") != "citation" and i.string
-        ]:
-            fields.setdefault("identifiers", []).append(
-                timdex.Identifier(
-                    value=identifier.string,
-                    kind=identifier.get("qualifier") or "Not specified",
-                )
-            )
+        fields["identifiers"] = self.get_identifiers(source_record)
 
         # language
-        fields["languages"] = [
-            la.string
-            for la in source_record.find_all("dim:field", element="language")
-            if la.string
-        ] or None
+        fields["languages"] = self.get_languages(source_record)
 
-        # links, uses identifiers list retrieved for identifiers field
-        fields["links"] = [
-            timdex.Link(
-                kind="Digital object URL",
-                text="Digital object URL",
-                url=identifier.string,
-            )
-            for identifier in [
-                i for i in identifiers if i.get("qualifier") == "uri" and i.string
-            ]
-        ] or None
+        # links
+        fields["links"] = self.get_links(source_record)
 
         # locations
-        fields["locations"] = [
-            timdex.Location(value=lo.string)
-            for lo in source_record.find_all(
-                "dim:field", element="coverage", qualifier="spatial"
-            )
-            if lo.string
-        ] or None
+        fields["locations"] = self.get_locations(source_record)
 
         # notes
-        descriptions = source_record.find_all("dim:field", element="description")
-        for description in [
-            d
-            for d in descriptions
-            if d.get("qualifier")
-            not in [
-                "abstract",
-                "provenance",
-                "sponsorship",
-                "tableofcontents",
-            ]
-            and d.string
-        ]:
-            fields.setdefault("notes", []).append(
-                timdex.Note(
-                    value=[description.string],
-                    kind=description.get("qualifier") or None,
-                )
-            )
+        fields["notes"] = self.get_notes(source_record)
 
         # publishers
-        fields["publishers"] = [
-            timdex.Publisher(name=p.string)
-            for p in source_record.find_all("dim:field", element="publisher")
-            if p.string
-        ] or None
+        fields["publishers"] = self.get_publishers(source_record)
 
         # related_items
-        for related_item in [
-            r for r in source_record.find_all("dim:field", element="relation") if r.string
-        ]:
-            if related_item.get("qualifier") == "uri":
-                ri = timdex.RelatedItem(
-                    uri=related_item.string, relationship="Not specified"
-                )
-            else:
-                ri = timdex.RelatedItem(
-                    description=related_item.string,
-                    relationship=related_item.get("qualifier") or "Not specified",
-                )
-            fields.setdefault("related_items", []).append(ri)
+        fields["related_items"] = self.get_related_items(source_record)
 
         # rights
-        for rights in [
-            r for r in source_record.find_all("dim:field", element="rights") if r.string
-        ]:
-            if rights.get("qualifier") == "uri":
-                rg = timdex.Rights(uri=rights.string)
-            else:
-                rg = timdex.Rights(
-                    description=rights.string, kind=rights.get("qualifier") or None
-                )
-            fields.setdefault("rights", []).append(rg)
+        fields["rights"] = self.get_rights(source_record)
 
         # subjects
-        subjects_dict: dict[str, list[str]] = {}
-        for subject in [
-            s for s in source_record.find_all("dim:field", element="subject") if s.string
-        ]:
-            if not subject.get("qualifier"):
-                subjects_dict.setdefault("Subject scheme not provided", []).append(
-                    subject.string
-                )
-            else:
-                subjects_dict.setdefault(subject["qualifier"], []).append(subject.string)
-        for key, value in subjects_dict.items():
-            fields.setdefault("subjects", []).append(
-                timdex.Subject(value=value, kind=key)
-            )
+        fields["subjects"] = self.get_subjects(source_record)
 
-        # summary, uses description list retrieved for notes field
-        for description in [
-            d for d in descriptions if d.get("qualifier") == "abstract" and d.string
-        ]:
-            fields.setdefault("summary", []).append(description.string)
+        # summary
+        fields["summary"] = self.get_summary(source_record)
 
         return fields
 
@@ -319,6 +222,146 @@ class DspaceDim(XMLTransformer):
     @classmethod
     def get_format(cls) -> str:
         return "electronic resource"
+
+    @classmethod
+    def get_funding_information(cls, source_record: Tag) -> list[timdex.Funder] | None:
+        return [
+            timdex.Funder(
+                funder_name=str(funding_reference.string),
+            )
+            for funding_reference in source_record.find_all(
+                "dim:field", element="description", qualifier="sponsorship", string=True
+            )
+        ] or None
+
+    @classmethod
+    def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
+        return [
+            timdex.Identifier(
+                value=str(identifier.string),
+                kind=identifier.get("qualifier") or "Not specified",
+            )
+            for identifier in source_record.find_all(
+                "dim:field", element="identifier", string=True
+            )
+            if identifier.get("qualifier") != "citation"
+        ] or None
+
+    @classmethod
+    def get_languages(cls, source_record: Tag) -> list[str] | None:
+        return [
+            str(language.string)
+            for language in source_record.find_all(
+                "dim:field", element="language", string=True
+            )
+        ] or None
+
+    @classmethod
+    def get_links(cls, source_record: Tag) -> list[timdex.Link] | None:
+        return [
+            timdex.Link(
+                kind="Digital object URL",
+                text="Digital object URL",
+                url=str(identifier.string),
+            )
+            for identifier in source_record.find_all(
+                "dim:field", element="identifier", string=True
+            )
+            if identifier.get("qualifier") == "uri"
+        ] or None
+
+    @classmethod
+    def get_locations(cls, source_record: Tag) -> list[timdex.Location] | None:
+        return [
+            timdex.Location(value=str(location.string))
+            for location in source_record.find_all(
+                "dim:field", element="coverage", qualifier="spatial", string=True
+            )
+        ] or None
+
+    @classmethod
+    def get_notes(cls, source_record: Tag) -> list[timdex.Note] | None:
+        return [
+            timdex.Note(
+                value=[str(description.string)],
+                kind=description.get("qualifier") or None,
+            )
+            for description in source_record.find_all(
+                "dim:field", element="description", string=True
+            )
+            if description.get("qualifier")
+            not in [
+                "abstract",
+                "provenance",
+                "sponsorship",
+                "tableofcontents",
+            ]
+        ] or None
+
+    @classmethod
+    def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
+        return [
+            timdex.Publisher(name=str(publisher.string))
+            for publisher in source_record.find_all(
+                "dim:field", element="publisher", string=True
+            )
+        ] or None
+
+    @classmethod
+    def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
+        related_items = []
+        for relation in source_record.find_all(
+            "dim:field", element="relation", string=True
+        ):
+            if relation.get("qualifier") == "uri":
+                related_item = timdex.RelatedItem(
+                    uri=str(relation.string), relationship="Not specified"
+                )
+            else:
+                related_item = timdex.RelatedItem(
+                    description=str(relation.string),
+                    relationship=relation.get("qualifier") or "Not specified",
+                )
+            related_items.append(related_item)
+        return related_items or None
+
+    @classmethod
+    def get_rights(cls, source_record: Tag) -> list[timdex.Rights] | None:
+        rights_list = []
+        for rights in source_record.find_all("dim:field", element="rights", string=True):
+            if rights.get("qualifier") == "uri":
+                rights_object = timdex.Rights(uri=str(rights.string))
+            else:
+                rights_object = timdex.Rights(
+                    description=str(rights.string), kind=rights.get("qualifier") or None
+                )
+            rights_list.append(rights_object)
+        return rights_list or None
+
+    @classmethod
+    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+        subjects_dict = defaultdict(list)
+        for subject in source_record.find_all(
+            "dim:field", element="subject", string=True
+        ):
+            subjects_dict[
+                subject.get("qualifier") or "Subject scheme not provided"
+            ].append(str(subject.string))
+
+        return [
+            timdex.Subject(value=subject_value, kind=subject_scheme)
+            for subject_scheme, subject_value in subjects_dict.items()
+        ] or None
+
+    @classmethod
+    def get_summary(cls, source_record: Tag) -> list[str] | None:
+        return [
+            str(description.string)
+            for description in source_record.find_all(
+                "dim:field", element="description", string=True
+            )
+            if description.get("qualifier") == "abstract"
+        ] or None
 
     @classmethod
     def get_main_titles(cls, source_record: Tag) -> list[str]:

@@ -95,7 +95,7 @@ class Datacite(XMLTransformer):
             for title in source_record.find_all("title", string=True)
             if title.get("titleType")
         ]
-        alternate_titles.extend(list(cls._get_additional_titles(source_record)))
+        alternate_titles.extend(cls._get_additional_titles(source_record))
         return alternate_titles or None
 
     @classmethod
@@ -124,11 +124,9 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
-        contributors = []
-        contributors.extend(list(cls._get_creators(source_record)))
-        contributors.extend(
-            list(cls._get_contributors_by_contributor_element(source_record))
-        )
+        contributors: list[timdex.Contributor] = []
+        contributors.extend(cls._get_creators(source_record))
+        contributors.extend(cls._get_contributors_by_contributor_element(source_record))
         return contributors or None
 
     @classmethod
@@ -178,13 +176,10 @@ class Datacite(XMLTransformer):
                 )
 
     @classmethod
-    def get_dates(
-        cls,
-        source_record: Tag,
-    ) -> list[timdex.Date] | None:
-        dates = []
-        dates.extend(list(cls._get_publication_year(source_record)))
-        dates.extend(list(cls._get_dates_by_date_element(source_record)))
+    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
+        dates: list[timdex.Date] = []
+        dates.extend(cls._get_publication_year(source_record))
+        dates.extend(cls._get_dates_by_date_element(source_record))
         return dates or None
 
     @classmethod
@@ -297,8 +292,8 @@ class Datacite(XMLTransformer):
                     kind=identifier_element.get("identifierType") or "Not specified",
                 )
             )
-        identifiers.extend(list(cls._get_alternate_identifiers(source_record)))
-        identifiers.extend(list(cls._get_related_identifiers(source_record)))
+        identifiers.extend(cls._get_alternate_identifiers(source_record))
+        identifiers.extend(cls._get_related_identifiers(source_record))
         return identifiers or None
 
     @classmethod
@@ -361,9 +356,9 @@ class Datacite(XMLTransformer):
 
     @classmethod
     def get_notes(cls, source_record: Tag) -> list[timdex.Note] | None:
-        notes = []
-        notes.extend(list(cls._get_resource_type_note(source_record)))
-        notes.extend(list(cls._get_description_notes(source_record)))
+        notes: list[timdex.Note] = []
+        notes.extend(cls._get_resource_type_note(source_record))
+        notes.extend(cls._get_description_notes(source_record))
         return notes or None
 
     @classmethod
