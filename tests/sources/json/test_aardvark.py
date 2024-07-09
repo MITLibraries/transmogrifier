@@ -60,21 +60,65 @@ def test_aardvark_transform_returns_timdex_record(aardvark_records):
     )
 
 
-def test_aardvark_get_optional_fields_non_field_method_values_success(
-    aardvark_record_all_fields,
-):
-    transformer = MITAardvark("cool-repo", aardvark_record_all_fields)
-    record = next(transformer)
-    assert record.content_type == ["Vector data"]
-    assert record.format == "Shapefile"
-    assert record.languages == ["eng"]
-    assert record.summary == ["A description"]
-
-
 def test_aardvark_get_main_titles_success(aardvark_record_all_fields):
     assert MITAardvark.get_main_titles(next(aardvark_record_all_fields)) == [
         "Test title 1"
     ]
+
+
+def test_aardvark_record_get_source_link_success(
+    aardvark_record_all_fields,
+):
+    source_record = next(aardvark_record_all_fields)
+    url_from_source_record = "https://geodata.libraries.mit.edu/record/abc:123"
+    source_record["dct_references_s"] = json.dumps(
+        {"http://schema.org/url": url_from_source_record}
+    )
+    assert (
+        MITAardvark.get_source_link(
+            "None",
+            "abc:123",
+            source_record,
+        )
+        == url_from_source_record
+    )
+
+
+def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error(
+    aardvark_record_all_fields,
+):
+    source_record = next(aardvark_record_all_fields)
+    source_record["dct_references_s"] = json.dumps(
+        {"missing data": "from aardvark from geoharvester"}
+    )
+    with pytest.raises(
+        ValueError,
+        match="Could not locate a kind=Website link to pull the source link from.",
+    ):
+        MITAardvark.get_source_link(
+            "None",
+            "abc:123",
+            source_record,
+        )
+
+
+def test_aardvark_record_get_timdex_record_id_success(
+    aardvark_record_all_fields,
+):
+    source_record = next(aardvark_record_all_fields)
+    assert (
+        MITAardvark.get_timdex_record_id("source", "123", source_record) == "source:123"
+    )
+
+
+def test_aardvark_get_source_record_id_success(aardvark_record_all_fields):
+    assert MITAardvark.get_source_record_id(next(aardvark_record_all_fields)) == "123"
+
+
+def test_aardvark_record_is_deleted_success(aardvark_record_all_fields):
+    source_record = next(aardvark_record_all_fields)
+    source_record["gbl_suppressed_b"] = True
+    assert MITAardvark.record_is_deleted(source_record) is True
 
 
 def test_aardvark_record_is_deleted_returns_false_if_field_missing(
@@ -86,31 +130,21 @@ def test_aardvark_record_is_deleted_returns_false_if_field_missing(
 def test_aardvark_record_is_deleted_raises_error_if_value_is_string(
     aardvark_record_all_fields,
 ):
-    aardvark_record = next(aardvark_record_all_fields)
-    aardvark_record["gbl_suppressed_b"] = "True"
+    source_record = next(aardvark_record_all_fields)
+    source_record["gbl_suppressed_b"] = "True"
     with pytest.raises(
         ValueError,
         match="Record ID '123': 'gbl_suppressed_b' value is not a boolean",
     ):
-        MITAardvark.record_is_deleted(aardvark_record)
+        MITAardvark.record_is_deleted(source_record)
 
 
 def test_aardvark_record_is_deleted_returns_false_if_value_is_false(
     aardvark_record_all_fields,
 ):
-    aardvark_record = next(aardvark_record_all_fields)
-    aardvark_record["gbl_suppressed_b"] = False
-    assert MITAardvark.record_is_deleted(aardvark_record) is False
-
-
-def test_aardvark_record_is_deleted_success(aardvark_record_all_fields):
-    aardvark_record = next(aardvark_record_all_fields)
-    aardvark_record["gbl_suppressed_b"] = True
-    assert MITAardvark.record_is_deleted(aardvark_record) is True
-
-
-def test_aardvark_get_source_record_id_success(aardvark_record_all_fields):
-    assert MITAardvark.get_source_record_id(next(aardvark_record_all_fields)) == "123"
+    source_record = next(aardvark_record_all_fields)
+    source_record["gbl_suppressed_b"] = False
+    assert MITAardvark.record_is_deleted(source_record) is False
 
 
 def test_aardvark_get_alternate_titles_success(aardvark_record_all_fields):
@@ -382,39 +416,3 @@ def test_aardvark_get_subjects_success(aardvark_record_all_fields):
         timdex.Subject(value=["Earth"], kind="Dublin Core; Subject"),
         timdex.Subject(value=["Dataset"], kind="Subject scheme not provided"),
     ]
-
-
-def test_aardvark_record_get_source_link_success(
-    aardvark_record_all_fields,
-):
-    record = next(aardvark_record_all_fields)
-    url_from_aardvark_record = "https://geodata.libraries.mit.edu/record/abc:123"
-    record["dct_references_s"] = json.dumps(
-        {"http://schema.org/url": url_from_aardvark_record}
-    )
-    assert (
-        MITAardvark.get_source_link(
-            "None",
-            "abc:123",
-            record,
-        )
-        == url_from_aardvark_record
-    )
-
-
-def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error(
-    aardvark_record_all_fields,
-):
-    record = next(aardvark_record_all_fields)
-    record["dct_references_s"] = json.dumps(
-        {"missing data": "from aardvark from geoharvester"}
-    )
-    with pytest.raises(
-        ValueError,
-        match="Could not locate a kind=Website link to pull the source link from.",
-    ):
-        MITAardvark.get_source_link(
-            "None",
-            "abc:123",
-            record,
-        )
