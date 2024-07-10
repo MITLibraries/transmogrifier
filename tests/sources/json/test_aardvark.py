@@ -147,14 +147,54 @@ def test_aardvark_record_is_deleted_returns_false_if_value_is_false(
     assert MITAardvark.record_is_deleted(source_record) is False
 
 
-def test_aardvark_get_alternate_titles_success(aardvark_record_all_fields):
-    assert MITAardvark.get_alternate_titles(next(aardvark_record_all_fields)) == [
+def test_aardvark_get_alternate_titles_success(aardvark_records):
+    source_record = next(aardvark_records)
+    source_record["dct_alternative_sm"] = ["Alternate title"]
+    assert MITAardvark.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="Alternate title")
     ]
 
 
-def test_aardvark_get_contributors_success(aardvark_record_all_fields):
-    assert MITAardvark.get_contributors(next(aardvark_record_all_fields)) == [
+def test_aardvark_get_alternate_titles_transforms_correctly_if_fields_blank(
+    aardvark_records,
+):
+    source_record = next(aardvark_records)
+    source_record["dct_alternative_sm"] = []
+    assert MITAardvark.get_alternate_titles(source_record) is None
+
+
+def test_aardvark_get_alternate_titles_transforms_correctly_if_fields_missing(
+    aardvark_records,
+):
+    source_record = next(aardvark_records)
+    assert MITAardvark.get_alternate_titles(source_record) is None
+
+
+def test_aardvark_get_content_type_success(aardvark_records):
+    source_record = next(aardvark_records)
+    source_record["gbl_resourceType_sm"] = ["Vector data"]
+    assert MITAardvark.get_content_type(source_record) == ["Vector data"]
+
+
+def test_aardvark_get_content_type_transforms_correctly_if_fields_blank(
+    aardvark_records,
+):
+    source_record = next(aardvark_records)
+    source_record["gbl_resourceType_sm"] = []
+    assert MITAardvark.get_content_type(source_record) is None
+
+
+def test_aardvark_get_content_type_transforms_correctly_if_fields_missing(
+    aardvark_records,
+):
+    source_record = next(aardvark_records)
+    assert MITAardvark.get_content_type(source_record) is None
+
+
+def test_aardvark_get_contributors_success(aardvark_records):
+    source_record = next(aardvark_records)
+    source_record["dct_creator_sm"] = ["Smith, Jane", "Smith, John"]
+    assert MITAardvark.get_contributors(source_record) == [
         timdex.Contributor(
             value="Smith, Jane",
             kind="Creator",
@@ -166,8 +206,28 @@ def test_aardvark_get_contributors_success(aardvark_record_all_fields):
     ]
 
 
-def test_aardvark_get_dates_success(aardvark_record_all_fields):
-    assert MITAardvark.get_dates(next(aardvark_record_all_fields), "123") == [
+def test_aardvark_get_contributors_transforms_correctly_if_fields_blank(
+    aardvark_records,
+):
+    source_record = next(aardvark_records)
+    source_record["dct_creator_sm"] = []
+    assert MITAardvark.get_contributors(source_record) is None
+
+
+def test_aardvark_get_contributors_transforms_correctly_if_fields_missing(
+    aardvark_records,
+):
+    source_record = next(aardvark_records)
+    assert MITAardvark.get_contributors(source_record) is None
+
+
+def test_aardvark_get_dates_success(aardvark_records):
+    source_record = next(aardvark_records)
+    source_record["dct_issued_s"] = "2003-10-23"
+    source_record["dct_temporal_sm"] = ["1943", "1979"]
+    source_record["gbl_dateRange_drsim"] = ["[1943 TO 1946]"]
+    source_record["gbl_indexYear_im"] = [1943, 1944, 1945, 1946]
+    assert MITAardvark.get_dates(source_record) == [
         timdex.Date(kind="Issued", value="2003-10-23"),
         timdex.Date(kind="Coverage", value="1943"),
         timdex.Date(kind="Coverage", value="1979"),
@@ -185,30 +245,28 @@ def test_aardvark_get_dates_drops_dates_with_invalid_strings(
     caplog, aardvark_record_all_fields
 ):
     caplog.set_level("DEBUG")
-    record = next(aardvark_record_all_fields)
-    record["dct_issued_s"] = "1933?"  # dropped
-    record["dct_temporal_sm"] = [
+    source_record = next(aardvark_record_all_fields)
+    source_record["dct_issued_s"] = "1933?"  # dropped
+    source_record["dct_temporal_sm"] = [
         "2000-01-01",
         "1999",
         "approximately 1569",  # dropped
         "absolute junky date",  # dropped
     ]
-    record["gbl_dateRange_drsim"] = [
+    source_record["gbl_dateRange_drsim"] = [
         "[1943 TO 1946]",
         "[apples TO oranges]",  # logged and dropped
     ]
-    assert MITAardvark.get_dates(record, "123") == [
-        timdex.Date(kind="Coverage", note=None, range=None, value="2000-01-01"),
-        timdex.Date(kind="Coverage", note=None, range=None, value="1999"),
-        timdex.Date(kind="Coverage", note=None, range=None, value="1943"),
-        timdex.Date(kind="Coverage", note=None, range=None, value="1944"),
-        timdex.Date(kind="Coverage", note=None, range=None, value="1945"),
-        timdex.Date(kind="Coverage", note=None, range=None, value="1946"),
+    assert MITAardvark.get_dates(source_record) == [
+        timdex.Date(kind="Coverage", value="2000-01-01"),
+        timdex.Date(kind="Coverage", value="1999"),
+        timdex.Date(kind="Coverage", value="1943"),
+        timdex.Date(kind="Coverage", value="1944"),
+        timdex.Date(kind="Coverage", value="1945"),
+        timdex.Date(kind="Coverage", value="1946"),
         timdex.Date(
             kind="Coverage",
-            note=None,
-            range=timdex.DateRange(gt=None, gte="1943", lt=None, lte="1946"),
-            value=None,
+            range=timdex.DateRange(gte="1943", lte="1946"),
         ),
     ]
     assert "Unable to parse date range string" in caplog.text

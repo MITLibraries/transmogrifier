@@ -1,9 +1,10 @@
 import json
 import logging
 import re
+from collections.abc import Iterator
 
 import transmogrifier.models as timdex
-from transmogrifier.helpers import validate_date
+from transmogrifier.helpers import validate_date, validate_date_range
 from transmogrifier.sources.jsontransformer import JSONTransformer
 from transmogrifier.sources.transformer import JSON
 
@@ -124,16 +125,16 @@ class MITAardvark(JSONTransformer):
         source_record_id = self.get_source_record_id(source_record)
 
         # alternate_titles
-        fields["alternate_titles"] = self.get_alternate_titles(source_record) or None
+        fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
         # content_type
-        fields["content_type"] = source_record.get("gbl_resourceType_sm")
+        fields["content_type"] = self.get_content_type(source_record)
 
         # contributors
-        fields["contributors"] = self.get_contributors(source_record) or None
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
-        fields["dates"] = self.get_dates(source_record, source_record_id) or None
+        fields["dates"] = self.get_dates(source_record)
 
         # edition not used in MITAardvark
 
@@ -178,58 +179,42 @@ class MITAardvark(JSONTransformer):
 
         return fields
 
-    @staticmethod
-    def get_alternate_titles(source_record: dict) -> list[timdex.AlternateTitle]:
-        """Get values from source record for TIMDEX alternate_titles field."""
+    @classmethod
+    def get_alternate_titles(
+        cls, source_record: dict
+    ) -> list[timdex.AlternateTitle] | None:
         return [
             timdex.AlternateTitle(value=title_value)
             for title_value in source_record.get("dct_alternative_sm", [])
-        ]
+        ] or None
 
-    @staticmethod
-    def get_contributors(source_record: dict) -> list[timdex.Contributor]:
-        """Get values from source record for TIMDEX contributors field."""
+    @classmethod
+    def get_content_type(cls, source_record: dict) -> list[str] | None:
+        return source_record.get("gbl_resourceType_sm") or None
+
+    @classmethod
+    def get_contributors(cls, source_record: dict) -> list[timdex.Contributor] | None:
         return [
             timdex.Contributor(value=contributor_value, kind="Creator")
             for contributor_value in source_record.get("dct_creator_sm", [])
-        ]
+        ] or None
 
     @classmethod
-    def get_dates(cls, source_record: dict, source_record_id: str) -> list[timdex.Date]:
-        """Get values from source record for TIMDEX dates field.
-
-        This method aggregates dates from a variety of Aardvark fields.  Once aggregated,
-        the results are filtered to allow only well formed DateRanges or validated date
-        strings.
-        """
-        dates = (
-            cls._issued_dates(source_record)
-            + cls._coverage_dates(source_record)
-            + cls._range_dates(source_record, source_record_id)
-        )
-        return [
-            date
-            for date in dates
-            # skip value validation for DateRange type dates
-            if isinstance(date.range, timdex.DateRange)
-            # validate date string if not None
-            or (date.value is not None and validate_date(date.value, source_record_id))
-        ]
+    def get_dates(cls, source_record: dict) -> list[timdex.Date] | None:
+        dates: list[timdex.Date] = []
+        dates.extend(cls._issued_dates(source_record))
+        dates.extend(cls._coverage_dates(source_record))
+        dates.extend(cls._range_dates(source_record))
+        return dates or None
 
     @classmethod
-    def _issued_dates(cls, source_record: dict) -> list[timdex.Date]:
-        """Get values for issued dates."""
-        issued_dates = []
-        if "dct_issued_s" in source_record:
-            issued_dates.append(
-                timdex.Date(value=source_record["dct_issued_s"], kind="Issued")
-            )
-        return issued_dates
+    def _issued_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
+        if issued_date := source_record.get("dct_issued_s"):  # noqa: SIM102
+            if validate_date(issued_date, cls.get_source_record_id(source_record)):
+                yield (timdex.Date(value=issued_date, kind="Issued"))
 
     @classmethod
-    def _coverage_dates(cls, source_record: dict) -> list[timdex.Date]:
-        """Get values for coverage dates."""
-        coverage_dates = []
+    def _coverage_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
         coverage_date_values = []
         coverage_date_values.extend(source_record.get("dct_temporal_sm", []))
         coverage_date_values.extend(
@@ -239,37 +224,34 @@ class MITAardvark(JSONTransformer):
                 if str(date_value) not in coverage_date_values
             ]
         )
-        coverage_dates.extend(
-            [
-                timdex.Date(value=coverage_date_value, kind="Coverage")
-                for coverage_date_value in coverage_date_values
-            ]
-        )
-        return coverage_dates
+
+        for coverage_date_value in coverage_date_values:
+            if validate_date(
+                coverage_date_value, cls.get_source_record_id(source_record)
+            ):
+                yield timdex.Date(value=coverage_date_value, kind="Coverage")
 
     @classmethod
-    def _range_dates(
-        cls, source_record: dict, source_record_id: str
-    ) -> list[timdex.Date]:
-        """Get values for issued dates."""
-        range_dates = []
+    def _range_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
         for date_range_string in source_record.get("gbl_dateRange_drsim", []):
             try:
                 date_range_values = cls.parse_solr_date_range_string(
-                    date_range_string, source_record_id
+                    date_range_string, cls.get_source_record_id(source_record)
                 )
-            except ValueError as exc:
-                logger.warning(exc)
+            except ValueError as error:
+                logger.warning(error)
                 continue
-            range_dates.append(
-                timdex.Date(
+            if validate_date_range(
+                date_range_values[0],
+                date_range_values[1],
+                cls.get_source_record_id(source_record),
+            ):
+                yield timdex.Date(
                     kind="Coverage",
                     range=timdex.DateRange(
                         gte=date_range_values[0], lte=date_range_values[1]
                     ),
                 )
-            )
-        return range_dates
 
     @classmethod
     def parse_solr_date_range_string(
