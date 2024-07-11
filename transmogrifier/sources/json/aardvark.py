@@ -102,12 +102,12 @@ class MITAardvark(JSONTransformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-        if isinstance(source_record["gbl_suppressed_b"], bool):
+        if isinstance(source_record.get("gbl_suppressed_b"), bool):
             return source_record["gbl_suppressed_b"]
 
         message = (
             f"Record ID '{cls.get_source_record_id(source_record)}': "
-            "'gbl_suppressed_b' value is not a boolean"
+            "'gbl_suppressed_b' value is not a boolean or missing"
         )
         raise ValueError(message)
 

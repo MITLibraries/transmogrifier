@@ -7,6 +7,10 @@ import transmogrifier.models as timdex
 from transmogrifier.sources.json.aardvark import MITAardvark
 
 
+def create_aardvark_source_record_stub() -> dict:
+    return {"id": "123", "dct_title_s": "Test title 1"}
+
+
 def test_mitaardvark_transform_and_write_output_files_writes_output_files(
     tmp_path, aardvark_records
 ):
@@ -60,16 +64,13 @@ def test_aardvark_transform_returns_timdex_record(aardvark_records):
     )
 
 
-def test_aardvark_get_main_titles_success(aardvark_record_all_fields):
-    assert MITAardvark.get_main_titles(next(aardvark_record_all_fields)) == [
-        "Test title 1"
-    ]
+def test_aardvark_get_main_titles_success():
+    source_record = create_aardvark_source_record_stub()
+    assert MITAardvark.get_main_titles(source_record) == ["Test title 1"]
 
 
-def test_aardvark_record_get_source_link_success(
-    aardvark_record_all_fields,
-):
-    source_record = next(aardvark_record_all_fields)
+def test_aardvark_record_get_source_link_success():
+    source_record = create_aardvark_source_record_stub()
     url_from_source_record = "https://geodata.libraries.mit.edu/record/abc:123"
     source_record["dct_references_s"] = json.dumps(
         {"http://schema.org/url": url_from_source_record}
@@ -84,10 +85,8 @@ def test_aardvark_record_get_source_link_success(
     )
 
 
-def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error(
-    aardvark_record_all_fields,
-):
-    source_record = next(aardvark_record_all_fields)
+def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error():
+    source_record = create_aardvark_source_record_stub()
     source_record["dct_references_s"] = json.dumps(
         {"missing data": "from aardvark from geoharvester"}
     )
@@ -102,97 +101,87 @@ def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error(
         )
 
 
-def test_aardvark_record_get_timdex_record_id_success(
-    aardvark_record_all_fields,
-):
-    source_record = next(aardvark_record_all_fields)
+def test_aardvark_record_get_timdex_record_id_success():
+    source_record = create_aardvark_source_record_stub()
     assert (
         MITAardvark.get_timdex_record_id("source", "123", source_record) == "source:123"
     )
 
 
-def test_aardvark_get_source_record_id_success(aardvark_record_all_fields):
-    assert MITAardvark.get_source_record_id(next(aardvark_record_all_fields)) == "123"
+def test_aardvark_get_source_record_id_success():
+    source_record = create_aardvark_source_record_stub()
+    assert MITAardvark.get_source_record_id(source_record) == "123"
 
 
-def test_aardvark_record_is_deleted_success(aardvark_record_all_fields):
-    source_record = next(aardvark_record_all_fields)
+def test_aardvark_record_is_deleted_success():
+    source_record = create_aardvark_source_record_stub()
     source_record["gbl_suppressed_b"] = True
     assert MITAardvark.record_is_deleted(source_record) is True
 
 
-def test_aardvark_record_is_deleted_returns_false_if_field_missing(
-    aardvark_record_all_fields,
-):
-    assert MITAardvark.record_is_deleted(next(aardvark_record_all_fields)) is False
-
-
-def test_aardvark_record_is_deleted_raises_error_if_value_is_string(
-    aardvark_record_all_fields,
-):
-    source_record = next(aardvark_record_all_fields)
-    source_record["gbl_suppressed_b"] = "True"
+def test_aardvark_record_is_deleted_raises_error_if_field_missing():
+    source_record = create_aardvark_source_record_stub()
     with pytest.raises(
         ValueError,
-        match="Record ID '123': 'gbl_suppressed_b' value is not a boolean",
+        match="Record ID '123': 'gbl_suppressed_b' value is not a boolean or missing",
     ):
         MITAardvark.record_is_deleted(source_record)
 
 
-def test_aardvark_record_is_deleted_returns_false_if_value_is_false(
-    aardvark_record_all_fields,
-):
-    source_record = next(aardvark_record_all_fields)
+def test_aardvark_record_is_deleted_raises_error_if_value_is_string():
+    source_record = create_aardvark_source_record_stub()
+    source_record["gbl_suppressed_b"] = "True"
+    with pytest.raises(
+        ValueError,
+        match="Record ID '123': 'gbl_suppressed_b' value is not a boolean or missing",
+    ):
+        MITAardvark.record_is_deleted(source_record)
+
+
+def test_aardvark_record_is_deleted_returns_false_if_value_is_false():
+    source_record = create_aardvark_source_record_stub()
     source_record["gbl_suppressed_b"] = False
     assert MITAardvark.record_is_deleted(source_record) is False
 
 
-def test_aardvark_get_alternate_titles_success(aardvark_records):
-    source_record = next(aardvark_records)
+def test_aardvark_get_alternate_titles_success():
+    source_record = create_aardvark_source_record_stub()
     source_record["dct_alternative_sm"] = ["Alternate title"]
     assert MITAardvark.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="Alternate title")
     ]
 
 
-def test_aardvark_get_alternate_titles_transforms_correctly_if_fields_blank(
-    aardvark_records,
-):
-    source_record = next(aardvark_records)
+def test_aardvark_get_alternate_titles_transforms_correctly_if_fields_blank():
+    source_record = create_aardvark_source_record_stub()
     source_record["dct_alternative_sm"] = []
     assert MITAardvark.get_alternate_titles(source_record) is None
 
 
-def test_aardvark_get_alternate_titles_transforms_correctly_if_fields_missing(
-    aardvark_records,
-):
-    source_record = next(aardvark_records)
+def test_aardvark_get_alternate_titles_transforms_correctly_if_fields_missing():
+    source_record = {}
     assert MITAardvark.get_alternate_titles(source_record) is None
 
 
-def test_aardvark_get_content_type_success(aardvark_records):
-    source_record = next(aardvark_records)
+def test_aardvark_get_content_type_success():
+    source_record = create_aardvark_source_record_stub()
     source_record["gbl_resourceType_sm"] = ["Vector data"]
     assert MITAardvark.get_content_type(source_record) == ["Vector data"]
 
 
-def test_aardvark_get_content_type_transforms_correctly_if_fields_blank(
-    aardvark_records,
-):
-    source_record = next(aardvark_records)
+def test_aardvark_get_content_type_transforms_correctly_if_fields_blank():
+    source_record = create_aardvark_source_record_stub()
     source_record["gbl_resourceType_sm"] = []
     assert MITAardvark.get_content_type(source_record) is None
 
 
-def test_aardvark_get_content_type_transforms_correctly_if_fields_missing(
-    aardvark_records,
-):
-    source_record = next(aardvark_records)
+def test_aardvark_get_content_type_transforms_correctly_if_fields_missing():
+    source_record = {}
     assert MITAardvark.get_content_type(source_record) is None
 
 
-def test_aardvark_get_contributors_success(aardvark_records):
-    source_record = next(aardvark_records)
+def test_aardvark_get_contributors_success():
+    source_record = create_aardvark_source_record_stub()
     source_record["dct_creator_sm"] = ["Smith, Jane", "Smith, John"]
     assert MITAardvark.get_contributors(source_record) == [
         timdex.Contributor(
@@ -206,23 +195,19 @@ def test_aardvark_get_contributors_success(aardvark_records):
     ]
 
 
-def test_aardvark_get_contributors_transforms_correctly_if_fields_blank(
-    aardvark_records,
-):
-    source_record = next(aardvark_records)
+def test_aardvark_get_contributors_transforms_correctly_if_fields_blank():
+    source_record = create_aardvark_source_record_stub()
     source_record["dct_creator_sm"] = []
     assert MITAardvark.get_contributors(source_record) is None
 
 
-def test_aardvark_get_contributors_transforms_correctly_if_fields_missing(
-    aardvark_records,
-):
-    source_record = next(aardvark_records)
+def test_aardvark_get_contributors_transforms_correctly_if_fields_missing():
+    source_record = {}
     assert MITAardvark.get_contributors(source_record) is None
 
 
-def test_aardvark_get_dates_success(aardvark_records):
-    source_record = next(aardvark_records)
+def test_aardvark_get_dates_success():
+    source_record = create_aardvark_source_record_stub()
     source_record["dct_issued_s"] = "2003-10-23"
     source_record["dct_temporal_sm"] = ["1943", "1979"]
     source_record["gbl_dateRange_drsim"] = ["[1943 TO 1946]"]
@@ -241,11 +226,23 @@ def test_aardvark_get_dates_success(aardvark_records):
     ]
 
 
-def test_aardvark_get_dates_drops_dates_with_invalid_strings(
-    caplog, aardvark_record_all_fields
-):
+def test_aardvark_get_dates_transforms_correctly_if_fields_blank():
+    source_record = create_aardvark_source_record_stub()
+    source_record["dct_issued_s"] = ""
+    source_record["dct_temporal_sm"] = []
+    source_record["gbl_dateRange_drsim"] = []
+    source_record["gbl_indexYear_im"] = []
+    assert MITAardvark.get_dates(source_record) is None
+
+
+def test_aardvark_get_dates_transforms_correctly_if_fields_missing():
+    source_record = {}
+    assert MITAardvark.get_dates(source_record) is None
+
+
+def test_aardvark_get_dates_drops_dates_with_invalid_strings(caplog):
     caplog.set_level("DEBUG")
-    source_record = next(aardvark_record_all_fields)
+    source_record = create_aardvark_source_record_stub()
     source_record["dct_issued_s"] = "1933?"  # dropped
     source_record["dct_temporal_sm"] = [
         "2000-01-01",
@@ -257,6 +254,7 @@ def test_aardvark_get_dates_drops_dates_with_invalid_strings(
         "[1943 TO 1946]",
         "[apples TO oranges]",  # logged and dropped
     ]
+    source_record["gbl_indexYear_im"] = [1943, 1944, 1945, 1946]
     assert MITAardvark.get_dates(source_record) == [
         timdex.Date(kind="Coverage", value="2000-01-01"),
         timdex.Date(kind="Coverage", value="1999"),
