@@ -36,7 +36,7 @@ class MITAardvark(JSONTransformer):
     def get_source_link(
         cls,
         _source_base_url: str,
-        source_record_id: str,
+        _source_record_id: str,
         source_record: dict[str, JSON],
     ) -> str:
         """
@@ -55,10 +55,10 @@ class MITAardvark(JSONTransformer):
                 - not used by default implementation, but could be useful for subclass
                     overrides
         """
-        links = cls.get_links(source_record, source_record_id)
-        url_links = [link for link in links if link.kind == "Website"]
-        if len(url_links) == 1:
-            return url_links[0].url
+        if links := cls.get_links(source_record):
+            url_links = [link for link in links if link.kind == "Website"]
+            if len(url_links) == 1:
+                return url_links[0].url
         message = "Could not locate a kind=Website link to pull the source link from."
         raise ValueError(message)
 
@@ -122,8 +122,6 @@ class MITAardvark(JSONTransformer):
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(source_record)
-
         # alternate_titles
         fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
@@ -141,41 +139,41 @@ class MITAardvark(JSONTransformer):
         # file_formats not used in MITAardvark
 
         # format
-        fields["format"] = source_record.get("dct_format_s")
+        fields["format"] = self.get_format(source_record)
 
         # funding_information not used in MITAardvark
 
         # identifiers
-        fields["identifiers"] = self.get_identifiers(source_record) or None
+        fields["identifiers"] = self.get_identifiers(source_record)
 
         # languages
-        fields["languages"] = source_record.get("dct_language_sm")
+        fields["languages"] = self.get_languages(source_record)
 
         # links
-        fields["links"] = self.get_links(source_record, source_record_id) or None
+        fields["links"] = self.get_links(source_record) or None
 
         # locations
-        fields["locations"] = self.get_locations(source_record, source_record_id) or None
+        fields["locations"] = self.get_locations(source_record)
 
         # notes
-        fields["notes"] = self.get_notes(source_record) or None
+        fields["notes"] = self.get_notes(source_record)
 
         # provider
-        fields["provider"] = source_record.get("schema_provider_s")
+        fields["provider"] = self.get_provider(source_record)
 
         # publishers
-        fields["publishers"] = self.get_publishers(source_record) or None
+        fields["publishers"] = self.get_publishers(source_record)
 
         # related_items not used in MITAardvark
 
         # rights
-        fields["rights"] = self.get_rights(self.source, source_record) or None
+        fields["rights"] = self.get_rights(source_record, self.source)
 
         # subjects
-        fields["subjects"] = self.get_subjects(source_record) or None
+        fields["subjects"] = self.get_subjects(source_record)
 
         # summary field
-        fields["summary"] = source_record.get("dct_description_sm")
+        fields["summary"] = self.get_summary(source_record)
 
         return fields
 
@@ -276,18 +274,24 @@ class MITAardvark(JSONTransformer):
             )
             raise ValueError(message) from None
 
-    @staticmethod
-    def get_identifiers(source_record: dict) -> list[timdex.Identifier]:
-        """Get values from source record for TIMDEX identifiers field."""
+    @classmethod
+    def get_format(cls, source_record: dict) -> str | None:
+        return source_record.get("dct_format_s") or None
+
+    @classmethod
+    def get_identifiers(cls, source_record: dict) -> list[timdex.Identifier] | None:
         return [
             timdex.Identifier(value=identifier_value, kind="Not specified")
             for identifier_value in source_record.get("dct_identifier_sm", [])
-        ]
+        ] or None
 
-    @staticmethod
-    def get_links(source_record: dict, source_record_id: str) -> list[timdex.Link]:
-        """Get values from source record for TIMDEX links field.
+    @classmethod
+    def get_languages(cls, source_record: dict) -> list[str] | None:
+        return source_record.get("dct_language_sm") or None
 
+    @classmethod
+    def get_links(cls, source_record: dict) -> list[timdex.Link] | None:
+        """
         The dct_references_s is a JSON string following a particular format defined here:
         https://opengeometadata.org/ogm-aardvark/#references.  Keys in the parsed JSON
         object define what kind of URL it is.  This is a flat mapping of namespace:url,
@@ -295,33 +299,32 @@ class MITAardvark(JSONTransformer):
         complex objects.
         """
         links = []
-        links_string = source_record["dct_references_s"]
-        try:
-            links_object = json.loads(links_string)
-            links.extend(
-                [
-                    timdex.Link(
-                        url=link.get("url"), kind="Download", text=link.get("label")
+        if links_string := source_record.get("dct_references_s"):
+            try:
+                links_object = json.loads(links_string)
+                links.extend(
+                    [
+                        timdex.Link(
+                            url=link.get("url"), kind="Download", text=link.get("label")
+                        )
+                        for link in links_object.get("http://schema.org/downloadUrl", [])
+                        if isinstance(link.get("url", {}), str)
+                    ]
+                )
+                if schema_url := links_object.get("http://schema.org/url"):
+                    links.append(
+                        timdex.Link(url=schema_url, kind="Website", text="Website")
                     )
-                    for link in links_object.get("http://schema.org/downloadUrl", [])
-                    if isinstance(link.get("url", {}), str)
-                ]
-            )
-            if schema_url := links_object.get("http://schema.org/url"):
-                links.append(timdex.Link(url=schema_url, kind="Website", text="Website"))
-        except ValueError:
-            message = (
-                f"Record ID '{source_record_id}': Unable to parse "
-                f"links string '{links_string}' as JSON"
-            )
-            logger.warning(message)
-        return links
+            except ValueError:
+                message = (
+                    f"Record ID '{cls.get_source_record_id(source_record)}': Unable to"
+                    f" parse links string '{links_string}' as JSON"
+                )
+                logger.warning(message)
+        return links or None
 
-    @staticmethod
-    def get_locations(
-        source_record: dict, source_record_id: str
-    ) -> list[timdex.Location]:
-        """Get values from source record for TIMDEX locations field."""
+    @classmethod
+    def get_locations(cls, source_record: dict) -> list[timdex.Location] | None:
         locations = []
 
         aardvark_location_fields = {
@@ -342,24 +345,22 @@ class MITAardvark(JSONTransformer):
                 )
             else:
                 message = (
-                    f"Record ID '{source_record_id}': "
+                    f"Record ID '{cls.get_source_record_id(source_record)}': "
                     f"Unable to parse geodata string '{geodata_string}' "
                     f"in '{aardvark_location_field}'"
                 )
                 logger.warning(message)
-        return locations
+        return locations or None
 
-    @staticmethod
-    def get_notes(source_record: dict) -> list[timdex.Note]:
-        """Get values from source record for TIMDEX notes field."""
+    @classmethod
+    def get_notes(cls, source_record: dict) -> list[timdex.Note] | None:
         return [
             timdex.Note(value=[note_value], kind="Display note")
             for note_value in source_record.get("gbl_displayNote_sm", [])
-        ]
+        ] or None
 
-    @staticmethod
-    def get_publishers(source_record: dict) -> list[timdex.Publisher]:
-        """Get values from source record for TIMDEX publishers field."""
+    @classmethod
+    def get_publishers(cls, source_record: dict) -> list[timdex.Publisher] | None:
         publishers = []
         if "dct_publisher_sm" in source_record:
             publishers.extend(
@@ -368,11 +369,14 @@ class MITAardvark(JSONTransformer):
                     for publisher in source_record["dct_publisher_sm"]
                 ]
             )
-        return publishers
+        return publishers or None
 
-    @staticmethod
-    def get_rights(source: str, source_record: dict) -> list[timdex.Rights]:
-        """Get values from source record for TIMDEX rights field."""
+    @classmethod
+    def get_provider(cls, source_record: dict) -> str | None:
+        return source_record.get("schema_provider_s") or None
+
+    @classmethod
+    def get_rights(cls, source_record: dict, source: str) -> list[timdex.Rights] | None:
         rights = []
         kind_access_to_files = "Access to files"
 
@@ -421,12 +425,11 @@ class MITAardvark(JSONTransformer):
             ]
         )
 
-        return rights
+        return rights or None
 
-    @staticmethod
-    def get_subjects(source_record: dict) -> list[timdex.Subject]:
-        """Get values from source record for TIMDEX subjects field.
-
+    @classmethod
+    def get_subjects(cls, source_record: dict) -> list[timdex.Subject] | None:
+        """
         Unlike other TIMDEX sources, the subject scheme is not known
         for each term. The kind here represents the uncontrolled field
         in which the term was found.
@@ -456,4 +459,8 @@ class MITAardvark(JSONTransformer):
                 ]
             )
 
-        return subjects
+        return subjects or None
+
+    @classmethod
+    def get_summary(cls, source_record: dict) -> list[str] | None:
+        return source_record.get("dct_description_sm") or None
