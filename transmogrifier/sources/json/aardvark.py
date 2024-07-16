@@ -200,19 +200,19 @@ class MITAardvark(JSONTransformer):
     @classmethod
     def get_dates(cls, source_record: dict) -> list[timdex.Date] | None:
         dates: list[timdex.Date] = []
-        dates.extend(cls._issued_dates(source_record))
-        dates.extend(cls._coverage_dates(source_record))
-        dates.extend(cls._range_dates(source_record))
+        dates.extend(cls._get_issued_dates(source_record))
+        dates.extend(cls._get_coverage_dates(source_record))
+        dates.extend(cls._get_range_dates(source_record))
         return dates or None
 
     @classmethod
-    def _issued_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
+    def _get_issued_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
         if issued_date := source_record.get("dct_issued_s"):  # noqa: SIM102
             if validate_date(issued_date, cls.get_source_record_id(source_record)):
                 yield (timdex.Date(value=issued_date, kind="Issued"))
 
     @classmethod
-    def _coverage_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
+    def _get_coverage_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
         coverage_date_values = []
         coverage_date_values.extend(source_record.get("dct_temporal_sm", []))
         coverage_date_values.extend(
@@ -230,7 +230,7 @@ class MITAardvark(JSONTransformer):
                 yield timdex.Date(value=coverage_date_value, kind="Coverage")
 
     @classmethod
-    def _range_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
+    def _get_range_dates(cls, source_record: dict) -> Iterator[timdex.Date]:
         for date_range_string in source_record.get("gbl_dateRange_drsim", []):
             try:
                 date_range_values = cls.parse_solr_date_range_string(
@@ -377,55 +377,63 @@ class MITAardvark(JSONTransformer):
 
     @classmethod
     def get_rights(cls, source_record: dict, source: str) -> list[timdex.Rights] | None:
-        rights = []
+        rights: list[timdex.Rights] = []
         kind_access_to_files = "Access to files"
+        rights.extend(cls._get_access_rights(source_record))
+        rights.extend(cls._get_license_rights(source_record))
+        rights.extend(cls._get_rights_and_rights_holders(source_record))
+        if source == "gisogm":
+            rights.extend(cls._get_gisogm_rights(kind_access_to_files))
+        elif source == "gismit":
+            rights.extend(cls._get_gismit_rights(source_record, kind_access_to_files))
+        return rights or None
 
-        rights.append(
-            timdex.Rights(
-                description=source_record["dct_accessRights_s"],
+    @classmethod
+    def _get_access_rights(cls, source_record: dict) -> Iterator[timdex.Rights]:
+        if access_rights := source_record.get("dct_accessRights_s"):
+            yield timdex.Rights(
+                description=access_rights,
                 kind="Access rights",
             )
+
+    @classmethod
+    def _get_license_rights(cls, source_record: dict) -> Iterator[timdex.Rights]:
+        for rights_uri_value in source_record.get("dct_license_sm", []):
+            yield (timdex.Rights(uri=rights_uri_value))
+
+    @classmethod
+    def _get_rights_and_rights_holders(
+        cls, source_record: dict
+    ) -> Iterator[timdex.Rights]:
+        for aardvark_rights_field in ["dct_rights_sm", "dct_rightsHolder_sm"]:
+            if aardvark_rights_field in source_record:
+                yield (
+                    timdex.Rights(
+                        description=". ".join(source_record[aardvark_rights_field])
+                    )
+                )
+
+    @classmethod
+    def _get_gisogm_rights(cls, kind: str) -> Iterator[timdex.Rights]:
+        yield timdex.Rights(
+            description="unknown: check with owning institution",
+            kind=kind,
         )
 
-        if source == "gisogm":
-            rights.append(
-                timdex.Rights(
-                    description="unknown: check with owning institution",
-                    kind=kind_access_to_files,
-                )
+    @classmethod
+    def _get_gismit_rights(
+        cls, source_record: dict, kind: str
+    ) -> Iterator[timdex.Rights]:
+        if source_record["dct_accessRights_s"] == "Restricted":
+            yield timdex.Rights(
+                description="MIT authentication required",
+                kind=kind,
             )
-        elif source == "gismit":
-            if source_record["dct_accessRights_s"] == "Restricted":
-                rights.append(
-                    timdex.Rights(
-                        description="MIT authentication required",
-                        kind=kind_access_to_files,
-                    )
-                )
-            else:
-                rights.append(
-                    timdex.Rights(
-                        description="no authentication required",
-                        kind=kind_access_to_files,
-                    )
-                )
-
-        rights.extend(
-            [
-                timdex.Rights(uri=rights_uri_value)
-                for rights_uri_value in source_record.get("dct_license_sm", [])
-            ]
-        )
-
-        rights.extend(
-            [
-                timdex.Rights(description=". ".join(source_record[aardvark_rights_field]))
-                for aardvark_rights_field in ["dct_rights_sm", "dct_rightsHolder_sm"]
-                if aardvark_rights_field in source_record
-            ]
-        )
-
-        return rights or None
+        else:
+            yield timdex.Rights(
+                description="no authentication required",
+                kind=kind,
+            )
 
     @classmethod
     def get_subjects(cls, source_record: dict) -> list[timdex.Subject] | None:
