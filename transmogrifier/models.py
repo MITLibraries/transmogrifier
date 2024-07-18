@@ -44,6 +44,16 @@ def not_empty(
 
 
 @define
+class Provenance:
+    source: str = field(validator=instance_of(str))
+    transformed_date: str = field(validator=instance_of(str))
+    source_filepath: str = field(validator=instance_of(str))
+    transformed_filepath: str = field(validator=instance_of(str))
+    source_record_hash: str = field(validator=instance_of(str))
+    source_record_file_offset: int = field(validator=instance_of(int))
+
+
+@define
 class AlternateTitle:
     value: str = field(validator=instance_of(str))  # Required subfield
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
@@ -162,6 +172,7 @@ class TimdexRecord:
     source_link: str = field(validator=instance_of(str))
     timdex_record_id: str = field(validator=instance_of(str))
     title: str = field(validator=instance_of(str))
+    provenance: Provenance = field(validator=instance_of(Provenance))
 
     # Optional fields
     alternate_titles: list[AlternateTitle] | None = field(

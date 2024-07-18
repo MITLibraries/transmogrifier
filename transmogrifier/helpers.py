@@ -1,3 +1,4 @@
+import hashlib
 import logging
 from datetime import UTC, datetime
 
@@ -54,6 +55,10 @@ def generate_citation(extracted_data: dict) -> str:
 
     citation += publisher_string + resource_type_string + url_string
     return citation
+
+
+def md5_hash_from_values(value: str) -> str:
+    return hashlib.md5(value.encode()).hexdigest()
 
 
 def parse_date_from_string(

@@ -35,7 +35,11 @@ class Transformer(ABC):
 
     @final
     def __init__(
-        self, source: str, source_records: Iterator[dict[str, JSON] | Tag]
+        self,
+        source: str,
+        source_filepath: str,
+        transformed_filepath: str,
+        source_records: Iterator[dict[str, JSON] | Tag],
     ) -> None:
         """
         Initialize Transformer instance.
@@ -45,9 +49,12 @@ class Transformer(ABC):
             source_records: A set of source records to be processed.
         """
         self.source: str = source
+        self.source_filepath: str = source_filepath
+        self.transformed_filepath: str = transformed_filepath
         self.source_base_url: str = SOURCES[source]["base-url"]
         self.source_name = SOURCES[source]["name"]
         self.source_records: Iterator[JSON | Tag] = source_records
+        self.source_record_file_offset: int = 0
         self.processed_record_count: int = 0
         self.transformed_record_count: int = 0
         self.skipped_record_count: int = 0
@@ -63,6 +70,7 @@ class Transformer(ABC):
         """Return next transformed record."""
         while True:
             source_record = next(self.source_records)
+            self.source_record_file_offset = self.processed_record_count
             self.processed_record_count += 1
             try:
                 record = self.transform(source_record)
@@ -151,7 +159,9 @@ class Transformer(ABC):
 
     @final
     @classmethod
-    def load(cls, source: str, source_file: str) -> Transformer:
+    def load(
+        cls, source: str, source_filepath: str, transformed_filepath: str
+    ) -> Transformer:
         """
         Instantiate specified transformer class and populate with source records.
 
@@ -160,8 +170,10 @@ class Transformer(ABC):
             source_file: A file containing source records to be transformed.
         """
         transformer_class = cls.get_transformer(source)
-        source_records = transformer_class.parse_source_file(source_file)
-        return transformer_class(source, source_records)
+        source_records = transformer_class.parse_source_file(source_filepath)
+        return transformer_class(
+            source, source_filepath, transformed_filepath, source_records
+        )
 
     @final
     @classmethod
@@ -258,6 +270,7 @@ class Transformer(ABC):
 
         fields = self.create_dates_and_locations_from_publishers(fields)
         fields = self.create_locations_from_spatial_subjects(fields)
+        fields = self.get_provenance(source_record, fields)
 
         # If citation field was not present, generate citation from other fields
         if fields.get("citation") is None:
@@ -372,6 +385,14 @@ class Transformer(ABC):
             source_record: A single source record.
         """
         return {}
+
+    @abstractmethod
+    def get_provenance(self, source_record: dict[str, JSON]) -> dict:
+        """Retrieve provenance for transformed record.
+
+        Args:
+            source_record: A single source record.
+        """
 
     @final
     @staticmethod

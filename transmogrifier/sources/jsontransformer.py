@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import json
+
 from abc import abstractmethod
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, final
 
 import jsonlines
 import smart_open  # type: ignore[import-untyped]
 
+import transmogrifier.models as timdex
+from transmogrifier.helpers import md5_hash_from_values
 from transmogrifier.sources.transformer import JSON, Transformer
 
 if TYPE_CHECKING:
@@ -72,6 +77,22 @@ class JSONTransformer(Transformer):
             "timdex_record_id": timdex_record_id,
             "title": title,
         }
+
+    def get_provenance(self, source_record: dict[str, JSON], fields: dict) -> dict:
+        """Retrieve provenance for transformed record.
+
+        Args:
+            source_record: A JSON object representing a source record.
+        """
+        fields["provenance"] = timdex.Provenance(
+            source=self.source,
+            transformed_date=datetime.now(timezone.utc).isoformat(),
+            source_filepath=self.source_filepath,
+            transformed_filepath=self.transformed_filepath,
+            source_record_hash=md5_hash_from_values(json.dumps(source_record)),
+            source_record_file_offset=self.source_record_file_offset,
+        )
+        return fields
 
     @classmethod
     @abstractmethod
