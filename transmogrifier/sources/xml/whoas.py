@@ -46,6 +46,6 @@ class Whoas(DspaceDim):
         Args:
             content_type_list: A list of content_type values.
         """
-        if all(item.lower() in INVALID_CONTENT_TYPES for item in content_type_list):
-            return False
-        return True
+        return not all(
+            item.lower() in INVALID_CONTENT_TYPES for item in content_type_list
+        )
