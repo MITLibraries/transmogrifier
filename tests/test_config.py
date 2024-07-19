@@ -54,4 +54,6 @@ def test_load_external_config_json():
 
 
 def test_load_external_config_xml():
-    assert type(load_external_config("config/loc-countries.xml", "xml")) == BeautifulSoup
+    assert isinstance(
+        load_external_config("config/loc-countries.xml", "xml"), BeautifulSoup
+    )

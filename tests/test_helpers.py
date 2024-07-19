@@ -250,7 +250,7 @@ def test_parse_date_from_string_success():
         "1930-12-31T12:34:56.000001",
         "1930-12-31T12:34:56.000001Z",
     ]:
-        assert type(parse_date_from_string(date)) == datetime
+        assert isinstance(parse_date_from_string(date), datetime)
 
 
 def test_parse_date_from_string_invalid_date_returns_none():

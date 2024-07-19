@@ -55,10 +55,11 @@ class MITAardvark(JSONTransformer):
                 - not used by default implementation, but could be useful for subclass
                     overrides
         """
-        if links := cls.get_links(source_record):
-            url_links = [link for link in links if link.kind == "Website"]
-            if len(url_links) == 1:
-                return url_links[0].url
+        if (links := cls.get_links(source_record)) and (
+            url_links := [link for link in links if link.kind == "Website"]
+        ):
+            return url_links[0].url
+
         message = "Could not locate a kind=Website link to pull the source link from."
         raise ValueError(message)
 

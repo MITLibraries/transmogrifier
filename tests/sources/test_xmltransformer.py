@@ -75,6 +75,13 @@ def test_xmltransformer_record_is_deleted_returns_true_if_deleted(caplog):
     assert XMLTransformer.record_is_deleted(next(source_records)) is True
 
 
+def test_xmltransformer_record_is_deleted_returns_false_if_not_deleted(caplog):
+    source_records = XMLTransformer.parse_source_file(
+        "tests/fixtures/record_title_field_blank.xml"
+    )
+    assert XMLTransformer.record_is_deleted(next(source_records)) is False
+
+
 def test_xmltransformer_get_required_fields_returns_expected_values(oai_pmh_records):
     transformer = XMLTransformer("cool-repo", oai_pmh_records)
     assert transformer.get_required_fields(next(oai_pmh_records)) == {

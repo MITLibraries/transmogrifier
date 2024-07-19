@@ -161,9 +161,7 @@ class XMLTransformer(Transformer):
         Args:
             source_record: A BeautifulSoup Tag representing a single XML record
         """
-        if source_record.find("header", status="deleted"):
-            return True
-        return False
+        return source_record.find("header", status="deleted") is not None
 
     def get_optional_fields(self, _source_record: Tag) -> dict | None:
         """
