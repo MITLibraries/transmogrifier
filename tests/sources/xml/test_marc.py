@@ -1,9 +1,54 @@
+# ruff: noqa: E501, SLF001
 import logging
 
+import pytest
 from bs4 import BeautifulSoup  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.sources.xml.marc import Marc
+
+
+def create_marc_source_record_stub(
+    leader_field_insert: str = "<leader>03282nam  2200721Ki 4500</leader>",
+    control_field_insert: str = (
+        '<controlfield tag="008">170906s2016    fr mun| o         e zxx d</controlfield>'
+    ),
+    datafield_insert: str = "",
+):
+    """
+    Create source record for unit tests.
+
+    Args:
+        leader_field_insert (str): A string representing a MARC fixed length 'leader'
+            XML element. Defaults to a dummy value.
+        control_field_insert (str): A string representing a MARC fixed length
+            'general info control field' (i.e., code 008) XML element.
+            Defaults to a dummy value.
+        datafield_insert (str): A string representing a MARC 'datafield' XML element.
+
+    Note: A source record for "missing" field method tests can be created by
+        setting datafield_insert = "" (the default).
+    """
+    xml_string = """
+        <collection>
+            <record>
+                {leader_field_insert}
+                {control_field_insert}
+                <controlfield tag="001">990027185640106761</controlfield>
+                {datafield_insert}
+            </record>
+        </collection>
+    """
+
+    return BeautifulSoup(
+        xml_string.format(
+            leader_field_insert=leader_field_insert,
+            control_field_insert=control_field_insert,
+            datafield_insert=datafield_insert,
+        ),
+        "xml",
+    )
 
 
 def test_marc_record_all_fields_transform_correctly():
@@ -748,32 +793,192 @@ def test_marc_record_with_missing_optional_fields_transforms_correctly():
     )
 
 
-def test_marc_record_missing_leader_logs_error(caplog):
+def test_get_leader_field_success():
+    source_record = create_marc_source_record_stub()
+    assert Marc._get_leader_field(source_record) == "03282nam  2200721Ki 4500"
+
+
+def test_get_leader_field_raises_skipped_record_event_if_field_blank():
+    source_record = create_marc_source_record_stub(
+        leader_field_insert="<leader></leader>"
+    )
+    with pytest.raises(
+        SkippedRecordEvent,
+        match=("Record skipped because key information is missing: <leader>."),
+    ):
+        Marc._get_leader_field(source_record)
+
+
+def test_get_leader_field_raises_skipped_record_event_if_field_missing():
+    source_record = create_marc_source_record_stub(leader_field_insert="")
+    with pytest.raises(
+        SkippedRecordEvent,
+        match=("Record skipped because key information is missing: <leader>."),
+    ):
+        Marc._get_leader_field(source_record)
+
+
+def test_get_control_field_success():
+    source_record = create_marc_source_record_stub()
+    assert Marc._get_control_field(source_record) == (
+        "170906s2016    fr mun| o         e zxx d"
+    )
+
+
+def test_get_control_field_raises_skipped_record_event_if_field_blank():
+    source_record = create_marc_source_record_stub(
+        control_field_insert='<controlfield tag="008"></controlfield>'
+    )
+    with pytest.raises(
+        SkippedRecordEvent,
+        match=(
+            'Record skipped because key information is missing: <controlfield tag="008">.'
+        ),
+    ):
+        Marc._get_control_field(source_record)
+
+
+def test_get_control_field_raises_skipped_record_event_if_field_missing():
+    source_record = create_marc_source_record_stub(control_field_insert="")
+    with pytest.raises(
+        SkippedRecordEvent,
+        match=(
+            'Record skipped because key information is missing: <controlfield tag="008">.'
+        ),
+    ):
+        Marc._get_control_field(source_record)
+
+
+def test_get_alternate_titles_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="130" ind1="0" ind2="0">
+                <subfield code="a">Main Entry</subfield>
+                <subfield code="d">Date 1</subfield>
+                <subfield code="d">Date 2</subfield>
+            </datafield>
+            <datafield tag="240" ind1="0" ind2="0">
+                <subfield code="a">Uniform</subfield>
+                <subfield code="d">Date 1</subfield>
+                <subfield code="d">Date 2</subfield>
+            </datafield>
+            <datafield tag="246" ind1="0" ind2="0">
+                <subfield code="a">Varying Form</subfield>
+                <subfield code="b">Of Title 1.</subfield>
+            </datafield>
+            <datafield tag="730" ind1="0" ind2="0">
+                <subfield code="a">Added Entry 2</subfield>
+                <subfield code="n">Part 1</subfield>
+                <subfield code="n">Part 2</subfield>
+            </datafield>
+            <datafield tag="740" ind1="0" ind2="0">
+                <subfield code="a">Added Entry 1</subfield>
+                <subfield code="n">Part 1</subfield>
+                <subfield code="n">Part 2</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_alternate_titles(source_record) == [
+        timdex.AlternateTitle(value="Main Entry Date 1 Date 2", kind="Preferred Title"),
+        timdex.AlternateTitle(value="Uniform Date 1 Date 2", kind="Preferred Title"),
+        timdex.AlternateTitle(
+            value="Varying Form Of Title 1", kind="Varying Form of Title"
+        ),
+        timdex.AlternateTitle(
+            value="Added Entry 2 Part 1 Part 2", kind="Preferred Title"
+        ),
+        timdex.AlternateTitle(
+            value="Added Entry 1 Part 1 Part 2",
+            kind="Uncontrolled Related/Analytical Title",
+        ),
+    ]
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="130" ind1="0" ind2="0">
+                <subfield code="a"></subfield>
+                <subfield code="d"></subfield>
+                <subfield code="d"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_alternate_titles(source_record) is None
+
+
+def test_get_alternate_titles_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_alternate_titles(source_record) is None
+
+
+def test_get_call_numbers_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="050" ind1=" " ind2="0">
+                <subfield code="a">MA123.4</subfield>
+                <subfield code="a">LC Call Number 2</subfield>
+            </datafield>
+            <datafield tag="082" ind1="0" ind2=" ">
+                <subfield code="a">123.45</subfield>
+                <subfield code="a">Dewey Call Number 2</subfield>
+            </datafield>
+            <datafield tag="082" ind1="0" ind2=" ">
+                <subfield code="a">Dewey Call Number 3</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_call_numbers(source_record) == [
+        "MA123.4",
+        "LC Call Number 2",
+        "123.45",
+        "Dewey Call Number 2",
+        "Dewey Call Number 3",
+    ]
+
+
+def test_get_call_numbers_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="050" ind1=" " ind2="0">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_call_numbers(source_record) is None
+
+
+def test_get_call_numbers_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_call_numbers(source_record) is None
+
+
+def test_marc_record_missing_leader_skips_record(caplog):
     marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_missing_leader.xml"
     )
     output_records = Marc("alma", marc_xml_records)
     assert len(list(output_records)) == 0
     assert output_records.processed_record_count == 1
-    assert (
-        "transmogrifier.sources.xml.marc",
-        logging.ERROR,
-        "Record ID 990027185640106761 is missing MARC leader",
-    ) in caplog.record_tuples
+    assert output_records.skipped_record_count == 1
 
 
-def test_marc_record_missing_008_logs_error(caplog):
+def test_marc_record_missing_008_skips_record(caplog):
     marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_missing_008.xml"
     )
     output_records = Marc("alma", marc_xml_records)
     assert len(list(output_records)) == 0
     assert output_records.processed_record_count == 1
-    assert (
-        "transmogrifier.sources.xml.marc",
-        logging.ERROR,
-        "Record ID 990027185640106761 is missing MARC 008 field",
-    ) in caplog.record_tuples
+    assert output_records.skipped_record_count == 1
 
 
 def test_create_subfield_value_list_from_datafield_with_values():
