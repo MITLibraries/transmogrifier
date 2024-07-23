@@ -179,7 +179,7 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Contributor(
                 value="Bayreuther Festspiele",
-                kind="Orchester",
+                kind="Chor",
             ),
             timdex.Contributor(
                 value="Bayreuther Festspiele",
@@ -187,7 +187,7 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Contributor(
                 value="Bayreuther Festspiele",
-                kind="Chor",
+                kind="Orchester",
             ),
             timdex.Contributor(
                 value="Bayreuther Festspiele",
@@ -259,6 +259,17 @@ def test_marc_record_all_fields_transform_correctly():
         ],
         links=[
             timdex.Link(
+                url="http://catalog.hathitrust.org/api/volumes/oclc/1606890.html",
+                kind="Hathi Trust",
+            ),
+            timdex.Link(
+                url="http://www.rsc.org/Publishing/Journals/cb/PreviousIssue.asp",
+                kind="Digital object URL",
+                restrictions="Access available on website of subsequent title: "
+                "Highlights in chemical biology",
+                text="Display text",
+            ),
+            timdex.Link(
                 kind="Digital object URL",
                 text="HeinOnline U.S. Congressional Documents Library",
                 url="http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?"
@@ -274,17 +285,6 @@ def test_marc_record_all_fields_transform_correctly():
                 kind="Digital object URL",
                 text="O'Reilly Online Learning",
                 url="http://link-resolver-url",
-            ),
-            timdex.Link(
-                url="http://catalog.hathitrust.org/api/volumes/oclc/1606890.html",
-                kind="Hathi Trust",
-            ),
-            timdex.Link(
-                url="http://www.rsc.org/Publishing/Journals/cb/PreviousIssue.asp",
-                kind="Digital object URL",
-                restrictions="Access available on website of subsequent title: "
-                "Highlights in chemical biology",
-                text="Display text",
             ),
         ],
         literary_form="Nonfiction",
@@ -644,6 +644,8 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
             "Aljamía",
         ],
         links=[
+            timdex.Link(url="u", kind="3", restrictions="z", text="y"),
+            timdex.Link(url="u", kind="3", restrictions="z", text="y"),
             timdex.Link(
                 kind="Digital object URL",
                 url="only subfield d",
@@ -664,8 +666,6 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 kind="Digital object URL",
                 url="l: d present",
             ),
-            timdex.Link(url="u", kind="3", restrictions="z", text="y"),
-            timdex.Link(url="u", kind="3", restrictions="z", text="y"),
         ],
         literary_form="Fiction",
         locations=[
@@ -959,6 +959,343 @@ def test_get_call_numbers_transforms_correctly_if_fields_blank():
 def test_get_call_numbers_transforms_correctly_if_fields_missing():
     source_record = create_marc_source_record_stub()
     assert Marc.get_call_numbers(source_record) is None
+
+
+def test_get_content_type_success():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_content_type(source_record) == ["Language material"]
+
+
+def test_get_content_type_transforms_correctly_if_char_position_blank():
+    source_record = create_marc_source_record_stub(
+        leader_field_insert="<leader>03282n m  2200721Ki 4500</leader>"
+    )
+    assert Marc.get_content_type(source_record) is None
+
+
+def test_get_contents_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="505" ind1="0" ind2="0">
+                <subfield code="a">General observations -- Methodology -- Initial phase</subfield>
+                <subfield code="g">Miscellaneous information.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contents(source_record) == [
+        "General observations",
+        "Methodology",
+        "Initial phase",
+        "Miscellaneous information",
+    ]
+
+
+def test_get_contents_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="505" ind1="0" ind2="0">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contents(source_record) is None
+
+
+def test_get_contents_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_contents(source_record) is None
+
+
+def test_get_contributors_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="100" ind1="1" ind2=" ">
+                <subfield code="a">Tran, Phong,</subfield>
+                <subfield code="e">composer,</subfield>
+                <subfield code="e">performer.</subfield>
+            </datafield>
+            <datafield tag="110" ind1="2" ind2=" ">
+                <subfield code="a">Ceeys (Musical group),</subfield>
+                <subfield code="e">composer,</subfield>
+                <subfield code="e">performer.</subfield>
+            </datafield>
+            <datafield tag="111" ind1="2" ind2=" ">
+                <subfield code="a">Theory of Cryptography Conference</subfield>
+                <subfield code="n">(5th :</subfield>
+                <subfield code="d">2008 :</subfield>
+                <subfield code="c">New York, N.Y.)</subfield>
+            </datafield>
+            <datafield tag="700" ind1="1" ind2=" ">
+                <subfield code="a">Binelli, Daniel,</subfield>
+                <subfield code="e">arranger of music,</subfield>
+                <subfield code="e">composer,</subfield>
+                <subfield code="e">instrumentalist.</subfield>
+            </datafield>
+            <datafield tag="711" ind1="2" ind2=" ">
+                <subfield code="a">Bayreuther Festspiele.</subfield>
+                <subfield code="e">Orchester,</subfield>
+                <subfield code="e">instrumentalist.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contributors(source_record) == [
+        timdex.Contributor(value="Tran, Phong", kind="composer"),
+        timdex.Contributor(value="Tran, Phong", kind="performer"),
+        timdex.Contributor(value="Ceeys (Musical group)", kind="composer"),
+        timdex.Contributor(value="Ceeys (Musical group)", kind="performer"),
+        timdex.Contributor(
+            value="Theory of Cryptography Conference 2008 : New York, N.Y.)",
+            kind="Not specified",
+        ),
+        timdex.Contributor(value="Binelli, Daniel", kind="arranger of music"),
+        timdex.Contributor(value="Binelli, Daniel", kind="composer"),
+        timdex.Contributor(value="Binelli, Daniel", kind="instrumentalist"),
+        timdex.Contributor(value="Bayreuther Festspiele", kind="instrumentalist"),
+        timdex.Contributor(value="Bayreuther Festspiele", kind="Orchester"),
+    ]
+
+
+def test_get_contributors_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="100" ind1="1" ind2=" ">
+                <subfield code="a"></subfield>
+                <subfield code="e">composer,</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contributors(source_record) is None
+
+
+def test_get_contributors_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_contributors(source_record) is None
+
+
+def test_get_contributors_transforms_correctly_if_contributor_multiple_kinds():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="100" ind1="1" ind2=" ">
+                <subfield code="a">Tran, Phong,</subfield>
+                <subfield code="e">composer,</subfield>
+                <subfield code="e">performer.</subfield>
+            </datafield>
+            <datafield tag="700" ind1="1" ind2=" ">
+                <subfield code="a">Tran, Phong</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contributors(source_record) == [
+        timdex.Contributor(value="Tran, Phong", kind="composer"),
+        timdex.Contributor(value="Tran, Phong", kind="performer"),
+    ]
+
+
+def test_get_contributors_transforms_correctly_if_kind_not_specified():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="100" ind1="1" ind2=" ">
+                <subfield code="a">Tran, Phong,</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contributors(source_record) == [
+        timdex.Contributor(value="Tran, Phong", kind="Not specified"),
+    ]
+
+
+def test_get_dates_success():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_dates(source_record) == [
+        timdex.Date(kind="Publication date", value="2016")
+    ]
+
+
+def test_get_dates_transforms_correctly_if_char_positions_blank():
+    source_record = create_marc_source_record_stub(
+        control_field_insert=(
+            '<controlfield tag="008">170906s        fr mun| o         e zxx d</controlfield>'
+        )
+    )
+    assert Marc.get_dates(source_record) is None
+
+
+def test_get_edition_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="250" ind1=" " ind2=" ">
+                <subfield code="a">9th ed. /</subfield>
+                <subfield code="b">Nick Ray ... [et al.].</subfield>
+            </datafield>
+            <datafield tag="250" ind1=" " ind2=" ">
+                <subfield code="a">Unabridged.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert (
+        Marc.get_edition(source_record) == "9th ed. / Nick Ray ... [et al.]. Unabridged."
+    )
+
+
+def test_get_edition_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="250" ind1=" " ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_edition(source_record) is None
+
+
+def test_get_edition_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_edition(source_record) is None
+
+
+def test_get_holdings_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="985" ind1=" " ind2=" ">
+                <subfield code="aa">STACK</subfield>
+                <subfield code="t">BOOK</subfield>
+                <subfield code="bb">PL2687.L8.A28 1994</subfield>
+                <subfield code="i">HUM</subfield>
+            </datafield>
+            <datafield tag="985" ind1=" " ind2=" ">
+                <subfield code="aa">OCC</subfield>
+                <subfield code="t">BOOK</subfield>
+                <subfield code="g">pt.A</subfield>
+                <subfield code="bb">QD79.C4.C485 1983</subfield>
+                <subfield code="i">LSA</subfield>
+            </datafield>
+            <datafield tag="986" ind1=" " ind2=" ">
+                <subfield code="i">Available from 06/01/2001 volume: 1 issue: 1.</subfield>
+                <subfield code="j">HeinOnline U.S. Congressional Documents Library</subfield>
+                <subfield code="k">HeinOnline</subfield>
+                <subfield code="f">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_holdings(source_record) == [
+        timdex.Holding(
+            call_number="PL2687.L8.A28 1994",
+            collection="Stacks",
+            format="Print volume",
+            location="Hayden Library",
+        ),
+        timdex.Holding(
+            call_number="QD79.C4.C485 1983",
+            collection="Off Campus Collection",
+            format="Print volume",
+            location="Library Storage Annex",
+            note="pt.A",
+        ),
+        timdex.Holding(
+            collection="HeinOnline U.S. Congressional Documents Library",
+            format="electronic resource",
+            location="http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383",
+            note="Available from 06/01/2001 volume: 1 issue: 1.",
+        ),
+    ]
+
+
+def test_get_holdings_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="985" ind1=" " ind2=" ">
+                <subfield code="aa"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_holdings(source_record) is None
+
+
+def test_get_holdings_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_holdings(source_record) is None
+
+
+def test_get_links_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="856" ind1="4" ind2="0">
+                <subfield code="u">http://catalog.hathitrust.org/api/volumes/oclc/1606890.html</subfield>
+                <subfield code="3">Hathi Trust</subfield>
+            </datafield>
+            <datafield tag="856" ind1="4" ind2="1">
+                <subfield code="u">http://www.rsc.org/Publishing/Journals/cb/PreviousIssue.asp</subfield>
+                <subfield code="z">Access available on website of subsequent title: Highlights in chemical biology</subfield>
+                <subfield code="y">Display text</subfield>
+            </datafield>
+            <datafield tag="986" ind1=" " ind2=" ">
+                <subfield code="i">Available from 06/01/2001 volume: 1 issue: 1.</subfield>
+                <subfield code="j">HeinOnline U.S. Congressional Documents Library</subfield>
+                <subfield code="k">HeinOnline</subfield>
+                <subfield code="f">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_links(source_record) == [
+        timdex.Link(
+            url="http://catalog.hathitrust.org/api/volumes/oclc/1606890.html",
+            kind="Hathi Trust",
+        ),
+        timdex.Link(
+            url="http://www.rsc.org/Publishing/Journals/cb/PreviousIssue.asp",
+            kind="Digital object URL",
+            restrictions="Access available on website of subsequent title: Highlights in chemical biology",
+            text="Display text",
+        ),
+        timdex.Link(
+            url="http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383",
+            kind="Digital object URL",
+            text="HeinOnline U.S. Congressional Documents Library",
+        ),
+    ]
+
+
+def test_get_links_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="856" ind1="4" ind2="1">
+                <subfield code="u"></subfield>
+            </datafield>
+            <datafield tag="986" ind1=" " ind2=" ">
+                <subfield code="f"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_links(source_record) is None
+
+
+def test_get_links_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_links(source_record) is None
 
 
 def test_marc_record_missing_leader_skips_record(caplog):
