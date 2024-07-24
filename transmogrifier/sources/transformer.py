@@ -21,7 +21,7 @@ from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
 from transmogrifier.helpers import generate_citation, validate_date
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     from bs4 import Tag  # type: ignore[import-untyped]
 
@@ -180,10 +180,7 @@ class Transformer(ABC):
         return getattr(source_module, class_name)
 
     @final
-    @classmethod
-    def get_valid_title(
-        cls, source_record_id: str, source_record: dict[str, JSON] | Tag
-    ) -> str:
+    def get_valid_title(self, source_record: dict[str, JSON] | Tag) -> str:
         """
         Retrieves main title(s) from a source record and returns a valid title string.
 
@@ -194,16 +191,15 @@ class Transformer(ABC):
         missing title field.
 
         Args:
-            source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
-        all_titles = cls.get_main_titles(source_record)
+        all_titles = self.get_main_titles(source_record)
         title_count = len(all_titles)
         if title_count > 1:
             logger.warning(
                 "Record %s has multiple titles. Using the first title from the "
                 "following titles found: %s",
-                source_record_id,
+                self.get_source_record_id(source_record),
                 all_titles,
             )
         if title_count >= 1:
@@ -211,7 +207,7 @@ class Transformer(ABC):
         else:
             logger.warning(
                 "Record %s was missing a title, source record should be investigated.",
-                source_record_id,
+                self.get_source_record_id(source_record),
             )
             title = "Title not provided"
         return title
@@ -247,25 +243,26 @@ class Transformer(ABC):
                 self.source, source_record_id, source_record
             )
             raise DeletedRecordEvent(timdex_record_id)
-        optional_fields = self.get_optional_fields(source_record)
-        if optional_fields is None:
-            return None
 
-        fields = {
-            **self.get_required_fields(source_record),
-            **optional_fields,
-        }
+        timdex_record = timdex.TimdexRecord(
+            source=self.source_name,
+            source_link=self.get_source_link(source_record),
+            timdex_record_id=self.get_timdex_record_id(source_record),
+            title=self.get_valid_title(source_record),
+        )
+        for field_name, field_method in self.get_optional_field_methods():
+            setattr(timdex_record, field_name, field_method(source_record))
 
-        fields = self.create_dates_and_locations_from_publishers(fields)
-        fields = self.create_locations_from_spatial_subjects(fields)
+        timdex_record = self.create_dates_and_locations_from_publishers(timdex_record)
+        timdex_record = self.create_locations_from_spatial_subjects(timdex_record)
 
-        # If citation field was not present, generate citation from other fields
-        if fields.get("citation") is None:
-            fields["citation"] = generate_citation(fields)
-        if fields.get("content_type") is None:
-            fields["content_type"] = ["Not specified"]
-
-        return timdex.TimdexRecord(**fields)
+        # # If citation field was not present, generate citation from other fields
+        if timdex_record.citation is None:
+            timdex_record.citation = generate_citation(timdex_record)
+        if timdex_record.content_type is None:
+            timdex_record.content_type = ["Not specified"]
+        print(timdex_record)
+        return timdex_record
 
     @abstractmethod
     def transform(
@@ -273,17 +270,6 @@ class Transformer(ABC):
     ) -> timdex.TimdexRecord | None:
         """
         Call Transformer._transform method to transform source record to TIMDEX record.
-
-        Must be overridden by format subclasses.
-
-        Args:
-            source_record: A single source record.
-        """
-
-    @abstractmethod
-    def get_required_fields(self, source_record: dict[str, JSON] | Tag) -> dict:
-        """
-        Get required TIMDEX fields from a source record.
 
         Must be overridden by format subclasses.
 
@@ -303,12 +289,9 @@ class Transformer(ABC):
             source_record: A single source record.
         """
 
-    @classmethod
     @abstractmethod
     def get_source_link(
-        cls,
-        source_base_url: str,
-        source_record_id: str,
+        self,
         source_record: dict[str, JSON] | Tag,
     ) -> str:
         """
@@ -317,24 +300,17 @@ class Transformer(ABC):
         Must be overridden by source subclasses.
 
         Args:
-            source_base_url: Source base URL.
-            source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
 
-    @classmethod
     @abstractmethod
-    def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: dict[str, JSON] | Tag
-    ) -> str:
+    def get_timdex_record_id(self, source_record: dict[str, JSON] | Tag) -> str:
         """
         Class method to set the TIMDEX record id.
 
         Must be overridden by source subclasses.
 
         Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
 
@@ -362,70 +338,77 @@ class Transformer(ABC):
             source_record: A single source record.
         """
 
-    def get_optional_fields(self, _source_record: dict[str, JSON] | Tag) -> dict | None:
+    @final
+    def get_optional_field_methods(self) -> Iterator[tuple[str, Callable]]:
         """
-        Retrieve optional TIMDEX fields from a source record.
+        Return optional TIMDEX field names and corresponding methods.
 
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A single source record.
+        May not be overridden.
         """
-        return {}
+        for field_name in [
+            field_name
+            for field_name in timdex.TimdexRecord.get_optional_field_names()
+            if hasattr(self, f"get_{field_name}")
+        ]:
+            yield field_name, getattr(self, f"get_{field_name}")
 
     @final
     @staticmethod
-    def create_dates_and_locations_from_publishers(fields: dict) -> dict:
+    def create_dates_and_locations_from_publishers(
+        timdex_record: timdex.TimdexRecord,
+    ) -> timdex.TimdexRecord:
         """Add Date and Location objects based on data in publishers field.
 
         Args:
-            fields: A dict of fields representing a TIMDEX record.
+            timdex_record: A TimdexRecord class instance.
         """
-        if not fields.get("publishers"):
-            return fields
-        for publisher in fields["publishers"]:
+        if not timdex_record.publishers:
+            return timdex_record
+        for publisher in timdex_record.publishers:
             if publisher.date and validate_date(
-                publisher.date, fields["timdex_record_id"]
+                publisher.date, timdex_record.timdex_record_id
             ):
                 publisher_date = timdex.Date(
                     kind="Publication date", value=publisher.date
                 )
-                if fields.get("dates") is None:
-                    fields["dates"] = []
-                if publisher_date not in fields["dates"]:
-                    fields["dates"].append(publisher_date)
+                if timdex_record.dates is None:
+                    timdex_record.dates = []
+                if publisher_date not in timdex_record.dates:
+                    timdex_record.dates.append(publisher_date)
             if publisher.location:
                 publisher_location = timdex.Location(
                     kind="Place of Publication", value=publisher.location
                 )
-                if fields.get("locations") is None:
-                    fields["locations"] = []
-                if publisher_location not in fields["locations"]:
-                    fields["locations"].append(publisher_location)
-        return fields
+                if timdex_record.locations is None:
+                    timdex_record.locations = []
+                if publisher_location not in timdex_record.locations:
+                    timdex_record.locations.append(publisher_location)
+        return timdex_record
 
     @final
     @staticmethod
-    def create_locations_from_spatial_subjects(fields: dict) -> dict:
+    def create_locations_from_spatial_subjects(
+        timdex_record: timdex.TimdexRecord,
+    ) -> timdex.TimdexRecord:
         """Add Location objects for spatial subjects.
 
         Args:
-           fields: A dict of fields representing a TIMDEX record.
+           timdex_record: A TimdexRecord class instance.
         """
-        if fields.get("subjects") is None:
-            return fields
+        if timdex_record.subjects is None:
+            return timdex_record
 
         spatial_subjects = [
             subject
-            for subject in fields.get("subjects", [])  # defaults to empty list
+            for subject in timdex_record.subjects
             if subject.kind == "Dublin Core; Spatial" and subject.value is not None
         ]
 
         for subject in spatial_subjects:
             for place_name in subject.value:
                 subject_location = timdex.Location(value=place_name, kind="Place Name")
-                if fields.get("locations") is None:
-                    fields["locations"] = []
-                if subject_location not in fields["locations"]:
-                    fields["locations"].append(subject_location)
-        return fields
+                if timdex_record.locations is None:
+                    timdex_record.locations = []
+                if subject_location not in timdex_record.locations:
+                    timdex_record.locations.append(subject_location)
+        return timdex_record

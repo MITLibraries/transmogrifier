@@ -471,7 +471,7 @@ def test_get_file_formats_transforms_correctly_if_fields_missing():
 
 
 def test_get_format_success():
-    assert DspaceDim.get_format() == "electronic resource"
+    assert DspaceDim.get_format({}) == "electronic resource"
 
 
 def test_get_funding_information_success():
@@ -523,7 +523,7 @@ def test_get_identifiers_transforms_correctly_if_fields_missing():
     assert DspaceDim.get_identifiers(source_record) is None
 
 
-def test_languages_success():
+def test_get_languages_success():
     source_record = create_dspace_dim_source_record_stub(
         """
         <dim:field mdschema="dc" element="language" qualifier="iso">en_US</dim:field>

@@ -216,3 +216,19 @@ class TimdexRecord:
 
     def asdict(self) -> dict[str, Any]:
         return asdict(self, filter=lambda _, value: value is not None)
+
+    @classmethod
+    def get_required_field_names(cls) -> list[str]:
+        return [
+            field
+            for field, attribute in attrs.fields_dict(cls).items()
+            if attribute.default is attrs.NOTHING
+        ]
+
+    @classmethod
+    def get_optional_field_names(cls) -> list[str]:
+        return [
+            field
+            for field, attribute in attrs.fields_dict(cls).items()
+            if attribute.default is None
+        ]

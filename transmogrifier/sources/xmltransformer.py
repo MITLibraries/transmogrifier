@@ -56,34 +56,6 @@ class XMLTransformer(Transformer):
         """
         return self._transform(source_record)
 
-    @final
-    def get_required_fields(self, source_record: Tag) -> dict:
-        """
-        Get required TIMDEX fields from an XML record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single source record.
-        """
-        source_record_id = self.get_source_record_id(source_record)
-
-        # run methods to generate required fields
-        source_link = self.get_source_link(
-            self.source_base_url, source_record_id, source_record
-        )
-        timdex_record_id = self.get_timdex_record_id(
-            self.source, source_record_id, source_record
-        )
-        title = self.get_valid_title(source_record_id, source_record)
-
-        return {
-            "source": self.source_name,
-            "source_link": source_link,
-            "timdex_record_id": timdex_record_id,
-            "title": title,
-        }
-
     @classmethod
     def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
         """
@@ -96,13 +68,7 @@ class XMLTransformer(Transformer):
         """
         return []
 
-    @classmethod
-    def get_source_link(
-        cls,
-        source_base_url: str,
-        source_record_id: str,
-        _source_record: Tag,
-    ) -> str:
+    def get_source_link(self, source_record: Tag) -> str:
         """
         Class method to set the source link for the item.
 
@@ -111,18 +77,13 @@ class XMLTransformer(Transformer):
         Default behavior is to concatenate the source base URL + source record id.
 
         Args:
-            source_base_url: Source base URL.
-            source_record_id: Record identifier for the source record.
             source_record: A BeautifulSoup Tag representing a single XML record.
                 - not used by default implementation, but could be useful for subclass
                     overrides
         """
-        return source_base_url + source_record_id
+        return self.source_base_url + self.get_source_record_id(source_record)
 
-    @classmethod
-    def get_timdex_record_id(
-        cls, source: str, source_record_id: str, _source_record: Tag
-    ) -> str:
+    def get_timdex_record_id(self, source_record: Tag) -> str:
         """
         Class method to set the TIMDEX record id.
 
@@ -131,13 +92,13 @@ class XMLTransformer(Transformer):
         Default behavior is to concatenate the source name + source record id.
 
         Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
             source_record: A BeautifulSoup Tag representing a single XML record.
                 - not used by default implementation, but could be useful for subclass
                 overrides
         """
-        return f"{source}:{source_record_id.replace('/', '-')}"
+        return (
+            f"{self.source}:{self.get_source_record_id(source_record).replace('/', '-')}"
+        )
 
     @classmethod
     def get_source_record_id(cls, source_record: Tag) -> str:
@@ -162,14 +123,3 @@ class XMLTransformer(Transformer):
             source_record: A BeautifulSoup Tag representing a single XML record
         """
         return source_record.find("header", status="deleted") is not None
-
-    def get_optional_fields(self, _source_record: Tag) -> dict | None:
-        """
-        Retrieve optional TIMDEX fields from an XML record.
-
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        return {}
