@@ -1,4 +1,6 @@
 import logging
+from collections import defaultdict
+from collections.abc import Iterator
 
 from bs4 import Tag  # type: ignore[import-untyped]
 
@@ -51,100 +53,19 @@ class Marc(XMLTransformer):
         # citation not used in MARC
 
         # content_type
-        if content_type := Marc.json_crosswalk_code_to_name(
-            self._get_leader_field(source_record)[6:7],
-            self.marc_content_type_crosswalk,
-            source_record_id,
-            "Leader/06",
-        ):
-            fields["content_type"] = [content_type]
+        fields["content_type"] = self.get_content_type(source_record)
 
         # contents
-        for datafield in source_record.find_all("datafield", tag="505"):
-            for contents_value in self.create_subfield_value_list_from_datafield(
-                datafield,
-                "agrt",
-            ):
-                for contents_item in contents_value.split(" -- "):
-                    fields.setdefault("contents", []).append(contents_item.rstrip(" ./-"))
+        fields["contents"] = self.get_contents(source_record)
 
         # contributors
-        contributor_marc_fields = [
-            {
-                "tag": "100",
-                "subfields": "abcq",
-            },
-            {
-                "tag": "110",
-                "subfields": "abc",
-            },
-            {
-                "tag": "111",
-                "subfields": "acdfgjq",
-            },
-            {
-                "tag": "700",
-                "subfields": "abcq",
-            },
-            {
-                "tag": "710",
-                "subfields": "abc",
-            },
-            {
-                "tag": "711",
-                "subfields": "acdfgjq",
-            },
-        ]
-        contributor_values = []
-        for contributor_marc_field in contributor_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=contributor_marc_field["tag"]
-            ):
-                if contributor_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield,
-                        contributor_marc_field["subfields"],
-                        " ",
-                    )
-                ):
-                    kind_values = self.create_subfield_value_list_from_datafield(
-                        datafield, "e"
-                    )
-                    if kind_values:
-                        for kind_value in kind_values:
-                            contributor_instance = timdex.Contributor(
-                                value=contributor_value.rstrip(" .,"),
-                                kind=kind_value.rstrip(" .,"),
-                            )
-                            if contributor_instance not in contributor_values:
-                                contributor_values.append(contributor_instance)
-                    else:
-                        contributor_instance = timdex.Contributor(
-                            value=contributor_value.rstrip(" .,"),
-                            kind="Not specified",
-                        )
-                        if contributor_instance.value not in [
-                            existing_contributor.value
-                            for existing_contributor in contributor_values
-                        ]:
-                            contributor_values.append(contributor_instance)
-        fields["contributors"] = contributor_values or None
+        fields["contributors"] = self.get_contributors(source_record)
 
         # dates
-        publication_year = self._get_control_field(source_record)[7:11].strip()
-        if validate_date(publication_year, source_record_id):
-            fields["dates"] = [
-                timdex.Date(kind="Publication date", value=publication_year)
-            ]
+        fields["dates"] = self.get_dates(source_record)
 
         # edition
-        edition_values = []
-        for datafield in source_record.find_all("datafield", tag="250"):
-            if edition_value := self.create_subfield_value_string_from_datafield(
-                datafield, "ab", " "
-            ):
-                edition_values.append(edition_value)  # noqa: PERF401
-        fields["edition"] = " ".join(edition_values) or None
+        fields["edition"] = self.get_edition(source_record)
 
         # file_formats
 
@@ -153,81 +74,7 @@ class Marc(XMLTransformer):
         # funding_information
 
         # holdings
-        # physical items
-        for datafield in source_record.find_all("datafield", tag="985"):
-            holding_call_number_value = self.create_subfield_value_string_from_datafield(
-                datafield, ["bb"]
-            )
-            holding_collection_value = Marc.json_crosswalk_code_to_name(
-                self.create_subfield_value_string_from_datafield(datafield, ["aa"]),
-                self.holdings_collection_crosswalk,
-                source_record_id,
-                "985 $aa",
-            )
-            holding_format_value = Marc.json_crosswalk_code_to_name(
-                self.create_subfield_value_string_from_datafield(datafield, "t"),
-                self.holdings_format_crosswalk,
-                source_record_id,
-                "985 $t",
-            )
-            holding_location_value = Marc.json_crosswalk_code_to_name(
-                self.create_subfield_value_string_from_datafield(datafield, "i"),
-                self.holdings_location_crosswalk,
-                source_record_id,
-                "985 $i",
-            )
-            holding_note_value = self.create_subfield_value_string_from_datafield(
-                datafield, "g", ", "
-            )
-            if (
-                holding_call_number_value
-                or holding_collection_value
-                or holding_format_value
-                or holding_location_value
-                or holding_note_value
-            ):
-                fields.setdefault("holdings", []).append(
-                    timdex.Holding(
-                        call_number=holding_call_number_value or None,
-                        collection=holding_collection_value or None,
-                        format=holding_format_value or None,
-                        location=holding_location_value or None,
-                        note=holding_note_value or None,
-                    )
-                )
-        # electronic portfolio items
-        for field_986 in source_record.find_all("datafield", tag="986"):
-            electronic_item_collection = self.get_single_subfield_string(field_986, "j")
-            electronic_item_location = (
-                self.get_single_subfield_string(field_986, "f")
-                or self.get_single_subfield_string(field_986, "l")
-                or self.get_single_subfield_string(field_986, "d")
-            )
-            electronic_item_note = self.get_single_subfield_string(field_986, "i")
-            if any(
-                [
-                    electronic_item_collection,
-                    electronic_item_location,
-                    electronic_item_note,
-                ]
-            ):
-                fields.setdefault("holdings", []).append(
-                    timdex.Holding(
-                        collection=electronic_item_collection,
-                        format="electronic resource",
-                        location=electronic_item_location,
-                        note=electronic_item_note,
-                    )
-                )
-            # If there's a URL, add to links field as well
-            if electronic_item_location:
-                fields.setdefault("links", []).append(
-                    timdex.Link(
-                        url=electronic_item_location,
-                        kind="Digital object URL",
-                        text=electronic_item_collection,
-                    )
-                )
+        fields["holdings"] = self.get_holdings(source_record)
 
         # identifiers
         identifier_marc_fields = [
@@ -302,28 +149,7 @@ class Marc(XMLTransformer):
         fields["languages"] = list(dict.fromkeys(languages)) or None
 
         # links - see also: holdings field for electronic portfolio items
-        # If indicator 1 is 4 and indicator 2 is 0 or 1, take the URL from subfield u,
-        # the kind from subfield 3, link text from subfield y, and restrictions from
-        # subfield z."
-        for datafield in source_record.find_all(
-            "datafield", tag="856", ind1="4", ind2=["0", "1"]
-        ):
-            url_value = self.create_subfield_value_list_from_datafield(datafield, "u")
-            text_value = self.create_subfield_value_list_from_datafield(datafield, "y")
-            restrictions_value = self.create_subfield_value_list_from_datafield(
-                datafield, "z"
-            )
-            if kind_value := datafield.find("subfield", code="3", string=True):
-                kind_value = str(kind_value.string)
-            if url_value:
-                fields.setdefault("links", []).append(
-                    timdex.Link(
-                        url=". ".join(url_value),
-                        kind=kind_value or "Digital object URL",
-                        restrictions=". ".join(restrictions_value) or None,
-                        text=". ".join(text_value) or None,
-                    )
-                )
+        fields["links"] = self.get_links(source_record)
 
         # literary_form
         # Literary form is applicable to Book (BK) material configurations and indicated
@@ -826,6 +652,248 @@ class Marc(XMLTransformer):
                     )
                 )
         return call_numbers or None
+
+    @classmethod
+    def get_content_type(cls, source_record: Tag) -> list[str] | None:
+        if content_type := cls.json_crosswalk_code_to_name(
+            code=cls._get_leader_field(source_record)[6:7],
+            crosswalk=cls.marc_content_type_crosswalk,
+            record_id=cls.get_source_record_id(source_record),
+            field_name="Leader/06",
+        ):
+            return [content_type]
+        return None
+
+    @classmethod
+    def get_contents(cls, source_record: Tag) -> list[str] | None:
+        contents = []
+        for datafield in source_record.find_all("datafield", tag="505"):
+            for contents_value in cls.create_subfield_value_list_from_datafield(
+                datafield,
+                "agrt",
+            ):
+                contents.extend(
+                    [
+                        contents_item.rstrip(" ./-")
+                        for contents_item in contents_value.split(" -- ")
+                    ]
+                )
+        return contents or None
+
+    @classmethod
+    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
+        """Retrieve contributors using data from relevant MARC fields.
+
+        The method starts by creating a dictionary where the keys are
+        contributor names and the values are a set of unique 'kind' values
+        retrieved from the MARC record (subfield code 'e'). When the value
+        is an empty set, this means that subfield code 'e' was blank or
+        missing from the record.
+
+        Using the dictionary, the method will create model.Contributor
+        instances for every unique 'kind' value associated with a
+        contributor name. When the value (in the dictionary) is an empty
+        set, the created instance will set kind="Not specified".
+        """
+        contributors: list = []
+        contributors_dict = defaultdict(set)
+        contributor_marc_fields = [
+            {
+                "tag": "100",
+                "subfields": "abcq",
+            },
+            {
+                "tag": "110",
+                "subfields": "abc",
+            },
+            {
+                "tag": "111",
+                "subfields": "acdfgjq",
+            },
+            {
+                "tag": "700",
+                "subfields": "abcq",
+            },
+            {
+                "tag": "710",
+                "subfields": "abc",
+            },
+            {
+                "tag": "711",
+                "subfields": "acdfgjq",
+            },
+        ]
+
+        for contributor_marc_field in contributor_marc_fields:
+            for datafield in source_record.find_all(
+                "datafield", tag=contributor_marc_field["tag"]
+            ):
+                if contributor_name := (
+                    cls.create_subfield_value_string_from_datafield(
+                        datafield,
+                        contributor_marc_field["subfields"],
+                        " ",
+                    )
+                ):
+                    contributor_name = contributor_name.rstrip(" .,")
+                    contributor_kinds = cls.create_subfield_value_list_from_datafield(
+                        datafield, "e"
+                    )
+                    contributors_dict[contributor_name].update(contributor_kinds)
+
+        for name, kinds in contributors_dict.items():
+            if len(kinds) == 0:
+                contributors.append(timdex.Contributor(value=name, kind="Not specified"))
+            else:
+                contributors.extend(
+                    [
+                        timdex.Contributor(value=name, kind=kind.strip(" .,"))
+                        for kind in sorted(kinds, key=lambda k: k.lower())
+                    ]
+                )
+        return contributors or None
+
+    @classmethod
+    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
+        publication_year = cls._get_control_field(source_record)[7:11].strip()
+        if validate_date(publication_year, cls.get_source_record_id(source_record)):
+            return [timdex.Date(kind="Publication date", value=publication_year)]
+        return None
+
+    @classmethod
+    def get_edition(cls, source_record: Tag) -> str | None:
+        edition_values = [
+            edition_value
+            for datafield in source_record.find_all("datafield", tag="250")
+            if (
+                edition_value := cls.create_subfield_value_string_from_datafield(
+                    datafield, "ab", " "
+                )
+            )
+        ]
+        return " ".join(edition_values) or None
+
+    @classmethod
+    def get_holdings(cls, source_record: Tag) -> list[timdex.Holding] | None:
+        holdings: list[timdex.Holding] = []
+        holdings.extend(cls._get_holdings_physical_items(source_record))
+        holdings.extend(cls._get_holdings_electronic_items(source_record))
+        return holdings or None
+
+    @classmethod
+    def _get_holdings_physical_items(cls, source_record: Tag) -> Iterator[timdex.Holding]:
+        for datafield in source_record.find_all("datafield", tag="985"):
+            holding_call_number = cls.create_subfield_value_string_from_datafield(
+                datafield, ["bb"]
+            )
+            holding_collection = cls.json_crosswalk_code_to_name(
+                code=cls.create_subfield_value_string_from_datafield(datafield, ["aa"]),
+                crosswalk=cls.holdings_collection_crosswalk,
+                record_id=cls.get_source_record_id(source_record),
+                field_name="985 $aa",
+            )
+            holding_format = cls.json_crosswalk_code_to_name(
+                code=cls.create_subfield_value_string_from_datafield(datafield, "t"),
+                crosswalk=cls.holdings_format_crosswalk,
+                record_id=cls.get_source_record_id(source_record),
+                field_name="985 $t",
+            )
+            holding_location = cls.json_crosswalk_code_to_name(
+                code=cls.create_subfield_value_string_from_datafield(datafield, "i"),
+                crosswalk=cls.holdings_location_crosswalk,
+                record_id=cls.get_source_record_id(source_record),
+                field_name="985 $i",
+            )
+            holding_note = cls.create_subfield_value_string_from_datafield(
+                datafield, "g", ", "
+            )
+            if any(
+                [
+                    holding_call_number,
+                    holding_collection,
+                    holding_format,
+                    holding_location,
+                    holding_note,
+                ]
+            ):
+                yield timdex.Holding(
+                    call_number=holding_call_number or None,
+                    collection=holding_collection or None,
+                    format=holding_format or None,
+                    location=holding_location or None,
+                    note=holding_note or None,
+                )
+
+    @classmethod
+    def _get_holdings_electronic_items(
+        cls, source_record: Tag
+    ) -> Iterator[timdex.Holding]:
+        for datafield in source_record.find_all("datafield", tag="986"):
+            holding_collection = cls.get_single_subfield_string(datafield, "j")
+            holding_location = (
+                cls.get_single_subfield_string(datafield, "f")
+                or cls.get_single_subfield_string(datafield, "l")
+                or cls.get_single_subfield_string(datafield, "d")
+            )
+            holding_note = cls.get_single_subfield_string(datafield, "i")
+            if any(
+                [
+                    holding_collection,
+                    holding_location,
+                    holding_note,
+                ]
+            ):
+                yield timdex.Holding(
+                    collection=holding_collection,
+                    format="electronic resource",
+                    location=holding_location,
+                    note=holding_note,
+                )
+
+    @classmethod
+    def get_links(cls, source_record: Tag) -> list[timdex.Link] | None:
+        links: list[timdex.Link] = []
+        for datafield in source_record.find_all(
+            "datafield", tag="856", ind1="4", ind2=["0", "1"]
+        ):
+            url_value = cls.create_subfield_value_list_from_datafield(datafield, "u")
+            text_value = cls.create_subfield_value_list_from_datafield(datafield, "y")
+            restrictions_value = cls.create_subfield_value_list_from_datafield(
+                datafield, "z"
+            )
+            if kind_value := datafield.find("subfield", code="3", string=True):
+                kind_value = str(kind_value.string)
+            if url_value:
+                links.append(
+                    timdex.Link(
+                        url=". ".join(url_value),
+                        kind=kind_value or "Digital object URL",
+                        restrictions=". ".join(restrictions_value) or None,
+                        text=". ".join(text_value) or None,
+                    )
+                )
+
+        # get links from 'electronic item' holdings
+        links.extend(cls._get_links_holdings_electronic_items(source_record))
+        return links or None
+
+    @classmethod
+    def _get_links_holdings_electronic_items(
+        cls, source_record: Tag
+    ) -> Iterator[timdex.Link]:
+        for datafield in source_record.find_all("datafield", tag="986"):
+            holding_collection = cls.get_single_subfield_string(datafield, "j")
+            holding_location = (
+                cls.get_single_subfield_string(datafield, "f")
+                or cls.get_single_subfield_string(datafield, "l")
+                or cls.get_single_subfield_string(datafield, "d")
+            )
+            if holding_location:
+                yield timdex.Link(
+                    url=holding_location,
+                    kind="Digital object URL",
+                    text=holding_collection,
+                )
 
     @staticmethod
     def get_main_titles(xml: Tag) -> list[str]:
