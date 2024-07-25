@@ -42,8 +42,6 @@ class Marc(XMLTransformer):
         """
         fields: dict = {}
 
-        source_record_id = self.get_source_record_id(source_record)
-
         # alternate titles
         fields["alternate_titles"] = self.get_alternate_titles(source_record)
 
@@ -77,220 +75,22 @@ class Marc(XMLTransformer):
         fields["holdings"] = self.get_holdings(source_record)
 
         # identifiers
-        identifier_marc_fields = [
-            {
-                "tag": "010",
-                "subfields": "a",
-                "kind": "LCCN",
-            },
-            {
-                "tag": "020",
-                "subfields": "aq",
-                "kind": "ISBN",
-            },
-            {
-                "tag": "022",
-                "subfields": "a",
-                "kind": "ISSN",
-            },
-            {
-                "tag": "024",
-                "subfields": "aq2",
-                "kind": "Other Identifier",
-            },
-            {
-                "tag": "035",
-                "subfields": "a",
-                "kind": "OCLC Number",
-            },
-        ]
-        for identifier_marc_field in identifier_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=identifier_marc_field["tag"]
-            ):
-                if identifier_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield,
-                        identifier_marc_field["subfields"],
-                        ". ",
-                    )
-                ):
-                    fields.setdefault("identifiers", []).append(
-                        timdex.Identifier(
-                            value=identifier_value.strip().replace("(OCoLC)", ""),
-                            kind=identifier_marc_field["kind"],
-                        )
-                    )
+        fields["identifiers"] = self.get_identifiers(source_record)
 
         # languages
-        languages = []
-
-        # Get language codes
-        language_codes = []
-        if fixed_language_value := self._get_control_field(source_record)[35:38]:
-            language_codes.append(fixed_language_value)
-        for field_041 in source_record.find_all("datafield", tag="041"):
-            language_codes.extend(
-                self.create_subfield_value_list_from_datafield(field_041, "abdefghjkmn")
-            )
-
-        # Crosswalk codes to names
-        for language_code in list(dict.fromkeys(language_codes)):
-            if language_name := Marc.loc_crosswalk_code_to_name(
-                language_code, self.language_code_crosswalk, source_record_id, "language"
-            ):
-                languages.append(language_name)  # noqa: PERF401
-
-        # Add language notes
-        for field_546 in source_record.find_all("datafield", tag="546"):
-            if language_note := field_546.find("subfield", code="a", string=True):
-                languages.append(str(language_note.string).rstrip(" ."))  # noqa: PERF401
-
-        fields["languages"] = list(dict.fromkeys(languages)) or None
+        fields["languages"] = self.get_languages(source_record)
 
         # links - see also: holdings field for electronic portfolio items
         fields["links"] = self.get_links(source_record)
 
         # literary_form
-        # Literary form is applicable to Book (BK) material configurations and indicated
-        # by leader "Type of Record" position = "Language Material" or "Manuscript
-        # language material" and "Bibliographic level" position =
-        # "Monographic component part," "Collection," "Subunit," or "Monograph/Item."
-        if (
-            self._get_leader_field(source_record)[6:7] in "at"
-            and self._get_leader_field(source_record)[7:8] in "acdm"
-        ):
-            if self._get_control_field(source_record)[33:34] in "0se":
-                fields["literary_form"] = "Nonfiction"
-            elif self._get_control_field(source_record)[33:34]:
-                fields["literary_form"] = "Fiction"
+        fields["literary_form"] = self.get_literary_form(source_record)
 
         # locations
-
-        # Get place of publication from 008 field code
-        if (fixed_location_code := self._get_control_field(source_record)[15:17]) and (
-            location_name := Marc.loc_crosswalk_code_to_name(
-                fixed_location_code,
-                self.country_code_crosswalk,
-                source_record_id,
-                "country",
-            )
-        ):
-            fields.setdefault("locations", []).append(
-                timdex.Location(value=location_name, kind="Place of Publication")
-            )
-
-        # Get other locations
-        location_marc_fields = [
-            {
-                "tag": "751",
-                "subfields": "a",
-                "kind": "Geographic Name",
-            },
-            {
-                "tag": "752",
-                "subfields": "abcdefgh",
-                "kind": "Hierarchical Place Name",
-            },
-        ]
-        for location_marc_field in location_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=location_marc_field["tag"]
-            ):
-                if location_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield,
-                        location_marc_field["subfields"],
-                        " - ",
-                    )
-                ):
-                    fields.setdefault("locations", []).append(
-                        timdex.Location(
-                            value=location_value.rstrip(" .,/)"),
-                            kind=location_marc_field["kind"],
-                        )
-                    )
+        fields["locations"] = self.get_locations(source_record)
 
         # notes
-        note_marc_fields = [
-            {
-                "tag": "245",
-                "subfields": "c",
-                "kind": "Title Statement of Responsibility",
-            },
-            {
-                "tag": "500",
-                "subfields": "a",
-                "kind": "General Note",
-            },
-            {
-                "tag": "502",
-                "subfields": "abcdg",
-                "kind": "Dissertation Note",
-            },
-            {
-                "tag": "504",
-                "subfields": "a",
-                "kind": "Bibliography Note",
-            },
-            {
-                "tag": "508",
-                "subfields": "a",
-                "kind": "Creation/Production Credits Note",
-            },
-            {
-                "tag": "511",
-                "subfields": "a",
-                "kind": "Participant or Performer Note",
-            },
-            {
-                "tag": "515",
-                "subfields": "a",
-                "kind": "Numbering Peculiarities Note",
-            },
-            {
-                "tag": "522",
-                "subfields": "a",
-                "kind": "Geographic Coverage Note",
-            },
-            {
-                "tag": "533",
-                "subfields": "abcdefmn",
-                "kind": "Reproduction Note",
-            },
-            {
-                "tag": "534",
-                "subfields": "abcefklmnoptxz",
-                "kind": "Original Version Note",
-            },
-            {
-                "tag": "588",
-                "subfields": "a",
-                "kind": "Source of Description Note",
-            },
-            {
-                "tag": "590",
-                "subfields": "a",
-                "kind": "Local Note",
-            },
-        ]
-        for note_marc_field in note_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=note_marc_field["tag"]
-            ):
-                if note_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield,
-                        note_marc_field["subfields"],
-                        " ",
-                    )
-                ):
-                    fields.setdefault("notes", []).append(
-                        timdex.Note(
-                            value=[note_value.rstrip(" .")],
-                            kind=note_marc_field["kind"],
-                        )
-                    )
+        fields["notes"] = self.get_notes(source_record)
 
         # numbering
 
@@ -851,6 +651,104 @@ class Marc(XMLTransformer):
                 )
 
     @classmethod
+    def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
+        identifiers = []
+        identifier_marc_fields = [
+            {
+                "tag": "010",
+                "subfields": "a",
+                "kind": "LCCN",
+            },
+            {
+                "tag": "020",
+                "subfields": "aq",
+                "kind": "ISBN",
+            },
+            {
+                "tag": "022",
+                "subfields": "a",
+                "kind": "ISSN",
+            },
+            {
+                "tag": "024",
+                "subfields": "aq2",
+                "kind": "Other Identifier",
+            },
+            {
+                "tag": "035",
+                "subfields": "a",
+                "kind": "OCLC Number",
+            },
+        ]
+        for identifier_marc_field in identifier_marc_fields:
+            identifiers.extend(
+                [
+                    timdex.Identifier(
+                        value=identifier.strip().replace("(OCoLC)", ""),
+                        kind=identifier_marc_field["kind"],
+                    )
+                    for datafield in source_record.find_all(
+                        "datafield", tag=identifier_marc_field["tag"]
+                    )
+                    if (
+                        identifier := (
+                            cls.create_subfield_value_string_from_datafield(
+                                datafield,
+                                identifier_marc_field["subfields"],
+                                ". ",
+                            )
+                        )
+                    )
+                ]
+            )
+        return identifiers or None
+
+    @classmethod
+    def get_languages(cls, source_record: Tag) -> list[str] | None:
+
+        languages = []
+        language_codes: list[str] = []
+
+        # get language codes from control field 008/35-37
+        if fixed_language_value := cls._get_control_field(source_record)[35:38].strip():
+            language_codes.append(fixed_language_value)
+
+        # get language codes from data field 041
+        for datafield in source_record.find_all("datafield", tag="041"):
+            language_codes.extend(
+                cls.create_subfield_value_list_from_datafield(datafield, "abdefghjkmn")
+            )
+
+        languages.extend(cls._get_language_names(source_record, language_codes))
+        languages.extend(cls._get_language_notes(source_record))
+        return languages or None
+
+    @classmethod
+    def _get_language_names(
+        cls, source_record: Tag, language_codes: list[str]
+    ) -> list[str]:
+        return [
+            language_name
+            for language_code in list(dict.fromkeys(language_codes))
+            if (
+                language_name := cls.loc_crosswalk_code_to_name(
+                    language_code,
+                    cls.language_code_crosswalk,
+                    cls.get_source_record_id(source_record),
+                    "language",
+                )
+            )
+        ]
+
+    @classmethod
+    def _get_language_notes(cls, source_record: Tag) -> list[str]:
+        return [
+            str(language_note.string).rstrip(" .")
+            for datafield in source_record.find_all("datafield", tag="546")
+            if (language_note := datafield.find("subfield", code="a", string=True))
+        ]
+
+    @classmethod
     def get_links(cls, source_record: Tag) -> list[timdex.Link] | None:
         links: list[timdex.Link] = []
         for datafield in source_record.find_all(
@@ -894,6 +792,170 @@ class Marc(XMLTransformer):
                     kind="Digital object URL",
                     text=holding_collection,
                 )
+
+    @classmethod
+    def get_literary_form(cls, source_record: Tag) -> str | None:
+        """Retrieve literary form for book materials.
+
+        Book materials configurations are used when Leader/06 (Type of record)
+        contains code a (Language material) or t (Manuscript language material)
+        and Leader/07 (Bibliographic level) contains code
+        a (Monographic component part), c (Collection), d (Subunit),
+        or m (Monograph).
+        """
+        leader_field = cls._get_leader_field(source_record)
+        control_field = cls._get_control_field(source_record)
+        if leader_field[6] in "at" and leader_field[7] in "acdm":
+            if control_field[33] in "0se":
+                return "Nonfiction"
+            return "Fiction"
+        return None
+
+    @classmethod
+    def get_locations(cls, source_record: Tag) -> list[timdex.Location] | None:
+        locations = []
+        location_marc_fields = [
+            {
+                "tag": "751",
+                "subfields": "a",
+                "kind": "Geographic Name",
+            },
+            {
+                "tag": "752",
+                "subfields": "abcdefgh",
+                "kind": "Hierarchical Place Name",
+            },
+        ]
+        # get locations (place of publication) from control field 008/15-17
+        if place_of_publication := cls._get_location_publication(source_record):
+            locations.append(place_of_publication)
+
+        # get locations from data fields
+        for location_marc_field in location_marc_fields:
+            locations.extend(
+                [
+                    timdex.Location(
+                        value=location_value.rstrip(" .,/)"),
+                        kind=location_marc_field["kind"],
+                    )
+                    for datafield in source_record.find_all(
+                        "datafield", tag=location_marc_field["tag"]
+                    )
+                    if (
+                        location_value := (
+                            cls.create_subfield_value_string_from_datafield(
+                                datafield,
+                                location_marc_field["subfields"],
+                                " - ",
+                            )
+                        )
+                    )
+                ]
+            )
+        return locations or None
+
+    @classmethod
+    def _get_location_publication(cls, source_record: Tag) -> timdex.Location | None:
+        if (
+            fixed_location_code := cls._get_control_field(source_record)[15:18].strip()
+        ) and (
+            location_name := cls.loc_crosswalk_code_to_name(
+                code=fixed_location_code,
+                crosswalk=cls.country_code_crosswalk,
+                record_id=cls.get_source_record_id(source_record),
+                code_type="country",
+            )
+        ):
+            return timdex.Location(value=location_name, kind="Place of Publication")
+        return None
+
+    @classmethod
+    def get_notes(cls, source_record: Tag) -> list[timdex.Note] | None:
+        notes = []
+        note_marc_fields = [
+            {
+                "tag": "245",
+                "subfields": "c",
+                "kind": "Title Statement of Responsibility",
+            },
+            {
+                "tag": "500",
+                "subfields": "a",
+                "kind": "General Note",
+            },
+            {
+                "tag": "502",
+                "subfields": "abcdg",
+                "kind": "Dissertation Note",
+            },
+            {
+                "tag": "504",
+                "subfields": "a",
+                "kind": "Bibliography Note",
+            },
+            {
+                "tag": "508",
+                "subfields": "a",
+                "kind": "Creation/Production Credits Note",
+            },
+            {
+                "tag": "511",
+                "subfields": "a",
+                "kind": "Participant or Performer Note",
+            },
+            {
+                "tag": "515",
+                "subfields": "a",
+                "kind": "Numbering Peculiarities Note",
+            },
+            {
+                "tag": "522",
+                "subfields": "a",
+                "kind": "Geographic Coverage Note",
+            },
+            {
+                "tag": "533",
+                "subfields": "abcdefmn",
+                "kind": "Reproduction Note",
+            },
+            {
+                "tag": "534",
+                "subfields": "abcefklmnoptxz",
+                "kind": "Original Version Note",
+            },
+            {
+                "tag": "588",
+                "subfields": "a",
+                "kind": "Source of Description Note",
+            },
+            {
+                "tag": "590",
+                "subfields": "a",
+                "kind": "Local Note",
+            },
+        ]
+        for note_marc_field in note_marc_fields:
+            notes.extend(
+                [
+                    timdex.Note(
+                        value=[note_value.rstrip(" .")],
+                        kind=note_marc_field["kind"],
+                    )
+                    for datafield in source_record.find_all(
+                        "datafield", tag=note_marc_field["tag"]
+                    )
+                    if (
+                        note_value := (
+                            cls.create_subfield_value_string_from_datafield(
+                                datafield,
+                                note_marc_field["subfields"],
+                                " ",
+                            )
+                        )
+                    )
+                ]
+            )
+        return notes or None
 
     @staticmethod
     def get_main_titles(xml: Tag) -> list[str]:

@@ -1236,6 +1236,116 @@ def test_get_holdings_transforms_correctly_if_fields_missing():
     assert Marc.get_holdings(source_record) is None
 
 
+def test_get_identifiers_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="010" ind1=" " ind2=" ">
+                <subfield code="a">  2005022317</subfield>
+            </datafield>
+            <datafield tag="020" ind1=" " ind2=" ">
+                <subfield code="a">9781250185969</subfield>
+                <subfield code="q">hardcover</subfield>
+            </datafield>
+            <datafield tag="022" ind1="0" ind2=" ">
+                <subfield code="a">0033-0736</subfield>
+            </datafield>
+            <datafield tag="024" ind1="7" ind2=" ">
+                <subfield code="a">10.1596/978-0-8213-7468-9</subfield>
+                <subfield code="2">doi</subfield>
+            </datafield>
+            <datafield tag="035" ind1=" " ind2=" ">
+                <subfield code="a">(OCoLC)1312285564</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_identifiers(source_record) == [
+        timdex.Identifier(value="2005022317", kind="LCCN"),
+        timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
+        timdex.Identifier(value="0033-0736", kind="ISSN"),
+        timdex.Identifier(
+            value="10.1596/978-0-8213-7468-9. doi", kind="Other Identifier"
+        ),
+        timdex.Identifier(value="1312285564", kind="OCLC Number"),
+    ]
+
+
+def test_get_identifiers_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="010" ind1=" " ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_identifiers(source_record) is None
+
+
+def test_get_identifiers_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_identifiers(source_record) is None
+
+
+def test_get_languages_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="041" ind1="0" ind2=" ">
+                <subfield code="d">eng</subfield>
+                <subfield code="d">fre</subfield>
+            </datafield>
+            <datafield tag="546" ind1=" " ind2=" ">
+                <subfield code="a">Sung in French.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_languages(source_record) == [
+        "No linguistic content",
+        "English",
+        "French",
+        "Sung in French",
+    ]
+
+
+def test_get_languages_transforms_correctly_if_char_positions_blank():
+    source_record = create_marc_source_record_stub(
+        control_field_insert=(
+            '<controlfield tag="008">170906s2016    fr mun| o         e     d</controlfield>'
+        )
+    )
+    assert Marc.get_languages(source_record) is None
+
+
+def test_get_languages_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        '<controlfield tag="008">170906s2016    fr mun| o         e     d</controlfield>',
+        datafield_insert=(
+            """
+            <datafield tag="041" ind1="0" ind2=" ">
+                <subfield code="d"></subfield>
+            </datafield>
+            """
+        ),
+    )
+    assert Marc.get_languages(source_record) is None
+
+
+def test_get_literary_form_success():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_literary_form(source_record) == "Nonfiction"
+
+
+def test_get_literary_form_transforms_correctly_if_char_positions_blank():
+    source_record = create_marc_source_record_stub(
+        leader_field_insert="<leader>03282n    2200721Ki 4500</leader>"
+    )
+    assert Marc.get_literary_form(source_record) is None
+
+
 def test_get_links_success():
     source_record = create_marc_source_record_stub(
         datafield_insert=(
@@ -1296,6 +1406,148 @@ def test_get_links_transforms_correctly_if_fields_blank():
 def test_get_links_transforms_correctly_if_fields_missing():
     source_record = create_marc_source_record_stub()
     assert Marc.get_links(source_record) is None
+
+
+def test_get_locations_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="751" ind1=" " ind2=" ">
+                <subfield code="a">Germany</subfield>
+            </datafield>
+            <datafield tag="752" ind1=" " ind2=" ">
+                <subfield code="a">Africa</subfield>
+                <subfield code="g">Nile River</subfield>
+                <subfield code="g">Sixth Cataract.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_locations(source_record) == [
+        timdex.Location(value="France", kind="Place of Publication"),
+        timdex.Location(value="Germany", kind="Geographic Name"),
+        timdex.Location(
+            value="Africa - Nile River - Sixth Cataract", kind="Hierarchical Place Name"
+        ),
+    ]
+
+
+def test_marc_get_locations_transforms_correctly_if_char_positions_blank():
+    source_record = create_marc_source_record_stub(
+        control_field_insert=(
+            """
+            <controlfield tag="008">170906s2016       mun| o         e zxx d</controlfield>
+            """
+        )
+    )
+    assert Marc.get_locations(source_record) is None
+
+
+def test_marc_get_locations_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        control_field_insert=(
+            """
+            <controlfield tag="008">170906s2016       mun| o         e zxx d</controlfield>
+            """
+        ),
+        datafield_insert=(
+            """
+            <datafield tag="751" ind1=" " ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        ),
+    )
+    assert Marc.get_locations(source_record) is None
+
+
+def test_get_notes_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="245" ind1="0" ind2="0">
+                <subfield code="c">arranged by the Arts Council of Great Britain.</subfield>
+            </datafield>
+            <datafield tag="500" ind1=" " ind2=" ">
+                <subfield code="a">Opera in 5 acts.</subfield>
+            </datafield>
+            <datafield tag="502" ind1=" " ind2=" ">
+                <subfield code="a">Thesis (D.SC.)--University of London.</subfield>
+            </datafield>
+            <datafield tag="504" ind1=" " ind2=" ">
+                <subfield code="a">Includes bibliographical references and index.</subfield>
+            </datafield>
+            <datafield tag="508" ind1=" " ind2=" ">
+                <subfield code="a">Producer, Toygun Kirali.</subfield>
+            </datafield>
+            <datafield tag="511" ind1="0" ind2=" ">
+                <subfield code="a">Lamoureux Concerts Orchestra ; Igor Markevitch, conductor.</subfield>
+            </datafield>
+            <datafield tag="515" ind1=" " ind2=" ">
+                <subfield code="a">Suspended publication 1944-52.</subfield>
+            </datafield>
+            <datafield tag="522" ind1=" " ind2=" ">
+                <subfield code="a">Canada.</subfield>
+            </datafield>
+            <datafield tag="533" ind1=" " ind2=" ">
+                <subfield code="a">Electronic reproduction.</subfield>
+                <subfield code="b">New York :</subfield>
+                <subfield code="c">Springer,</subfield>
+                <subfield code="d">2008.</subfield>
+            </datafield>
+            <datafield tag="534" ind1=" " ind2=" ">
+                <subfield code="p">Originally published</subfield>
+                <subfield code="c">New York : Garland, 1987.</subfield>
+            </datafield>
+            <datafield tag="588" ind1="0" ind2=" ">
+                <subfield code="a">Hard copy version record.</subfield>
+            </datafield>
+            <datafield tag="590" ind1=" " ind2=" ">
+                <subfield code="a">Rare Book copy: Advance copy notice inserted.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_notes(source_record) == [
+        timdex.Note(
+            value=["arranged by the Arts Council of Great Britain"],
+            kind="Title Statement of Responsibility",
+        ),
+        timdex.Note(value=["Opera in 5 acts"], kind="General Note"),
+        timdex.Note(
+            value=["Thesis (D.SC.)--University of London"], kind="Dissertation Note"
+        ),
+        timdex.Note(
+            value=["Includes bibliographical references and index"],
+            kind="Bibliography Note",
+        ),
+        timdex.Note(
+            value=["Producer, Toygun Kirali"], kind="Creation/Production Credits Note"
+        ),
+        timdex.Note(
+            value=["Lamoureux Concerts Orchestra ; Igor Markevitch, conductor"],
+            kind="Participant or Performer Note",
+        ),
+        timdex.Note(
+            value=["Suspended publication 1944-52"], kind="Numbering Peculiarities Note"
+        ),
+        timdex.Note(value=["Canada"], kind="Geographic Coverage Note"),
+        timdex.Note(
+            value=["Electronic reproduction. New York : Springer, 2008"],
+            kind="Reproduction Note",
+        ),
+        timdex.Note(
+            value=["Originally published New York : Garland, 1987"],
+            kind="Original Version Note",
+        ),
+        timdex.Note(
+            value=["Hard copy version record"],
+            kind="Source of Description Note",
+        ),
+        timdex.Note(
+            value=["Rare Book copy: Advance copy notice inserted"], kind="Local Note"
+        ),
+    ]
 
 
 def test_marc_record_missing_leader_skips_record(caplog):
