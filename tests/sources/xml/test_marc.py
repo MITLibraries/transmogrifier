@@ -405,7 +405,7 @@ def test_marc_record_all_fields_transform_correctly():
             timdex.Publisher(name="New Press", date="2005", location="New York"),
             timdex.Publisher(name="Wiley", date="c1992", location="New York"),
             timdex.Publisher(name="Alpha", date="[2022]", location="France"),
-            timdex.Publisher(date="℗2022,"),
+            timdex.Publisher(date="℗2022"),
         ],
         related_items=[
             timdex.RelatedItem(
@@ -1548,6 +1548,374 @@ def test_get_notes_success():
             value=["Rare Book copy: Advance copy notice inserted"], kind="Local Note"
         ),
     ]
+
+
+def test_get_numbering_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="362" ind1="0" ind2=" ">
+                <subfield code="a">-Bd. 148, 4 (dez. 1997).</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_numbering(source_record) == "-Bd. 148, 4 (dez. 1997)."
+
+
+def test_get_numbering_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="362" ind1="0" ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_numbering(source_record) is None
+
+
+def test_get_numbering_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_numbering(source_record) is None
+
+
+def test_get_numbering_transforms_correctly_if_multiple_fields():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="362" ind1="0" ind2=" ">
+                <subfield code="a">-Bd. 148, 4 (dez. 1997).</subfield>
+            </datafield>
+            <datafield tag="362" ind1="1" ind2=" ">
+                <subfield code="a">Began in 1902.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_numbering(source_record) == (
+        "-Bd. 148, 4 (dez. 1997). Began in 1902."
+    )
+
+
+def test_get_physical_description_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="300" ind1=" " ind2=" ">
+                <subfield code="a">484 p. :</subfield>
+                <subfield code="b">ill. ;</subfield>
+                <subfield code="c">30 cm. +</subfield>
+                <subfield code="e">1 CD-ROM (4 3/4 in.).</subfield>
+                <subfield code="e">1 DVD-ROM (4 3/4 in.).</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_physical_description(source_record) == (
+        "484 p. : ill. ; 30 cm. + 1 CD-ROM (4 3/4 in.). 1 DVD-ROM (4 3/4 in.)."
+    )
+
+
+def test_get_physical_description_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="300" ind1=" " ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_physical_description(source_record) is None
+
+
+def test_get_physical_description_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_physical_description(source_record) is None
+
+
+def test_get_physical_description_transforms_correctly_if_multiple_tags():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="300" ind1=" " ind2=" ">
+                <subfield code="a">484 p. :</subfield>
+                <subfield code="b">ill. ;</subfield>
+                <subfield code="c">30 cm. +</subfield>
+                <subfield code="e">1 CD-ROM (4 3/4 in.).</subfield>
+                <subfield code="e">1 DVD-ROM (4 3/4 in.).</subfield>
+            </datafield>
+            <datafield tag="300" ind1=" " ind2=" ">
+                <subfield code="a">1 vocal score (248 p.) ;</subfield>
+                <subfield code="c">31 cm.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_physical_description(source_record) == (
+        "484 p. : ill. ; 30 cm. + 1 CD-ROM (4 3/4 in.). 1 DVD-ROM (4 3/4 in.). "
+        "1 vocal score (248 p.) ; 31 cm."
+    )
+
+
+def test_get_publication_frequency_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="310" ind1=" " ind2=" ">
+                <subfield code="a">Six no. a year</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_publication_frequency(source_record) == ["Six no. a year"]
+
+
+def test_get_publication_frequency_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="310" ind1=" " ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_publication_frequency(source_record) is None
+
+
+def test_get_publication_frequency_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_publication_frequency(source_record) is None
+
+
+def test_get_publishers_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="260" ind1=" " ind2=" ">
+                <subfield code="a">New York :</subfield>
+                <subfield code="b">New Press,</subfield>
+                <subfield code="c">2005.</subfield>
+            </datafield>
+            <datafield tag="264" ind1=" " ind2="4">
+                <subfield code="c">℗2022,</subfield>
+                <subfield code="c">©2022</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_publishers(source_record) == [
+        timdex.Publisher(name="New Press", date="2005", location="New York"),
+        timdex.Publisher(name=None, date="℗2022", location=None),
+    ]
+
+
+def test_get_publishers_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="260" ind1=" " ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_publishers(source_record) is None
+
+
+def test_get_publishers_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_publishers(source_record) is None
+
+
+def test_get_related_items_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="765" ind1="0" ind2=" ">
+                <subfield code="t">Java 2 in plain English.</subfield>
+            </datafield>
+            <datafield tag="770" ind1="1" ind2=" ">
+                <subfield code="t">Geological Society of America data repository</subfield>
+                <subfield code="w">(DLC)sn 86025915</subfield>
+                <subfield code="w">(OCoLC)13535209</subfield>
+            </datafield>
+            <datafield tag="772" ind1="0" ind2="0">
+                <subfield code="a">Earthquake engineering and structural dynamics</subfield>
+                <subfield code="v">v. 14, no. 5</subfield>
+            </datafield>
+            <datafield tag="780" ind1="1" ind2="1">
+                <subfield code="t">Entertainment design</subfield>
+                <subfield code="x">1520-5150</subfield>
+            </datafield>
+            <datafield tag="785" ind1="0" ind2="0">
+                <subfield code="t">Protist</subfield>
+                <subfield code="w">(DLC)sn 98050216</subfield>
+                <subfield code="w">(OCoLC)39018023</subfield>
+                <subfield code="x">1434-4610</subfield>
+            </datafield>
+            <datafield tag="787" ind1="0" ind2=" ">
+                <subfield code="i">Part of:</subfield>
+                <subfield code="t">De historien des Ouden en Nieuwen Testaments</subfield>
+            </datafield>
+            <datafield tag="830" ind1=" " ind2="0">
+                <subfield code="a">Map and chart series (New York State Geological Survey) ;</subfield>
+                <subfield code="0">(DLC)n  84704569</subfield>
+                <subfield code="0">(DLC)n  84704570</subfield>
+                <subfield code="v">no. 53.</subfield>
+                <subfield code="x">0097-3793</subfield>
+            </datafield>
+            <datafield tag="510" ind1="2" ind2=" ">
+                <subfield code="a">Predicasts</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_related_items(source_record) == [
+        timdex.RelatedItem(
+            description="Java 2 in plain English",
+            relationship="Original Language Version",
+        ),
+        timdex.RelatedItem(
+            description=(
+                "Geological Society of America data repository "
+                "(DLC)sn 86025915 "
+                "(OCoLC)13535209"
+            ),
+            relationship="Has Supplement",
+        ),
+        timdex.RelatedItem(
+            description="Earthquake engineering and structural dynamics",
+            relationship="Supplement To",
+        ),
+        timdex.RelatedItem(
+            description=("Entertainment design 1520-5150"), relationship="Previous Title"
+        ),
+        timdex.RelatedItem(
+            description="Protist (DLC)sn 98050216 (OCoLC)39018023 1434-4610",
+            relationship="Subsequent Title",
+        ),
+        timdex.RelatedItem(
+            description="Part of: De historien des Ouden en Nieuwen Testaments",
+            relationship="Not Specified",
+        ),
+        timdex.RelatedItem(
+            description="Map and chart series (New York State Geological Survey) ; no. 53. 0097-3793",
+            relationship="In Series",
+        ),
+        timdex.RelatedItem(description="Predicasts", relationship="In Bibliography"),
+    ]
+
+
+def test_get_related_items_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="765" ind1="0" ind2=" ">
+                <subfield code="t"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_related_items(source_record) is None
+
+
+def test_get_related_items_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_related_items(source_record) is None
+
+
+def test_get_subjects_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="600" ind1="1" ind2="0">
+                <subfield code="a">Renoir, Jean,</subfield>
+                <subfield code="d">1894-1979</subfield>
+                <subfield code="v">Bibliography.</subfield>
+            </datafield>
+            <datafield tag="610" ind1="1" ind2="0">
+                <subfield code="a">United States.</subfield>
+                <subfield code="b">Federal Bureau of Investigation</subfield>
+                <subfield code="x">History.</subfield>
+            </datafield>
+            <datafield tag="650" ind1=" " ind2="6">
+                <subfield code="a">Musique vocale sacrée</subfield>
+                <subfield code="z">France</subfield>
+                <subfield code="y">500-1400.</subfield>
+            </datafield>
+            <datafield tag="651" ind1=" " ind2="0">
+                <subfield code="a">Great Plains</subfield>
+                <subfield code="x">Climate.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_subjects(source_record) == [
+        timdex.Subject(
+            value=["Renoir, Jean, - 1894-1979 - Bibliography"], kind="Personal Name"
+        ),
+        timdex.Subject(
+            value=["United States. - Federal Bureau of Investigation - History"],
+            kind="Corporate Name",
+        ),
+        timdex.Subject(
+            value=["Musique vocale sacrée - France - 500-1400"], kind="Topical Term"
+        ),
+        timdex.Subject(value=["Great Plains - Climate"], kind="Geographic Name"),
+    ]
+
+
+def test_get_subjects_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="600" ind1="1" ind2="0">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_subjects(source_record) is None
+
+
+def test_get_subjects_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_subjects(source_record) is None
+
+
+def test_get_summary_success():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="520" ind1=" " ind2=" ">
+                <subfield code="a">This is a summary.</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_summary(source_record) == ["This is a summary."]
+
+
+def test_get_summary_transforms_correctly_if_fields_blank():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="520" ind1=" " ind2=" ">
+                <subfield code="a"></subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_summary(source_record) is None
+
+
+def test_get_summary_transforms_correctly_if_fields_missing():
+    source_record = create_marc_source_record_stub()
+    assert Marc.get_summary(source_record) is None
 
 
 def test_marc_record_missing_leader_skips_record(caplog):

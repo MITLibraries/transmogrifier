@@ -93,161 +93,27 @@ class Marc(XMLTransformer):
         fields["notes"] = self.get_notes(source_record)
 
         # numbering
-
-        if numbering_values := [
-            self.create_subfield_value_string_from_datafield(datafield, "a", " ")
-            for datafield in source_record.find_all("datafield", tag="362")
-        ]:
-            fields["numbering"] = " ".join(numbering_values) or None
+        fields["numbering"] = self.get_numbering(source_record)
 
         # physical_description
-        if physical_description_values := [
-            self.create_subfield_value_string_from_datafield(datafield, "abcefg", " ")
-            for datafield in source_record.find_all("datafield", tag="300")
-        ]:
-            fields["physical_description"] = " ".join(physical_description_values) or None
+        fields["physical_description"] = self.get_physical_description(source_record)
 
         # publication_frequency
-        for datafield in source_record.find_all("datafield", tag="310"):
-            if publication_frequency_value := (
-                self.create_subfield_value_string_from_datafield(datafield, "a", " ")
-            ):
-                fields.setdefault("publication_frequency", []).append(
-                    publication_frequency_value
-                )
+        fields["publication_frequency"] = self.get_publication_frequency(source_record)
 
         # publishers
-        for publisher_marc_field in ["260", "264"]:
-            for datafield in source_record.find_all(
-                "datafield", tag=publisher_marc_field
-            ):
-                publisher_name = self.get_single_subfield_string(datafield, "b")
-                publisher_date = self.get_single_subfield_string(datafield, "c")
-                publisher_location = self.get_single_subfield_string(datafield, "a")
-                if any([publisher_name, publisher_date, publisher_location]):
-                    fields.setdefault("publishers", []).append(
-                        timdex.Publisher(
-                            name=publisher_name.rstrip(",") if publisher_name else None,
-                            date=publisher_date.rstrip(".") if publisher_date else None,
-                            location=(
-                                publisher_location.rstrip(" :")
-                                if publisher_location
-                                else None
-                            ),
-                        )
-                    )
+        fields["publishers"] = self.get_publishers(source_record)
 
         # related_items
-        related_item_marc_fields = [
-            {
-                "tag": "765",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Original Language Version",
-            },
-            {
-                "tag": "770",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Has Supplement",
-            },
-            {
-                "tag": "772",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Supplement To",
-            },
-            {
-                "tag": "780",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Previous Title",
-            },
-            {
-                "tag": "785",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Subsequent Title",
-            },
-            {
-                "tag": "787",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Not Specified",
-            },
-            {
-                "tag": "830",
-                "subfields": "adfghklmnoprstvwx",
-                "relationship": "In Series",
-            },
-            {
-                "tag": "510",
-                "subfields": "abcx",
-                "relationship": "In Bibliography",
-            },
-        ]
-        for related_item_marc_field in related_item_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=related_item_marc_field["tag"]
-            ):
-                if related_item_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield,
-                        related_item_marc_field["subfields"],
-                        " ",
-                    )
-                ):
-                    fields.setdefault("related_items", []).append(
-                        timdex.RelatedItem(
-                            description=related_item_value.rstrip(" ."),
-                            relationship=related_item_marc_field["relationship"],
-                        )
-                    )
+        fields["related_items"] = self.get_related_items(source_record)
 
         # rights not used in MARC
 
         # subjects
-        subject_marc_fields = [
-            {
-                "tag": "600",
-                "subfields": "abcdefghjklmnopqrstuvxyz",
-                "kind": "Personal Name",
-            },
-            {
-                "tag": "610",
-                "subfields": "abcdefghklmnoprstuvxyz",
-                "kind": "Corporate Name",
-            },
-            {
-                "tag": "650",
-                "subfields": "avxyz",
-                "kind": "Topical Term",
-            },
-            {
-                "tag": "651",
-                "subfields": "avxyz",
-                "kind": "Geographic Name",
-            },
-        ]
-        for subject_marc_field in subject_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=subject_marc_field["tag"]
-            ):
-                if subject_value := (
-                    self.create_subfield_value_string_from_datafield(
-                        datafield,
-                        subject_marc_field["subfields"],
-                        " - ",
-                    )
-                ):
-                    fields.setdefault("subjects", []).append(
-                        timdex.Subject(
-                            value=[subject_value.rstrip(" .")],
-                            kind=subject_marc_field["kind"],
-                        )
-                    )
+        fields["subjects"] = self.get_subjects(source_record)
 
         # summary
-        for datafield in source_record.find_all("datafield", tag="520"):
-            if summary_value := self.create_subfield_value_string_from_datafield(
-                datafield, "a", " "
-            ):
-                fields.setdefault("summary", []).append(summary_value)
-
+        fields["summary"] = self.get_summary(source_record)
         return fields
 
     @staticmethod
@@ -285,6 +151,17 @@ class Marc(XMLTransformer):
         """
         return separator.join(
             Marc.create_subfield_value_list_from_datafield(xml_element, subfield_codes)
+        )
+
+    @classmethod
+    def concatenate_subfield_value_strings_from_datafield(
+        cls, source_record: Tag, tag: str, subfield_codes: str
+    ) -> str:
+        return " ".join(
+            cls.create_subfield_value_string_from_datafield(
+                datafield, subfield_codes, " "
+            )
+            for datafield in source_record.find_all("datafield", tag=tag)
         )
 
     @staticmethod
@@ -956,6 +833,191 @@ class Marc(XMLTransformer):
                 ]
             )
         return notes or None
+
+    @classmethod
+    def get_numbering(cls, source_record: Tag) -> str | None:
+        return (
+            cls.concatenate_subfield_value_strings_from_datafield(
+                source_record, tag="362", subfield_codes="abcefg"
+            )
+            or None
+        )
+
+    @classmethod
+    def get_physical_description(cls, source_record: Tag) -> str | None:
+        return (
+            cls.concatenate_subfield_value_strings_from_datafield(
+                source_record, tag="300", subfield_codes="abcefg"
+            )
+            or None
+        )
+
+    @classmethod
+    def get_publication_frequency(cls, source_record: Tag) -> list[str] | None:
+        return [
+            publication_frequency_value
+            for datafield in source_record.find_all("datafield", tag="310")
+            if (
+                publication_frequency_value := (
+                    cls.create_subfield_value_string_from_datafield(datafield, "a", " ")
+                )
+            )
+        ] or None
+
+    @classmethod
+    def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
+        publishers = []
+        for publisher_marc_tag in ["260", "264"]:
+            for datafield in source_record.find_all("datafield", tag=publisher_marc_tag):
+                if any(
+                    [
+                        publisher_name := cls.get_single_subfield_string(datafield, "b"),
+                        publisher_date := cls.get_single_subfield_string(datafield, "c"),
+                        publisher_location := cls.get_single_subfield_string(
+                            datafield, "a"
+                        ),
+                    ]
+                ):
+                    publishers.append(  # noqa: PERF401
+                        timdex.Publisher(
+                            name=publisher_name.rstrip(".,") if publisher_name else None,
+                            date=publisher_date.rstrip(".,") if publisher_date else None,
+                            location=(
+                                publisher_location.rstrip(" :")
+                                if publisher_location
+                                else None
+                            ),
+                        )
+                    )
+        return publishers or None
+
+    @classmethod
+    def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
+        related_items = []
+        related_item_marc_fields = [
+            {
+                "tag": "765",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Original Language Version",
+            },
+            {
+                "tag": "770",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Has Supplement",
+            },
+            {
+                "tag": "772",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Supplement To",
+            },
+            {
+                "tag": "780",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Previous Title",
+            },
+            {
+                "tag": "785",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Subsequent Title",
+            },
+            {
+                "tag": "787",
+                "subfields": "abcdghikmnorstuwxyz",
+                "relationship": "Not Specified",
+            },
+            {
+                "tag": "830",
+                "subfields": "adfghklmnoprstvwx",
+                "relationship": "In Series",
+            },
+            {
+                "tag": "510",
+                "subfields": "abcx",
+                "relationship": "In Bibliography",
+            },
+        ]
+        for related_item_marc_field in related_item_marc_fields:
+            related_items.extend(
+                [
+                    timdex.RelatedItem(
+                        description=related_item_value.rstrip(" ."),
+                        relationship=related_item_marc_field["relationship"],
+                    )
+                    for datafield in source_record.find_all(
+                        "datafield", tag=related_item_marc_field["tag"]
+                    )
+                    if (
+                        related_item_value := (
+                            cls.create_subfield_value_string_from_datafield(
+                                datafield,
+                                related_item_marc_field["subfields"],
+                                " ",
+                            )
+                        )
+                    )
+                ]
+            )
+        return related_items or None
+
+    @classmethod
+    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+        subjects = []
+        subject_marc_fields = [
+            {
+                "tag": "600",
+                "subfields": "abcdefghjklmnopqrstuvxyz",
+                "kind": "Personal Name",
+            },
+            {
+                "tag": "610",
+                "subfields": "abcdefghklmnoprstuvxyz",
+                "kind": "Corporate Name",
+            },
+            {
+                "tag": "650",
+                "subfields": "avxyz",
+                "kind": "Topical Term",
+            },
+            {
+                "tag": "651",
+                "subfields": "avxyz",
+                "kind": "Geographic Name",
+            },
+        ]
+        for subject_marc_field in subject_marc_fields:
+            subjects.extend(
+                [
+                    timdex.Subject(
+                        value=[subject_value.rstrip(" .")],
+                        kind=subject_marc_field["kind"],
+                    )
+                    for datafield in source_record.find_all(
+                        "datafield", tag=subject_marc_field["tag"]
+                    )
+                    if (
+                        subject_value := (
+                            cls.create_subfield_value_string_from_datafield(
+                                datafield,
+                                subject_marc_field["subfields"],
+                                " - ",
+                            )
+                        )
+                    )
+                ]
+            )
+        return subjects or None
+
+    @classmethod
+    def get_summary(cls, source_record: Tag) -> list[str] | None:
+        return [
+            summary_value
+            for datafield in source_record.find_all("datafield", tag="520")
+            if (
+                summary_value := cls.create_subfield_value_string_from_datafield(
+                    datafield, "a", " "
+                )
+            )
+        ] or None
 
     @staticmethod
     def get_main_titles(xml: Tag) -> list[str]:
