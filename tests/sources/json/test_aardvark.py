@@ -15,10 +15,10 @@ def test_mitaardvark_transform_and_write_output_files_writes_output_files(
     tmp_path, aardvark_records
 ):
     output_file = str(tmp_path / "output_file.json")
-    transformer = MITAardvark("cool-repo", aardvark_records)
+    aardvark = MITAardvark("cool-repo", aardvark_records)
     assert not Path(tmp_path / "output_file.json").exists()
     assert not Path(tmp_path / "output_file.txt").exists()
-    transformer.transform_and_write_output_files(output_file)
+    aardvark.transform_and_write_output_files(output_file)
     assert Path(tmp_path / "output_file.json").exists()
     assert Path(tmp_path / "output_file.txt").exists()
 
@@ -27,8 +27,8 @@ def test_mitaardvark_transform_and_write_output_files_no_txt_file_if_not_needed(
     tmp_path, aardvark_record_all_fields
 ):
     output_file = str(tmp_path / "output_file.json")
-    transformer = MITAardvark("cool-repo", aardvark_record_all_fields)
-    transformer.transform_and_write_output_files(output_file)
+    aardvark = MITAardvark("cool-repo", aardvark_record_all_fields)
+    aardvark.transform_and_write_output_files(output_file)
     assert len(list(tmp_path.iterdir())) == 1
     assert next(tmp_path.iterdir()).name == "output_file.json"
 
@@ -44,8 +44,8 @@ def test_aardvark_get_required_fields_returns_expected_values(aardvark_records):
 
 
 def test_aardvark_transform_returns_timdex_record(aardvark_records):
-    transformer = MITAardvark("cool-repo", aardvark_records)
-    assert next(transformer) == timdex.TimdexRecord(
+    aardvark = MITAardvark("cool-repo", aardvark_records)
+    assert next(aardvark) == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://geodata.libraries.mit.edu/record/abc:123",
         timdex_record_id="cool-repo:123",
@@ -72,17 +72,12 @@ def test_aardvark_get_main_titles_success():
 def test_aardvark_record_get_source_link_success():
     source_record = create_aardvark_source_record_stub()
     url_from_source_record = "https://geodata.libraries.mit.edu/record/abc:123"
+    source_record["gbl_suppressed_b"] = False
     source_record["dct_references_s"] = json.dumps(
         {"http://schema.org/url": url_from_source_record}
     )
-    assert (
-        MITAardvark.get_source_link(
-            "None",
-            "abc:123",
-            source_record,
-        )
-        == url_from_source_record
-    )
+    aardvark = MITAardvark("cool-repo", iter([source_record]))
+    assert aardvark.get_source_link(source_record) == url_from_source_record
 
 
 def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error():
@@ -90,22 +85,18 @@ def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error():
     source_record["dct_references_s"] = json.dumps(
         {"missing data": "from aardvark from geoharvester"}
     )
+    aardvark = MITAardvark("cool-repo", iter([source_record]))
     with pytest.raises(
         ValueError,
         match="Could not locate a kind=Website link to pull the source link from.",
     ):
-        MITAardvark.get_source_link(
-            "None",
-            "abc:123",
-            source_record,
-        )
+        aardvark.get_source_link(source_record)
 
 
 def test_aardvark_record_get_timdex_record_id_success():
     source_record = create_aardvark_source_record_stub()
-    assert (
-        MITAardvark.get_timdex_record_id("source", "123", source_record) == "source:123"
-    )
+    aardvark = MITAardvark("cool-repo", iter([source_record]))
+    assert aardvark.get_timdex_record_id(source_record) == "cool-repo:123"
 
 
 def test_aardvark_get_source_record_id_success():

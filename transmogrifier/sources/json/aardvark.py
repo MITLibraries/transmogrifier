@@ -32,11 +32,8 @@ class MITAardvark(JSONTransformer):
         """
         return [source_record["dct_title_s"]]
 
-    @classmethod
     def get_source_link(
-        cls,
-        _source_base_url: str,
-        _source_record_id: str,
+        self,
         source_record: dict[str, JSON],
     ) -> str:
         """
@@ -49,13 +46,9 @@ class MITAardvark(JSONTransformer):
         in the metadata already.  This method relies on that data.
 
         Args:
-            _source_base_url: Source base URL.  Not used for MITAardvark transforms.
-            source_record_id: Record identifier for the source record.
-            source_record: A BeautifulSoup Tag representing a single XML record.
-                - not used by default implementation, but could be useful for subclass
-                    overrides
+            source_record: A JSON object representing a source record.
         """
-        if (links := cls.get_links(source_record)) and (
+        if (links := self.get_links(source_record)) and (
             url_links := [link for link in links if link.kind == "Website"]
         ):
             return url_links[0].url
@@ -63,24 +56,16 @@ class MITAardvark(JSONTransformer):
         message = "Could not locate a kind=Website link to pull the source link from."
         raise ValueError(message)
 
-    @classmethod
-    def get_timdex_record_id(
-        cls,
-        source: str,
-        source_record_id: str,
-        _source_record: dict[str, JSON],
-    ) -> str:
+    def get_timdex_record_id(self, source_record: dict[str, JSON]) -> str:
         """
         Class method to set the TIMDEX record id.
 
         Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
             source_record: A JSON object representing a source record.
-                - not used by default implementation, but could be useful for subclass
-                overrides
         """
-        return f"{source}:{source_record_id.replace('/', '-')}"
+        return (
+            f"{self.source}:{self.get_source_record_id(source_record).replace('/', '-')}"
+        )
 
     @classmethod
     def get_source_record_id(cls, source_record: dict) -> str:

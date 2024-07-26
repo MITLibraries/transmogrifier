@@ -78,11 +78,8 @@ class SpringshareOaiDc(OaiDc):
         )
         return links or None
 
-    @classmethod
     def get_source_link(
-        cls,
-        _source_base_url: str,
-        _source_record_id: str,
+        self,
         source_record: Tag,
     ) -> str:
         """
