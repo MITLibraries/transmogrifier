@@ -89,7 +89,7 @@ class OaiDc(XMLTransformer):
         fields["summary"] = self.get_summary(source_record)
         return fields
 
-    def get_content_type(self) -> list[str]:
+    def get_content_type(self, _source_record: Tag) -> list[str]:
         return [self.source]
 
     @classmethod
@@ -120,7 +120,7 @@ class OaiDc(XMLTransformer):
         return dates or None
 
     @classmethod
-    def get_format(cls) -> str:
+    def get_format(cls, _source_record: Tag) -> str:
         return "electronic resource"
 
     @classmethod
@@ -135,10 +135,7 @@ class OaiDc(XMLTransformer):
             )
         return identifiers or None
 
-    def get_links(
-        self,
-        _source_record: Tag,
-    ) -> list[timdex.Link] | None:
+    def get_links(self, _source_record: Tag) -> list[timdex.Link] | None:
         """
         Method to get TIMDEX "links" field. This method broken out to allow subclasses
         to override.
