@@ -180,10 +180,7 @@ class Transformer(ABC):
         return getattr(source_module, class_name)
 
     @final
-    @classmethod
-    def get_valid_title(
-        cls, source_record_id: str, source_record: dict[str, JSON] | Tag
-    ) -> str:
+    def get_valid_title(self, source_record: dict[str, JSON] | Tag) -> str:
         """
         Retrieves main title(s) from a source record and returns a valid title string.
 
@@ -194,16 +191,15 @@ class Transformer(ABC):
         missing title field.
 
         Args:
-            source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
-        all_titles = cls.get_main_titles(source_record)
+        all_titles = self.get_main_titles(source_record)
         title_count = len(all_titles)
         if title_count > 1:
             logger.warning(
                 "Record %s has multiple titles. Using the first title from the "
                 "following titles found: %s",
-                source_record_id,
+                self.get_source_record_id(source_record),
                 all_titles,
             )
         if title_count >= 1:
@@ -211,7 +207,7 @@ class Transformer(ABC):
         else:
             logger.warning(
                 "Record %s was missing a title, source record should be investigated.",
-                source_record_id,
+                self.get_source_record_id(source_record),
             )
             title = "Title not provided"
         return title
@@ -303,12 +299,9 @@ class Transformer(ABC):
             source_record: A single source record.
         """
 
-    @classmethod
     @abstractmethod
     def get_source_link(
-        cls,
-        source_base_url: str,
-        source_record_id: str,
+        self,
         source_record: dict[str, JSON] | Tag,
     ) -> str:
         """
@@ -317,24 +310,17 @@ class Transformer(ABC):
         Must be overridden by source subclasses.
 
         Args:
-            source_base_url: Source base URL.
-            source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
 
-    @classmethod
     @abstractmethod
-    def get_timdex_record_id(
-        cls, source: str, source_record_id: str, source_record: dict[str, JSON] | Tag
-    ) -> str:
+    def get_timdex_record_id(self, source_record: dict[str, JSON] | Tag) -> str:
         """
         Class method to set the TIMDEX record id.
 
         Must be overridden by source subclasses.
 
         Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
             source_record: A single source record.
         """
 

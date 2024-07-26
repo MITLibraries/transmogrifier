@@ -85,13 +85,7 @@ class JSONTransformer(Transformer):
             source_record: A JSON object representing a source record.
         """
 
-    @classmethod
-    def get_source_link(
-        cls,
-        source_base_url: str,
-        source_record_id: str,
-        _source_record: dict[str, JSON],
-    ) -> str:
+    def get_source_link(self, source_record: dict[str, JSON]) -> str:
         """
         Class method to set the source link for the item.
 
@@ -100,20 +94,13 @@ class JSONTransformer(Transformer):
         Default behavior is to concatenate the source base URL + source record id.
 
         Args:
-            source_base_url: Source base URL.
-            source_record_id: Record identifier for the source record.
             source_record: A JSON object representing a source record.
-                - not used by default implementation, but could be useful for subclass
-                    overrides
         """
-        return source_base_url + source_record_id
+        return self.source_base_url + self.get_source_record_id(source_record)
 
-    @classmethod
     def get_timdex_record_id(
-        cls,
-        source: str,
-        source_record_id: str,
-        _source_record: dict[str, JSON],
+        self,
+        source_record: dict[str, JSON],
     ) -> str:
         """
         Class method to set the TIMDEX record id.
@@ -123,13 +110,11 @@ class JSONTransformer(Transformer):
         Default behavior is to concatenate the source name + source record id.
 
         Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
             source_record: A JSON object representing a source record.
-                - not used by default implementation, but could be useful for subclass
-                overrides
         """
-        return f"{source}:{source_record_id.replace('/', '-')}"
+        return (
+            f"{self.source}:{self.get_source_record_id(source_record).replace('/', '-')}"
+        )
 
     @classmethod
     @abstractmethod
