@@ -249,13 +249,8 @@ class Transformer(ABC):
         )
         for field_name, field_method in self.get_optional_field_methods():
             setattr(timdex_record, field_name, field_method(source_record))
-        self.generate_derived_fields(timdex_record)
 
-        # # If citation field was not present, generate citation from other fields
-        if timdex_record.citation is None:
-            timdex_record.citation = generate_citation(timdex_record)
-        if timdex_record.content_type is None:
-            timdex_record.content_type = ["Not specified"]
+        self.generate_derived_fields(timdex_record)
 
         return timdex_record
 
@@ -358,6 +353,12 @@ class Transformer(ABC):
         """
         self.create_dates_and_locations_from_publishers(timdex_record)
         self.create_locations_from_spatial_subjects(timdex_record)
+
+        if timdex_record.citation is None:
+            timdex_record.citation = generate_citation(timdex_record)
+        if timdex_record.content_type is None:
+            timdex_record.content_type = ["Not specified"]
+
         return timdex_record
 
     @final
