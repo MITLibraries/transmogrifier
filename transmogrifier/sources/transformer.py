@@ -356,61 +356,69 @@ class Transformer(ABC):
 
         May not be overridden.
         """
+        self.create_dates_and_locations_from_publishers(timdex_record)
+        self.create_locations_from_spatial_subjects(timdex_record)
         return timdex_record
 
     @final
     @staticmethod
-    def create_dates_and_locations_from_publishers(fields: dict) -> dict:
+    def create_dates_and_locations_from_publishers(
+        timdex_record: timdex.TimdexRecord,
+    ) -> timdex.TimdexRecord:
         """Add Date and Location objects based on data in publishers field.
 
         Args:
-            fields: A dict of fields representing a TIMDEX record.
+            timdex_record: A TimdexRecord class instance.
         """
-        if not fields.get("publishers"):
-            return fields
-        for publisher in fields["publishers"]:
+        if not timdex_record.publishers:
+            return timdex_record
+
+        for publisher in timdex_record.publishers:
             if publisher.date and validate_date(
-                publisher.date, fields["timdex_record_id"]
+                publisher.date, timdex_record.timdex_record_id
             ):
                 publisher_date = timdex.Date(
                     kind="Publication date", value=publisher.date
                 )
-                if fields.get("dates") is None:
-                    fields["dates"] = []
-                if publisher_date not in fields["dates"]:
-                    fields["dates"].append(publisher_date)
+                if not timdex_record.dates:
+                    timdex_record.dates = [publisher_date]
+                elif publisher_date not in timdex_record.dates:
+                    timdex_record.dates.append(publisher_date)
+
             if publisher.location:
                 publisher_location = timdex.Location(
                     kind="Place of Publication", value=publisher.location
                 )
-                if fields.get("locations") is None:
-                    fields["locations"] = []
-                if publisher_location not in fields["locations"]:
-                    fields["locations"].append(publisher_location)
-        return fields
+                if not timdex_record.locations:
+                    timdex_record.locations = [publisher_location]
+                elif publisher_location not in timdex_record.locations:
+                    timdex_record.locations.append(publisher_location)
+        return timdex_record
 
     @final
     @staticmethod
-    def create_locations_from_spatial_subjects(fields: dict) -> dict:
+    def create_locations_from_spatial_subjects(
+        timdex_record: timdex.TimdexRecord,
+    ) -> timdex.TimdexRecord:
         """Add Location objects for spatial subjects.
 
         Args:
-           fields: A dict of fields representing a TIMDEX record.
+           timdex_record: A TimdexRecord class instance.
         """
-        if fields.get("subjects") is None:
-            return fields
+        if not timdex_record.subjects:
+            return timdex_record
 
         spatial_subjects = [
             subject
-            for subject in fields.get("subjects", [])  # defaults to empty list
+            for subject in timdex_record.subjects
             if subject.kind == "Dublin Core; Spatial" and subject.value is not None
         ]
 
         for subject in spatial_subjects:
             for place_name in subject.value:
                 subject_location = timdex.Location(value=place_name, kind="Place Name")
-                if fields.get("locations") is None:
-                    fields["locations"] = []
-                if subject_location not in fields["locations"]:
-                    fields["locations"].append(subject_location)
-        return fields
+                if not timdex_record.locations:
+                    timdex_record.locations = [subject_location]
+                elif subject_location not in timdex_record.locations:
+                    timdex_record.locations.append(subject_location)
+        return timdex_record
