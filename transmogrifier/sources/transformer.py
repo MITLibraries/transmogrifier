@@ -272,17 +272,6 @@ class Transformer(ABC):
             source_record: A single source record.
         """
 
-    @abstractmethod
-    def get_required_fields(self, source_record: dict[str, JSON] | Tag) -> dict:
-        """
-        Get required TIMDEX fields from a source record.
-
-        Must be overridden by format subclasses.
-
-        Args:
-            source_record: A single source record.
-        """
-
     @classmethod
     @abstractmethod
     def get_main_titles(cls, source_record: dict[str, JSON] | Tag) -> list[str]:

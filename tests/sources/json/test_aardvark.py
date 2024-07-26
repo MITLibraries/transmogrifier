@@ -33,16 +33,6 @@ def test_mitaardvark_transform_and_write_output_files_no_txt_file_if_not_needed(
     assert next(tmp_path.iterdir()).name == "output_file.json"
 
 
-def test_aardvark_get_required_fields_returns_expected_values(aardvark_records):
-    transformer = MITAardvark("cool-repo", aardvark_records)
-    assert transformer.get_required_fields(next(aardvark_records)) == {
-        "source": "A Cool Repository",
-        "source_link": "https://geodata.libraries.mit.edu/record/abc:123",
-        "timdex_record_id": "cool-repo:123",
-        "title": "Test title 1",
-    }
-
-
 def test_aardvark_transform_returns_timdex_record(aardvark_records):
     aardvark = MITAardvark("cool-repo", aardvark_records)
     assert next(aardvark) == timdex.TimdexRecord(

@@ -56,34 +56,6 @@ class XMLTransformer(Transformer):
         """
         return self._transform(source_record)
 
-    @final
-    def get_required_fields(self, source_record: Tag) -> dict:
-        """
-        Get required TIMDEX fields from an XML record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single source record.
-        """
-        source_record_id = self.get_source_record_id(source_record)
-
-        # run methods to generate required fields
-        source_link = self.get_source_link(
-            self.source_base_url, source_record_id, source_record
-        )
-        timdex_record_id = self.get_timdex_record_id(
-            self.source, source_record_id, source_record
-        )
-        title = self.get_valid_title(source_record_id, source_record)
-
-        return {
-            "source": self.source_name,
-            "source_link": source_link,
-            "timdex_record_id": timdex_record_id,
-            "title": title,
-        }
-
     @classmethod
     def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
         """

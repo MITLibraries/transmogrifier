@@ -82,16 +82,6 @@ def test_xmltransformer_record_is_deleted_returns_false_if_not_deleted(caplog):
     assert XMLTransformer.record_is_deleted(next(source_records)) is False
 
 
-def test_xmltransformer_get_required_fields_returns_expected_values(oai_pmh_records):
-    transformer = XMLTransformer("cool-repo", oai_pmh_records)
-    assert transformer.get_required_fields(next(oai_pmh_records)) == {
-        "source": "A Cool Repository",
-        "source_link": "https://example.com/12345",
-        "timdex_record_id": "cool-repo:12345",
-        "title": "Title not provided",
-    }
-
-
 def test_xmltransformer_transform_returns_timdex_record(oai_pmh_records):
     transformer = XMLTransformer("cool-repo", oai_pmh_records)
     assert next(transformer) == timdex.TimdexRecord(
