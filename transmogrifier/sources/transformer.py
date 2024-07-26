@@ -21,7 +21,7 @@ from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
 from transmogrifier.helpers import generate_citation, validate_date
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     from bs4 import Tag  # type: ignore[import-untyped]
 
@@ -238,30 +238,26 @@ class Transformer(ABC):
             source_record: A single source record.
         """
         if self.record_is_deleted(source_record):
-            source_record_id = self.get_source_record_id(source_record)
-            timdex_record_id = self.get_timdex_record_id(
-                self.source, source_record_id, source_record
-            )
+            timdex_record_id = self.get_timdex_record_id(source_record)
             raise DeletedRecordEvent(timdex_record_id)
-        optional_fields = self.get_optional_fields(source_record)
-        if optional_fields is None:
-            return None
 
-        fields = {
-            **self.get_required_fields(source_record),
-            **optional_fields,
-        }
+        timdex_record = timdex.TimdexRecord(
+            source=self.source_name,
+            source_link=self.get_source_link(source_record),
+            timdex_record_id=self.get_timdex_record_id(source_record),
+            title=self.get_valid_title(source_record),
+        )
+        for field_name, field_method in self.get_optional_field_methods():
+            setattr(timdex_record, field_name, field_method(source_record))
+        self.generate_derived_fields(timdex_record)
 
-        fields = self.create_dates_and_locations_from_publishers(fields)
-        fields = self.create_locations_from_spatial_subjects(fields)
+        # # If citation field was not present, generate citation from other fields
+        if timdex_record.citation is None:
+            timdex_record.citation = generate_citation(timdex_record)
+        if timdex_record.content_type is None:
+            timdex_record.content_type = ["Not specified"]
 
-        # If citation field was not present, generate citation from other fields
-        if fields.get("citation") is None:
-            fields["citation"] = generate_citation(fields)
-        if fields.get("content_type") is None:
-            fields["content_type"] = ["Not specified"]
-
-        return timdex.TimdexRecord(**fields)
+        return timdex_record
 
     @abstractmethod
     def transform(
@@ -348,16 +344,30 @@ class Transformer(ABC):
             source_record: A single source record.
         """
 
-    def get_optional_fields(self, _source_record: dict[str, JSON] | Tag) -> dict | None:
+    @final
+    def get_optional_field_methods(self) -> Iterator[tuple[str, Callable]]:
         """
-        Retrieve optional TIMDEX fields from a source record.
+        Return optional TIMDEX field names and corresponding methods.
 
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A single source record.
+        May not be overridden.
         """
-        return {}
+        for field_name in [
+            field_name
+            for field_name in timdex.TimdexRecord.get_optional_field_names()
+            if hasattr(self, f"get_{field_name}")
+        ]:
+            yield field_name, getattr(self, f"get_{field_name}")
+
+    @final
+    def generate_derived_fields(
+        self, timdex_record: timdex.TimdexRecord
+    ) -> timdex.TimdexRecord:
+        """
+        Generate field values based on existing values in TIMDEX record.
+
+        May not be overridden.
+        """
+        return timdex_record
 
     @final
     @staticmethod
