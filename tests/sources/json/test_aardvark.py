@@ -513,7 +513,8 @@ def test_aardvark_get_rights_success():
         "The person with the rights",
         "Another person with the rights",
     ]
-    assert MITAardvark.get_rights(source_record, "source") == [
+    aardvark = MITAardvark("cool-repo", iter([source_record]))
+    assert aardvark.get_rights(source_record) == [
         timdex.Rights(description="Access note", kind="Access rights"),
         timdex.Rights(uri="http://license.license"),
         timdex.Rights(uri="http://another_license.another_license"),
@@ -527,7 +528,8 @@ def test_aardvark_get_rights_success():
 def test_aardvark_get_rights_mit_restricted_success():
     source_record = create_aardvark_source_record_stub()
     source_record["dct_accessRights_s"] = "Restricted"
-    assert MITAardvark.get_rights(source_record, "gismit") == [
+    aardvark = MITAardvark("gismit", iter([source_record]))
+    assert aardvark.get_rights(source_record) == [
         timdex.Rights(description="Restricted", kind="Access rights"),
         timdex.Rights(description="MIT authentication required", kind="Access to files"),
     ]
@@ -536,7 +538,8 @@ def test_aardvark_get_rights_mit_restricted_success():
 def test_aardvark_get_rights_mit_public_success():
     source_record = create_aardvark_source_record_stub()
     source_record["dct_accessRights_s"] = "Public"
-    assert MITAardvark.get_rights(source_record, "gismit") == [
+    aardvark = MITAardvark("gismit", iter([source_record]))
+    assert aardvark.get_rights(source_record) == [
         timdex.Rights(description="Public", kind="Access rights"),
         timdex.Rights(description="no authentication required", kind="Access to files"),
     ]
@@ -545,7 +548,8 @@ def test_aardvark_get_rights_mit_public_success():
 def test_aardvark_get_rights_external_restricted_success():
     source_record = create_aardvark_source_record_stub()
     source_record["dct_accessRights_s"] = "Restricted"
-    assert MITAardvark.get_rights(source_record, "gisogm") == [
+    aardvark = MITAardvark("gisogm", iter([source_record]))
+    assert aardvark.get_rights(source_record) == [
         timdex.Rights(description="Restricted", kind="Access rights"),
         timdex.Rights(
             description="unknown: check with owning institution", kind="Access to files"
@@ -556,7 +560,8 @@ def test_aardvark_get_rights_external_restricted_success():
 def test_aardvark_get_rights_external_public_success():
     source_record = create_aardvark_source_record_stub()
     source_record["dct_accessRights_s"] = "Public"
-    assert MITAardvark.get_rights(source_record, "gisogm") == [
+    aardvark = MITAardvark("gisogm", iter([source_record]))
+    assert aardvark.get_rights(source_record) == [
         timdex.Rights(description="Public", kind="Access rights"),
         timdex.Rights(
             description="unknown: check with owning institution", kind="Access to files"

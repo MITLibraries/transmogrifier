@@ -361,17 +361,16 @@ class MITAardvark(JSONTransformer):
     def get_provider(cls, source_record: dict) -> str | None:
         return source_record.get("schema_provider_s") or None
 
-    @classmethod
-    def get_rights(cls, source_record: dict, source: str) -> list[timdex.Rights] | None:
+    def get_rights(self, source_record: dict) -> list[timdex.Rights] | None:
         rights: list[timdex.Rights] = []
         kind_access_to_files = "Access to files"
-        rights.extend(cls._get_access_rights(source_record))
-        rights.extend(cls._get_license_rights(source_record))
-        rights.extend(cls._get_rights_and_rights_holders(source_record))
-        if source == "gisogm":
-            rights.extend(cls._get_gisogm_rights(kind_access_to_files))
-        elif source == "gismit":
-            rights.extend(cls._get_gismit_rights(source_record, kind_access_to_files))
+        rights.extend(self._get_access_rights(source_record))
+        rights.extend(self._get_license_rights(source_record))
+        rights.extend(self._get_rights_and_rights_holders(source_record))
+        if self.source == "gisogm":
+            rights.extend(self._get_gisogm_rights(kind_access_to_files))
+        elif self.source == "gismit":
+            rights.extend(self._get_gismit_rights(source_record, kind_access_to_files))
         return rights or None
 
     @classmethod
