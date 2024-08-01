@@ -123,14 +123,3 @@ class XMLTransformer(Transformer):
             source_record: A BeautifulSoup Tag representing a single XML record
         """
         return source_record.find("header", status="deleted") is not None
-
-    def get_optional_fields(self, _source_record: Tag) -> dict | None:
-        """
-        Retrieve optional TIMDEX fields from an XML record.
-
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record
-        """
-        return {}

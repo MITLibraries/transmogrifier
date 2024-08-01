@@ -1,6 +1,5 @@
 # ruff: noqa: PLR2004
 from pathlib import Path
-from unittest.mock import patch
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.datacite import Datacite
@@ -21,21 +20,6 @@ def test_xmltransformer_iterates_through_all_records(oai_pmh_records):
     assert output_records.processed_record_count == 3
     assert output_records.transformed_record_count == 2
     assert len(output_records.deleted_records) == 1
-
-
-def test_xmltransformer_iterates_successfully_if_get_optional_fields_returns_none(
-    oai_pmh_records,
-):
-    with patch(
-        "transmogrifier.sources.xmltransformer.XMLTransformer.get_optional_fields"
-    ) as m:
-        m.return_value = None
-        output_records = XMLTransformer("cool-repo", oai_pmh_records)
-        assert len(list(output_records)) == 0
-        assert output_records.processed_record_count == 3
-        assert output_records.skipped_record_count == 2
-        assert output_records.transformed_record_count == 0
-        assert len(output_records.deleted_records) == 1
 
 
 def test_xmltransformer_transform_and_write_output_files_writes_output_files(

@@ -111,14 +111,3 @@ class JSONTransformer(Transformer):
         Args:
             source_record: A JSON object representing a source record.
         """
-
-    def get_optional_fields(self, _source_record: dict[str, JSON]) -> dict | None:
-        """
-        Retrieve optional TIMDEX fields from a JSON record.
-
-        May be overridden by source subclasses.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-        return {}
