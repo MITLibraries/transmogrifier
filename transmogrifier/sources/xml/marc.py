@@ -125,9 +125,18 @@ class Marc(XMLTransformer):
         Create a list of values from the specified subfields of a
         datafield element.
 
+        Given an XML element with values from subfield code "a":
+
+            <datafield tag="<tag>">
+                <subfield code="a">value 1</subfield>
+                <subfield code="a">value 2</subfield>
+            </datafield>
+
+        The method returns the output: [value 1, value2].
+
         Args:
             xml_element: A BeautifulSoup Tag representing a single MARC XML element.
-            subfield_codes: The codes of the subfields to extract.
+            subfield_codes: Subfield codes from which values are extracted.
         """
         return [
             str(subfield.string)
@@ -142,12 +151,23 @@ class Marc(XMLTransformer):
         separator: str = "",
     ) -> str:
         """
-        Create a joined string from a list of subfield values from datafield XML element.
+        Create a string by joining a list of subfield values from a
+        datafield element.
+
+        For example, given an XML element with values from subfield codes "ab"
+        and using separator = " - ":
+
+            <datafield tag="<tag>">
+                <subfield code="a">value 1</subfield>
+                <subfield code="b">value 2</subfield>
+            </datafield>
+
+        The method returns the output: "value 1 - value 2".
 
         Args:
             xml_element: A BeautifulSoup Tag representing a single MARC XML element.
-            subfield_codes: The codes of the subfields to extract.
-            separator: An optional separator string to use when joining values.
+            subfield_codes: Subfield codes from which values are extracted.
+            separator: String value used for joining values.
         """
         return separator.join(
             Marc.create_subfield_value_list_from_datafield(xml_element, subfield_codes)
@@ -157,6 +177,32 @@ class Marc(XMLTransformer):
     def concatenate_subfield_value_strings_from_datafield(
         cls, source_record: Tag, tag: str, subfield_codes: str
     ) -> str:
+        """
+        Create a string by joining a list of subfield value strings
+        from a datafield element.
+
+        For example, given an XML element with values from subfield codes "ab"
+        and using separator = " - ":
+
+            <datafield tag="<tag">
+                <subfield code="a">value 1</subfield>
+                <subfield code="b">value 2</subfield>
+            </datafield>
+            <datafield tag="<tag>">
+                <subfield code="a">value 3</subfield>
+                <subfield code="a">value 4</subfield>
+            </datafield>
+
+        the method returns the output: "value 1 value 2 value 3 value 4".
+
+        Args:
+            source_record (Tag): A BeautifulSoup Tag representing a single
+                MARC XML record.
+            tag (str): Variable data field tag which is denoted in the "tag"
+                attribute of a MARC 'datafield' XML element.
+            subfield_codes (str): Subfield codes from which values are
+                extracted.
+        """
         return " ".join(
             cls.create_subfield_value_string_from_datafield(
                 datafield, subfield_codes, " "
@@ -167,18 +213,20 @@ class Marc(XMLTransformer):
     @staticmethod
     def get_single_subfield_string(xml_element: Tag, subfield_code: str) -> str | None:
         """
-        Get the string value of a <subfield> element with specified code(s).
+        Get the string value of a subfield element for a specified code.
 
-        Finds and returns the string value of a single <subfield> element if the
+        Finds and returns the string value of a single subfield element if the
         element contains a string. This uses bs4's find() method and thus will return
-        only the string value from the first <subfield> element matching the criteria.
-
-        Returns None if no matching <subfield> element containing a string is found, or
-        if the matching element's string value is only whitespace.
+        only the string value from the first subfield element matching the criteria.
 
         Args:
             xml_element: A BeautifulSoup Tag representing a single MARC XML element.
-            subfield_code: The code attribute of the subfields to extract.
+            subfield_code: Subfield code from which a single value is extracted.
+
+        Returns:
+            str | None: If a matching subfield element containing a string is found
+                and the value is not only whitespace, the string value is returned;
+                else None is returned.
         """
         if subfield := xml_element.find("subfield", code=subfield_code, string=True):
             return str(subfield.string).strip() or None
@@ -189,14 +237,18 @@ class Marc(XMLTransformer):
         code: str, crosswalk: dict, record_id: str, field_name: str
     ) -> str | None:
         """
-        Retrieve the name associated with a given code from a JSON crosswalk. Logs a
-        message and returns None if the code isn't found in the crosswalk.
+        Retrieve the name associated with a given code from a JSON crosswalk.
+        If the code is not found in the crosswalk, a DEBUG message is logged.
 
         Args:
             code: The code from a MARC record.
             crosswalk: The crosswalk dict to use, loaded from a config file.
             record_id: The MMS ID of the MARC record.
             field_name: The MARC field containing the code.
+
+        Returns:
+            str | None: If a mapping for the code is found in the crosswalk, the
+                mapped value is returned; else None is returned.
         """
         name = crosswalk.get(code)
         if name is None:
@@ -212,14 +264,18 @@ class Marc(XMLTransformer):
     ) -> str | None:
         """
         Retrieve the name associated with a given code from a Library of Congress XML
-        code crosswalk. Logs a message and returns None if the code isn't found in the
-        crosswalk. Logs a message and returns the name if the code is obsolete.
+        code crosswalk. If the code is obsolete or the code is not found in the crosswalk,
+        a DEBUG message is logged.
 
         Args:
             code: The code from a MARC record.
             crosswalk: The crosswalked bs4 Tag to use, loaded from a config file.
             record_id: The MMS ID of the MARC record.
             code_type: The type of code, e.g. country or language.
+
+        Returns:
+            str | None: If a mapping for the code is found in the crosswalk, the
+                mapped value is returned; else None is returned.
         """
         code_element = crosswalk.find("code", string=code)
         if code_element is None:
@@ -256,48 +312,26 @@ class Marc(XMLTransformer):
     ) -> list[timdex.AlternateTitle] | None:
         alternate_titles = []
         alternate_title_marc_fields = [
-            {
-                "tag": "130",
-                "subfields": "adfghklmnoprst",
-                "kind": "Preferred Title",
-            },
-            {
-                "tag": "240",
-                "subfields": "adfghklmnoprs",
-                "kind": "Preferred Title",
-            },
-            {
-                "tag": "246",
-                "subfields": "abfghinp",
-                "kind": "Varying Form of Title",
-            },
-            {
-                "tag": "730",
-                "subfields": "adfghiklmnoprst",
-                "kind": "Preferred Title",
-            },
-            {
-                "tag": "740",
-                "subfields": "anp",
-                "kind": "Uncontrolled Related/Analytical Title",
-            },
+            ("130", "adfghklmnoprst", "Preferred Title"),
+            ("240", "adfghklmnoprs", "Preferred Title"),
+            ("246", "abfghinp", "Varying Form of Title"),
+            ("730", "adfghiklmnoprst", "Preferred Title"),
+            ("740", "anp", "Uncontrolled Related/Analytical Title"),
         ]
-        for alternate_title_marc_field in alternate_title_marc_fields:
+        for tag, subfield_codes, kind in alternate_title_marc_fields:
             alternate_titles.extend(
                 [
                     timdex.AlternateTitle(
                         value=alternate_title_value.rstrip(" .,/"),
-                        kind=alternate_title_marc_field["kind"],
+                        kind=kind,
                     )
-                    for datafield in source_record.find_all(
-                        "datafield", tag=alternate_title_marc_field["tag"]
-                    )
+                    for datafield in source_record.find_all("datafield", tag=tag)
                     if (
                         alternate_title_value := (
                             cls.create_subfield_value_string_from_datafield(
-                                datafield,
-                                alternate_title_marc_field["subfields"],
-                                " ",
+                                xml_element=datafield,
+                                subfield_codes=subfield_codes,
+                                separator=" ",
                             )
                         )
                     )
@@ -375,41 +409,21 @@ class Marc(XMLTransformer):
         contributors: list = []
         contributors_dict = defaultdict(set)
         contributor_marc_fields = [
-            {
-                "tag": "100",
-                "subfields": "abcq",
-            },
-            {
-                "tag": "110",
-                "subfields": "abc",
-            },
-            {
-                "tag": "111",
-                "subfields": "acdfgjq",
-            },
-            {
-                "tag": "700",
-                "subfields": "abcq",
-            },
-            {
-                "tag": "710",
-                "subfields": "abc",
-            },
-            {
-                "tag": "711",
-                "subfields": "acdfgjq",
-            },
+            ("100", "abcq"),
+            ("110", "abc"),
+            ("111", "acdfgjq"),
+            ("700", "abcq"),
+            ("710", "abc"),
+            ("711", "acdfgjq"),
         ]
 
-        for contributor_marc_field in contributor_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=contributor_marc_field["tag"]
-            ):
+        for tag, subfields in contributor_marc_fields:
+            for datafield in source_record.find_all("datafield", tag=tag):
                 if contributor_name := (
                     cls.create_subfield_value_string_from_datafield(
-                        datafield,
-                        contributor_marc_field["subfields"],
-                        " ",
+                        xml_element=datafield,
+                        subfield_codes=subfields,
+                        separator=" ",
                     )
                 ):
                     contributor_name = contributor_name.rstrip(" .,")
@@ -444,7 +458,7 @@ class Marc(XMLTransformer):
             for datafield in source_record.find_all("datafield", tag="250")
             if (
                 edition_value := cls.create_subfield_value_string_from_datafield(
-                    datafield, "ab", " "
+                    xml_element=datafield, subfield_codes="ab", separator=" "
                 )
             )
         ]
@@ -531,48 +545,26 @@ class Marc(XMLTransformer):
     def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
         identifiers = []
         identifier_marc_fields = [
-            {
-                "tag": "010",
-                "subfields": "a",
-                "kind": "LCCN",
-            },
-            {
-                "tag": "020",
-                "subfields": "aq",
-                "kind": "ISBN",
-            },
-            {
-                "tag": "022",
-                "subfields": "a",
-                "kind": "ISSN",
-            },
-            {
-                "tag": "024",
-                "subfields": "aq2",
-                "kind": "Other Identifier",
-            },
-            {
-                "tag": "035",
-                "subfields": "a",
-                "kind": "OCLC Number",
-            },
+            ("010", "a", "LCCN"),
+            ("020", "aq", "ISBN"),
+            ("022", "a", "ISSN"),
+            ("024", "aq2", "Other Identifier"),
+            ("035", "a", "OCLC Number"),
         ]
-        for identifier_marc_field in identifier_marc_fields:
+        for tag, subfields, kind in identifier_marc_fields:
             identifiers.extend(
                 [
                     timdex.Identifier(
                         value=identifier.strip().replace("(OCoLC)", ""),
-                        kind=identifier_marc_field["kind"],
+                        kind=kind,
                     )
-                    for datafield in source_record.find_all(
-                        "datafield", tag=identifier_marc_field["tag"]
-                    )
+                    for datafield in source_record.find_all("datafield", tag=tag)
                     if (
                         identifier := (
                             cls.create_subfield_value_string_from_datafield(
-                                datafield,
-                                identifier_marc_field["subfields"],
-                                ". ",
+                                xml_element=datafield,
+                                subfield_codes=subfields,
+                                separator=". ",
                             )
                         )
                     )
@@ -609,10 +601,10 @@ class Marc(XMLTransformer):
             for language_code in list(dict.fromkeys(language_codes))
             if (
                 language_name := cls.loc_crosswalk_code_to_name(
-                    language_code,
-                    cls.language_code_crosswalk,
-                    cls.get_source_record_id(source_record),
-                    "language",
+                    code=language_code,
+                    crosswalk=cls.language_code_crosswalk,
+                    record_id=cls.get_source_record_id(source_record),
+                    code_type="language",
                 )
             )
         ]
@@ -692,38 +684,28 @@ class Marc(XMLTransformer):
     def get_locations(cls, source_record: Tag) -> list[timdex.Location] | None:
         locations = []
         location_marc_fields = [
-            {
-                "tag": "751",
-                "subfields": "a",
-                "kind": "Geographic Name",
-            },
-            {
-                "tag": "752",
-                "subfields": "abcdefgh",
-                "kind": "Hierarchical Place Name",
-            },
+            ("751", "a", "Geographic Name"),
+            ("752", "abcdefgh", "Hierarchical Place Name"),
         ]
         # get locations (place of publication) from control field 008/15-17
         if place_of_publication := cls._get_location_publication(source_record):
             locations.append(place_of_publication)
 
         # get locations from data fields
-        for location_marc_field in location_marc_fields:
+        for tag, subfields, kind in location_marc_fields:
             locations.extend(
                 [
                     timdex.Location(
                         value=location_value.rstrip(" .,/)"),
-                        kind=location_marc_field["kind"],
+                        kind=kind,
                     )
-                    for datafield in source_record.find_all(
-                        "datafield", tag=location_marc_field["tag"]
-                    )
+                    for datafield in source_record.find_all("datafield", tag=tag)
                     if (
                         location_value := (
                             cls.create_subfield_value_string_from_datafield(
-                                datafield,
-                                location_marc_field["subfields"],
-                                " - ",
+                                xml_element=datafield,
+                                subfield_codes=subfields,
+                                separator=" - ",
                             )
                         )
                     )
@@ -750,83 +732,37 @@ class Marc(XMLTransformer):
     def get_notes(cls, source_record: Tag) -> list[timdex.Note] | None:
         notes = []
         note_marc_fields = [
-            {
-                "tag": "245",
-                "subfields": "c",
-                "kind": "Title Statement of Responsibility",
-            },
-            {
-                "tag": "500",
-                "subfields": "a",
-                "kind": "General Note",
-            },
-            {
-                "tag": "502",
-                "subfields": "abcdg",
-                "kind": "Dissertation Note",
-            },
-            {
-                "tag": "504",
-                "subfields": "a",
-                "kind": "Bibliography Note",
-            },
-            {
-                "tag": "508",
-                "subfields": "a",
-                "kind": "Creation/Production Credits Note",
-            },
-            {
-                "tag": "511",
-                "subfields": "a",
-                "kind": "Participant or Performer Note",
-            },
-            {
-                "tag": "515",
-                "subfields": "a",
-                "kind": "Numbering Peculiarities Note",
-            },
-            {
-                "tag": "522",
-                "subfields": "a",
-                "kind": "Geographic Coverage Note",
-            },
-            {
-                "tag": "533",
-                "subfields": "abcdefmn",
-                "kind": "Reproduction Note",
-            },
-            {
-                "tag": "534",
-                "subfields": "abcefklmnoptxz",
-                "kind": "Original Version Note",
-            },
-            {
-                "tag": "588",
-                "subfields": "a",
-                "kind": "Source of Description Note",
-            },
-            {
-                "tag": "590",
-                "subfields": "a",
-                "kind": "Local Note",
-            },
+            ("245", "c", "Title Statement of Responsibility"),
+            ("500", "a", "General Note"),
+            ("502", "abcdg", "Dissertation Note"),
+            ("504", "a", "Bibliography Note"),
+            (
+                "508",
+                "a",
+                "Creation/Production Credits Note",
+            ),
+            ("511", "a", "Participant or Performer Note"),
+            ("515", "a", "Numbering Peculiarities Note"),
+            ("522", "a", "Geographic Coverage Note"),
+            ("533", "abcdefmn", "Reproduction Note"),
+            ("534", "abcefklmnoptxz", "Original Version Note"),
+            ("588", "a", "Source of Description Note"),
+            ("590", "a", "Local Note"),
         ]
-        for note_marc_field in note_marc_fields:
+        for tag, subfields, kind in note_marc_fields:
             notes.extend(
                 [
                     timdex.Note(
                         value=[note_value.rstrip(" .")],
-                        kind=note_marc_field["kind"],
+                        kind=kind,
                     )
-                    for datafield in source_record.find_all(
-                        "datafield", tag=note_marc_field["tag"]
-                    )
+                    for datafield in source_record.find_all("datafield", tag=tag)
                     if (
                         note_value := (
                             cls.create_subfield_value_string_from_datafield(
-                                datafield,
-                                note_marc_field["subfields"],
-                                " ",
+                                xml_element=datafield,
+                                subfield_codes=subfields,
+                                separator=" ",
                             )
                         )
                     )
@@ -859,7 +795,9 @@ class Marc(XMLTransformer):
             for datafield in source_record.find_all("datafield", tag="310")
             if (
                 publication_frequency_value := (
-                    cls.create_subfield_value_string_from_datafield(datafield, "a", " ")
+                    cls.create_subfield_value_string_from_datafield(
+                        xml_element=datafield, subfield_codes="a", separator=" "
+                    )
                 )
             )
         ] or None
@@ -895,63 +833,29 @@ class Marc(XMLTransformer):
     def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
         related_items = []
         related_item_marc_fields = [
-            {
-                "tag": "765",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Original Language Version",
-            },
-            {
-                "tag": "770",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Has Supplement",
-            },
-            {
-                "tag": "772",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Supplement To",
-            },
-            {
-                "tag": "780",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Previous Title",
-            },
-            {
-                "tag": "785",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Subsequent Title",
-            },
-            {
-                "tag": "787",
-                "subfields": "abcdghikmnorstuwxyz",
-                "relationship": "Not Specified",
-            },
-            {
-                "tag": "830",
-                "subfields": "adfghklmnoprstvwx",
-                "relationship": "In Series",
-            },
-            {
-                "tag": "510",
-                "subfields": "abcx",
-                "relationship": "In Bibliography",
-            },
+            ("765", "abcdghikmnorstuwxyz", "Original Language Version"),
+            ("770", "abcdghikmnorstuwxyz", "Has Supplement"),
+            ("772", "abcdghikmnorstuwxyz", "Supplement To"),
+            ("780", "abcdghikmnorstuwxyz", "Previous Title"),
+            ("785", "abcdghikmnorstuwxyz", "Subsequent Title"),
+            ("787", "abcdghikmnorstuwxyz", "Not Specified"),
+            ("830", "adfghklmnoprstvwx", "In Series"),
+            ("510", "abcx", "In Bibliography"),
         ]
-        for related_item_marc_field in related_item_marc_fields:
+        for tag, subfields, relationship in related_item_marc_fields:
             related_items.extend(
                 [
                     timdex.RelatedItem(
                         description=related_item_value.rstrip(" ."),
-                        relationship=related_item_marc_field["relationship"],
+                        relationship=relationship,
                     )
-                    for datafield in source_record.find_all(
-                        "datafield", tag=related_item_marc_field["tag"]
-                    )
+                    for datafield in source_record.find_all("datafield", tag=tag)
                     if (
                         related_item_value := (
                             cls.create_subfield_value_string_from_datafield(
-                                datafield,
-                                related_item_marc_field["subfields"],
-                                " ",
+                                xml_element=datafield,
+                                subfield_codes=subfields,
+                                separator=" ",
                             )
                         )
                     )
@@ -963,43 +867,25 @@ class Marc(XMLTransformer):
     def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
         subjects = []
         subject_marc_fields = [
-            {
-                "tag": "600",
-                "subfields": "abcdefghjklmnopqrstuvxyz",
-                "kind": "Personal Name",
-            },
-            {
-                "tag": "610",
-                "subfields": "abcdefghklmnoprstuvxyz",
-                "kind": "Corporate Name",
-            },
-            {
-                "tag": "650",
-                "subfields": "avxyz",
-                "kind": "Topical Term",
-            },
-            {
-                "tag": "651",
-                "subfields": "avxyz",
-                "kind": "Geographic Name",
-            },
+            ("600", "abcdefghjklmnopqrstuvxyz", "Personal Name"),
+            ("610", "abcdefghklmnoprstuvxyz", "Corporate Name"),
+            ("650", "avxyz", "Topical Term"),
+            ("651", "avxyz", "Geographic Name"),
         ]
-        for subject_marc_field in subject_marc_fields:
+        for tag, subfields, kind in subject_marc_fields:
             subjects.extend(
                 [
                     timdex.Subject(
                         value=[subject_value.rstrip(" .")],
-                        kind=subject_marc_field["kind"],
+                        kind=kind,
                     )
-                    for datafield in source_record.find_all(
-                        "datafield", tag=subject_marc_field["tag"]
-                    )
+                    for datafield in source_record.find_all("datafield", tag=tag)
                     if (
                         subject_value := (
                             cls.create_subfield_value_string_from_datafield(
-                                datafield,
-                                subject_marc_field["subfields"],
-                                " - ",
+                                xml_element=datafield,
+                                subfield_codes=subfields,
+                                separator=" - ",
                             )
                         )
                     )
@@ -1014,58 +900,61 @@ class Marc(XMLTransformer):
             for datafield in source_record.find_all("datafield", tag="520")
             if (
                 summary_value := cls.create_subfield_value_string_from_datafield(
-                    datafield, "a", " "
+                    xml_element=datafield, subfield_codes="a", separator=" "
                 )
             )
         ] or None
 
-    @staticmethod
-    def get_main_titles(xml: Tag) -> list[str]:
+    @classmethod
+    def get_main_titles(cls, source_record: Tag) -> list[str]:
         """
         Retrieve main title(s) from a MARC XML record.
 
         Overrides metaclass get_main_titles() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single MARC XML record.
+            source_record: A BeautifulSoup Tag representing a single MARC XML record.
         """
         try:
             main_title_values = []
-            if main_title_value := Marc.create_subfield_value_string_from_datafield(
-                xml.find("datafield", tag="245"), "abfgknps", " "
+            if main_title_value := cls.create_subfield_value_string_from_datafield(
+                xml_element=source_record.find("datafield", tag="245"),
+                subfield_codes="abfgknps",
+                separator=" ",
             ):
                 main_title_values.append(main_title_value.rstrip(" .,/"))
         except AttributeError:
             logger.exception(
-                "Record ID %s is missing a 245 field", Marc.get_source_record_id(xml)
+                "Record ID %s is missing a 245 field",
+                cls.get_source_record_id(source_record),
             )
             return []
         else:
             return main_title_values
 
-    @staticmethod
-    def get_source_record_id(xml: Tag) -> str:
+    @classmethod
+    def get_source_record_id(cls, source_record: Tag) -> str:
         """
         Get the source record ID from a MARC XML record.
 
         Overrides metaclass get_source_record_id() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single MARC XML record.
+            source_record: A BeautifulSoup Tag representing a single MARC XML record.
         """
-        return str(xml.find("controlfield", tag="001", string=True).string)
+        return str(source_record.find("controlfield", tag="001", string=True).string)
 
     @classmethod
-    def record_is_deleted(cls, xml: Tag) -> bool:
+    def record_is_deleted(cls, source_record: Tag) -> bool:
         """
         Determine whether record has a status of deleted.
 
         Overrides metaclass record_is_deleted() method.
 
         Args:
-            xml: A BeautifulSoup Tag representing a single MARC XML record
+            source_record: A BeautifulSoup Tag representing a single MARC XML record
         """
-        if leader := xml.find("leader", string=True):  # noqa: SIM102
+        if leader := source_record.find("leader", string=True):  # noqa: SIM102
             if leader.string[5:6] == "d":
                 return True
         return False
