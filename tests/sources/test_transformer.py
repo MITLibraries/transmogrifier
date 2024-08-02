@@ -28,43 +28,39 @@ def test_transformer_get_transformer_source_wrong_module_path_raises_error():
         Transformer.get_transformer("bad-module-path")
 
 
-def test_create_dates_and_locations_from_publishers_success(
-    timdex_record_required_fields,
-):
-    assert timdex_record_required_fields.dates is None
-    assert timdex_record_required_fields.locations is None
+def test_create_dates_from_publishers_success(timdex_record_required_fields):
     timdex_record_required_fields.publishers = [
         timdex.Publisher(name="Publisher", date="2018", location="Location")
     ]
-    timdex_record = Transformer.create_dates_and_locations_from_publishers(
-        timdex_record_required_fields
-    )
-    assert timdex_record.dates == [timdex.Date(kind="Publication date", value="2018")]
-    assert timdex_record.locations == [
-        timdex.Location(value="Location", kind="Place of Publication")
-    ]
+    assert list(
+        Transformer.create_dates_from_publishers(timdex_record_required_fields)
+    ) == [timdex.Date(kind="Publication date", value="2018")]
 
 
-def test_create_dates_and_locations_from_publishers_drops_unparseable_dates(
+def test_create_dates_from_publishers_drops_unparseable_dates(
     caplog, timdex_record_required_fields
 ):
     caplog.set_level("DEBUG")
-    assert timdex_record_required_fields.dates is None
-    assert timdex_record_required_fields.locations is None
     timdex_record_required_fields.publishers = [
         timdex.Publisher(name="Publisher", date="Date", location="Location")
     ]
-    timdex_record = Transformer.create_dates_and_locations_from_publishers(
-        timdex_record_required_fields
+    assert (
+        list(Transformer.create_dates_from_publishers(timdex_record_required_fields))
+        == []
     )
-    assert timdex_record.dates is None
-    assert timdex_record.locations == [
-        timdex.Location(value="Location", kind="Place of Publication")
-    ]
     assert (
         "Record ID 'cool-repo:123' has a date that couldn't be parsed: 'Date'"
         in caplog.text
     )
+
+
+def test_create_locations_from_publishers_success(timdex_record_required_fields):
+    timdex_record_required_fields.publishers = [
+        timdex.Publisher(name="Publisher", date="2018", location="Location")
+    ]
+    assert list(
+        Transformer.create_locations_from_publishers(timdex_record_required_fields)
+    ) == [timdex.Location(value="Location", kind="Place of Publication")]
 
 
 def test_create_locations_from_spatial_subjects_success(timdex_record_required_fields):
@@ -72,15 +68,9 @@ def test_create_locations_from_spatial_subjects_success(timdex_record_required_f
         timdex.Subject(value=["Some city, Some country"], kind="Dublin Core; Spatial"),
         timdex.Subject(value=["City 1", "City 2"], kind="Dublin Core; Spatial"),
     ]
-    assert timdex_record_required_fields.locations is None
-    timdex_record = Transformer.create_locations_from_spatial_subjects(
-        timdex_record_required_fields
-    )
-    assert timdex_record.subjects == [
-        timdex.Subject(value=["Some city, Some country"], kind="Dublin Core; Spatial"),
-        timdex.Subject(value=["City 1", "City 2"], kind="Dublin Core; Spatial"),
-    ]
-    assert timdex_record.locations == [
+    assert list(
+        Transformer.create_locations_from_spatial_subjects(timdex_record_required_fields)
+    ) == [
         timdex.Location(value="Some city, Some country", kind="Place Name"),
         timdex.Location(value="City 1", kind="Place Name"),
         timdex.Location(value="City 2", kind="Place Name"),

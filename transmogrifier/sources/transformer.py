@@ -351,8 +351,21 @@ class Transformer(ABC):
 
         May not be overridden.
         """
-        self.create_dates_and_locations_from_publishers(timdex_record)
-        self.create_locations_from_spatial_subjects(timdex_record)
+        derived_dates = list(self.create_dates_from_publishers(timdex_record))
+        if not timdex_record.dates:
+            timdex_record.dates = derived_dates if derived_dates else None
+        else:
+            timdex_record.dates.extend(derived_dates)
+
+        derived_locations: list[timdex.Location] = []
+        derived_locations.extend(self.create_locations_from_publishers(timdex_record))
+        derived_locations.extend(
+            self.create_locations_from_spatial_subjects(timdex_record)
+        )
+        if not timdex_record.locations:
+            timdex_record.locations = derived_locations if derived_locations else None
+        else:
+            timdex_record.locations.extend(derived_locations)
 
         if timdex_record.citation is None:
             timdex_record.citation = generate_citation(timdex_record)
@@ -363,63 +376,55 @@ class Transformer(ABC):
 
     @final
     @staticmethod
-    def create_dates_and_locations_from_publishers(
+    def create_dates_from_publishers(
         timdex_record: timdex.TimdexRecord,
-    ) -> timdex.TimdexRecord:
-        """Add Date and Location objects based on data in publishers field.
+    ) -> Iterator[timdex.Date]:
+        """Derive Date objects based on data in publishers field.
 
         Args:
             timdex_record: A TimdexRecord class instance.
         """
-        if not timdex_record.publishers:
-            return timdex_record
+        if timdex_record.publishers:
+            for publisher in timdex_record.publishers:
+                if publisher.date and validate_date(
+                    publisher.date, timdex_record.timdex_record_id
+                ):
+                    yield timdex.Date(kind="Publication date", value=publisher.date)
 
-        for publisher in timdex_record.publishers:
-            if publisher.date and validate_date(
-                publisher.date, timdex_record.timdex_record_id
-            ):
-                publisher_date = timdex.Date(
-                    kind="Publication date", value=publisher.date
-                )
-                if not timdex_record.dates:
-                    timdex_record.dates = [publisher_date]
-                elif publisher_date not in timdex_record.dates:
-                    timdex_record.dates.append(publisher_date)
+    @final
+    @staticmethod
+    def create_locations_from_publishers(
+        timdex_record: timdex.TimdexRecord,
+    ) -> Iterator[timdex.Location]:
+        """Derive Location objects based on data in publishers field.
 
-            if publisher.location:
-                publisher_location = timdex.Location(
-                    kind="Place of Publication", value=publisher.location
-                )
-                if not timdex_record.locations:
-                    timdex_record.locations = [publisher_location]
-                elif publisher_location not in timdex_record.locations:
-                    timdex_record.locations.append(publisher_location)
-        return timdex_record
+        Args:
+            timdex_record: A TimdexRecord class instance.
+        """
+        if timdex_record.publishers:
+            for publisher in timdex_record.publishers:
+                if publisher.location:
+                    yield timdex.Location(
+                        kind="Place of Publication", value=publisher.location
+                    )
 
     @final
     @staticmethod
     def create_locations_from_spatial_subjects(
         timdex_record: timdex.TimdexRecord,
-    ) -> timdex.TimdexRecord:
-        """Add Location objects for spatial subjects.
+    ) -> Iterator[timdex.Location]:
+        """Derive Location objects from a TimdexRecord's spatial subjects.
 
         Args:
            timdex_record: A TimdexRecord class instance.
         """
-        if not timdex_record.subjects:
-            return timdex_record
+        if timdex_record.subjects:
+            spatial_subjects = [
+                subject
+                for subject in timdex_record.subjects
+                if subject.kind == "Dublin Core; Spatial" and subject.value is not None
+            ]
 
-        spatial_subjects = [
-            subject
-            for subject in timdex_record.subjects
-            if subject.kind == "Dublin Core; Spatial" and subject.value is not None
-        ]
-
-        for subject in spatial_subjects:
-            for place_name in subject.value:
-                subject_location = timdex.Location(value=place_name, kind="Place Name")
-                if not timdex_record.locations:
-                    timdex_record.locations = [subject_location]
-                elif subject_location not in timdex_record.locations:
-                    timdex_record.locations.append(subject_location)
-        return timdex_record
+            for subject in spatial_subjects:
+                for place_name in subject.value:
+                    yield timdex.Location(value=place_name, kind="Place Name")
