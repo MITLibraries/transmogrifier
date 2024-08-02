@@ -101,7 +101,7 @@ class DspaceMets(XMLTransformer):
         return file_formats or None
 
     @classmethod
-    def get_format(cls, _source_record: Tag) -> str:
+    def get_format(cls, _source_record: Tag | None = None) -> str:
         return "electronic resource"
 
     @classmethod

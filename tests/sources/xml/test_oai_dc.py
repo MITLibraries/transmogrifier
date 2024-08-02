@@ -105,7 +105,7 @@ def test_oaidc_transform_with_optional_fields_missing_transforms_correctly():
 
 
 def test_get_content_type_success():
-    assert OaiDc("cool-repo", iter(())).get_content_type("") == ["cool-repo"]
+    assert OaiDc("cool-repo", iter(())).get_content_type() == ["cool-repo"]
 
 
 def test_get_content_type_raises_key_error_if_source_blank():

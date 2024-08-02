@@ -18,7 +18,7 @@ class OaiDc(XMLTransformer):
     anticipated this will most likely get extended by a source-specific transformer.
     """
 
-    def get_content_type(self, _source_record: Tag) -> list[str]:
+    def get_content_type(self, _source_record: Tag | None = None) -> list[str]:
         return [self.source]
 
     @classmethod
@@ -49,7 +49,7 @@ class OaiDc(XMLTransformer):
         return dates or None
 
     @classmethod
-    def get_format(cls, _source_record: Tag) -> str:
+    def get_format(cls, _source_record: Tag | None = None) -> str:
         return "electronic resource"
 
     @classmethod

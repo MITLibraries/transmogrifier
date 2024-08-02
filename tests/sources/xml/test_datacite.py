@@ -609,7 +609,7 @@ def test_get_file_formats_transforms_correctly_if_fields_missing():
 
 
 def test_get_format_success():
-    assert Datacite.get_format({}) == "electronic resource"
+    assert Datacite.get_format() == "electronic resource"
 
 
 def test_get_funding_information_success():
