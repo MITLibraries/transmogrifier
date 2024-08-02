@@ -248,7 +248,11 @@ class Transformer(ABC):
             title=self.get_valid_title(source_record),
         )
         for field_name, field_method in self.get_optional_field_methods():
-            setattr(timdex_record, field_name, field_method(source_record))
+            try:
+                setattr(timdex_record, field_name, field_method(source_record))
+            except:  # noqa: E722
+                logger.exception("Exception occurred while setting '%s'", field_name)
+                raise SkippedRecordEvent from None
 
         self.generate_derived_fields(timdex_record)
 
