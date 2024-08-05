@@ -15,8 +15,6 @@ from transmogrifier.sources.transformer import Transformer
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    import transmogrifier.models as timdex
-
 
 class XMLTransformer(Transformer):
     """XML transformer class."""
@@ -43,18 +41,6 @@ class XMLTransformer(Transformer):
                 record = BeautifulSoup(record_string, "xml")
                 yield record
                 element.clear()
-
-    @final
-    def transform(self, source_record: Tag) -> timdex.TimdexRecord | None:
-        """
-        Call Transformer._transform method to transform XML record to TIMDEX record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single XML record.
-        """
-        return self._transform(source_record)
 
     @classmethod
     def get_main_titles(cls, _source_record: Tag) -> list[Tag]:

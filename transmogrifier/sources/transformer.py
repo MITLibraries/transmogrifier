@@ -72,9 +72,6 @@ class Transformer(ABC):
             except SkippedRecordEvent:
                 self.skipped_record_count += 1
                 continue
-            if not record:
-                self.skipped_record_count += 1
-                continue
             self.transformed_record_count += 1
             return record
 
@@ -225,12 +222,13 @@ class Transformer(ABC):
         """
 
     @final
-    def _transform(
-        self, source_record: dict[str, JSON] | Tag
-    ) -> timdex.TimdexRecord | None:
+    def transform(self, source_record: dict[str, JSON] | Tag) -> timdex.TimdexRecord:
         """
-        Private method called for both XML and JSON transformations, where
-        all logic is shared except source_record type.
+        Transform source record into TimdexRecord instance.
+
+        Instantiates a TimdexRecord instance with required fields and runs fields methods
+        for optional fields. The optional field methods return values or exceptions that
+        prompt the __next__ method to skip the entire record.
 
         May not be overridden.
 
@@ -247,29 +245,13 @@ class Transformer(ABC):
             timdex_record_id=self.get_timdex_record_id(source_record),
             title=self.get_valid_title(source_record),
         )
+
         for field_name, field_method in self.get_optional_field_methods():
-            try:
-                setattr(timdex_record, field_name, field_method(source_record))
-            except:  # noqa: E722
-                logger.exception("Exception occurred while setting '%s'", field_name)
-                raise SkippedRecordEvent from None
+            setattr(timdex_record, field_name, field_method(source_record))
 
         self.generate_derived_fields(timdex_record)
 
         return timdex_record
-
-    @abstractmethod
-    def transform(
-        self, source_record: dict[str, JSON] | Tag
-    ) -> timdex.TimdexRecord | None:
-        """
-        Call Transformer._transform method to transform source record to TIMDEX record.
-
-        Must be overridden by format subclasses.
-
-        Args:
-            source_record: A single source record.
-        """
 
     @classmethod
     @abstractmethod
@@ -339,12 +321,10 @@ class Transformer(ABC):
 
         May not be overridden.
         """
-        for field_name in [
-            field_name
-            for field_name in timdex.TimdexRecord.get_optional_field_names()
-            if hasattr(self, f"get_{field_name}")
-        ]:
-            yield field_name, getattr(self, f"get_{field_name}")
+        for field_name in timdex.TimdexRecord.get_optional_field_names():
+            field_method = getattr(self, f"get_{field_name}", None)
+            if field_method:
+                yield field_name, getattr(self, f"get_{field_name}")
 
     @final
     def generate_derived_fields(
@@ -353,28 +333,34 @@ class Transformer(ABC):
         """
         Generate field values based on existing values in TIMDEX record.
 
+        This method sets or extends the following fields:
+            - dates: list[Date]
+            - locations: list[Location]
+            - citation: str
+            - content_type: str
+
         May not be overridden.
         """
-        derived_dates = list(self.create_dates_from_publishers(timdex_record))
-        if not timdex_record.dates:
-            timdex_record.dates = derived_dates if derived_dates else None
-        else:
-            timdex_record.dates.extend(derived_dates)
+        # dates
+        derived_dates = timdex_record.dates or []
+        derived_dates.extend(self.create_dates_from_publishers(timdex_record))
+        timdex_record.dates = derived_dates or None
 
-        derived_locations: list[timdex.Location] = []
+        # locations
+        derived_locations = timdex_record.locations or []
         derived_locations.extend(self.create_locations_from_publishers(timdex_record))
         derived_locations.extend(
             self.create_locations_from_spatial_subjects(timdex_record)
         )
-        if not timdex_record.locations:
-            timdex_record.locations = derived_locations if derived_locations else None
-        else:
-            timdex_record.locations.extend(derived_locations)
+        timdex_record.locations = derived_locations or None
 
-        if timdex_record.citation is None:
-            timdex_record.citation = generate_citation(timdex_record)
-        if timdex_record.content_type is None:
-            timdex_record.content_type = ["Not specified"]
+        # citation
+        timdex_record.citation = timdex_record.citation or generate_citation(
+            timdex_record
+        )
+
+        # content type
+        timdex_record.content_type = timdex_record.content_type or ["Not specified"]
 
         return timdex_record
 

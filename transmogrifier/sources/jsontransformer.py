@@ -11,8 +11,6 @@ from transmogrifier.sources.transformer import JSON, Transformer
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    import transmogrifier.models as timdex
-
 
 class JSONTransformer(Transformer):
     """JSON transformer class."""
@@ -32,18 +30,6 @@ class JSONTransformer(Transformer):
         """
         with jsonlines.Reader(smart_open.open(source_file, "r")) as records:
             yield from records.iter(type=dict)
-
-    @final
-    def transform(self, source_record: dict[str, JSON]) -> timdex.TimdexRecord | None:
-        """
-        Call Transformer._transform method to transform JSON record to TIMDEX record.
-
-        May not be overridden.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-        return self._transform(source_record)
 
     @classmethod
     @abstractmethod
