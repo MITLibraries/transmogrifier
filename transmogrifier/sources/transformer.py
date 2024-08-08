@@ -12,9 +12,6 @@ from typing import TYPE_CHECKING, TypeAlias, final
 import smart_open  # type: ignore[import-untyped]
 from attrs import asdict
 
-# Note: the lxml module in defusedxml is deprecated, so we have to use the
-# regular lxml library. Transmogrifier only parses data from known sources so this
-# should not be a security issue.
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES
 from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
@@ -230,6 +227,9 @@ class Transformer(ABC):
         for optional fields. The optional field methods return values or exceptions that
         prompt the __next__ method to skip the entire record.
 
+        After optional fields are set, derived fields are generated from the required
+        optional field values set by the source transformer.
+
         May not be overridden.
 
         Args:
@@ -322,9 +322,8 @@ class Transformer(ABC):
         May not be overridden.
         """
         for field_name in timdex.TimdexRecord.get_optional_field_names():
-            field_method = getattr(self, f"get_{field_name}", None)
-            if field_method:
-                yield field_name, getattr(self, f"get_{field_name}")
+            if field_method := getattr(self, f"get_{field_name}", None):
+                yield field_name, field_method
 
     @final
     def generate_derived_fields(

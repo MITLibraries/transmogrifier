@@ -4,11 +4,7 @@ from typing import TYPE_CHECKING, final
 
 import smart_open  # type: ignore[import-untyped]
 from bs4 import BeautifulSoup, Tag  # type: ignore[import-untyped]
-
-# Note: the lxml module in defusedxml is deprecated, so we have to use the
-# regular lxml library. Transmogrifier only parses data from known sources so this
-# should not be a security issue.
-from lxml import etree  # nosec B410
+from lxml import etree
 
 from transmogrifier.sources.transformer import Transformer
 
