@@ -73,6 +73,71 @@ class Transformer(ABC):
             return record
 
     @final
+    @classmethod
+    def get_transformer(cls, source: str) -> type[Transformer]:
+        """
+        Return configured transformer class for a source.
+
+        Source must be configured with a valid transform class path.
+
+        Args:
+            source: Source repository label. Must match a source key from config.SOURCES.
+
+        """
+        module_name, class_name = SOURCES[source]["transform-class"].rsplit(".", 1)
+        source_module = import_module(module_name)
+        return getattr(source_module, class_name)
+
+    @final
+    @classmethod
+    def load(cls, source: str, source_file: str) -> Transformer:
+        """
+        Instantiate specified transformer class and populate with source records.
+
+        Args:
+            source: Source repository label. Must match a source key from config.SOURCES.
+            source_file: A file containing source records to be transformed.
+        """
+        transformer_class = cls.get_transformer(source)
+        source_records = transformer_class.parse_source_file(source_file)
+        return transformer_class(source, source_records)
+
+    @final
+    def transform(self, source_record: dict[str, JSON] | Tag) -> timdex.TimdexRecord:
+        """
+        Transform source record into TimdexRecord instance.
+
+        Instantiates a TimdexRecord instance with required fields and runs fields methods
+        for optional fields. The optional field methods return values or exceptions that
+        prompt the __next__ method to skip the entire record.
+
+        After optional fields are set, derived fields are generated from the required
+        optional field values set by the source transformer.
+
+        May not be overridden.
+
+        Args:
+            source_record: A single source record.
+        """
+        if self.record_is_deleted(source_record):
+            timdex_record_id = self.get_timdex_record_id(source_record)
+            raise DeletedRecordEvent(timdex_record_id)
+
+        timdex_record = timdex.TimdexRecord(
+            source=self.source_name,
+            source_link=self.get_source_link(source_record),
+            timdex_record_id=self.get_timdex_record_id(source_record),
+            title=self.get_valid_title(source_record),
+        )
+
+        for field_name, field_method in self.get_optional_field_methods():
+            setattr(timdex_record, field_name, field_method(source_record))
+
+        self.generate_derived_fields(timdex_record)
+
+        return timdex_record
+
+    @final
     def transform_and_write_output_files(self, output_file: str) -> None:
         """Iterates through source records to transform and write to output files.
 
@@ -144,36 +209,6 @@ class Transformer(ABC):
                 file.write(f"{record_id}\n")
 
     @final
-    @classmethod
-    def load(cls, source: str, source_file: str) -> Transformer:
-        """
-        Instantiate specified transformer class and populate with source records.
-
-        Args:
-            source: Source repository label. Must match a source key from config.SOURCES.
-            source_file: A file containing source records to be transformed.
-        """
-        transformer_class = cls.get_transformer(source)
-        source_records = transformer_class.parse_source_file(source_file)
-        return transformer_class(source, source_records)
-
-    @final
-    @classmethod
-    def get_transformer(cls, source: str) -> type[Transformer]:
-        """
-        Return configured transformer class for a source.
-
-        Source must be configured with a valid transform class path.
-
-        Args:
-            source: Source repository label. Must match a source key from config.SOURCES.
-
-        """
-        module_name, class_name = SOURCES[source]["transform-class"].rsplit(".", 1)
-        source_module = import_module(module_name)
-        return getattr(source_module, class_name)
-
-    @final
     def get_valid_title(self, source_record: dict[str, JSON] | Tag) -> str:
         """
         Retrieves main title(s) from a source record and returns a valid title string.
@@ -217,41 +252,6 @@ class Transformer(ABC):
         Args:
             source_file: A file containing source records to be transformed.
         """
-
-    @final
-    def transform(self, source_record: dict[str, JSON] | Tag) -> timdex.TimdexRecord:
-        """
-        Transform source record into TimdexRecord instance.
-
-        Instantiates a TimdexRecord instance with required fields and runs fields methods
-        for optional fields. The optional field methods return values or exceptions that
-        prompt the __next__ method to skip the entire record.
-
-        After optional fields are set, derived fields are generated from the required
-        optional field values set by the source transformer.
-
-        May not be overridden.
-
-        Args:
-            source_record: A single source record.
-        """
-        if self.record_is_deleted(source_record):
-            timdex_record_id = self.get_timdex_record_id(source_record)
-            raise DeletedRecordEvent(timdex_record_id)
-
-        timdex_record = timdex.TimdexRecord(
-            source=self.source_name,
-            source_link=self.get_source_link(source_record),
-            timdex_record_id=self.get_timdex_record_id(source_record),
-            title=self.get_valid_title(source_record),
-        )
-
-        for field_name, field_method in self.get_optional_field_methods():
-            setattr(timdex_record, field_name, field_method(source_record))
-
-        self.generate_derived_fields(timdex_record)
-
-        return timdex_record
 
     @classmethod
     @abstractmethod
