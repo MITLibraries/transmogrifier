@@ -7,6 +7,7 @@ from transmogrifier.models import (
     DateRange,
     Identifier,
     Link,
+    Location,
     Note,
     Subject,
 )
@@ -374,3 +375,36 @@ def test_timdex_record_not_a_list_raises_error(timdex_record_required_fields):
         match="'dates' must be <class 'list'>",
     ):
         timdex_record_required_fields.dates = "test"
+
+
+def test_timdex_record_dedupe_locations(timdex_record_required_fields):
+    timdex_record_required_fields.locations = [
+        Location(value="One Place", kind="Place of Publication"),
+        Location(value="One Place", kind="Place of Publication"),
+        Location(value="Another Place", kind="Place of Publication"),
+    ]
+    assert set(timdex_record_required_fields.locations) == {
+        Location(value="One Place", kind="Place of Publication"),
+        Location(value="Another Place", kind="Place of Publication"),
+    }
+
+
+def test_timdex_record_dedupe_dates(timdex_record_required_fields):
+    timdex_record_required_fields.dates = [
+        Date(value="Date with no kind"),
+        Date(value="Date with no kind"),
+        Date(value="2022-01-01", kind="Publication date"),
+        Date(
+            range=DateRange(gt="2019-01-01", lt="2019-06-30"),
+        ),
+        Date(
+            range=DateRange(gt="2019-01-01", lt="2019-06-30"),
+        ),
+    ]
+    assert set(timdex_record_required_fields.dates) == {
+        Date(value="Date with no kind"),
+        Date(value="2022-01-01", kind="Publication date"),
+        Date(
+            range=DateRange(gt="2019-01-01", lt="2019-06-30"),
+        ),
+    }

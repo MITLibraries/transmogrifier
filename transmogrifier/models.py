@@ -35,6 +35,12 @@ def list_of(item_type: Any) -> Callable:  # noqa: ANN401
     )
 
 
+def dedupe(item_list: Any | None) -> list | None:
+    if item_list is None:
+        return item_list
+    return list(set(item_list))
+
+
 def not_empty(
     _instance: "TimdexRecord", attribute: "attrs.Attribute", value: "list"
 ) -> None:
@@ -67,15 +73,24 @@ class DateRange:
     lt: str | None = field(default=None, validator=optional(instance_of(str)))
     lte: str | None = field(default=None, validator=optional(instance_of(str)))
 
+    def __hash__(self) -> int:
+        """Hash method to create unique identifier for Date objects."""
+        return hash((self.gt, self.gte, self.lt, self.lte))
+
 
 @define
 class Date:
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
     note: str | None = field(default=None, validator=optional(instance_of(str)))
     range: DateRange | None = field(  # type: ignore[misc]
-        default=None, validator=[optional(instance_of(DateRange)), check_range]
+        default=None,
+        validator=[optional(instance_of(DateRange)), check_range],
     )
     value: str | None = field(default=None, validator=optional(instance_of(str)))
+
+    def __hash__(self) -> int:
+        """Hash method to create unique identifier for Date objects."""
+        return hash((self.kind, self.note, self.range, self.value))
 
 
 @define
@@ -119,6 +134,10 @@ class Location:
     value: str | None = field(default=None, validator=optional(instance_of(str)))
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
     geoshape: str | None = field(default=None, validator=optional(instance_of(str)))
+
+    def __hash__(self) -> int:
+        """Hash method to create unique identifier for Location objects."""
+        return hash((self.value, self.kind, self.geoshape))
 
 
 @define
@@ -169,7 +188,9 @@ class TimdexRecord:
     )
     call_numbers: list[str] | None = field(default=None, validator=optional(list_of(str)))
     citation: str | None = field(default=None, validator=optional(instance_of(str)))
-    content_type: list[str] | None = field(default=None, validator=optional(list_of(str)))
+    content_type: list[str] | None = field(
+        default=None, converter=dedupe, validator=optional(list_of(str))
+    )
     contents: list[str] | None = field(default=None, validator=optional(list_of(str)))
     contributors: list[Contributor] | None = field(
         default=None, validator=optional(list_of(Contributor))
@@ -191,7 +212,7 @@ class TimdexRecord:
     links: list[Link] | None = field(default=None, validator=optional(list_of(Link)))
     literary_form: str | None = field(default=None, validator=optional(instance_of(str)))
     locations: list[Location] | None = field(
-        default=None, validator=optional(list_of(Location))
+        default=None, converter=dedupe, validator=optional(list_of(Location))
     )
     notes: list[Note] | None = field(default=None, validator=optional(list_of(Note)))
     numbering: str | None = field(default=None, validator=optional(instance_of(str)))
