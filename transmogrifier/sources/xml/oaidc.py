@@ -18,78 +18,7 @@ class OaiDc(XMLTransformer):
     anticipated this will most likely get extended by a source-specific transformer.
     """
 
-    def get_optional_fields(self, source_record: Tag) -> dict | None:
-        """
-        Retrieve optional TIMDEX fields from a generic OAI DC XML record.
-
-        Args:
-            source_record: A BeautifulSoup Tag representing a single OAI DC record in XML.
-        """
-        fields: dict = {}
-
-        # alternate_titles: not set in this transformation
-
-        # call_numbers: not set in this transformation
-
-        # citation: uses fallback get_citation() method
-
-        # content_type
-        fields["content_type"] = self.get_content_type()
-
-        # contents: not set in this transformation
-
-        # contributors
-        fields["contributors"] = self.get_contributors(source_record)
-
-        # dates
-        fields["dates"] = self.get_dates(source_record)
-
-        # edition: not set in this transformation
-
-        # file_formats: not set in this transformation
-
-        # format
-        fields["format"] = self.get_format()
-
-        # funding_information: not set in this transformation
-
-        # holdings: not set in this transformation
-
-        # identifiers
-        fields["identifiers"] = self.get_identifiers(source_record)
-
-        # languages: not set in this transformation
-
-        # links
-        fields["links"] = self.get_links(source_record)
-
-        # literary_form: not set in this transformation
-
-        # locations: not set in this transformation
-
-        # notes: not set in this transformation
-
-        # numbering: not set in this transformation
-
-        # physical_description: not set in this transformation
-
-        # publication_frequency: not set in this transformation
-
-        # publishers
-        fields["publishers"] = self.get_publishers(source_record)
-
-        # related_items: not set in this transformation
-
-        # rights: not set in this transformation
-
-        # subjects
-        fields["subjects"] = self.get_subjects(source_record)
-
-        # summary
-        fields["summary"] = self.get_summary(source_record)
-        return fields
-
-    def get_content_type(self) -> list[str]:
+    def get_content_type(self, _source_record: Tag | None = None) -> list[str]:
         return [self.source]
 
     @classmethod
@@ -120,7 +49,7 @@ class OaiDc(XMLTransformer):
         return dates or None
 
     @classmethod
-    def get_format(cls) -> str:
+    def get_format(cls, _source_record: Tag | None = None) -> str:
         return "electronic resource"
 
     @classmethod
@@ -135,10 +64,7 @@ class OaiDc(XMLTransformer):
             )
         return identifiers or None
 
-    def get_links(
-        self,
-        _source_record: Tag,
-    ) -> list[timdex.Link] | None:
+    def get_links(self, _source_record: Tag) -> list[timdex.Link] | None:
         """
         Method to get TIMDEX "links" field. This method broken out to allow subclasses
         to override.

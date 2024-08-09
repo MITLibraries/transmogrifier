@@ -32,11 +32,8 @@ class MITAardvark(JSONTransformer):
         """
         return [source_record["dct_title_s"]]
 
-    @classmethod
     def get_source_link(
-        cls,
-        _source_base_url: str,
-        _source_record_id: str,
+        self,
         source_record: dict[str, JSON],
     ) -> str:
         """
@@ -49,13 +46,9 @@ class MITAardvark(JSONTransformer):
         in the metadata already.  This method relies on that data.
 
         Args:
-            _source_base_url: Source base URL.  Not used for MITAardvark transforms.
-            source_record_id: Record identifier for the source record.
-            source_record: A BeautifulSoup Tag representing a single XML record.
-                - not used by default implementation, but could be useful for subclass
-                    overrides
+            source_record: A JSON object representing a source record.
         """
-        if (links := cls.get_links(source_record)) and (
+        if (links := self.get_links(source_record)) and (
             url_links := [link for link in links if link.kind == "Website"]
         ):
             return url_links[0].url
@@ -63,24 +56,16 @@ class MITAardvark(JSONTransformer):
         message = "Could not locate a kind=Website link to pull the source link from."
         raise ValueError(message)
 
-    @classmethod
-    def get_timdex_record_id(
-        cls,
-        source: str,
-        source_record_id: str,
-        _source_record: dict[str, JSON],
-    ) -> str:
+    def get_timdex_record_id(self, source_record: dict[str, JSON]) -> str:
         """
         Class method to set the TIMDEX record id.
 
         Args:
-            source: Source name.
-            source_record_id: Record identifier for the source record.
             source_record: A JSON object representing a source record.
-                - not used by default implementation, but could be useful for subclass
-                overrides
         """
-        return f"{source}:{source_record_id.replace('/', '-')}"
+        return (
+            f"{self.source}:{self.get_source_record_id(source_record).replace('/', '-')}"
+        )
 
     @classmethod
     def get_source_record_id(cls, source_record: dict) -> str:
@@ -111,72 +96,6 @@ class MITAardvark(JSONTransformer):
             "'gbl_suppressed_b' value is not a boolean or missing"
         )
         raise ValueError(message)
-
-    def get_optional_fields(self, source_record: dict) -> dict | None:
-        """
-        Retrieve optional TIMDEX fields from an Aardvark JSON record.
-
-        Overrides metaclass get_optional_fields() method.
-
-        Args:
-            source_record: A JSON object representing a source record.
-        """
-        fields: dict = {}
-
-        # alternate_titles
-        fields["alternate_titles"] = self.get_alternate_titles(source_record)
-
-        # content_type
-        fields["content_type"] = self.get_content_type(source_record)
-
-        # contributors
-        fields["contributors"] = self.get_contributors(source_record)
-
-        # dates
-        fields["dates"] = self.get_dates(source_record)
-
-        # edition not used in MITAardvark
-
-        # file_formats not used in MITAardvark
-
-        # format
-        fields["format"] = self.get_format(source_record)
-
-        # funding_information not used in MITAardvark
-
-        # identifiers
-        fields["identifiers"] = self.get_identifiers(source_record)
-
-        # languages
-        fields["languages"] = self.get_languages(source_record)
-
-        # links
-        fields["links"] = self.get_links(source_record) or None
-
-        # locations
-        fields["locations"] = self.get_locations(source_record)
-
-        # notes
-        fields["notes"] = self.get_notes(source_record)
-
-        # provider
-        fields["provider"] = self.get_provider(source_record)
-
-        # publishers
-        fields["publishers"] = self.get_publishers(source_record)
-
-        # related_items not used in MITAardvark
-
-        # rights
-        fields["rights"] = self.get_rights(source_record, self.source)
-
-        # subjects
-        fields["subjects"] = self.get_subjects(source_record)
-
-        # summary field
-        fields["summary"] = self.get_summary(source_record)
-
-        return fields
 
     @classmethod
     def get_alternate_titles(
@@ -376,17 +295,16 @@ class MITAardvark(JSONTransformer):
     def get_provider(cls, source_record: dict) -> str | None:
         return source_record.get("schema_provider_s") or None
 
-    @classmethod
-    def get_rights(cls, source_record: dict, source: str) -> list[timdex.Rights] | None:
+    def get_rights(self, source_record: dict) -> list[timdex.Rights] | None:
         rights: list[timdex.Rights] = []
         kind_access_to_files = "Access to files"
-        rights.extend(cls._get_access_rights(source_record))
-        rights.extend(cls._get_license_rights(source_record))
-        rights.extend(cls._get_rights_and_rights_holders(source_record))
-        if source == "gisogm":
-            rights.extend(cls._get_gisogm_rights(kind_access_to_files))
-        elif source == "gismit":
-            rights.extend(cls._get_gismit_rights(source_record, kind_access_to_files))
+        rights.extend(self._get_access_rights(source_record))
+        rights.extend(self._get_license_rights(source_record))
+        rights.extend(self._get_rights_and_rights_holders(source_record))
+        if self.source == "gisogm":
+            rights.extend(self._get_gisogm_rights(kind_access_to_files))
+        elif self.source == "gismit":
+            rights.extend(self._get_gismit_rights(source_record, kind_access_to_files))
         return rights or None
 
     @classmethod

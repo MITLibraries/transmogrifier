@@ -298,6 +298,8 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Location(value="Austria - Vienna", kind="Hierarchical Place Name"),
             timdex.Location(value="New York", kind="Place of Publication"),
+            timdex.Location(value="New York", kind="Place of Publication"),
+            timdex.Location(value="France", kind="Place of Publication"),
         ],
         notes=[
             timdex.Note(
@@ -674,6 +676,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
                 value="a - b - c - d - e - f - g - h",
                 kind="Hierarchical Place Name",
             ),
+            timdex.Location(value="a", kind="Place of Publication"),
             timdex.Location(value="a", kind="Place of Publication"),
         ],
         notes=[

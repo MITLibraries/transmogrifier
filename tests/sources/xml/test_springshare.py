@@ -169,8 +169,9 @@ def test_get_source_link_success():
             """
         )
     )
+    springshare = SpringshareOaiDc("libguides", iter(source_record))
     assert (
-        SpringshareOaiDc.get_source_link("", "", source_record)
+        springshare.get_source_link(source_record)
         == "https://libguides.mit.edu/materials"
     )
 
@@ -183,6 +184,7 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_blank():
             """
         )
     )
+    springshare = SpringshareOaiDc("libguides", iter(source_record))
     with pytest.raises(
         SkippedRecordEvent,
         match=(
@@ -190,7 +192,7 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_blank():
             "The 'identifier' was either missing from the header element or blank."
         ),
     ):
-        SpringshareOaiDc.get_source_link("", "", source_record)
+        springshare.get_source_link(source_record)
 
 
 def test_get_source_link_raises_skipped_record_event_if_required_fields_missing():
@@ -201,6 +203,7 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_missing(
             """
         )
     )
+    springshare = SpringshareOaiDc("libguides", iter(source_record))
     with pytest.raises(
         SkippedRecordEvent,
         match=(
@@ -208,7 +211,7 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_missing(
             "The 'identifier' was either missing from the header element or blank."
         ),
     ):
-        SpringshareOaiDc.get_source_link("", "", source_record)
+        springshare.get_source_link(source_record)
 
 
 ###########################
