@@ -35,7 +35,7 @@ def list_of(item_type: Any) -> Callable:  # noqa: ANN401
     )
 
 
-def dedupe(item_list: list | None) -> list:
+def dedupe(item_list: Any | None) -> list | None:
     if item_list is None:
         return item_list
     return list(set(item_list))
@@ -73,17 +73,23 @@ class DateRange:
     lt: str | None = field(default=None, validator=optional(instance_of(str)))
     lte: str | None = field(default=None, validator=optional(instance_of(str)))
 
+    def __hash__(self) -> int:
+        """Hash method to create unique identifier for Date objects."""
+        return hash((self.gt, self.gte, self.lt, self.lte))
+
 
 @define
 class Date:
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
     note: str | None = field(default=None, validator=optional(instance_of(str)))
     range: DateRange | None = field(  # type: ignore[misc]
-        default=None, validator=[optional(instance_of(DateRange)), check_range]
+        default=None,
+        validator=[optional(instance_of(DateRange)), check_range],
     )
     value: str | None = field(default=None, validator=optional(instance_of(str)))
 
     def __hash__(self) -> int:
+        """Hash method to create unique identifier for Date objects."""
         return hash((self.kind, self.note, self.range, self.value))
 
 
@@ -130,6 +136,7 @@ class Location:
     geoshape: str | None = field(default=None, validator=optional(instance_of(str)))
 
     def __hash__(self) -> int:
+        """Hash method to create unique identifier for Location objects."""
         return hash((self.value, self.kind, self.geoshape))
 
 
@@ -188,9 +195,7 @@ class TimdexRecord:
     contributors: list[Contributor] | None = field(
         default=None, validator=optional(list_of(Contributor))
     )
-    dates: list[Date] | None = field(
-        default=None, converter=dedupe, validator=optional(list_of(Date))
-    )
+    dates: list[Date] | None = field(default=None, validator=optional(list_of(Date)))
     edition: str | None = field(default=None, validator=optional(instance_of(str)))
     file_formats: list[str] | None = field(default=None, validator=optional(list_of(str)))
     format: str | None = field(default=None, validator=optional(instance_of(str)))
