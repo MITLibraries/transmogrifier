@@ -52,7 +52,7 @@ def timdex_object_hash(timdex_object: Any) -> int:  # noqa: ANN401
     By making TIMDEX objects hashable, dedupe methods
     can be applied to a list of TIMDEX objects.
     """
-    values = tuple(type(timdex_object).__name__)
+    values = (timdex_object.__class__.__name__,)
     values += tuple(
         [
             tuple(attrib) if isinstance(attrib, list) else attrib
