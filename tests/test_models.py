@@ -1,15 +1,6 @@
 import pytest
 
-from transmogrifier.models import (
-    AlternateTitle,
-    Contributor,
-    Date,
-    DateRange,
-    Identifier,
-    Link,
-    Note,
-    Subject,
-)
+import transmogrifier.models as timdex
 
 
 def test_timdex_record_required_fields_only(timdex_record_required_fields):
@@ -45,14 +36,16 @@ def test_timdex_record_required_fields_only(timdex_record_required_fields):
 
 
 def test_timdex_record_required_subfields_only(timdex_record_required_fields):
-    timdex_record_required_fields.contributors = [Contributor(value="Smith, Jane")]
-    timdex_record_required_fields.identifiers = [Identifier(value="123")]
+    timdex_record_required_fields.contributors = [timdex.Contributor(value="Smith, Jane")]
+    timdex_record_required_fields.identifiers = [timdex.Identifier(value="123")]
     timdex_record_required_fields.links = [
-        Link(url="http://dx.doi.org/10.1007/978-94-017-0726-8")
+        timdex.Link(url="http://dx.doi.org/10.1007/978-94-017-0726-8")
     ]
-    timdex_record_required_fields.notes = [Note(value=["This book is awesome"])]
-    timdex_record_required_fields.alternate_titles = [AlternateTitle(value="Alt Title")]
-    timdex_record_required_fields.subjects = [Subject(value=["Stuff"])]
+    timdex_record_required_fields.notes = [timdex.Note(value=["This book is awesome"])]
+    timdex_record_required_fields.alternate_titles = [
+        timdex.AlternateTitle(value="Alt Title")
+    ]
+    timdex_record_required_fields.subjects = [timdex.Subject(value=["Stuff"])]
     assert timdex_record_required_fields.source == "A Cool Repository"
     assert timdex_record_required_fields.source_link == "https://example.com/123"
     assert timdex_record_required_fields.timdex_record_id == "cool-repo:123"
@@ -337,8 +330,10 @@ def test_timdex_record_date_range_both_gt_and_gte_raises_error(
         match="range may have a 'gt' or 'gte' value, but not both;",
     ):
         timdex_record_required_fields.dates = [
-            Date(
-                range=DateRange(gt="2019-01-01", gte="2019-01-01", lt="2019-06-30"),
+            timdex.Date(
+                range=timdex.DateRange(
+                    gt="2019-01-01", gte="2019-01-01", lt="2019-06-30"
+                ),
             )
         ]
 
@@ -350,8 +345,10 @@ def test_timdex_record_date_range_both_lt_and_lte_raises_error(
         ValueError, match="range may have a 'lt' or 'lte' value, but not both;"
     ):
         timdex_record_required_fields.dates = [
-            Date(
-                range=DateRange(gt="2019-01-01", lt="2019-06-30", lte="2019-06-30"),
+            timdex.Date(
+                range=timdex.DateRange(
+                    gt="2019-01-01", lt="2019-06-30", lte="2019-06-30"
+                ),
             )
         ]
 
@@ -374,3 +371,282 @@ def test_timdex_record_not_a_list_raises_error(timdex_record_required_fields):
         match="'dates' must be <class 'list'>",
     ):
         timdex_record_required_fields.dates = "test"
+
+
+def test_timdex_object_hash_diff_if_diff_class():
+    """
+    Asserts that TIMDEX objects of different class types
+    with similar attributes and attribute values will
+    be assigned different hashes and declared not equal.
+    """
+    identifier = timdex.Identifier(value="x", kind="y")
+    alternate_title = timdex.AlternateTitle(value="x", kind="y")
+    assert identifier != alternate_title
+    assert identifier.__hash__() != alternate_title.__hash__()
+
+
+def test_timdex_object_hash_same_if_same_class():
+    """
+    Asserts that TIMDEX objects of different class types
+    with similar attributes and attribute values will
+    be assigned the same hash and declared equal.
+    """
+    identifier_0 = timdex.Identifier(value="x", kind="y")
+    identifier_1 = timdex.Identifier(value="x", kind="y")
+    assert identifier_0 == identifier_1
+    assert identifier_0.__hash__() == identifier_1.__hash__()
+
+
+def test_timdex_record_dedupe_alternate_titles(timdex_record_required_fields):
+    timdex_record_required_fields.alternate_titles = [
+        timdex.AlternateTitle(value="My Octopus Teacher"),
+        timdex.AlternateTitle(value="My Octopus Teacher"),
+    ]
+    assert timdex_record_required_fields.alternate_titles == [
+        timdex.AlternateTitle(value="My Octopus Teacher")
+    ]
+
+
+def test_timdex_record_dedupe_call_numbers(timdex_record_required_fields):
+    timdex_record_required_fields.call_numbers = ["a", "a"]
+    assert timdex_record_required_fields.call_numbers == ["a"]
+
+
+def test_timdex_record_dedupe_content_type(timdex_record_required_fields):
+    timdex_record_required_fields.content_type = ["thesis", "thesis"]
+    assert timdex_record_required_fields.content_type == ["thesis"]
+
+
+def test_timdex_record_dedupe_contents(timdex_record_required_fields):
+    timdex_record_required_fields.contents = ["Chapter 1", "Chapter 1"]
+    assert timdex_record_required_fields.contents == ["Chapter 1"]
+
+
+def test_timdex_record_dedupe_contributors(timdex_record_required_fields):
+    timdex_record_required_fields.contributors = [
+        timdex.Contributor(
+            value="Joe Hisaishi",
+            affiliation=["Kunitachi College of Music"],
+            kind="Composer",
+        ),
+        timdex.Contributor(
+            value="Joe Hisaishi",
+            affiliation=["Kunitachi College of Music"],
+            kind="Composer",
+        ),
+    ]
+    assert timdex_record_required_fields.contributors == [
+        timdex.Contributor(
+            value="Joe Hisaishi",
+            affiliation=["Kunitachi College of Music"],
+            kind="Composer",
+        )
+    ]
+
+
+def test_timdex_record_dedupe_dates(timdex_record_required_fields):
+    timdex_record_required_fields.dates = [
+        timdex.Date(value="2022-01-01", kind="Publication date"),
+        timdex.Date(value="2022-01-01", kind="Publication date"),
+        timdex.Date(
+            range=timdex.DateRange(gt="2019-01-01", lt="2019-06-30"),
+        ),
+        timdex.Date(
+            range=timdex.DateRange(gt="2019-01-01", lt="2019-06-30"),
+        ),
+    ]
+    assert timdex_record_required_fields.dates == [
+        timdex.Date(value="2022-01-01", kind="Publication date"),
+        timdex.Date(
+            range=timdex.DateRange(gt="2019-01-01", lt="2019-06-30"),
+        ),
+    ]
+
+
+def test_timdex_record_dedupe_file_formats(timdex_record_required_fields):
+    timdex_record_required_fields.file_formats = [
+        "application/pdf",
+        "application/pdf",
+    ]
+    assert timdex_record_required_fields.file_formats == ["application/pdf"]
+
+
+def test_timdex_record_dedupe_funding_information(timdex_record_required_fields):
+    timdex_record_required_fields.funding_information = [
+        timdex.Funder(funder_name="NPR Foundation"),
+        timdex.Funder(funder_name="NPR Foundation"),
+    ]
+    assert timdex_record_required_fields.funding_information == [
+        timdex.Funder(funder_name="NPR Foundation")
+    ]
+
+
+def test_timdex_record_dedupe_holdings(timdex_record_required_fields):
+    timdex_record_required_fields.holdings = [
+        timdex.Holding(
+            call_number="PL2687.L8.A28 1994",
+            collection="Stacks",
+            format="Print volume",
+            location="Hayden Library",
+        ),
+        timdex.Holding(
+            call_number="PL2687.L8.A28 1994",
+            collection="Stacks",
+            format="Print volume",
+            location="Hayden Library",
+        ),
+    ]
+    assert timdex_record_required_fields.holdings == [
+        timdex.Holding(
+            call_number="PL2687.L8.A28 1994",
+            collection="Stacks",
+            format="Print volume",
+            location="Hayden Library",
+        )
+    ]
+
+
+def test_timdex_record_dedupe_identifiers(timdex_record_required_fields):
+    timdex_record_required_fields.identifiers = [
+        timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
+        timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
+    ]
+    assert timdex_record_required_fields.identifiers == [
+        timdex.Identifier(value="9781250185969. hardcover", kind="ISBN")
+    ]
+
+
+def test_timdex_record_dedupe_languages(timdex_record_required_fields):
+    timdex_record_required_fields.languages = ["Spanish", "Spanish"]
+    assert timdex_record_required_fields.languages == ["Spanish"]
+
+
+def test_timdex_record_dedupe_links(timdex_record_required_fields):
+    timdex_record_required_fields.links = [
+        timdex.Link(
+            url="https://geodata.libraries.mit.edu/record/gismit"
+            ":GISPORTAL_GISOWNER01_BOSTONWATER95",
+            kind="Website",
+            text="Website",
+        ),
+        timdex.Link(
+            url="https://geodata.libraries.mit.edu/record/gismit"
+            ":GISPORTAL_GISOWNER01_BOSTONWATER95",
+            kind="Website",
+            text="Website",
+        ),
+    ]
+    assert timdex_record_required_fields.links == [
+        timdex.Link(
+            url="https://geodata.libraries.mit.edu/record/gismit"
+            ":GISPORTAL_GISOWNER01_BOSTONWATER95",
+            kind="Website",
+            text="Website",
+        )
+    ]
+
+
+def test_timdex_record_dedupe_locations(timdex_record_required_fields):
+    timdex_record_required_fields.locations = [
+        timdex.Location(value="One Place", kind="Place of Publication"),
+        timdex.Location(value="One Place", kind="Place of Publication"),
+    ]
+    assert timdex_record_required_fields.locations == [
+        timdex.Location(value="One Place", kind="Place of Publication")
+    ]
+
+
+def test_timdex_record_dedupe_notes(timdex_record_required_fields):
+    timdex_record_required_fields.notes = [
+        timdex.Note(value=["Survey Data"], kind="Datacite resource type"),
+        timdex.Note(value=["Survey Data"], kind="Datacite resource type"),
+    ]
+    assert timdex_record_required_fields.notes == [
+        timdex.Note(value=["Survey Data"], kind="Datacite resource type"),
+    ]
+
+
+def test_timdex_record_dedupe_publication_frequency(timdex_record_required_fields):
+    timdex_record_required_fields.publication_frequency = [
+        "Three times a year",
+        "Three times a year",
+    ]
+    assert timdex_record_required_fields.publication_frequency == ["Three times a year"]
+
+
+def test_timdex_record_dedupe_publishers(timdex_record_required_fields):
+    timdex_record_required_fields.publishers = [
+        timdex.Publisher(name="Harvard Dataverse"),
+        timdex.Publisher(name="Harvard Dataverse"),
+    ]
+    assert timdex_record_required_fields.publishers == [
+        timdex.Publisher(name="Harvard Dataverse")
+    ]
+
+
+def test_timdex_record_dedupe_related_items(timdex_record_required_fields):
+    timdex_record_required_fields.related_items = [
+        timdex.RelatedItem(description="Nature Communications", relationship="host"),
+        timdex.RelatedItem(description="Nature Communications", relationship="host"),
+    ]
+    assert timdex_record_required_fields.related_items == [
+        timdex.RelatedItem(description="Nature Communications", relationship="host")
+    ]
+
+
+def test_timdex_record_dedupe_rights(timdex_record_required_fields):
+    timdex_record_required_fields.rights = [
+        timdex.Rights(description="MIT authentication required", kind="Access to files"),
+        timdex.Rights(description="MIT authentication required", kind="Access to files"),
+    ]
+    assert timdex_record_required_fields.rights == [
+        timdex.Rights(description="MIT authentication required", kind="Access to files")
+    ]
+
+
+def test_timdex_record_dedupe_subjects(timdex_record_required_fields):
+    timdex_record_required_fields.subjects = [
+        timdex.Subject(
+            value=["Social Sciences", "Educational materials"],
+            kind="Subject scheme not provided",
+        ),
+        timdex.Subject(
+            value=["Social Sciences", "Educational materials"],
+            kind="Subject scheme not provided",
+        ),
+    ]
+    assert timdex_record_required_fields.subjects == [
+        timdex.Subject(
+            value=["Social Sciences", "Educational materials"],
+            kind="Subject scheme not provided",
+        )
+    ]
+
+
+def test_timdex_record_dedupe_summary(timdex_record_required_fields):
+    timdex_record_required_fields.summary = [
+        "Mitochondria is the powerhouse of the cell.",
+        "Mitochondria is the powerhouse of the cell.",
+    ]
+    assert timdex_record_required_fields.summary == [
+        "Mitochondria is the powerhouse of the cell."
+    ]
+
+
+def test_timdex_dedupes_correctly_if_diff_class():
+    items = [
+        timdex.Identifier(value="x", kind="y"),
+        timdex.AlternateTitle(value="x", kind="y"),
+    ]
+    assert timdex.dedupe(items) == [
+        timdex.Identifier(value="x", kind="y"),
+        timdex.AlternateTitle(value="x", kind="y"),
+    ]
+
+
+def test_timdex_dedupes_correctly_if_same_class():
+    items = [
+        timdex.Identifier(value="x", kind="y"),
+        timdex.Identifier(value="x", kind="y"),
+    ]
+    assert timdex.dedupe(items) == [timdex.Identifier(value="x", kind="y")]
