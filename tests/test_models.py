@@ -373,6 +373,30 @@ def test_timdex_record_not_a_list_raises_error(timdex_record_required_fields):
         timdex_record_required_fields.dates = "test"
 
 
+def test_timdex_object_hash_diff_if_diff_class():
+    """
+    Asserts that TIMDEX objects of different class types
+    with similar attributes and attribute values will
+    be assigned different hashes and declared not equal.
+    """
+    identifier = timdex.Identifier(value="x", kind="y")
+    alternate_title = timdex.AlternateTitle(value="x", kind="y")
+    assert identifier != alternate_title
+    assert identifier.__hash__() != alternate_title.__hash__()
+
+
+def test_timdex_object_hash_same_if_same_class():
+    """
+    Asserts that TIMDEX objects of different class types
+    with similar attributes and attribute values will
+    be assigned the same hash and declared equal.
+    """
+    identifier_0 = timdex.Identifier(value="x", kind="y")
+    identifier_1 = timdex.Identifier(value="x", kind="y")
+    assert identifier_0 == identifier_1
+    assert identifier_0.__hash__() == identifier_1.__hash__()
+
+
 def test_timdex_record_dedupe_alternate_titles(timdex_record_required_fields):
     timdex_record_required_fields.alternate_titles = [
         timdex.AlternateTitle(value="My Octopus Teacher"),
@@ -607,3 +631,22 @@ def test_timdex_record_dedupe_summary(timdex_record_required_fields):
     assert timdex_record_required_fields.summary == [
         "Mitochondria is the powerhouse of the cell."
     ]
+
+
+def test_timdex_dedupes_correctly_if_diff_class():
+    items = [
+        timdex.Identifier(value="x", kind="y"),
+        timdex.AlternateTitle(value="x", kind="y"),
+    ]
+    assert timdex.dedupe(items) == [
+        timdex.Identifier(value="x", kind="y"),
+        timdex.AlternateTitle(value="x", kind="y"),
+    ]
+
+
+def test_timdex_dedupes_correctly_if_same_class():
+    items = [
+        timdex.Identifier(value="x", kind="y"),
+        timdex.Identifier(value="x", kind="y"),
+    ]
+    assert timdex.dedupe(items) == [timdex.Identifier(value="x", kind="y")]

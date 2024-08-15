@@ -35,12 +35,6 @@ def list_of(item_type: Any) -> Callable:  # noqa: ANN401
     )
 
 
-def dedupe(item_list: list | Any) -> list | None:  # noqa: ANN401
-    if not isinstance(item_list, list):
-        return item_list
-    return list(dict.fromkeys(item_list))
-
-
 def not_empty(
     _instance: "TimdexRecord", attribute: "attrs.Attribute", value: "list"
 ) -> None:
@@ -49,17 +43,34 @@ def not_empty(
         raise ValueError(message)
 
 
-@define
-class ListField:
-    def __hash__(self) -> int:
-        """Hash method to create unique identifier for Location objects."""
-        values = tuple(
-            [
-                tuple(attrib) if isinstance(attrib, list) else attrib
-                for attrib in attrs.astuple(self)
-            ]
-        )
-        return hash(values)
+def timdex_object_hash(timdex_object: Any) -> int:  # noqa: ANN401
+    """Hash method for TIMDEX objects.
+
+    This method is set as the hash method for TIMDEX objects.
+    The method generates a unique hash using a tuple
+    comprised of the class name and attribute values.
+    By making TIMDEX objects hashable, dedupe methods
+    can be applied to a list of TIMDEX objects.
+    """
+    values = tuple(type(timdex_object).__name__)
+    values += tuple(
+        [
+            tuple(attrib) if isinstance(attrib, list) else attrib
+            for attrib in attrs.astuple(timdex_object)
+        ]
+    )
+    return hash(values)
+
+
+def dedupe(item_list: list | Any) -> list | None:  # noqa: ANN401
+    """Deduplication method for list of items.
+
+    This method is used as a converter function for list fields
+    in the TimdexRecord model.
+    """
+    if not isinstance(item_list, list):
+        return item_list
+    return list(dict.fromkeys(item_list))
 
 
 @define
@@ -67,7 +78,7 @@ class AlternateTitle:
     value: str = field(validator=instance_of(str))  # Required subfield
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -80,7 +91,7 @@ class Contributor:
         default=None, validator=optional(instance_of(bool))
     )
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -101,7 +112,7 @@ class Date:
     )
     value: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -116,7 +127,7 @@ class Funder:
     award_number: str | None = field(default=None, validator=optional(instance_of(str)))
     award_uri: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -127,7 +138,7 @@ class Holding:
     location: str | None = field(default=None, validator=optional(instance_of(str)))
     note: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -135,7 +146,7 @@ class Identifier:
     value: str = field(validator=instance_of(str))  # Required subfield
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -145,7 +156,7 @@ class Link:
     restrictions: str | None = field(default=None, validator=optional(instance_of(str)))
     text: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -154,7 +165,7 @@ class Location:
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
     geoshape: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -162,7 +173,7 @@ class Note:
     value: list[str] = field(validator=list_of(str))  # Required subfield
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -171,7 +182,7 @@ class Publisher:
     date: str | None = field(default=None, validator=optional(instance_of(str)))
     location: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -181,7 +192,7 @@ class RelatedItem:
     relationship: str | None = field(default=None, validator=optional(instance_of(str)))
     uri: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -190,7 +201,7 @@ class Rights:
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
     uri: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
@@ -198,7 +209,7 @@ class Subject:
     value: list[str] = field(validator=list_of(str))  # Required subfield
     kind: str | None = field(default=None, validator=optional(instance_of(str)))
 
-    __hash__ = ListField.__hash__
+    __hash__ = timdex_object_hash
 
 
 @define
