@@ -26,6 +26,9 @@ logger = logging.getLogger(__name__)
 
 JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
+# DEBUG: shim to use env var to get parsing approach
+PARSER = os.getenv("PARSER", "bs4")
+
 
 class Transformer(ABC):
     """Base transformer class."""
@@ -162,12 +165,15 @@ class Transformer(ABC):
         Args:
             output_file: The JSON file used for writing TIMDEX records.
         """
+        import time
+
         count = 0
         try:
             record: timdex.TimdexRecord = next(self)
         except StopIteration:
             return count
         with smart_open.open(output_file, "w") as file:
+            t0 = time.time()
             file.write("[\n")
             while record:
                 file.write(
@@ -185,6 +191,8 @@ class Transformer(ABC):
                         "Status update: %s records written to output file so far!",
                         count,
                     )
+                    logger.info(f"Batch elapsed: {time.time()-t0}, parser: {PARSER}")
+                    t0 = time.time()
                 try:
                     record: timdex.TimdexRecord = next(self)  # type: ignore[no-redef]
                 except StopIteration:

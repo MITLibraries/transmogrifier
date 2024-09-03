@@ -82,7 +82,8 @@ SOURCES = {
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?"
             "vid=01MIT_INST:MIT&docid=alma"
         ),
-        "transform-class": "transmogrifier.sources.xml.marc.Marc",
+        # "transform-class": "transmogrifier.sources.xml.marc.Marc",
+        "transform-class": "transmogrifier.sources.xml.marc_v2.MarcV2",  # DEBUG: V2
     },
     "aspace": {
         "name": "MIT ArchivesSpace",

@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import os
 from typing import TYPE_CHECKING, final
 
 import smart_open  # type: ignore[import-untyped]
@@ -10,6 +10,9 @@ from transmogrifier.sources.transformer import Transformer
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+# DEBUG: shim to use env var to get parsing approach
+PARSER = os.getenv("PARSER", "bs4")
 
 
 class XMLTransformer(Transformer):
@@ -33,10 +36,22 @@ class XMLTransformer(Transformer):
                 encoding="utf-8",
                 recover=True,
             ):
-                record_string = etree.tostring(element, encoding="utf-8")
-                record = BeautifulSoup(record_string, "xml")
+                if PARSER == "bs4":
+                    record_string = etree.tostring(element, encoding="utf-8")
+                    record = BeautifulSoup(record_string, "xml")
+
+                elif PARSER == "lxml":
+                    record = element
+
+                else:
+                    raise Exception("parser type not recognized")
+
                 yield record
                 element.clear()
+                # DEBUG newly added ##################################
+                while element.getprevious() is not None:
+                    del element.getparent()[0]
+                # DEBUG newly added ##################################
 
     @classmethod
     def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
@@ -92,6 +107,7 @@ class XMLTransformer(Transformer):
         Args:
             source_record: A BeautifulSoup Tag representing a single XML record.
         """
+
         return str(source_record.header.find("identifier").string)
 
     @classmethod
