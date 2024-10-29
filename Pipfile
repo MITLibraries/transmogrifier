@@ -26,7 +26,7 @@ ruff = "*"
 safety = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
 
 [scripts]
 transform = "python -c \"from transmogrifier.cli import main; main()\""

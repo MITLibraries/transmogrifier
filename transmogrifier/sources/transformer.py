@@ -7,7 +7,7 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from importlib import import_module
-from typing import TYPE_CHECKING, TypeAlias, final
+from typing import TYPE_CHECKING, final
 
 import smart_open  # type: ignore[import-untyped]
 from attrs import asdict
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
+type JSON = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
 
 class Transformer(ABC):
