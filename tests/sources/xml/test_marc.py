@@ -1349,6 +1349,16 @@ def test_get_literary_form_transforms_correctly_if_char_positions_blank():
     assert Marc.get_literary_form(source_record) is None
 
 
+def test_get_literary_form_returns_none_if_control_field_too_short(caplog):
+    caplog.set_level("DEBUG")
+    source_record = create_marc_source_record_stub(
+        control_field_insert='<controlfield tag="008">220613s     '
+        "|||||o||||||||||||d</controlfield>",
+    )
+    assert Marc.get_literary_form(source_record) is None
+    assert "could not parse literary form" in caplog.text
+
+
 def test_get_links_success():
     source_record = create_marc_source_record_stub(
         datafield_insert=(

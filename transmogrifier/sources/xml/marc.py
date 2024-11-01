@@ -586,10 +586,20 @@ class Marc(XMLTransformer):
         and Leader/07 (Bibliographic level) contains code
         a (Monographic component part), c (Collection), d (Subunit),
         or m (Monograph).
+
+        If control field 008 is shorter than 34 characters, return None as we cannot
+        accurately determine.
         """
         leader_field = cls._get_leader_field(source_record)
         control_field = cls._get_control_field(source_record)
         if leader_field[6] in "at" and leader_field[7] in "acdm":
+            if len(control_field) <= 33:  # noqa: PLR2004
+                message = (
+                    f"Record ID '{cls.get_source_record_id(source_record)}' has less than"
+                    "34 characters for control field 008, could not parse literary form."
+                )
+                logger.debug(message)
+                return None
             if control_field[33] in "0se":
                 return "Nonfiction"
             return "Fiction"
