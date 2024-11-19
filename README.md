@@ -64,6 +64,12 @@ Options:
   -s, --source [alma|aspace|dspace|jpal|libguides|gismit|gisogm|researchdatabases|whoas|zenodo]
                                   Source records were harvested from, must
                                   choose from list of options  [required]
+  -r, --run-id TEXT               Identifier for Transmogrifier run.  This can
+                                  be used to group transformed records
+                                  produced by Transmogrifier, even if they
+                                  span multiple CLI invocations.  If a value
+                                  is not provided a UUID will be minted and
+                                  used.
   -v, --verbose                   Pass to log at debug level instead of info
   --help                          Show this message and exit.
 ```

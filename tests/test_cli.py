@@ -1,3 +1,7 @@
+# ruff: noqa: S108
+
+from unittest import mock
+
 from transmogrifier.cli import main
 
 
@@ -90,3 +94,49 @@ def test_transform_deleted_records(caplog, runner, tmp_path):
         "Completed transform, total records processed: 1, transformed records: 0"
         ", skipped records: 0, deleted records: 1"
     ) in caplog.text
+
+
+def test_transform_run_id_argument_passed_and_used(caplog, runner, tmp_path):
+    caplog.set_level("INFO")
+    run_id = "abc123"
+    with mock.patch(
+        "transmogrifier.sources.transformer.Transformer.transform_and_write_output_files"
+    ) as mocked_transform_and_write:
+        mocked_transform_and_write.side_effect = Exception("stopping transformation")
+        runner.invoke(
+            main,
+            [
+                "--verbose",
+                "-s",
+                "alma",
+                "-r",
+                run_id,
+                "-i",
+                "tests/fixtures/datacite/datacite_records.xml",
+                "-o",
+                "/tmp/records.json",
+            ],
+        )
+    assert f"run_id set: '{run_id}'" in caplog.text
+
+
+def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tmp_path):
+    caplog.set_level("INFO")
+    with mock.patch(
+        "transmogrifier.sources.transformer.Transformer.transform_and_write_output_files"
+    ) as mocked_transform_and_write:
+        mocked_transform_and_write.side_effect = Exception("stopping transformation")
+        runner.invoke(
+            main,
+            [
+                "--verbose",
+                "-s",
+                "alma",
+                "-i",
+                "tests/fixtures/datacite/datacite_records.xml",
+                "-o",
+                "/tmp/records.json",
+            ],
+        )
+    assert "explicit run_id not passed, minting new UUID" in caplog.text
+    assert "run_id set:" in caplog.text

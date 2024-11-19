@@ -4,6 +4,7 @@ from click.testing import CliRunner
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
 from transmogrifier.sources.jsontransformer import JSONTransformer
+from transmogrifier.sources.transformer import Transformer
 from transmogrifier.sources.xml.datacite import Datacite
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
@@ -41,6 +42,34 @@ def _bad_config():
 @pytest.fixture
 def runner():
     return CliRunner()
+
+
+# transformers ##########################
+
+
+@pytest.fixture
+def generic_transformer():
+
+    class GenericTransformer(Transformer):
+        def parse_source_file(self):
+            pass
+
+        def record_is_deleted(self):
+            pass
+
+        def get_main_titles(self):
+            pass
+
+        def get_source_link(self):
+            pass
+
+        def get_source_record_id(self):
+            pass
+
+        def get_timdex_record_id(self):
+            pass
+
+    return GenericTransformer
 
 
 # aardvark ##########################
