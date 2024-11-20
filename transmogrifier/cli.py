@@ -31,10 +31,22 @@ logger = logging.getLogger(__name__)
     help="Source records were harvested from, must choose from list of options",
 )
 @click.option(
+    "-r",
+    "--run-id",
+    required=False,
+    help="Identifier for Transmogrifier run.  This can be used to group transformed "
+    "records produced by Transmogrifier, even if they span multiple CLI invocations.  "
+    "If a value is not provided a UUID will be minted and used.",
+)
+@click.option(
     "-v", "--verbose", is_flag=True, help="Pass to log at debug level instead of info"
 )
 def main(
-    source: str, input_file: str, output_file: str, verbose: bool  # noqa: FBT001
+    source: str,
+    input_file: str,
+    output_file: str,
+    run_id: str,
+    verbose: bool,  # noqa: FBT001
 ) -> None:
     start_time = perf_counter()
     root_logger = logging.getLogger()
@@ -42,7 +54,7 @@ def main(
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    transformer = Transformer.load(source, input_file)
+    transformer = Transformer.load(source, input_file, run_id=run_id)
     transformer.transform_and_write_output_files(output_file)
     logger.info(
         (

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import uuid
 from abc import ABC, abstractmethod
 from importlib import import_module
 from typing import TYPE_CHECKING, final
@@ -32,7 +33,10 @@ class Transformer(ABC):
 
     @final
     def __init__(
-        self, source: str, source_records: Iterator[dict[str, JSON] | Tag]
+        self,
+        source: str,
+        source_records: Iterator[dict[str, JSON] | Tag],
+        run_id: str | None = None,
     ) -> None:
         """
         Initialize Transformer instance.
@@ -40,6 +44,7 @@ class Transformer(ABC):
         Args:
             source: Source repository label. Must match a source key from config.SOURCES.
             source_records: A set of source records to be processed.
+            run_id: A unique identifier for this invocation of Transmogrifier.
         """
         self.source: str = source
         self.source_base_url: str = SOURCES[source]["base-url"]
@@ -49,6 +54,7 @@ class Transformer(ABC):
         self.transformed_record_count: int = 0
         self.skipped_record_count: int = 0
         self.deleted_records: list[str] = []
+        self.run_id = self.set_run_id(run_id)
 
     @final
     def __iter__(self) -> Iterator[timdex.TimdexRecord]:
@@ -72,6 +78,15 @@ class Transformer(ABC):
             self.transformed_record_count += 1
             return record
 
+    def set_run_id(self, run_id: str | None) -> str:
+        """Method to set run_id for Transmogrifier run."""
+        if not run_id:
+            logger.info("explicit run_id not passed, minting new UUID")
+            run_id = str(uuid.uuid4())
+        message = f"run_id set: '{run_id}'"
+        logger.info(message)
+        return run_id
+
     @final
     @classmethod
     def get_transformer(cls, source: str) -> type[Transformer]:
@@ -90,17 +105,20 @@ class Transformer(ABC):
 
     @final
     @classmethod
-    def load(cls, source: str, source_file: str) -> Transformer:
+    def load(
+        cls, source: str, source_file: str, run_id: str | None = None
+    ) -> Transformer:
         """
         Instantiate specified transformer class and populate with source records.
 
         Args:
             source: Source repository label. Must match a source key from config.SOURCES.
             source_file: A file containing source records to be transformed.
+            run_id: A unique identifier for this invocation of Transmogrifier.
         """
         transformer_class = cls.get_transformer(source)
         source_records = transformer_class.parse_source_file(source_file)
-        return transformer_class(source, source_records)
+        return transformer_class(source, source_records, run_id=run_id)
 
     @final
     def transform(self, source_record: dict[str, JSON] | Tag) -> timdex.TimdexRecord:

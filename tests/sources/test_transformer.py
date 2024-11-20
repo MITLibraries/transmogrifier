@@ -1,5 +1,7 @@
 # ruff: noqa: PLR2004
 
+import uuid
+
 import pytest
 
 import transmogrifier.models as timdex
@@ -75,3 +77,15 @@ def test_create_locations_from_spatial_subjects_success(timdex_record_required_f
         timdex.Location(value="City 1", kind="Place Name"),
         timdex.Location(value="City 2", kind="Place Name"),
     ]
+
+
+def test_transformer_run_id_explicitly_passed(generic_transformer):
+    run_id = "abc123"
+    transformer = generic_transformer("alma", [], run_id=run_id)
+    assert transformer.run_id == run_id
+
+
+def test_transformer_run_id_none_passed_generates_uuid(generic_transformer):
+    transformer = generic_transformer("alma", [], run_id=None)
+    assert transformer.run_id is not None
+    assert uuid.UUID(transformer.run_id)
