@@ -49,6 +49,12 @@ STATUS_UPDATE_INTERVAL=### The transform process logs the # of records transform
 WORKSPACE=### Set to `dev` for local development, this will be set to `stage` and `prod` in those environments by Terraform.
 ```
 
+### Optional
+
+```shell
+ETL_VERSION=### Version number of the TIMDEX ETL infrastructure.  This can be used to align application behavior with the requirements of other applications in the TIMDEX ETL pipeline.
+```
+
 ## CLI commands
 
 ### `transform`

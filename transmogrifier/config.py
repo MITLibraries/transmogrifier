@@ -179,3 +179,12 @@ def load_external_config(
         else:
             message = f"Unrecognized file_type parameter: {file_type}"
             raise ValueError(message)
+
+
+# NOTE: FEATURE FLAG: function will be removed after v2 work is complete
+def get_etl_version() -> Literal[1, 2]:
+    etl_version = int(os.environ.get("ETL_VERSION", "1"))
+    if etl_version not in [1, 2]:
+        message = f"ETL_VERSION '{etl_version}' not supported"
+        raise ValueError(message)
+    return etl_version  # type: ignore[return-value]

@@ -4,7 +4,12 @@ from time import perf_counter
 
 import click
 
-from transmogrifier.config import SOURCES, configure_logger, configure_sentry
+from transmogrifier.config import (
+    SOURCES,
+    configure_logger,
+    configure_sentry,
+    get_etl_version,
+)
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -55,7 +60,15 @@ def main(
     logger.info("Running transform for source %s", source)
 
     transformer = Transformer.load(source, input_file, run_id=run_id)
-    transformer.transform_and_write_output_files(output_file)
+
+    # NOTE: FEATURE FLAG: branching logic will be removed after v2 work is complete
+    etl_version = get_etl_version()
+    match etl_version:
+        case 1:
+            transformer.transform_and_write_output_files(output_file)
+        case 2:
+            transformer.write_to_parquet_dataset(output_file)
+
     logger.info(
         (
             "Completed transform, total records processed: %d, "
@@ -68,6 +81,7 @@ def main(
         transformer.skipped_record_count,
         len(transformer.deleted_records),
     )
+
     elapsed_time = perf_counter() - start_time
     logger.info(
         "Total time to complete transform: %s", str(timedelta(seconds=elapsed_time))
