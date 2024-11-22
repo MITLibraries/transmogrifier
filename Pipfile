@@ -14,6 +14,7 @@ sentry-sdk = "*"
 smart-open = {version = "*", extras = ["s3"]}
 types-python-dateutil = "*"
 lxml-stubs = "*"
+pyarrow = "*"
 
 [dev-packages]
 black = "*"
@@ -24,6 +25,7 @@ ipython = "*"
 pre-commit = "*"
 ruff = "*"
 safety = "*"
+pyarrow-stubs = "*"
 
 [requires]
 python_version = "3.12"

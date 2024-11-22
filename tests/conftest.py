@@ -12,6 +12,8 @@ from transmogrifier.sources.xmltransformer import XMLTransformer
 @pytest.fixture(autouse=True)
 def _test_env(monkeypatch):
     monkeypatch.setenv("WORKSPACE", "test")
+    # NOTE: FEATURE FLAG: remove after v2 work is complete
+    monkeypatch.setenv("ETL_VERSION", "1")
 
 
 @pytest.fixture(autouse=True, scope="session")
