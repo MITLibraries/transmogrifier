@@ -1,5 +1,7 @@
 """Transformer module."""
 
+# ruff: noqa: D417
+
 from __future__ import annotations
 
 import json
@@ -8,15 +10,16 @@ import os
 import re
 import uuid
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from importlib import import_module
 from typing import TYPE_CHECKING, final
 
-import pyarrow as pa
-import pyarrow.dataset as ds
 import smart_open  # type: ignore[import-untyped]
 from attrs import asdict
 from bs4 import Tag  # type: ignore[import-untyped]
+from timdex_dataset_api import (  # type: ignore[import-untyped, import-not-found]
+    DatasetRecord,
+    TIMDEXDataset,
+)
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, get_etl_version
@@ -26,27 +29,11 @@ from transmogrifier.helpers import generate_citation, validate_date
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
-    from transmogrifier.models import TimdexRecord
-
 logger = logging.getLogger(__name__)
 
 type JSON = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
 PARQUET_DATASET_BATCH_SIZE = 1_000
-
-
-@dataclass
-class ETLRecord:
-    timdex_record_id: str | None
-    serialized_source_record: bytes | None
-    transformed_record: TimdexRecord | None
-    action: str
-
-    def serialized_transformed_record(self) -> bytes | None:
-        """Serialize TimdexRecord to binary JSON string if set."""
-        if self.transformed_record:
-            return json.dumps(self.transformed_record.asdict()).encode()
-        return None
 
 
 class Transformer(ABC):
@@ -57,6 +44,7 @@ class Transformer(ABC):
         self,
         source: str,
         source_records: Iterator[dict[str, JSON] | Tag],
+        source_file: str | None = None,
         run_id: str | None = None,
     ) -> None:
         """
@@ -65,6 +53,7 @@ class Transformer(ABC):
         Args:
             source: Source repository label. Must match a source key from config.SOURCES.
             source_records: A set of source records to be processed.
+            source_file: Filepath of the input source file.
             run_id: A unique identifier for this invocation of Transmogrifier.
         """
         self.source: str = source
@@ -74,17 +63,22 @@ class Transformer(ABC):
         self.processed_record_count: int = 0
         self.transformed_record_count: int = 0
         self.skipped_record_count: int = 0
+        self.error_record_count: int = 0
         self.deleted_records: list[str] = []
-        self.run_id: str = self.set_run_id(run_id)
-        self.partition_values: dict[str, str] | None = None
+        self.source_file = source_file
+
+        # NOTE: FEATURE FLAG: branching logic will be removed after v2 work is complete
+        etl_version = get_etl_version()
+        if etl_version == 2:  # noqa: PLR2004
+            self.run_data = self.get_run_data(source_file, run_id)
 
     @final
-    def __iter__(self) -> Iterator[timdex.TimdexRecord | ETLRecord]:
+    def __iter__(self) -> Iterator[timdex.TimdexRecord | DatasetRecord]:
         """Iterate over transformed records."""
         return self
 
     @final
-    def __next__(self) -> timdex.TimdexRecord | ETLRecord:
+    def __next__(self) -> timdex.TimdexRecord | DatasetRecord:
         """Return next transformed record."""
         # NOTE: FEATURE FLAG: branching logic will be removed after v2 work is complete
         etl_version = get_etl_version()
@@ -112,7 +106,7 @@ class Transformer(ABC):
             return record
 
     # NOTE: FEATURE FLAG: method logic will move directly to __next__ definition
-    def _etl_v2_next_iter_method(self) -> ETLRecord:
+    def _etl_v2_next_iter_method(self) -> DatasetRecord:
         """Transformer.__next__ behavior for ETL version 2."""
         while True:
             transformed_record = None
@@ -136,21 +130,23 @@ class Transformer(ABC):
                 self.skipped_record_count += 1
                 action = "skip"
 
-            return ETLRecord(
-                timdex_record_id=timdex_record_id,
-                serialized_source_record=self.serialize_source_record(source_record),
-                transformed_record=transformed_record,
-                action=action,
-            )
+            except Exception as exception:  # noqa: BLE001
+                self.error_record_count += 1
+                message = f"Unhandled exception during record transformation: {exception}"
+                logger.warning(message)
+                action = "error"
 
-    def set_run_id(self, run_id: str | None) -> str:
-        """Method to set run_id for Transmogrifier run."""
-        if not run_id:
-            logger.info("explicit run_id not passed, minting new UUID")
-            run_id = str(uuid.uuid4())
-        message = f"run_id set: '{run_id}'"
-        logger.info(message)
-        return run_id
+            return DatasetRecord(
+                timdex_record_id=timdex_record_id,
+                source_record=self.serialize_source_record(source_record),
+                transformed_record=(
+                    json.dumps(transformed_record.asdict()).encode()
+                    if transformed_record
+                    else None
+                ),
+                action=action,
+                **self.run_data,
+            )
 
     @final
     @classmethod
@@ -183,34 +179,36 @@ class Transformer(ABC):
         """
         transformer_class = cls.get_transformer(source)
         source_records = transformer_class.parse_source_file(source_file)
-        transformer = transformer_class(source, source_records, run_id=run_id)
+        return transformer_class(
+            source,
+            source_records,
+            source_file=source_file,
+            run_id=run_id,
+        )
 
-        # NOTE: FEATURE FLAG: branching logic will be removed after v2 work is complete
-        etl_version = get_etl_version()
-        if etl_version == 2:  # noqa: PLR2004
-            transformer.set_dataset_partition_values(source_file)
+    @staticmethod
+    def get_run_data(source_file: str | None, run_id: str | None) -> dict:
+        """Prepare dictionary of run data based on input source filename and CLI args.
 
-        return transformer
-
-    def set_dataset_partition_values(self, source_file: str) -> None:
-        """Get dictionary of partition values required for writing to parquet dataset.
-
-        This method is called prior to writing the transformed records to the parquet
-        dataset, providing values needed for appropriate partitioning.  Not all values
-        parsed are used.
+        Args:
+            - source_file: str
+                - example: "libguides-2024-06-03-full-extracted-records-to-index.xml"
+            - run_id: str
+                - example: "run-abc-123"
+                - provided as CLI argument or minted if absent
 
         Example output:
             {
-                'source': 'alma',
-                'run_date': '2023-01-13',
+                'source': 'libguides',
+                'run_date': '2024-06-03',
                 'run_type': 'full',
-                'stage': 'extracted',
-                'action': 'index',
-                'index': '01',
-                'file_type': 'xml',
-                'run_id': '1bdd7b0e-0155-43ad-bd62-3ee305d6fa4b'
+                'run_id': 'run-abc-123'
             }
         """
+        if not source_file:
+            message = "source file not set, cannot parse run data"
+            raise ValueError(message)
+
         filename = source_file.split("/")[-1]
 
         match_result = re.match(
@@ -218,19 +216,37 @@ class Transformer(ABC):
             filename,
         )
         if not match_result:
-            message = f"Provided S3 URI and filename is invalid: {filename}."
+            message = f"Provided S3 URI or filename is invalid: {filename}."
             raise ValueError(message)
 
-        keys = ["source", "run_date", "run_type", "stage", "action", "index", "file_type"]
+        match_keys = [
+            "source",
+            "run_date",
+            "run_type",
+            "stage",
+            "action",
+            "index",
+            "file_type",
+        ]
+        output_keys = ["source", "run_date", "run_type"]
         try:
-            partition_values = dict(zip(keys, match_result.groups(), strict=True))
+            filename_parts = dict(zip(match_keys, match_result.groups(), strict=True))
+            run_data = {k: v for k, v in filename_parts.items() if k in output_keys}
         except ValueError as exception:
-            message = f"Provided S3 URI and filename is invalid: {filename}."
+            message = (
+                f"Input S3 URI or filename '{filename}' does not contain required "
+                f"dataset data: {exception}."
+            )
             raise ValueError(message) from exception
 
-        partition_values.update({"run_id": self.run_id})
+        if not run_id:
+            logger.info("explicit run_id not passed, minting new UUID")
+            run_id = str(uuid.uuid4())
+        message = f"run_id set: '{run_id}'"
+        logger.info(message)
+        run_data["run_id"] = run_id
 
-        self.partition_values = partition_values
+        return run_data
 
     def serialize_source_record(self, source_record: Tag | dict) -> bytes | None:
         if isinstance(source_record, Tag):
@@ -348,89 +364,10 @@ class Transformer(ABC):
             for record_id in deleted_records:
                 file.write(f"{record_id}\n")
 
-    def write_to_parquet_dataset(self, dataset_location: str) -> list[str]:
-        """Write batches of ETLRecords to parquet dataset.
-
-        And ETLRecord contains both the original source record, the new transformed
-        record, and some metadata about the input file.
-
-        NOTE: this method is a WIP.  While functional, and demonstrative of v1 / v2
-        branching, it's possible we will roll up dataset reading and writing into a
-        standalone, installable python library.
-        """
-        schema = pa.schema(
-            (
-                pa.field("timdex_record_id", pa.string()),
-                pa.field("source_record", pa.binary()),
-                pa.field("transformed_record", pa.binary()),
-                pa.field("source", pa.string()),
-                pa.field("run_date", pa.date32()),
-                pa.field("run_type", pa.string()),
-                pa.field("run_id", pa.string()),
-                pa.field("action", pa.string()),
-            )
-        )
-        partition_columns = ["source", "run_date", "run_type", "action", "run_id"]
-
-        written_files = []
-        ds.write_dataset(
-            self.yield_record_rows_for_writing(),
-            schema=schema,
-            base_dir=dataset_location,
-            partitioning=partition_columns,
-            partitioning_flavor="hive",
-            format="parquet",
-            basename_template="records-{i}.parquet",
-            existing_data_behavior="delete_matching",
-            use_threads=True,
-            max_rows_per_group=PARQUET_DATASET_BATCH_SIZE,
-            max_rows_per_file=100_000,
-            file_visitor=lambda written_file: written_files.append(written_file),
-        )
-        return written_files
-
-    def yield_record_rows_for_writing(
-        self, batch_size: int = PARQUET_DATASET_BATCH_SIZE
-    ) -> Iterator:
-        """Prepare batches of transformed records for writing.
-
-        Each row in the batch includes a serialized form of the original source record,
-        the transformed TIMDEX record, and metadata from the input file used for
-        partitioning during write.
-
-        NOTE: this method is a WIP.  While functional, and demonstrative of v1 / v2
-        branching, it will likely undergo revisions and still needs testing.
-        """
-        records = []
-        for etl_record in self:
-
-            if not isinstance(etl_record, ETLRecord):
-                message = "ETLRecord instance required for batch creation"
-                raise TypeError(message)
-            if not isinstance(self.partition_values, dict):
-                message = "Transformer.partition_values is not a dictionary"
-                raise TypeError(message)
-
-            record = {
-                "timdex_record_id": etl_record.timdex_record_id,
-                "source_record": etl_record.serialized_source_record,
-                "transformed_record": etl_record.serialized_transformed_record(),
-                "source": self.partition_values["source"],
-                "run_date": self.partition_values["run_date"],
-                "run_type": self.partition_values["run_type"],
-                "run_id": self.run_id,
-                "action": etl_record.action,
-            }
-            records.append(record)
-
-            if len(records) >= batch_size:
-                batch = pa.RecordBatch.from_pylist(records)
-                yield batch
-                records = []
-
-        if records:
-            batch = pa.RecordBatch.from_pylist(records)
-            yield batch
+    def write_to_parquet_dataset(self, dataset_location: str) -> list:
+        """Write output to TIMDEX dataset."""
+        timdex_dataset = TIMDEXDataset(location=dataset_location)
+        return timdex_dataset.write(records_iter=self)
 
     @final
     def get_valid_title(self, source_record: dict[str, JSON] | Tag) -> str:
