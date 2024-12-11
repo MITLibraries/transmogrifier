@@ -2,7 +2,7 @@
 
 An application to transform source records to the TIMDEX data model to facilitate ingest into an OpenSearch index.
 
-TIMDEX ingests records from various sources with different metadata formats, necessitating an application to transform those source records to a common metadata format, the TIMDEX data model in this case. This application processes both XML and JSON source records and outputs a JSON file of records formatted according to the TIMDEX data model. 
+TIMDEX ingests records from various sources with different metadata formats, necessitating an application to transform those source records to a common metadata format, the TIMDEX data model in this case. This application processes source records, creates records formatted according to the TIMDEX data model, and writes to a TIMDEX parquet dataset. 
 
 ```mermaid
 ---
@@ -14,21 +14,21 @@ flowchart TD
     GeoData
     MARC
     transmogrifier((transmogrifier))
-    JSON
+    timdex-dataset
     timdex-index-manager
     ArchivesSpace[("ArchivesSpace<br>(EAD XML)")] --> transmogrifier
     DSpace[("DSpace<br>(METS XML)")] --> transmogrifier
     GeoData[("GeoData<br>(Aardvark JSON)")] --> transmogrifier
     MARC[("Alma<br>(MARCXML)")] --> transmogrifier
-    transmogrifier --> JSON["TIMDEX JSON"]
-    JSON[TIMDEX JSON file] --> timdex-index-manager((timdex-index-manager))
+    transmogrifier --> timdex-dataset["TIMDEX Parquet Dataset"]
+    timdex-dataset["TIMDEX Parquet Dataset"] --> timdex-index-manager((timdex-index-manager))
 ```
 
 The TIMDEX data model is designed to produce records that can be successfully ingested into an OpenSearch index and contains data fields that are broadly applicable to various types of records. `transmogrifier` contains different validators to ensure that the record is structured properly and that certain types of values, such as dates, align with OpenSearch's expectations.
 
 Each source is defined with configuration values and a dedicated transform class to process records from that source. For each transform class, various errors and warnings are logged. Some errors are logged and the entire source record is skipped because the severity implies it should not be processed until fixed, while others are merely logged as warnings for later review. The application also determines which records are marked as deleted in each source and removes those record from the OpenSearch index. 
 
-After the JSON file of transformed records is produced, it is processed by `timdex-index-manager` for ingest into an OpenSearch index.
+After Transmogrifier writes the transformed files to the TIMDEX parquet dataset, it is processed by `timdex-index-manager` for ingest into an OpenSearch index.
 
 ## Development
 
@@ -65,8 +65,11 @@ Usage: -c [OPTIONS]
 Options:
   -i, --input-file TEXT           Filepath for harvested input records to
                                   transform  [required]
-  -o, --output-file TEXT          Filepath to write output TIMDEX JSON records
-                                  to  [required]
+  --output-file TEXT              Filepath to write output TIMDEX JSON records
+                                  to. NOTE: this option will be removed when
+                                  output to parquet is finalized.
+  -o, --output-location TEXT      Location of TIMDEX parquet dataset to write
+                                  to.
   -s, --source [alma|aspace|dspace|jpal|libguides|gismit|gisogm|researchdatabases|whoas|zenodo]
                                   Source records were harvested from, must
                                   choose from list of options  [required]

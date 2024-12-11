@@ -13,7 +13,7 @@ def test_transform_no_sentry_not_verbose(caplog, monkeypatch, runner, tmp_path):
         [
             "-i",
             "tests/fixtures/datacite/datacite_records.xml",
-            "-o",
+            "--output-file",
             outfile,
             "-s",
             "jpal",
@@ -39,7 +39,7 @@ def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path
         [
             "-i",
             "tests/fixtures/datacite/datacite_records.xml",
-            "-o",
+            "--output-file",
             outfile,
             "-s",
             "jpal",
@@ -66,7 +66,7 @@ def test_transform_no_records(runner, tmp_path):
         [
             "-i",
             "tests/fixtures/no_records.xml",
-            "-o",
+            "--output-file",
             outfile,
             "-s",
             "dspace",
@@ -83,7 +83,7 @@ def test_transform_deleted_records(caplog, runner, tmp_path):
         [
             "-i",
             "tests/fixtures/record_deleted.xml",
-            "-o",
+            "--output-file",
             outfile,
             "-s",
             "jpal",
@@ -96,7 +96,8 @@ def test_transform_deleted_records(caplog, runner, tmp_path):
     ) in caplog.text
 
 
-def test_transform_run_id_argument_passed_and_used(caplog, runner, tmp_path):
+def test_transform_run_id_argument_passed_and_used(monkeypatch, caplog, runner, tmp_path):
+    monkeypatch.setenv("ETL_VERSION", "2")
     caplog.set_level("INFO")
     run_id = "abc123"
     with mock.patch(
@@ -112,15 +113,18 @@ def test_transform_run_id_argument_passed_and_used(caplog, runner, tmp_path):
                 "-r",
                 run_id,
                 "-i",
-                "tests/fixtures/datacite/datacite_records.xml",
+                "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml",
                 "-o",
-                "/tmp/records.json",
+                "/tmp/dataset",
             ],
         )
     assert f"run_id set: '{run_id}'" in caplog.text
 
 
-def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tmp_path):
+def test_transform_run_id_argument_not_passed_and_uuid_minted(
+    monkeypatch, caplog, runner, tmp_path
+):
+    monkeypatch.setenv("ETL_VERSION", "2")
     caplog.set_level("INFO")
     with mock.patch(
         "transmogrifier.sources.transformer.Transformer.transform_and_write_output_files"
@@ -133,9 +137,9 @@ def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tm
                 "-s",
                 "alma",
                 "-i",
-                "tests/fixtures/datacite/datacite_records.xml",
+                "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml",
                 "-o",
-                "/tmp/records.json",
+                "/tmp/dataset",
             ],
         )
     assert "explicit run_id not passed, minting new UUID" in caplog.text

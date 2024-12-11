@@ -64,7 +64,7 @@ def test_cli_etl_version_v1_invokes_v1_code(
         [
             "-i",
             "/does/not/exist/alma-2023-01-13-full-extracted-records-to-index_01.xml",
-            "-o",
+            "--output-file",
             "/does/not/exist/libguides.json",
             "-s",
             "libguides",

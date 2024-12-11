@@ -51,7 +51,6 @@ def runner():
 
 @pytest.fixture
 def generic_transformer():
-
     class GenericTransformer(Transformer):
         def parse_source_file(self):
             pass
@@ -228,4 +227,34 @@ def timdex_record_all_fields_and_subfields():
         ],
         subjects=[timdex.Subject(value=["Stuff"], kind="LCSH")],
         summary=["This is data."],
+    )
+
+
+# timdex parquet dataset ##########################
+
+
+@pytest.fixture
+def run_id():
+    return "run-abc-123"
+
+
+@pytest.fixture
+def empty_dataset_location(tmp_path):
+    return str(tmp_path / "dataset")
+
+
+@pytest.fixture
+def libguides_input_file():
+    return (
+        "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml"
+    )
+
+
+@pytest.fixture
+def libguides_transformer(monkeypatch, run_id, libguides_input_file):
+    monkeypatch.setenv("ETL_VERSION", "2")
+    return Transformer.load(
+        "libguides",
+        libguides_input_file,
+        run_id=run_id,
     )
