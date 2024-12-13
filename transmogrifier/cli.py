@@ -20,13 +20,23 @@ logger = logging.getLogger(__name__)
     "-i",
     "--input-file",
     required=True,
-    help="Filepath for harvested input records to transform",
+    help="Filepath of input records to transform.  The filename must be in the format "
+    "<source>-<YYYY-MM-DD>-<run-type>-extracted-records-to-<action><index[optional]>"
+    ".<extension>.  Examples: 'gisogm-2024-03-28-daily-extracted-records-to-index.jsonl' "
+    "or 'alma-2023-01-13-full-extracted-records-to-index_17.xml'.",
+)
+# NOTE: FEATURE FLAG: CLI arg '--output-file' will be removed after v2 work is complete
+@click.option(
+    "--output-file",
+    required=False,
+    help="Filepath to write output TIMDEX JSON records to. NOTE: this option will be "
+    "removed when output to parquet is finalized.",
 )
 @click.option(
     "-o",
-    "--output-file",
-    required=True,
-    help="Filepath to write output TIMDEX JSON records to",
+    "--output-location",
+    required=False,
+    help="Location of TIMDEX parquet dataset to write to.",
 )
 @click.option(
     "-s",
@@ -50,6 +60,7 @@ def main(
     source: str,
     input_file: str,
     output_file: str,
+    output_location: str,
     run_id: str,
     verbose: bool,  # noqa: FBT001
 ) -> None:
@@ -65,9 +76,15 @@ def main(
     etl_version = get_etl_version()
     match etl_version:
         case 1:
+            if output_file is None:
+                message = "--output-file must be set when using ETL_VERSION=1"
+                raise RuntimeError(message)
             transformer.transform_and_write_output_files(output_file)
         case 2:
-            transformer.write_to_parquet_dataset(output_file)
+            if output_location is None:
+                message = "-o / --output-location must be set when using ETL_VERSION=2"
+                raise RuntimeError(message)
+            transformer.write_to_parquet_dataset(output_location)
 
     logger.info(
         (

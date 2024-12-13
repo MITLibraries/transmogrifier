@@ -1,10 +1,14 @@
-# ruff: noqa: PLR2004
-
-import uuid
+# ruff: noqa: PLR2004, SLF001, D202
+import datetime
+import json
+from unittest import mock
 
 import pytest
+from lxml import etree
+from timdex_dataset_api.record import DatasetRecord
 
 import transmogrifier.models as timdex
+from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
 from transmogrifier.sources.transformer import Transformer
 from transmogrifier.sources.xml.datacite import Datacite
 
@@ -79,13 +83,77 @@ def test_create_locations_from_spatial_subjects_success(timdex_record_required_f
     ]
 
 
-def test_transformer_run_id_explicitly_passed(generic_transformer):
-    run_id = "abc123"
-    transformer = generic_transformer("alma", [], run_id=run_id)
-    assert transformer.run_id == run_id
+def test_transformer_get_run_data_from_source_file_and_run_id(
+    libguides_transformer, libguides_input_file, run_id
+):
+    assert libguides_transformer.get_run_data(libguides_input_file, run_id) == {
+        "source": "libguides",
+        "run_date": "2024-06-03",
+        "run_type": "full",
+        "run_id": run_id,
+    }
 
 
-def test_transformer_run_id_none_passed_generates_uuid(generic_transformer):
-    transformer = generic_transformer("alma", [], run_id=None)
-    assert transformer.run_id is not None
-    assert uuid.UUID(transformer.run_id)
+def test_transformer_next_iter_yields_dataset_records(libguides_transformer):
+    assert isinstance(next(libguides_transformer), DatasetRecord)
+
+
+def test_transform_next_iter_sets_valid_source_and_transformed_records(
+    libguides_transformer,
+):
+    record = next(libguides_transformer)
+
+    # parse source record XML
+    assert isinstance(record.source_record, bytes)
+    source_record = etree.fromstring(record.source_record)
+    assert isinstance(source_record, etree._Element)
+
+    # parse transformed record
+    assert isinstance(record.transformed_record, bytes)
+    transformed_record = json.loads(record.transformed_record)
+    assert isinstance(transformed_record, dict)
+
+
+def test_transform_next_iter_uses_run_data_parsed_from_source_file(
+    libguides_transformer, libguides_input_file, run_id
+):
+    record = next(libguides_transformer)
+    run_data = libguides_transformer.get_run_data(libguides_input_file, run_id)
+    assert record.run_date == datetime.datetime.strptime(
+        run_data["run_date"], "%Y-%m-%d"
+    ).astimezone(datetime.UTC)
+    assert record.run_type == run_data["run_type"]
+    assert record.run_id == run_id
+
+
+@pytest.mark.parametrize(
+    ("transform_exception", "expected_action"),
+    [
+        (None, "index"),
+        (DeletedRecordEvent(timdex_record_id="libguides:guides-0"), "delete"),
+        (SkippedRecordEvent(source_record_id="guides-0"), "skip"),
+        (RuntimeError("totally unhandled event"), "error"),
+    ],
+)
+def test_transformer_action_column_based_on_transformation_exception_handling(
+    libguides_transformer, transform_exception, expected_action
+):
+    """While Transmogrifier is often considered just an application to transform a source
+    record into a TIMDEX record, it also serves the purpose of determining if a source
+    record should be indexed or deleted, or skipped (no action taken), or handling when a
+    record cannot be transformed (unhandled error).  This 'action' that Transmogrifier
+    determines for each record is captured in the 'action' column in the TIMDEX parquet
+    dataset.
+
+    This test ensures that the 'action' column values are correct given behavior
+    (exception handling) during transformation of each record.
+    """
+
+    if transform_exception:
+        with mock.patch.object(libguides_transformer, "transform") as mocked_transform:
+            mocked_transform.side_effect = transform_exception
+            record = next(libguides_transformer)
+            assert mocked_transform.called
+    else:
+        record = next(libguides_transformer)
+    assert record.action == expected_action
