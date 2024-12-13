@@ -20,8 +20,12 @@ logger = logging.getLogger(__name__)
     "-i",
     "--input-file",
     required=True,
-    help="Filepath for harvested input records to transform",
+    help="Filepath of input records to transform.  The filename must be in the format "
+    "<source>-<YYYY-MM-DD>-<run-type>-extracted-records-to-<action><index[optional]>"
+    ".<extension>.  Examples: 'gisogm-2024-03-28-daily-extracted-records-to-index.jsonl' "
+    "or 'alma-2023-01-13-full-extracted-records-to-index_17.xml'.",
 )
+# NOTE: FEATURE FLAG: CLI arg '--output-file' will be removed after v2 work is complete
 @click.option(
     "--output-file",
     required=False,

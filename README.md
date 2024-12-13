@@ -63,8 +63,15 @@ ETL_VERSION=### Version number of the TIMDEX ETL infrastructure.  This can be us
 Usage: -c [OPTIONS]
 
 Options:
-  -i, --input-file TEXT           Filepath for harvested input records to
-                                  transform  [required]
+  -i, --input-file TEXT           Filepath of input records to transform.
+                                  The filename must be in the format
+                                  <source>-<YYYY-MM-DD>-<run-type>-extracted-
+                                  records-
+                                  to-<action><index[optional]>.<extension>.
+                                  Examples: 'gisogm-2024-03-28-daily-extracted-
+                                  records-to-index.jsonl' or
+                                  'alma-2023-01-13-full-extracted-records-to-
+                                  index_17.xml'.  [required]
   --output-file TEXT              Filepath to write output TIMDEX JSON records
                                   to. NOTE: this option will be removed when
                                   output to parquet is finalized.
