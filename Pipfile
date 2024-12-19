@@ -14,7 +14,7 @@ python-dateutil = "*"
 sentry-sdk = "*"
 smart-open = {version = "*", extras = ["s3"]}
 types-python-dateutil = "*"
-timdex-dataset-api = {ref = "8bf085a", git = "git+https://github.com/MITLibraries/timdex-dataset-api.git"}
+timdex-dataset-api = {git = "git+https://github.com/MITLibraries/timdex-dataset-api.git"}
 
 [dev-packages]
 black = "*"
