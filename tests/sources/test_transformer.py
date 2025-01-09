@@ -119,9 +119,12 @@ def test_transform_next_iter_uses_run_data_parsed_from_source_file(
 ):
     record = next(libguides_transformer)
     run_data = libguides_transformer.get_run_data(libguides_input_file, run_id)
-    assert record.run_date == datetime.datetime.strptime(
-        run_data["run_date"], "%Y-%m-%d"
-    ).astimezone(datetime.UTC)
+    assert (
+        record.run_date
+        == datetime.datetime.strptime(run_data["run_date"], "%Y-%m-%d")
+        .astimezone(datetime.UTC)
+        .date()
+    )
     assert record.run_type == run_data["run_type"]
     assert record.run_id == run_id
 
