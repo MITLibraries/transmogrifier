@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from typing import TYPE_CHECKING, final
 
 import smart_open  # type: ignore[import-untyped]
@@ -34,9 +35,20 @@ class XMLTransformer(Transformer):
                 recover=True,
             ):
                 record_string = etree.tostring(element, encoding="utf-8")
-                record = BeautifulSoup(record_string, "xml")
+                record = cls.parse_bs4_in_isolated_thread(record_string)
                 yield record
                 element.clear()
+
+    @classmethod
+    def parse_bs4_in_isolated_thread(cls, source_record: bytes) -> Tag:
+        def parse() -> Tag:
+            nonlocal source_record
+            source_record = BeautifulSoup(source_record, "xml")
+
+        thread = threading.Thread(target=parse)
+        thread.start()
+        thread.join()
+        return source_record
 
     @classmethod
     def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
