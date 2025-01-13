@@ -1,5 +1,6 @@
 # ruff: noqa: S108
 
+import subprocess
 from unittest import mock
 
 from transmogrifier.cli import main
@@ -115,7 +116,7 @@ def test_transform_run_id_argument_passed_and_used(monkeypatch, caplog, runner, 
                 "-i",
                 "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml",
                 "-o",
-                "/tmp/dataset",
+                f"{tmp_path}/dataset",
             ],
         )
     assert f"run_id set: '{run_id}'" in caplog.text
@@ -139,8 +140,34 @@ def test_transform_run_id_argument_not_passed_and_uuid_minted(
                 "-i",
                 "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml",
                 "-o",
-                "/tmp/dataset",
+                f"{tmp_path}/dataset",
             ],
         )
     assert "explicit run_id not passed, minting new UUID" in caplog.text
     assert "run_id set:" in caplog.text
+
+
+def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_path):
+    """This test requires running the CLI as a subprocess to simulate the 'pipenv run ...'
+    context.  In this context, we have observed memory faults when BeautifulSoup4 is used
+    by a source, and the number of records in the run requires multiple batches during
+    parquet dataset writing.  The exit code associated with this memory fault is -6.
+    """
+    monkeypatch.setenv("ETL_VERSION", "2")
+    result = subprocess.run(  # noqa: S603
+        [  # noqa: S607
+            "pipenv",
+            "run",
+            "transform",
+            "-s",
+            "libguides",
+            "-i",
+            "tests/fixtures/dataset/libguides-2025-01-09-full-extracted-records-to-index.xml",
+            "-o",
+            f"{tmp_path}/dataset",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
