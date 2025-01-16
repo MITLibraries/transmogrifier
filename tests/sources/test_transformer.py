@@ -160,3 +160,25 @@ def test_transformer_action_column_based_on_transformation_exception_handling(
     else:
         record = next(libguides_transformer)
     assert record.action == expected_action
+
+
+def test_transformer_provenance_object_added_to_transformed_record(libguides_transformer):
+    dataset_record = next(libguides_transformer)
+    transformed_record = json.loads(dataset_record.transformed_record)
+    assert transformed_record["timdex_provenance"] == {
+        "source": "libguides",
+        "run_date": "2024-06-03",
+        "run_id": "run-abc-123",
+        "run_record_offset": 0,
+    }
+
+
+def test_transformer_provenance_object_run_record_offset_increments(
+    libguides_transformer,
+):
+    for i in range(4):
+        dataset_record = next(libguides_transformer)
+        if dataset_record.action != "index":
+            continue
+        transformed_record = json.loads(dataset_record.transformed_record)
+        assert transformed_record["timdex_provenance"]["run_record_offset"] == i

@@ -72,6 +72,10 @@ class Transformer(ABC):
         if etl_version == 2:  # noqa: PLR2004
             self.run_data = self.get_run_data(source_file, run_id)
 
+    @property
+    def run_record_offset(self) -> int:
+        return self.processed_record_count - 1
+
     @final
     def __iter__(self) -> Iterator[timdex.TimdexRecord | DatasetRecord]:
         """Iterate over transformed records."""
@@ -118,6 +122,12 @@ class Transformer(ABC):
             try:
                 transformed_record = self.transform(source_record)
                 timdex_record_id = transformed_record.timdex_record_id
+                transformed_record.timdex_provenance = timdex.TimdexProvenance(
+                    source=self.run_data["source"],
+                    run_date=self.run_data["run_date"],
+                    run_id=self.run_data["run_id"],
+                    run_record_offset=self.run_record_offset,
+                )
                 self.transformed_record_count += 1
                 action = "index"
 
@@ -145,6 +155,7 @@ class Transformer(ABC):
                     else None
                 ),
                 action=action,
+                run_record_offset=self.run_record_offset,
                 **self.run_data,
             )
 
