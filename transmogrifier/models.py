@@ -213,6 +213,16 @@ class Subject:
 
 
 @define
+class TimdexProvenance:
+    source: str = field(default=None, validator=instance_of(str))
+    run_date: str = field(default=None, validator=instance_of(str))
+    run_id: str = field(default=None, validator=instance_of(str))
+    run_record_offset: int = field(default=None, validator=instance_of(int))
+
+    __hash__ = timdex_object_hash
+
+
+@define
 class TimdexRecord:
     # Required fields
     source: str = field(validator=instance_of(str))
@@ -289,6 +299,9 @@ class TimdexRecord:
     )
     summary: list[str] | None = field(
         default=None, converter=dedupe, validator=optional(list_of(str))
+    )
+    timdex_provenance: TimdexProvenance | None = field(
+        default=None, validator=optional(instance_of(TimdexProvenance))
     )
 
     def asdict(self) -> dict[str, Any]:
