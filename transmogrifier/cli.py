@@ -66,7 +66,7 @@ def main(
 ) -> None:
     start_time = perf_counter()
     root_logger = logging.getLogger()
-    logger.info(configure_logger(root_logger, verbose))
+    logger.info(configure_logger(root_logger, verbose=verbose))
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 

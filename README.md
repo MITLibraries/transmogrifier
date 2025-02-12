@@ -53,6 +53,7 @@ WORKSPACE=### Set to `dev` for local development, this will be set to `stage` an
 
 ```shell
 ETL_VERSION=### Version number of the TIMDEX ETL infrastructure.  This can be used to align application behavior with the requirements of other applications in the TIMDEX ETL pipeline.
+WARNING_ONLY_LOGGERS=### Comma-seperated list of logger names to set as WARNING only, e.g. 'botocore,charset_normalizer,smart_open' 
 ```
 
 ## CLI commands
