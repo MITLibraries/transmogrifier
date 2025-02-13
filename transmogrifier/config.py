@@ -133,25 +133,25 @@ SOURCES = {
 
 
 def configure_logger(
-    logger: logging.Logger,
+    root_logger: logging.Logger,
     *,
     verbose: bool = False,
     warning_only_loggers: str | None = None,
 ) -> str:
-    """Configure application via passed root logger.
+    """Configure application via passed application root logger.
 
     If verbose=True, 3rd party libraries can be quite chatty.  For convenience, they can
     be set to WARNING level by either passing a comma seperated list of logger names to
     'warning_only_loggers' or by setting the env var WARNING_ONLY_LOGGERS.
     """
     if verbose:
-        logger.setLevel(logging.DEBUG)
+        root_logger.setLevel(logging.DEBUG)
         logging_format = (
             "%(asctime)s %(levelname)s %(name)s.%(funcName)s() "
             "line %(lineno)d: %(message)s"
         )
     else:
-        logger.setLevel(logging.INFO)
+        root_logger.setLevel(logging.INFO)
         logging_format = "%(asctime)s %(levelname)s %(name)s.%(funcName)s(): %(message)s"
 
     warning_only_loggers = os.getenv("WARNING_ONLY_LOGGERS", warning_only_loggers)
@@ -161,11 +161,11 @@ def configure_logger(
 
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter(logging_format))
-    logger.addHandler(handler)
+    root_logger.addHandler(handler)
 
     return (
-        f"Logger '{logger.name}' configured with level="
-        f"{logging.getLevelName(logger.getEffectiveLevel())}"
+        f"Logger '{root_logger.name}' configured with level="
+        f"{logging.getLevelName(root_logger.getEffectiveLevel())}"
     )
 
 
