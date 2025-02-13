@@ -51,6 +51,12 @@ fixable = ["E", "F", "I", "Q"]
 [tool.ruff.lint.flake8-annotations]
 mypy-init-return = true
 
+[tool.ruff.lint.flake8-builtins]
+builtins-allowed-modules = [
+    "json", # allows for transmogrifier/sources/json directory
+    "xml", # allows for transmogrifier/sources/xml directory
+]
+
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 
