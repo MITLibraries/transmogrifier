@@ -35,7 +35,8 @@ def test_dspace_dim_transform_with_all_fields_transforms_correctly():
         "tests/fixtures/dspace/dspace_dim_record_all_fields.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         citation="Journal of Geophysical Research: Solid Earth 121 (2016): 5859-5879",
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
@@ -164,7 +165,8 @@ def test_dspace_dim_transform_with_attribute_variations_transforms_correctly():
         "tests/fixtures/dspace/dspace_dim_record_attribute_variations.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         citation="Title with Blank Qualifier. https://example.com/1912/2641",
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
@@ -219,7 +221,8 @@ def test_dspace_dim_transform_with_optional_fields_blank_transforms_correctly():
         "tests/fixtures/dspace/dspace_dim_record_optional_fields_blank.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
         timdex_record_id="cool-repo:1912-2641",
@@ -235,7 +238,8 @@ def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly(
         "tests/fixtures/dspace/dspace_dim_record_optional_fields_missing.xml"
     )
     output_records = DspaceDim("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/1912/2641",
         timdex_record_id="cool-repo:1912-2641",

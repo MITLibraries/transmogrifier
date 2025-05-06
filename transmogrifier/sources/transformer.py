@@ -13,8 +13,6 @@ from abc import ABC, abstractmethod
 from importlib import import_module
 from typing import TYPE_CHECKING, final
 
-import smart_open  # type: ignore[import-untyped]
-from attrs import asdict
 from bs4 import Tag  # type: ignore[import-untyped]
 from timdex_dataset_api import (  # type: ignore[import-untyped, import-not-found]
     DatasetRecord,
@@ -22,7 +20,7 @@ from timdex_dataset_api import (  # type: ignore[import-untyped, import-not-foun
 )
 
 import transmogrifier.models as timdex
-from transmogrifier.config import SOURCES, get_etl_version
+from transmogrifier.config import SOURCES
 from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
 from transmogrifier.helpers import generate_citation, validate_date
 
@@ -67,10 +65,7 @@ class Transformer(ABC):
         self.deleted_records: list[str] = []
         self.source_file = source_file
 
-        # NOTE: FEATURE FLAG: branching logic will be removed after v2 work is complete
-        etl_version = get_etl_version()
-        if etl_version == 2:  # noqa: PLR2004
-            self.run_data = self.get_run_data(source_file, run_id)
+        self.run_data = self.get_run_data(source_file, run_id)
 
     @property
     def run_record_offset(self) -> int:
@@ -84,34 +79,6 @@ class Transformer(ABC):
     @final
     def __next__(self) -> timdex.TimdexRecord | DatasetRecord:
         """Return next transformed record."""
-        # NOTE: FEATURE FLAG: branching logic will be removed after v2 work is complete
-        etl_version = get_etl_version()
-        match etl_version:
-            case 1:
-                return self._etl_v1_next_iter_method()
-            case 2:
-                return self._etl_v2_next_iter_method()
-
-    # NOTE: FEATURE FLAG: branching logic + method removed after v2 work is complete
-    def _etl_v1_next_iter_method(self) -> timdex.TimdexRecord:
-        """Transformer.__next__ behavior for ETL version 1."""
-        while True:
-            source_record = next(self.source_records)
-            self.processed_record_count += 1
-            try:
-                record = self.transform(source_record)
-            except DeletedRecordEvent as error:
-                self.deleted_records.append(error.timdex_record_id)
-                continue
-            except SkippedRecordEvent:
-                self.skipped_record_count += 1
-                continue
-            self.transformed_record_count += 1
-            return record
-
-    # NOTE: FEATURE FLAG: method logic will move directly to __next__ definition
-    def _etl_v2_next_iter_method(self) -> DatasetRecord:
-        """Transformer.__next__ behavior for ETL version 2."""
         while True:
             transformed_record = None
             timdex_record_id = None
@@ -201,6 +168,11 @@ class Transformer(ABC):
     def get_run_data(source_file: str | None, run_id: str | None) -> dict:
         """Prepare dictionary of run data based on input source filename and CLI args.
 
+        If 'source_file' is None and a testing environment is detected, a mocked
+        dictionary of run data will be returned.  This is primarily in place to remain
+        backwards compatible tests that exercise transformation logic but have little to
+        do with final outputs.
+
         Args:
             - source_file: str
                 - example: "libguides-2024-06-03-full-extracted-records-to-index.xml"
@@ -216,8 +188,19 @@ class Transformer(ABC):
                 'run_id': 'run-abc-123'
             }
         """
+        # if source_file is missing, but a testing context detected, mock run data
         if not source_file:
-            message = "source file not set, cannot parse run data"
+            if os.getenv("WORKSPACE") == "test":
+                logger.warning(
+                    "'source_file' is None, setting empty run data for test environment"
+                )
+                return {
+                    "source": "placeholder",
+                    "run_date": "2000-01-01",
+                    "run_type": "daily",
+                    "run_id": run_id or str(uuid.uuid4()),
+                }
+            message = "'source_file' parameter is required outside of test environments"
             raise ValueError(message)
 
         filename = source_file.split("/")[-1]
@@ -300,80 +283,6 @@ class Transformer(ABC):
         self.generate_derived_fields(timdex_record)
 
         return timdex_record
-
-    # NOTE: FEATURE FLAG: method will be removed after v2 work is complete
-    @final
-    def transform_and_write_output_files(self, output_file: str) -> None:
-        """Iterates through source records to transform and write to output files.
-
-        Args:
-            output_file: The name of the output files.
-        """
-        self._write_timdex_records_to_json_file(output_file)
-        if self.processed_record_count == 0:
-            message = "No records processed from input file, needs investigation"
-            raise ValueError(message)
-        if deleted_records := self.deleted_records:
-            deleted_output_file = output_file.replace("index", "delete").replace(
-                "json", "txt"
-            )
-            self._write_deleted_records_to_txt_file(deleted_records, deleted_output_file)
-
-    # NOTE: FEATURE FLAG: method will be removed after v2 work is complete
-    @final
-    def _write_timdex_records_to_json_file(self, output_file: str) -> int:
-        """
-        Write TIMDEX records to JSON file.
-
-        Args:
-            output_file: The JSON file used for writing TIMDEX records.
-        """
-        count = 0
-        try:
-            record: timdex.TimdexRecord = next(self)  # type: ignore[assignment]
-        except StopIteration:
-            return count
-        with smart_open.open(output_file, "w") as file:
-            file.write("[\n")
-            while record:
-                file.write(
-                    json.dumps(
-                        asdict(
-                            record,
-                            filter=lambda _, value: value is not None,
-                        ),
-                        indent=2,
-                    )
-                )
-                count += 1
-                if count % int(os.getenv("STATUS_UPDATE_INTERVAL", "1000")) == 0:
-                    logger.info(
-                        "Status update: %s records written to output file so far!",
-                        count,
-                    )
-                try:
-                    record: timdex.TimdexRecord = next(self)  # type: ignore[no-redef]
-                except StopIteration:
-                    break
-                file.write(",\n")
-            file.write("\n]")
-        return count
-
-    # NOTE: FEATURE FLAG: method will be removed after v2 work is complete
-    @final
-    @staticmethod
-    def _write_deleted_records_to_txt_file(
-        deleted_records: list[str], output_file: str
-    ) -> None:
-        """Write deleted records to the specified text file.
-
-        Args:
-            deleted_records: The deleted records to write to file.
-            output_file: The text file used for writing deleted records.
-        """
-        with smart_open.open(output_file, "w") as file:
-            for record_id in deleted_records:
-                file.write(f"{record_id}\n")
 
     def write_to_parquet_dataset(self, dataset_location: str) -> list:
         """Write output to TIMDEX dataset."""

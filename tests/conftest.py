@@ -12,8 +12,6 @@ from transmogrifier.sources.xmltransformer import XMLTransformer
 @pytest.fixture(autouse=True)
 def _test_env(monkeypatch):
     monkeypatch.setenv("WORKSPACE", "test")
-    # NOTE: FEATURE FLAG: remove after v2 work is complete
-    monkeypatch.setenv("ETL_VERSION", "1")
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -247,6 +245,13 @@ def empty_dataset_location(tmp_path):
 def libguides_input_file():
     return (
         "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml"
+    )
+
+
+@pytest.fixture
+def empty_libguides_input_file():
+    return (
+        "tests/fixtures/dataset/libguides-2024-06-04-full-extracted-records-to-index.xml"
     )
 
 

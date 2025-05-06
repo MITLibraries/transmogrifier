@@ -6,44 +6,43 @@ from unittest import mock
 from transmogrifier.cli import main
 
 
-def test_transform_no_sentry_not_verbose(caplog, monkeypatch, runner, tmp_path):
+def test_transform_no_sentry_not_verbose(
+    caplog, monkeypatch, runner, libguides_input_file, empty_dataset_location
+):
     monkeypatch.delenv("SENTRY_DSN", raising=False)
-    outfile = tmp_path / "timdex_jpal_records.json"
     result = runner.invoke(
         main,
         [
             "-i",
-            "tests/fixtures/datacite/datacite_records.xml",
-            "--output-file",
-            outfile,
+            libguides_input_file,
+            "--output-location",
+            empty_dataset_location,
             "-s",
-            "jpal",
+            "libguides",
         ],
     )
     assert result.exit_code == 0
     assert "Logger 'root' configured with level=INFO" in caplog.text
     assert "No Sentry DSN found, exceptions will not be sent to Sentry" in caplog.text
-    assert "Running transform for source jpal" in caplog.text
-    assert (
-        "Completed transform, total records processed: 38, transformed records: 38"
-        ", skipped records: 0"
-    ) in caplog.text
+    assert "Running transform for source libguides" in caplog.text
+    assert ("Completed transform, total records processed: 4") in caplog.text
     assert "Total time to complete transform" in caplog.text
 
 
-def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path):
+def test_transform_with_sentry_and_verbose(
+    caplog, monkeypatch, runner, libguides_input_file, empty_dataset_location
+):
     monkeypatch.setenv("SENTRY_DSN", "https://1234567890@00000.ingest.sentry.io/123456")
     monkeypatch.setenv("STATUS_UPDATE_INTERVAL", "10")
-    outfile = tmp_path / "timdex_jpal_records.json"
     result = runner.invoke(
         main,
         [
             "-i",
-            "tests/fixtures/datacite/datacite_records.xml",
-            "--output-file",
-            outfile,
+            libguides_input_file,
+            "--output-location",
+            empty_dataset_location,
             "-s",
-            "jpal",
+            "libguides",
             "-v",
         ],
     )
@@ -52,57 +51,56 @@ def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path
     assert (
         "Sentry DSN found, exceptions will be sent to Sentry with env=test" in caplog.text
     )
-    assert "Running transform for source jpal" in caplog.text
-    assert "Status update: 30 records written to output file so far!" in caplog.text
-    assert (
-        "Completed transform, total records processed: 38, transformed records: 38"
-        ", skipped records: 0"
-    ) in caplog.text
+    assert "Running transform for source libguides" in caplog.text
+    assert ("Completed transform, total records processed: 4") in caplog.text
 
 
-def test_transform_no_records(runner, tmp_path):
-    outfile = tmp_path / "no_records.json"
+def test_transform_no_records(
+    caplog,
+    runner,
+    libguides_input_file,
+    empty_libguides_input_file,
+    empty_dataset_location,
+):
+    caplog.set_level("DEBUG")
     result = runner.invoke(
         main,
         [
             "-i",
-            "tests/fixtures/no_records.xml",
-            "--output-file",
-            outfile,
+            empty_libguides_input_file,
+            "--output-location",
+            empty_dataset_location,
             "-s",
             "dspace",
         ],
     )
-    assert result.exit_code == 1
-    assert isinstance(result.exception, ValueError)
+    assert result.exit_code == 0
+    assert "Completed transform, total records processed: 0" in caplog.text
 
 
-def test_transform_deleted_records(caplog, runner, tmp_path):
-    outfile = tmp_path / "records-to-index.json"
+def test_transform_deleted_records(
+    caplog, runner, libguides_input_file, empty_dataset_location
+):
     result = runner.invoke(
         main,
         [
             "-i",
-            "tests/fixtures/record_deleted.xml",
-            "--output-file",
-            outfile,
+            libguides_input_file,
+            "--output-location",
+            empty_dataset_location,
             "-s",
             "jpal",
         ],
     )
     assert result.exit_code == 0
-    assert (
-        "Completed transform, total records processed: 1, transformed records: 0"
-        ", skipped records: 0, deleted records: 1"
-    ) in caplog.text
+    assert "deleted records: 1" in caplog.text
 
 
-def test_transform_run_id_argument_passed_and_used(monkeypatch, caplog, runner, tmp_path):
-    monkeypatch.setenv("ETL_VERSION", "2")
+def test_transform_run_id_argument_passed_and_used(caplog, runner, tmp_path):
     caplog.set_level("INFO")
     run_id = "abc123"
     with mock.patch(
-        "transmogrifier.sources.transformer.Transformer.transform_and_write_output_files"
+        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
     ) as mocked_transform_and_write:
         mocked_transform_and_write.side_effect = Exception("stopping transformation")
         runner.invoke(
@@ -122,13 +120,10 @@ def test_transform_run_id_argument_passed_and_used(monkeypatch, caplog, runner, 
     assert f"run_id set: '{run_id}'" in caplog.text
 
 
-def test_transform_run_id_argument_not_passed_and_uuid_minted(
-    monkeypatch, caplog, runner, tmp_path
-):
-    monkeypatch.setenv("ETL_VERSION", "2")
+def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tmp_path):
     caplog.set_level("INFO")
     with mock.patch(
-        "transmogrifier.sources.transformer.Transformer.transform_and_write_output_files"
+        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
     ) as mocked_transform_and_write:
         mocked_transform_and_write.side_effect = Exception("stopping transformation")
         runner.invoke(

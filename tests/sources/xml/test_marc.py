@@ -56,7 +56,8 @@ def test_marc_record_all_fields_transform_correctly():
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT Alma",
         source_link=(
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
@@ -539,7 +540,8 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         "tests/fixtures/marc/marc_record_attribute_and_subfield_variations.xml",
     )
     output_records = Marc("alma", marc_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT Alma",
         source_link=(
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
@@ -761,7 +763,8 @@ def test_marc_record_with_blank_optional_fields_transforms_correctly():
         "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT Alma",
         source_link=(
             "https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
@@ -782,7 +785,8 @@ def test_marc_record_with_missing_optional_fields_transforms_correctly():
         "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
     )
     output_records = Marc("alma", marc_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT Alma",
         source_link="https://mit.primo.exlibrisgroup.com/discovery/fulldisplay?vid="
         "01MIT_INST:MIT&docid=alma990027185640106761",
@@ -1936,7 +1940,7 @@ def test_marc_record_missing_leader_skips_record(caplog):
         "tests/fixtures/marc/marc_record_missing_leader.xml"
     )
     output_records = Marc("alma", marc_xml_records)
-    assert len(list(output_records)) == 0
+    assert len(list(output_records)) == 1
     assert output_records.processed_record_count == 1
     assert output_records.skipped_record_count == 1
 
@@ -1946,7 +1950,7 @@ def test_marc_record_missing_008_skips_record(caplog):
         "tests/fixtures/marc/marc_record_missing_008.xml"
     )
     output_records = Marc("alma", marc_xml_records)
-    assert len(list(output_records)) == 0
+    assert len(list(output_records)) == 1
     assert output_records.processed_record_count == 1
     assert output_records.skipped_record_count == 1
 

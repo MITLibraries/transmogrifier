@@ -35,7 +35,8 @@ def test_oaidc_transform_with_all_fields_transforms_correctly():
         "tests/fixtures/oai_dc/oaidc_record_all_fields.xml"
     )
     output_records = OaiDc("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/guides/175846",
         timdex_record_id="cool-repo:guides-175846",
@@ -69,7 +70,8 @@ def test_oaidc_transform_with_optional_fields_blank_transforms_correctly():
         "tests/fixtures/oai_dc/oaidc_record_optional_fields_blank.xml"
     )
     output_records = OaiDc("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/guides/175846",
         timdex_record_id="cool-repo:guides-175846",
@@ -89,7 +91,8 @@ def test_oaidc_transform_with_optional_fields_missing_transforms_correctly():
         "tests/fixtures/oai_dc/oaidc_record_optional_fields_missing.xml"
     )
     output_records = OaiDc("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/guides/175846",
         timdex_record_id="cool-repo:guides-175846",

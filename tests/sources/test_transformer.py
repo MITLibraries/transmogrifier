@@ -94,6 +94,17 @@ def test_transformer_get_run_data_from_source_file_and_run_id(
     }
 
 
+def test_transformer_get_run_data_no_source_file_raise_error(
+    monkeypatch, libguides_transformer
+):
+    monkeypatch.setenv("WORKSPACE", "dev")
+    with pytest.raises(
+        ValueError,
+        match="'source_file' parameter is required outside of test environments",
+    ):
+        libguides_transformer.get_run_data(None, "run-abc-123")
+
+
 def test_transformer_next_iter_yields_dataset_records(libguides_transformer):
     assert isinstance(next(libguides_transformer), DatasetRecord)
 

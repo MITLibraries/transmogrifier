@@ -224,7 +224,8 @@ def test_springshare_libguides_transform_with_all_fields_transforms_correctly():
         f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_all_fields.xml"
     )
     output_records = SpringshareOaiDc("libguides", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="LibGuides",
         source_link="https://libguides.mit.edu/materials",
         timdex_record_id="libguides:guides-175846",
@@ -268,7 +269,8 @@ def test_springshare_libguides_transform_with_optional_fields_blank_transforms_c
         f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_optional_fields_blank.xml"
     )
     output_records = SpringshareOaiDc("libguides", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="LibGuides",
         source_link="https://libguides.mit.edu/materials",
         timdex_record_id="libguides:guides-175846",
@@ -295,7 +297,8 @@ def test_springshare_libguides_transform_with_optional_fields_missing_transforms
         f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_optional_fields_missing.xml"
     )
     output_records = SpringshareOaiDc("libguides", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="LibGuides",
         source_link="https://libguides.mit.edu/materials",
         timdex_record_id="libguides:guides-175846",
@@ -327,7 +330,8 @@ def test_springshare_research_databases_transform_with_all_fields_transforms_cor
         f"{RESEARCHDATABASES_FIXTURES_PREFIX}/research_databases_record_all_fields.xml"
     )
     output_records = SpringshareOaiDc("researchdatabases", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="Research Databases",
         source_link="https://libguides.mit.edu/llba",
         timdex_record_id="researchdatabases:az-65257807",
@@ -368,7 +372,8 @@ def test_springshare_research_databases_transform_with_optional_fields_blank_tra
         + "/research_databases_record_optional_fields_blank.xml"
     )
     output_records = SpringshareOaiDc("researchdatabases", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="Research Databases",
         source_link="https://libguides.mit.edu/llba",
         timdex_record_id="researchdatabases:az-65257807",
@@ -396,7 +401,8 @@ def test_springshare_research_databases_transform_with_optional_fields_missing_t
         + "/research_databases_record_optional_fields_missing.xml"
     )
     output_records = SpringshareOaiDc("researchdatabases", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="Research Databases",
         source_link="https://libguides.mit.edu/llba",
         timdex_record_id="researchdatabases:az-65257807",

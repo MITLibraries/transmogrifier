@@ -39,4 +39,4 @@ def test_whoas_skips_records_with_only_invalid_or_not_present_content_types():
     )
     assert len(source_records) == 4
     output_records = Whoas("whoas", iter(source_records))
-    assert len(list(output_records)) == 2
+    assert len(list(output_records)) == 4

@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 import pytest
 
@@ -11,31 +10,10 @@ def create_aardvark_source_record_stub() -> dict:
     return {"id": "123", "dct_title_s": "Test title 1"}
 
 
-def test_mitaardvark_transform_and_write_output_files_writes_output_files(
-    tmp_path, aardvark_records
-):
-    output_file = str(tmp_path / "output_file.json")
-    aardvark = MITAardvark("cool-repo", aardvark_records)
-    assert not Path(tmp_path / "output_file.json").exists()
-    assert not Path(tmp_path / "output_file.txt").exists()
-    aardvark.transform_and_write_output_files(output_file)
-    assert Path(tmp_path / "output_file.json").exists()
-    assert Path(tmp_path / "output_file.txt").exists()
-
-
-def test_mitaardvark_transform_and_write_output_files_no_txt_file_if_not_needed(
-    tmp_path, aardvark_record_all_fields
-):
-    output_file = str(tmp_path / "output_file.json")
-    aardvark = MITAardvark("cool-repo", aardvark_record_all_fields)
-    aardvark.transform_and_write_output_files(output_file)
-    assert len(list(tmp_path.iterdir())) == 1
-    assert next(tmp_path.iterdir()).name == "output_file.json"
-
-
 def test_aardvark_transform_returns_timdex_record(aardvark_records):
     aardvark = MITAardvark("cool-repo", aardvark_records)
-    assert next(aardvark) == timdex.TimdexRecord(
+    timdex_record = aardvark.transform(next(aardvark.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://geodata.libraries.mit.edu/record/abc:123",
         timdex_record_id="cool-repo:123",

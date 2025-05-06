@@ -1,5 +1,4 @@
 # ruff: noqa: PLR2004
-from pathlib import Path
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.xml.datacite import Datacite
@@ -14,37 +13,13 @@ def test_xmltransformer_initializes_with_expected_attributes(oai_pmh_records):
     assert transformer.source_records == oai_pmh_records
 
 
-def test_xmltransformer_iterates_through_all_records(oai_pmh_records):
+def test_xmltransformer_iterates_through_all_records(caplog, oai_pmh_records):
+    caplog.set_level("DEBUG")
     output_records = XMLTransformer("cool-repo", oai_pmh_records)
-    assert len(list(output_records)) == 2
+    assert len(list(output_records)) == 3
     assert output_records.processed_record_count == 3
     assert output_records.transformed_record_count == 2
     assert len(output_records.deleted_records) == 1
-
-
-def test_xmltransformer_transform_and_write_output_files_writes_output_files(
-    tmp_path, oai_pmh_records
-):
-    output_file = str(tmp_path / "output_file.json")
-    transformer = XMLTransformer("cool-repo", oai_pmh_records)
-    assert not Path(tmp_path / "output_file.json").exists()
-    assert not Path(tmp_path / "output_file.txt").exists()
-    transformer.transform_and_write_output_files(output_file)
-    assert Path(tmp_path / "output_file.json").exists()
-    assert Path(tmp_path / "output_file.txt").exists()
-
-
-def test_xmltransformer_transform_and_write_output_files_no_txt_file_if_not_needed(
-    tmp_path,
-):
-    output_file = str(tmp_path / "output_file.json")
-    datacite_records = XMLTransformer.parse_source_file(
-        "tests/fixtures/datacite/datacite_records.xml"
-    )
-    transformer = XMLTransformer("cool-repo", datacite_records)
-    transformer.transform_and_write_output_files(output_file)
-    assert len(list(tmp_path.iterdir())) == 1
-    assert next(tmp_path.iterdir()).name == "output_file.json"
 
 
 def test_xmltransformer_parse_source_file_returns_record_iterator():
@@ -68,7 +43,8 @@ def test_xmltransformer_record_is_deleted_returns_false_if_not_deleted(caplog):
 
 def test_xmltransformer_transform_returns_timdex_record(oai_pmh_records):
     transformer = XMLTransformer("cool-repo", oai_pmh_records)
-    assert next(transformer) == timdex.TimdexRecord(
+    timdex_record = transformer.transform(next(transformer.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="A Cool Repository",
         source_link="https://example.com/12345",
         timdex_record_id="cool-repo:12345",
@@ -83,7 +59,8 @@ def test_xmltransformer_get_valid_title_with_title_field_blank_logs_warning(capl
         "tests/fixtures/record_title_field_blank.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records).title == "Title not provided"
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record.title == "Title not provided"
     assert (
         "Record doi:10.7910/DVN/19PPE7 was missing a title, source record should be "
         "investigated." in caplog.text
@@ -95,7 +72,8 @@ def test_xmltransformer_get_valid_title_with_title_field_missing_logs_warning(ca
         "tests/fixtures/record_title_field_missing.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records).title == "Title not provided"
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record.title == "Title not provided"
     assert (
         "Record doi:10.7910/DVN/19PPE7 was missing a title, source record should be "
         "investigated." in caplog.text
@@ -107,8 +85,9 @@ def test_xmltransformer_get_valid_title_with_title_field_multiple_logs_warning(c
         "tests/fixtures/record_title_field_multiple.xml"
     )
     output_records = Datacite("cool-repo", source_records)
+    timdex_record = output_records.transform(next(output_records.source_records))
     assert (
-        next(output_records).title
+        timdex_record.title
         == "The Impact of Maternal Literacy and Participation Programs"
     )
     assert (
