@@ -72,12 +72,12 @@ class Transformer(ABC):
         return self.processed_record_count - 1
 
     @final
-    def __iter__(self) -> Iterator[timdex.TimdexRecord | DatasetRecord]:
+    def __iter__(self) -> Iterator[DatasetRecord]:
         """Iterate over transformed records."""
         return self
 
     @final
-    def __next__(self) -> timdex.TimdexRecord | DatasetRecord:
+    def __next__(self) -> DatasetRecord:
         """Return next transformed record."""
         while True:
             transformed_record = None
