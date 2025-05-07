@@ -79,7 +79,8 @@ def test_ead_transform_with_all_fields_transforms_correctly():
         "tests/fixtures/ead/ead_record_all_fields.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT ArchivesSpace",
         source_link="https://archivesspace.mit.edu/repositories/2/resources/1",
         timdex_record_id="aspace:repositories-2-resources-1",
@@ -293,7 +294,8 @@ def test_ead_transform_with_optional_fields_blank_transforms_correctly():
         "tests/fixtures/ead/ead_record_blank_optional_fields.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT ArchivesSpace",
         source_link="https://archivesspace.mit.edu/repositories/2/resources/2",
         timdex_record_id="aspace:repositories-2-resources-2",
@@ -311,7 +313,8 @@ def test_ead_transform_with_optional_fields_missing_transforms_correctly():
         "tests/fixtures/ead/ead_record_missing_optional_fields.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT ArchivesSpace",
         source_link="https://archivesspace.mit.edu/repositories/2/resources/5",
         timdex_record_id="aspace:repositories-2-resources-5",
@@ -329,7 +332,8 @@ def test_ead_transform_with_attribute_and_subfield_variations_transforms_correct
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="MIT ArchivesSpace",
         source_link="https://archivesspace.mit.edu/repositories/2/resources/6",
         timdex_record_id="aspace:repositories-2-resources-6",
@@ -551,7 +555,7 @@ def test_ead_transform_with_missing_archdesc_skips_record():
         "tests/fixtures/ead/ead_record_missing_archdesc.xml"
     )
     output_records = Ead("aspace", ead_xml_records)
-    assert len(list(output_records)) == 0
+    assert len(list(output_records)) == 1
     assert output_records.processed_record_count == 1
     assert output_records.skipped_record_count == 1
 
@@ -562,7 +566,7 @@ def test_ead_transform_with_missing_archdesc_did_skips_record():
     )
     output_records = Ead("aspace", ead_xml_records)
 
-    assert len(list(output_records)) == 0
+    assert len(list(output_records)) == 1
     assert output_records.processed_record_count == 1
     assert output_records.skipped_record_count == 1
 
@@ -572,9 +576,10 @@ def test_ead_transform_with_invalid_date_and_date_range_omits_dates(caplog):
     ead_xml_records = Ead.parse_source_file(
         "tests/fixtures/ead/ead_record_attribute_and_subfield_variations.xml"
     )
-    output_record = next(Ead("aspace", ead_xml_records))
+    output_records = Ead("aspace", ead_xml_records)
+    timdex_record = output_records.transform(next(output_records.source_records))
 
-    for date in output_record.dates:
+    for date in timdex_record.dates:
         assert date.value != "undated"
         assert date.value != "1984"
         if date.range is not None:

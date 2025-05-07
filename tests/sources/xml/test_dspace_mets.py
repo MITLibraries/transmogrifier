@@ -47,7 +47,8 @@ def test_dspace_mets_transform_with_all_fields_transforms_correctly():
         "tests/fixtures/dspace/dspace_mets_record_all_fields.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
         timdex_record_id="dspace:1721.1-142832",
@@ -137,7 +138,8 @@ def test_dspace_mets_transform_with_blank_optional_fields_transforms_correctly()
         "tests/fixtures/dspace/dspace_mets_record_optional_fields_blank.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
         timdex_record_id="dspace:1721.1-142832",
@@ -153,7 +155,8 @@ def test_dspace_mets_transform_with_missing_optional_fields_transforms_correctly
         "tests/fixtures/dspace/dspace_mets_record_optional_fields_missing.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
         timdex_record_id="dspace:1721.1-142832",
@@ -169,7 +172,8 @@ def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly
         "tests/fixtures/dspace/dspace_mets_record_attribute_and_subfield_variations.xml"
     )
     output_records = DspaceMets("dspace", dspace_xml_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         source="DSpace@MIT",
         source_link="https://dspace.mit.edu/handle/1721.1/142832",
         timdex_record_id="dspace:1721.1-142832",

@@ -5,9 +5,9 @@ from transmogrifier.sources.xml.zenodo import Zenodo
 def test_zenodo_create_source_record_id_generates_correct_id():
     source_records = Zenodo.parse_source_file("tests/fixtures/datacite/zenodo_record.xml")
     output_records = Zenodo("zenodo", source_records)
-    zenodo_record = next(output_records)
-    assert zenodo_record.source_link == "https://zenodo.org/record/4291646"
-    assert zenodo_record.timdex_record_id == "zenodo:4291646"
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record.source_link == "https://zenodo.org/record/4291646"
+    assert timdex_record.timdex_record_id == "zenodo:4291646"
 
 
 def test_valid_content_types_with_all_invalid():
@@ -47,4 +47,4 @@ def test_zenodo_skips_records_with_invalid_content_types():
     )
     assert len(source_records) == 2
     output_records = Zenodo("zenodo", iter(source_records))
-    assert len(list(output_records)) == 1
+    assert len(list(output_records)) == 2

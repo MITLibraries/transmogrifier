@@ -29,7 +29,10 @@ def create_datacite_source_record_stub(xml_insert: str = "") -> BeautifulSoup:
 def test_datacite_transform_with_all_fields_transforms_correctly(
     datacite_record_all_fields,
 ):
-    assert next(datacite_record_all_fields) == timdex.TimdexRecord(
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
+    )
+    assert timdex_record == timdex.TimdexRecord(
         citation=(
             "Banerji, Rukmini, Berry, James, Shotland, Marc "
             "(2017): The Impact of Maternal Literacy and Participation Programs. Harvard "
@@ -208,7 +211,8 @@ def test_datacite_transform_with_optional_fields_blank_transforms_correctly():
         "tests/fixtures/datacite/datacite_record_optional_fields_blank.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
@@ -231,7 +235,8 @@ def test_datacite_transform_with_optional_fields_missing_transforms_correctly():
         "tests/fixtures/datacite/datacite_record_optional_fields_missing.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         citation=("Title not provided. https://example.com/doi:10.7910/DVN/19PPE7"),
         source="A Cool Repository",
         source_link="https://example.com/doi:10.7910/DVN/19PPE7",
@@ -254,7 +259,8 @@ def test_datacite_with_attribute_and_subfield_variations_transforms_correctly():
         "tests/fixtures/datacite/datacite_record_attribute_and_subfield_variations.xml"
     )
     output_records = Datacite("cool-repo", source_records)
-    assert next(output_records) == timdex.TimdexRecord(
+    timdex_record = output_records.transform(next(output_records.source_records))
+    assert timdex_record == timdex.TimdexRecord(
         citation=(
             "Creator, No affiliation no identifier, Creator, Blank affiliation blank "
             "identifier, Creator, Identifier no scheme, Creator, Identifier blank "
@@ -944,48 +950,60 @@ def test_get_summary_transforms_correctly_if_fields_missing():
 
 
 def test_generate_name_identifier_url_orcid_scheme(datacite_record_all_fields):
-    assert next(datacite_record_all_fields).contributors[0].identifier == [
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
+    )
+    assert timdex_record.contributors[0].identifier == [
         "https://orcid.org/0000-0000-0000-0000"
     ]
 
 
 def test_generate_name_identifier_url_unknown_scheme(datacite_record_all_fields):
-    assert next(datacite_record_all_fields).contributors[1].identifier == [
-        "0000-0000-0000-0001"
-    ]
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
+    )
+    assert timdex_record.contributors[1].identifier == ["0000-0000-0000-0001"]
 
 
 def test_generate_name_identifier_url_no_identifier_scheme(
     datacite_record_all_fields,
 ):
-    assert next(datacite_record_all_fields).contributors[2].identifier == [
-        "0000-0000-0000-0002"
-    ]
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
+    )
+    assert timdex_record.contributors[2].identifier == ["0000-0000-0000-0002"]
 
 
 def test_generate_related_item_identifier_url_doi_type(datacite_record_all_fields):
-    assert (
-        next(datacite_record_all_fields).related_items[0].uri
-        == "https://doi.org/10.1257/app.20150390"
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
     )
+    assert timdex_record.related_items[0].uri == "https://doi.org/10.1257/app.20150390"
 
 
 def test_generate_related_item_identifier_url_no_identifier_type(
     datacite_record_all_fields,
 ):
-    assert (
-        next(datacite_record_all_fields).related_items[1].uri == "10.5281/zenodo.5524464"
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
     )
+    assert timdex_record.related_items[1].uri == "10.5281/zenodo.5524464"
 
 
 def test_generate_related_item_identifier_url_unknown_type(
     datacite_record_all_fields,
 ):
-    assert next(datacite_record_all_fields).related_items[2].uri == "1234567.5524464"
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
+    )
+    assert timdex_record.related_items[2].uri == "1234567.5524464"
 
 
 def test_generate_related_item_identifier_url_url_type(datacite_record_all_fields):
+    timdex_record = datacite_record_all_fields.transform(
+        next(datacite_record_all_fields.source_records)
+    )
     assert (
-        next(datacite_record_all_fields).related_items[3].uri
+        timdex_record.related_items[3].uri
         == "https://zenodo.org/communities/astronomy-general"
     )
