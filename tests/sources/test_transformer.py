@@ -193,3 +193,13 @@ def test_transformer_provenance_object_run_record_offset_increments(
             continue
         transformed_record = json.loads(dataset_record.transformed_record)
         assert transformed_record["timdex_provenance"]["run_record_offset"] == i
+
+
+def test_transformer_dataset_write_includes_run_timestamp_column(
+    tmp_path, libguides_transformer
+):
+    dataset_location = tmp_path / "dataset"
+    written_files = libguides_transformer.write_to_parquet_dataset(str(dataset_location))
+
+    parquet_file = written_files[0]
+    assert "run_timestamp" in parquet_file.metadata.schema.names
