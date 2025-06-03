@@ -1881,14 +1881,6 @@
             "markers": "python_version >= '3.7'",
             "version": "==0.18.12"
         },
-        "ruamel.yaml": {
-            "hashes": [
-                "sha256:20c86ab29ac2153f80a428e1254a8adf686d3383df04490514ca3b79a362db58",
-                "sha256:30f22513ab2301b3d2b577adc121c6471f28734d3d9728581245f1e76468b4f1"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==0.18.10"
-        },
         "ruamel.yaml.clib": {
             "hashes": [
                 "sha256:040ae85536960525ea62868b642bdb0c2cc6021c9f9d507810c0c604e66f5a7b",
