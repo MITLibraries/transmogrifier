@@ -107,10 +107,10 @@ class Transformer(ABC):
                 self.skipped_record_count += 1
                 action = "skip"
 
-            except Exception as exception:  # noqa: BLE001
+            except Exception as exception:
                 self.error_record_count += 1
                 message = f"Unhandled exception during record transformation: {exception}"
-                logger.warning(message)
+                logger.exception(message)
                 action = "error"
 
             return DatasetRecord(

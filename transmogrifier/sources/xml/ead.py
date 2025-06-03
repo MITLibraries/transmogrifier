@@ -1,4 +1,5 @@
 import logging
+import re
 from collections.abc import Generator
 
 from bs4 import NavigableString, Tag  # type: ignore[import-untyped]
@@ -549,7 +550,14 @@ class Ead(XMLTransformer):
         Args:
             source_record: A BeautifulSoup Tag representing a single EAD XML record.
         """
-        return source_record.header.identifier.string.split("//")[1]
+        matches = re.match(r"oai:mit/+(.*)", source_record.header.identifier.string)
+        if not matches:
+            message = (
+                "Could not parse TIMDEX identifier from OAI identifier: "
+                f"'{source_record.header.identifier.string}'"
+            )
+            raise ValueError(message)
+        return matches.groups()[0]
 
     @classmethod
     def parse_mixed_value(
