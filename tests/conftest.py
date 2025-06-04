@@ -257,7 +257,6 @@ def empty_libguides_input_file():
 
 @pytest.fixture
 def libguides_transformer(monkeypatch, run_id, libguides_input_file):
-    monkeypatch.setenv("ETL_VERSION", "2")
     return Transformer.load(
         "libguides",
         libguides_input_file,

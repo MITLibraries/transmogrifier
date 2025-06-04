@@ -148,7 +148,6 @@ def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_pat
     by a source, and the number of records in the run requires multiple batches during
     parquet dataset writing.  The exit code associated with this memory fault is -6.
     """
-    monkeypatch.setenv("ETL_VERSION", "2")
     result = subprocess.run(  # noqa: S603
         [  # noqa: S607
             "pipenv",
