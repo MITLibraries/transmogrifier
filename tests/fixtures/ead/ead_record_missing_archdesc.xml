@@ -2,7 +2,7 @@
 <records>
     <record xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <header>
-            <identifier>oai:mit//repositories/2/resources/4</identifier>
+            <identifier>oai:mit/repositories/2/resources/4</identifier>
             <datestamp>2021-11-06T14:35:55Z</datestamp>
         </header>
         <metadata></metadata>

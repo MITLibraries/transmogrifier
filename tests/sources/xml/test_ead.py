@@ -880,7 +880,7 @@ def test_get_dates_success():
     source_record = create_ead_source_record_stub(
         header_insert=(
             """
-            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            <identifier>oai:mit/repositories/2/resources/1</identifier>
             """
         ),
         metadata_insert=(
@@ -907,7 +907,7 @@ def test_get_dates_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
         header_insert=(
             """
-            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            <identifier>oai:mit/repositories/2/resources/1</identifier>
             """
         ),
         metadata_insert=(
@@ -924,7 +924,7 @@ def test_get_dates_transforms_correctly_if_fields_missing():
     source_record = create_ead_source_record_stub(
         header_insert=(
             """
-            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            <identifier>oai:mit/repositories/2/resources/1</identifier>
             """
         ),
         parent_element="did",
@@ -936,7 +936,7 @@ def test_get_dates_transforms_correctly_if_date_invalid():
     source_record = create_ead_source_record_stub(
         header_insert=(
             """
-            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            <identifier>oai:mit/repositories/2/resources/1</identifier>
             """
         ),
         metadata_insert=(
@@ -955,7 +955,7 @@ def test_get_dates_transforms_correctly_if_normal_attribute_missing():
     source_record = create_ead_source_record_stub(
         header_insert=(
             """
-            <identifier>oai:mit//repositories/2/resources/1</identifier>
+            <identifier>oai:mit/repositories/2/resources/1</identifier>
             """
         ),
         metadata_insert=(
