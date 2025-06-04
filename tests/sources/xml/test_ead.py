@@ -1,6 +1,7 @@
 import logging
 from typing import Literal
 
+import pytest
 from bs4 import BeautifulSoup
 
 import transmogrifier.models as timdex
@@ -67,6 +68,8 @@ def create_ead_source_record_stub(
         _metadata_insert = f"""
             <archdesc level="collection"><did>{metadata_insert}</did></archdesc>
             """
+    else:
+        _metadata_insert = ""
 
     return BeautifulSoup(
         xml_string.format(header_insert=header_insert, metadata_insert=_metadata_insert),
@@ -1618,3 +1621,19 @@ def test_get_main_titles_transforms_correctly_if_fields_blank():
 def test_get_main_titles_transforms_correctly_if_fields_missing():
     source_record = create_ead_source_record_stub(parent_element="did")
     assert Ead.get_main_titles(source_record) == []
+
+
+@pytest.mark.parametrize(
+    "oai_prefix",
+    [
+        "oai:mit/",  # single slash
+        "oai:mit//",  # double slash
+        "oai:mit:/",  # slash + colon
+    ],
+)
+def test_get_source_record_id_handles_all_aspace_oai_forms(oai_prefix):
+    target_identifier = "repo/42/item/99"
+    source_record = create_ead_source_record_stub(
+        header_insert=f"<identifier>{oai_prefix}{target_identifier}</identifier>"
+    )
+    assert Ead.get_source_record_id(source_record) == target_identifier
