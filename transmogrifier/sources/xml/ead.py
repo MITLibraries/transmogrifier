@@ -550,7 +550,10 @@ class Ead(XMLTransformer):
         Args:
             source_record: A BeautifulSoup Tag representing a single EAD XML record.
         """
-        matches = re.match(r"oai:mit/+(.*)", source_record.header.identifier.string)
+        matches = re.match(
+            r"oai:mit[/:]+(.*)",
+            source_record.header.identifier.string,
+        )
         if not matches:
             message = (
                 "Could not parse TIMDEX identifier from OAI identifier: "
