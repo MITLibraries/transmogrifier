@@ -1,5 +1,3 @@
-# ruff: noqa: S108
-
 import subprocess
 from unittest import mock
 
@@ -140,6 +138,54 @@ def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tm
         )
     assert "explicit run_id not passed, minting new UUID" in caplog.text
     assert "run_id set:" in caplog.text
+
+
+def test_transform_run_timestamp_argument_passed_and_used(caplog, runner, tmp_path):
+    caplog.set_level("INFO")
+    run_timestamp = "2024-06-03T12:34:56"
+    with mock.patch(
+        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
+    ) as mocked_transform_and_write:
+        mocked_transform_and_write.side_effect = Exception("stopping transformation")
+        runner.invoke(
+            main,
+            [
+                "--verbose",
+                "-s",
+                "alma",
+                "-t",
+                run_timestamp,
+                "-i",
+                "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml",
+                "-o",
+                f"{tmp_path}/dataset",
+            ],
+        )
+    assert f"run_timestamp set: '{run_timestamp}'" in caplog.text
+
+
+def test_transform_run_timestamp_argument_not_passed_and_timestamp_minted(
+    caplog, runner, tmp_path
+):
+    caplog.set_level("INFO")
+    with mock.patch(
+        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
+    ) as mocked_transform_and_write:
+        mocked_transform_and_write.side_effect = Exception("stopping transformation")
+        runner.invoke(
+            main,
+            [
+                "--verbose",
+                "-s",
+                "alma",
+                "-i",
+                "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml",
+                "-o",
+                f"{tmp_path}/dataset",
+            ],
+        )
+    assert "explicit run_id not passed, minting new UUID" in caplog.text
+    assert "run_timestamp set: '2024-06-03T00:00:00'" in caplog.text
 
 
 def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_path):

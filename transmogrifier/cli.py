@@ -42,6 +42,14 @@ logger = logging.getLogger(__name__)
     "If a value is not provided a UUID will be minted and used.",
 )
 @click.option(
+    "-t",
+    "--run-timestamp",
+    required=False,
+    help="Run timestamp for the ETL run this Transmogrifier run is part of.  It is "
+    "possible for the TIMDEX StepFunction to invoke Transmogrifier multiple times, this "
+    "allows a single run_timestamp to be associated with all outputs for single run_id.",
+)
+@click.option(
     "-v", "--verbose", is_flag=True, help="Pass to log at debug level instead of info"
 )
 def main(
@@ -49,6 +57,7 @@ def main(
     input_file: str,
     output_location: str,
     run_id: str,
+    run_timestamp: str,
     verbose: bool,  # noqa: FBT001
 ) -> None:
     start_time = perf_counter()
@@ -57,7 +66,12 @@ def main(
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    transformer = Transformer.load(source, input_file, run_id=run_id)
+    transformer = Transformer.load(
+        source,
+        input_file,
+        run_id=run_id,
+        run_timestamp=run_timestamp,
+    )
     transformer.write_to_parquet_dataset(output_location)
 
     logger.info(

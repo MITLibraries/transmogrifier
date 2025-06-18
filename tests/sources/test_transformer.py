@@ -1,4 +1,4 @@
-# ruff: noqa: PLR2004, SLF001, D202
+# ruff: noqa: SLF001, D202
 import datetime
 import json
 from unittest import mock
@@ -91,7 +91,32 @@ def test_transformer_get_run_data_from_source_file_and_run_id(
         "run_date": "2024-06-03",
         "run_type": "full",
         "run_id": run_id,
+        "run_timestamp": "2024-06-03T00:00:00",
     }
+
+
+def test_transformer_get_run_data_with_explicit_run_timestamp(
+    libguides_transformer, libguides_input_file, run_id
+):
+    run_timestamp = "2024-06-03T15:30:45"
+    assert libguides_transformer.get_run_data(
+        libguides_input_file,
+        run_id=run_id,
+        run_timestamp=run_timestamp,
+    ) == {
+        "source": "libguides",
+        "run_date": "2024-06-03",
+        "run_type": "full",
+        "run_id": run_id,
+        "run_timestamp": run_timestamp,
+    }
+
+
+def test_transformer_get_run_data_mints_timestamp_from_run_date(
+    libguides_transformer, libguides_input_file, run_id
+):
+    result = libguides_transformer.get_run_data(libguides_input_file, run_id)
+    assert result["run_timestamp"] == "2024-06-03T00:00:00"
 
 
 def test_transformer_get_run_data_no_source_file_raise_error(
@@ -193,6 +218,30 @@ def test_transformer_provenance_object_run_record_offset_increments(
             continue
         transformed_record = json.loads(dataset_record.transformed_record)
         assert transformed_record["timdex_provenance"]["run_record_offset"] == i
+
+
+def test_transformer_load_with_run_timestamp_parameter(
+    libguides_transformer_with_timestamp, libguides_input_file, run_id
+):
+    assert libguides_transformer_with_timestamp.run_data == {
+        "source": "libguides",
+        "run_date": "2024-06-03",
+        "run_type": "full",
+        "run_id": run_id,
+        "run_timestamp": "2024-06-03T15:30:45",
+    }
+
+
+def test_transformer_load_without_run_timestamp_parameter(
+    libguides_transformer, libguides_input_file, run_id
+):
+    assert libguides_transformer.run_data == {
+        "source": "libguides",
+        "run_date": "2024-06-03",
+        "run_type": "full",
+        "run_id": run_id,
+        "run_timestamp": "2024-06-03T00:00:00",
+    }
 
 
 def test_transformer_dataset_write_includes_run_timestamp_column(

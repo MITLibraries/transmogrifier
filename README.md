@@ -83,6 +83,13 @@ Options:
                                   span multiple CLI invocations.  If a value
                                   is not provided a UUID will be minted and
                                   used.
+  -t, --run-timestamp TEXT        Run timestamp for the ETL run this
+                                  Transmogrifier run is part of.  It is
+                                  possible for the TIMDEX StepFunction to
+                                  invoke Transmogrifier multiple times, this
+                                  allows a single run_timestamp to be
+                                  associated with all outputs for single
+                                  run_id.
   -v, --verbose                   Pass to log at debug level instead of info
   --help                          Show this message and exit.
 ```
