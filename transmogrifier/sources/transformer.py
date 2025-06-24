@@ -10,6 +10,7 @@ import os
 import re
 import uuid
 from abc import ABC, abstractmethod
+from datetime import date, datetime
 from importlib import import_module
 from typing import TYPE_CHECKING, final
 
@@ -44,6 +45,7 @@ class Transformer(ABC):
         source_records: Iterator[dict[str, JSON] | Tag],
         source_file: str | None = None,
         run_id: str | None = None,
+        run_timestamp: str | None = None,
     ) -> None:
         """
         Initialize Transformer instance.
@@ -52,7 +54,8 @@ class Transformer(ABC):
             source: Source repository label. Must match a source key from config.SOURCES.
             source_records: A set of source records to be processed.
             source_file: Filepath of the input source file.
-            run_id: A unique identifier for this invocation of Transmogrifier.
+            run_id: A unique identifier associated with this ETL run.
+            run_timestamp: A timestamp associated with this ETL run.
         """
         self.source: str = source
         self.source_base_url: str = SOURCES[source]["base-url"]
@@ -65,7 +68,11 @@ class Transformer(ABC):
         self.deleted_records: list[str] = []
         self.source_file = source_file
 
-        self.run_data = self.get_run_data(source_file, run_id)
+        self.run_data = self.get_run_data(
+            source_file,
+            run_id=run_id,
+            run_timestamp=run_timestamp,
+        )
 
     @property
     def run_record_offset(self) -> int:
@@ -145,7 +152,11 @@ class Transformer(ABC):
     @final
     @classmethod
     def load(
-        cls, source: str, source_file: str, run_id: str | None = None
+        cls,
+        source: str,
+        source_file: str,
+        run_id: str | None = None,
+        run_timestamp: str | None = None,
     ) -> Transformer:
         """
         Instantiate specified transformer class and populate with source records.
@@ -153,7 +164,8 @@ class Transformer(ABC):
         Args:
             source: Source repository label. Must match a source key from config.SOURCES.
             source_file: A file containing source records to be transformed.
-            run_id: A unique identifier for this invocation of Transmogrifier.
+            run_id: A unique identifier associated with this ETL run.
+            run_timestamp: A timestamp associated with this ETL run.
         """
         transformer_class = cls.get_transformer(source)
         source_records = transformer_class.parse_source_file(source_file)
@@ -162,11 +174,16 @@ class Transformer(ABC):
             source_records,
             source_file=source_file,
             run_id=run_id,
+            run_timestamp=run_timestamp,
         )
 
     @staticmethod
-    def get_run_data(source_file: str | None, run_id: str | None) -> dict:
-        """Prepare dictionary of run data based on input source filename and CLI args.
+    def get_run_data(
+        source_file: str | None,
+        run_id: str | None = None,
+        run_timestamp: str | None = None,
+    ) -> dict:
+        """Prepare dictionary of ETL run data based on input source filename and CLI args.
 
         If 'source_file' is None and a testing environment is detected, a mocked
         dictionary of run data will be returned.  This is primarily in place to remain
@@ -178,6 +195,9 @@ class Transformer(ABC):
                 - example: "libguides-2024-06-03-full-extracted-records-to-index.xml"
             - run_id: str
                 - example: "run-abc-123"
+                - provided as CLI argument or minted if absent
+            - run_timestamp: str
+                - example: "2025-06-17T12:56:56.000000"
                 - provided as CLI argument or minted if absent
 
         Example output:
@@ -199,12 +219,13 @@ class Transformer(ABC):
                     "run_date": "2000-01-01",
                     "run_type": "daily",
                     "run_id": run_id or str(uuid.uuid4()),
+                    "run_timestamp": "2000-01-01T00:00:00",
                 }
             message = "'source_file' parameter is required outside of test environments"
             raise ValueError(message)
 
+        # parse input source filename for run data information
         filename = source_file.split("/")[-1]
-
         match_result = re.match(
             r"^([\w\-]+?)-(\d{4}-\d{2}-\d{2})-(\w+)-(\w+)-records-to-(.+?)(?:_(\d+))?\.(\w+)$",
             filename,
@@ -233,12 +254,24 @@ class Transformer(ABC):
             )
             raise ValueError(message) from exception
 
+        # if run_id is not provided, mint one
         if not run_id:
             logger.info("explicit run_id not passed, minting new UUID")
             run_id = str(uuid.uuid4())
         message = f"run_id set: '{run_id}'"
         logger.info(message)
         run_data["run_id"] = run_id
+
+        # if run_timestamp is not provided, mint one from run_date
+        if not run_timestamp:
+            logger.info("explicit run_id not passed, minting new UUID")
+            run_timestamp = datetime.combine(
+                date.fromisoformat(run_data["run_date"]),
+                datetime.min.time(),
+            ).isoformat()
+        message = f"run_timestamp set: '{run_timestamp}'"
+        logger.info(message)
+        run_data["run_timestamp"] = run_timestamp
 
         return run_data
 

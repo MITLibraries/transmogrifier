@@ -262,3 +262,13 @@ def libguides_transformer(monkeypatch, run_id, libguides_input_file):
         libguides_input_file,
         run_id=run_id,
     )
+
+
+@pytest.fixture
+def libguides_transformer_with_timestamp(monkeypatch, run_id, libguides_input_file):
+    return Transformer.load(
+        "libguides",
+        libguides_input_file,
+        run_id=run_id,
+        run_timestamp="2024-06-03T15:30:45",
+    )
