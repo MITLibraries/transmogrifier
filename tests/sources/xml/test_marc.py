@@ -811,7 +811,7 @@ def test_get_leader_field_raises_skipped_record_event_if_field_blank():
     )
     with pytest.raises(
         SkippedRecordEvent,
-        match=("Record skipped because key information is missing: <leader>."),
+        match=(r"Record skipped because key information is missing: <leader>."),
     ):
         Marc._get_leader_field(source_record)
 
@@ -820,7 +820,7 @@ def test_get_leader_field_raises_skipped_record_event_if_field_missing():
     source_record = create_marc_source_record_stub(leader_field_insert="")
     with pytest.raises(
         SkippedRecordEvent,
-        match=("Record skipped because key information is missing: <leader>."),
+        match=(r"Record skipped because key information is missing: <leader>."),
     ):
         Marc._get_leader_field(source_record)
 
@@ -839,7 +839,7 @@ def test_get_control_field_raises_skipped_record_event_if_field_blank():
     with pytest.raises(
         SkippedRecordEvent,
         match=(
-            'Record skipped because key information is missing: <controlfield tag="008">.'
+            r'Record skipped because key information is missing: <controlfield tag="008">.'
         ),
     ):
         Marc._get_control_field(source_record)
@@ -850,7 +850,7 @@ def test_get_control_field_raises_skipped_record_event_if_field_missing():
     with pytest.raises(
         SkippedRecordEvent,
         match=(
-            'Record skipped because key information is missing: <controlfield tag="008">.'
+            r'Record skipped because key information is missing: <controlfield tag="008">.'
         ),
     ):
         Marc._get_control_field(source_record)

@@ -188,8 +188,8 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_blank():
     with pytest.raises(
         SkippedRecordEvent,
         match=(
-            "Record skipped because 'source_link' could not be derived. "
-            "The 'identifier' was either missing from the header element or blank."
+            r"Record skipped because 'source_link' could not be derived. "
+            r"The 'identifier' was either missing from the header element or blank."
         ),
     ):
         springshare.get_source_link(source_record)
@@ -207,8 +207,8 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_missing(
     with pytest.raises(
         SkippedRecordEvent,
         match=(
-            "Record skipped because 'source_link' could not be derived. "
-            "The 'identifier' was either missing from the header element or blank."
+            r"Record skipped because 'source_link' could not be derived. "
+            r"The 'identifier' was either missing from the header element or blank."
         ),
     ):
         springshare.get_source_link(source_record)

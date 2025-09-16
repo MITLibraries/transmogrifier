@@ -380,8 +380,8 @@ def test_get_source_record_id_raises_skipped_record_event_if_fields_blank():
     with pytest.raises(
         SkippedRecordEvent,
         match=(
-            "Record skipped because 'source_record_id' could not be derived. "
-            "The 'identifier' was either missing from the header element or blank."
+            r"Record skipped because 'source_record_id' could not be derived. "
+            r"The 'identifier' was either missing from the header element or blank."
         ),
     ):
         OaiDc.get_source_record_id(source_record)
@@ -392,8 +392,8 @@ def test_get_source_record_id_raises_skipped_record_event_if_fields_missing():
     with pytest.raises(
         SkippedRecordEvent,
         match=(
-            "Record skipped because 'source_record_id' could not be derived. "
-            "The 'identifier' was either missing from the header element or blank."
+            r"Record skipped because 'source_record_id' could not be derived. "
+            r"The 'identifier' was either missing from the header element or blank."
         ),
     ):
         OaiDc.get_source_record_id(source_record)
