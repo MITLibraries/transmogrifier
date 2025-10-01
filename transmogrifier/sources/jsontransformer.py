@@ -92,7 +92,7 @@ class JSONTransformer(Transformer):
         """
         Determine whether record has a status of deleted.
 
-        May be overridden by source subclasses if needed.
+        Must be overridden by source subclasses.
 
         Args:
             source_record: A JSON object representing a source record.

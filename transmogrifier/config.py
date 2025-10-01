@@ -104,6 +104,11 @@ SOURCES = {
         "base-url": "https://libguides.mit.edu/",
         "transform-class": "transmogrifier.sources.xml.springshare.SpringshareOaiDc",
     },
+    "mitlibwebsite": {
+        "name": "MIT Libraries Website",
+        "base-url": "https://libraries.mit.edu/",
+        "transform-class": "transmogrifier.sources.json.mitlibwebsite.MITLibWebsite",
+    },
     "gismit": {
         "name": "MIT GIS Resources",
         "base-url": "None",

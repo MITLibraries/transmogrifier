@@ -360,7 +360,7 @@ def test_timdex_record_empty_list_raises_error(timdex_record_required_fields):
 
 def test_timdex_record_list_of_wrong_type_raises_error(timdex_record_required_fields):
     with pytest.raises(
-        TypeError, match="'dates' must be <class 'transmogrifier.models.Date'>"
+        TypeError, match=r"'dates' must be <class 'transmogrifier.models.Date'>"
     ):
         timdex_record_required_fields.dates = ["test"]
 

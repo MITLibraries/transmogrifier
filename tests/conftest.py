@@ -122,6 +122,21 @@ def oai_pmh_records():
     return XMLTransformer.parse_source_file("tests/fixtures/oai_pmh_records.xml")
 
 
+# mitlibwebsite ###################
+@pytest.fixture
+def mitlibwebsite_records():
+    return JSONTransformer.parse_source_file(
+        "tests/fixtures/mitlibwebsite/mitlibwebsite_records.jsonl"
+    )
+
+
+@pytest.fixture
+def mitlibwebsite_record_all_fields():
+    return JSONTransformer.parse_source_file(
+        "tests/fixtures/mitlibwebsite/mitlibwebsite_record_all_fields.jsonl"
+    )
+
+
 # timdex ##########################
 
 

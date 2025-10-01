@@ -56,7 +56,7 @@ def test_aardvark_record_get_source_link_bad_dct_references_s_raises_error():
     aardvark = MITAardvark("cool-repo", iter([source_record]))
     with pytest.raises(
         ValueError,
-        match="Could not locate a kind=Website link to pull the source link from.",
+        match=r"Could not locate a kind=Website link to pull the source link from.",
     ):
         aardvark.get_source_link(source_record)
 
