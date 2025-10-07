@@ -85,5 +85,7 @@ class MITLibWebsite(JSONTransformer):
         return [timdex.Link(url=source_record["url"], kind="Website")]
 
     @classmethod
-    def get_summary(cls, source_record: dict) -> list[str]:
-        return [source_record["og_description"]]
+    def get_summary(cls, source_record: dict) -> list[str] | None:
+        if og_description := source_record.get("og_description"):
+            return [og_description]
+        return None
