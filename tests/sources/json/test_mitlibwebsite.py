@@ -114,3 +114,9 @@ def test_mitlibwebsite_get_summary_success():
     assert MITLibWebsite.get_summary(source_record) == [
         "Use this page to learn about different ways you can search the MIT Libraries' offerings."  # noqa: E501
     ]
+
+
+def test_mitlibwebsite_get_summary_returns_none_if_og_description_is_none():
+    source_record = create_mitlibwebsite_source_record_stub()
+    source_record["og_description"] = None
+    assert MITLibWebsite.get_summary(source_record) is None
