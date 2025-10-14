@@ -56,16 +56,14 @@ class MITLibWebsite(JSONTransformer):
         return hashlib.md5(data_string, usedforsecurity=False).hexdigest()
 
     @classmethod
-    def record_is_deleted(cls, _source_record: dict[str, JSON]) -> bool:
+    def record_is_deleted(cls, source_record: dict[str, JSON]) -> bool:
         """
         Determine whether record has a status of deleted.
-
-        TODO: Determine how to handle/detect deleted/removed websites.
 
         Args:
             source_record: A JSON object representing a source record.
         """
-        return False
+        return source_record.get("status") == "deleted"
 
     @classmethod
     def get_content_type(cls, _source_record: dict) -> list[str]:

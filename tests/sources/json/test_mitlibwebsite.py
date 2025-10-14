@@ -120,3 +120,20 @@ def test_mitlibwebsite_get_summary_returns_none_if_og_description_is_none():
     source_record = create_mitlibwebsite_source_record_stub()
     source_record["og_description"] = None
     assert MITLibWebsite.get_summary(source_record) is None
+
+
+def test_mitlibwebsite_record_is_deleted_returns_true_when_status_is_deleted():
+    source_record = create_mitlibwebsite_source_record_stub()
+    source_record["status"] = "deleted"
+    assert MITLibWebsite.record_is_deleted(source_record) is True
+
+
+def test_mitlibwebsite_record_is_deleted_returns_false_when_status_is_not_deleted():
+    source_record = create_mitlibwebsite_source_record_stub()
+    source_record["status"] = "active"
+    assert MITLibWebsite.record_is_deleted(source_record) is False
+
+
+def test_mitlibwebsite_record_is_deleted_returns_false_when_status_field_is_missing():
+    source_record = create_mitlibwebsite_source_record_stub()
+    assert MITLibWebsite.record_is_deleted(source_record) is False
