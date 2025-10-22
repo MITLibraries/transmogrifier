@@ -72,11 +72,14 @@ class MITLibWebsite(JSONTransformer):
     @classmethod
     def get_contributors(cls, _source_record: dict) -> list[timdex.Contributor]:
         return [
-            timdex.Contributor(value="MIT Libraries", kind="Creator", mit_affiliated=True)
+            timdex.Contributor(value="MIT Libraries", kind="creator", mit_affiliated=True)
         ]
 
     def get_dates(self, _source_record: dict) -> list[timdex.Date]:
         return [timdex.Date(value=self.run_data["run_timestamp"], kind="Accessed")]
+
+    def get_format(self, _source_record: dict) -> str:
+        return "electronic resource"
 
     @classmethod
     def get_links(cls, source_record: dict) -> list[timdex.Link]:
