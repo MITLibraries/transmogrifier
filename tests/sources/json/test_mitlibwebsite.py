@@ -28,11 +28,12 @@ def test_mitlibwebsite_transform_returns_timdex_record(mitlibwebsite_records):
                 value="MIT Libraries",
                 affiliation=None,
                 identifier=None,
-                kind="Creator",
+                kind="creator",
                 mit_affiliated=True,
             )
         ],
         dates=[timdex.Date(value="2000-01-01T00:00:00", kind="Accessed")],
+        format="electronic resource",
         links=[
             timdex.Link(
                 url="https://libraries.mit.edu/search/",
@@ -90,7 +91,7 @@ def test_mitlibwebsite_get_content_type_success():
 def test_mitlibwebsite_get_contributors_success():
     source_record = create_mitlibwebsite_source_record_stub()
     assert MITLibWebsite.get_contributors(source_record) == [
-        timdex.Contributor(value="MIT Libraries", kind="Creator", mit_affiliated=True)
+        timdex.Contributor(value="MIT Libraries", kind="creator", mit_affiliated=True)
     ]
 
 
@@ -100,6 +101,12 @@ def test_mitlibwebsite_get_dates_success():
     assert mitlibwebsite.get_dates(source_record) == [
         timdex.Date(value="2000-01-01T00:00:00", kind="Accessed")
     ]
+
+
+def test_mitlibwebsite_get_format_success():
+    source_record = create_mitlibwebsite_source_record_stub()
+    mitlibwebsite = MITLibWebsite("mitlibwebsite", iter([source_record]))
+    assert mitlibwebsite.get_format(source_record) == "electronic resource"
 
 
 def test_mitlibwebsite_get_links_success():
