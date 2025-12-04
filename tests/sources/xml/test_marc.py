@@ -209,7 +209,7 @@ def test_marc_record_all_fields_transform_correctly():
             ),
             timdex.Holding(
                 call_number="QD79.C4.C485 1983",
-                collection="Off Campus Collection",
+                collection="Archival Storage Offsite",
                 format="Print volume",
                 location="Library Storage Annex",
                 note="pt.A",
@@ -1211,7 +1211,7 @@ def test_get_holdings_success():
         ),
         timdex.Holding(
             call_number="QD79.C4.C485 1983",
-            collection="Off Campus Collection",
+            collection="Archival Storage Offsite",
             format="Print volume",
             location="Library Storage Annex",
             note="pt.A",
