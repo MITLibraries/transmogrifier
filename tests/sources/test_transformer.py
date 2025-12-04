@@ -19,7 +19,7 @@ def test_transformer_get_transformer_returns_correct_class_name():
 
 def test_transformer_get_transformer_source_missing_class_name_raises_error():
     with pytest.raises(KeyError):
-        Transformer.get_transformer("cool-repo")
+        Transformer.get_transformer("wrong-repo")
 
 
 @pytest.mark.usefixtures("_bad_config")
@@ -84,9 +84,9 @@ def test_create_locations_from_spatial_subjects_success(timdex_record_required_f
 
 
 def test_transformer_get_run_data_from_source_file_and_run_id(
-    libguides_transformer, libguides_input_file, run_id
+    source_transformer, source_input_file, run_id
 ):
-    assert libguides_transformer.get_run_data(libguides_input_file, run_id) == {
+    assert source_transformer.get_run_data(source_input_file, run_id) == {
         "source": "libguides",
         "run_date": "2024-06-03",
         "run_type": "full",
@@ -96,11 +96,11 @@ def test_transformer_get_run_data_from_source_file_and_run_id(
 
 
 def test_transformer_get_run_data_with_explicit_run_timestamp(
-    libguides_transformer, libguides_input_file, run_id
+    source_transformer, source_input_file, run_id
 ):
     run_timestamp = "2024-06-03T15:30:45"
-    assert libguides_transformer.get_run_data(
-        libguides_input_file,
+    assert source_transformer.get_run_data(
+        source_input_file,
         run_id=run_id,
         run_timestamp=run_timestamp,
     ) == {
@@ -113,31 +113,31 @@ def test_transformer_get_run_data_with_explicit_run_timestamp(
 
 
 def test_transformer_get_run_data_mints_timestamp_from_run_date(
-    libguides_transformer, libguides_input_file, run_id
+    source_transformer, source_input_file, run_id
 ):
-    result = libguides_transformer.get_run_data(libguides_input_file, run_id)
+    result = source_transformer.get_run_data(source_input_file, run_id)
     assert result["run_timestamp"] == "2024-06-03T00:00:00"
 
 
 def test_transformer_get_run_data_no_source_file_raise_error(
-    monkeypatch, libguides_transformer
+    monkeypatch, source_transformer
 ):
     monkeypatch.setenv("WORKSPACE", "dev")
     with pytest.raises(
         ValueError,
         match="'source_file' parameter is required outside of test environments",
     ):
-        libguides_transformer.get_run_data(None, "run-abc-123")
+        source_transformer.get_run_data(None, "run-abc-123")
 
 
-def test_transformer_next_iter_yields_dataset_records(libguides_transformer):
-    assert isinstance(next(libguides_transformer), DatasetRecord)
+def test_transformer_next_iter_yields_dataset_records(source_transformer):
+    assert isinstance(next(source_transformer), DatasetRecord)
 
 
 def test_transform_next_iter_sets_valid_source_and_transformed_records(
-    libguides_transformer,
+    source_transformer,
 ):
-    record = next(libguides_transformer)
+    record = next(source_transformer)
 
     # parse source record XML
     assert isinstance(record.source_record, bytes)
@@ -151,10 +151,10 @@ def test_transform_next_iter_sets_valid_source_and_transformed_records(
 
 
 def test_transform_next_iter_uses_run_data_parsed_from_source_file(
-    libguides_transformer, libguides_input_file, run_id
+    source_transformer, source_input_file, run_id
 ):
-    record = next(libguides_transformer)
-    run_data = libguides_transformer.get_run_data(libguides_input_file, run_id)
+    record = next(source_transformer)
+    run_data = source_transformer.get_run_data(source_input_file, run_id)
     assert (
         record.run_date
         == datetime.datetime.strptime(run_data["run_date"], "%Y-%m-%d")
@@ -175,7 +175,7 @@ def test_transform_next_iter_uses_run_data_parsed_from_source_file(
     ],
 )
 def test_transformer_action_column_based_on_transformation_exception_handling(
-    libguides_transformer, transform_exception, expected_action
+    source_transformer, transform_exception, expected_action
 ):
     """While Transmogrifier is often considered just an application to transform a source
     record into a TIMDEX record, it also serves the purpose of determining if a source
@@ -189,17 +189,17 @@ def test_transformer_action_column_based_on_transformation_exception_handling(
     """
 
     if transform_exception:
-        with mock.patch.object(libguides_transformer, "transform") as mocked_transform:
+        with mock.patch.object(source_transformer, "transform") as mocked_transform:
             mocked_transform.side_effect = transform_exception
-            record = next(libguides_transformer)
+            record = next(source_transformer)
             assert mocked_transform.called
     else:
-        record = next(libguides_transformer)
+        record = next(source_transformer)
     assert record.action == expected_action
 
 
-def test_transformer_provenance_object_added_to_transformed_record(libguides_transformer):
-    dataset_record = next(libguides_transformer)
+def test_transformer_provenance_object_added_to_transformed_record(source_transformer):
+    dataset_record = next(source_transformer)
     transformed_record = json.loads(dataset_record.transformed_record)
     assert transformed_record["timdex_provenance"] == {
         "source": "libguides",
@@ -210,10 +210,10 @@ def test_transformer_provenance_object_added_to_transformed_record(libguides_tra
 
 
 def test_transformer_provenance_object_run_record_offset_increments(
-    libguides_transformer,
+    source_transformer,
 ):
     for i in range(4):
-        dataset_record = next(libguides_transformer)
+        dataset_record = next(source_transformer)
         if dataset_record.action != "index":
             continue
         transformed_record = json.loads(dataset_record.transformed_record)
@@ -221,9 +221,9 @@ def test_transformer_provenance_object_run_record_offset_increments(
 
 
 def test_transformer_load_with_run_timestamp_parameter(
-    libguides_transformer_with_timestamp, libguides_input_file, run_id
+    source_transformer_with_timestamp, source_input_file, run_id
 ):
-    assert libguides_transformer_with_timestamp.run_data == {
+    assert source_transformer_with_timestamp.run_data == {
         "source": "libguides",
         "run_date": "2024-06-03",
         "run_type": "full",
@@ -233,9 +233,9 @@ def test_transformer_load_with_run_timestamp_parameter(
 
 
 def test_transformer_load_without_run_timestamp_parameter(
-    libguides_transformer, libguides_input_file, run_id
+    source_transformer, source_input_file, run_id
 ):
-    assert libguides_transformer.run_data == {
+    assert source_transformer.run_data == {
         "source": "libguides",
         "run_date": "2024-06-03",
         "run_type": "full",
@@ -245,10 +245,11 @@ def test_transformer_load_without_run_timestamp_parameter(
 
 
 def test_transformer_dataset_write_includes_run_timestamp_column(
-    tmp_path, libguides_transformer
+    tmp_path,
+    source_transformer,
 ):
     dataset_location = tmp_path / "dataset"
-    written_files = libguides_transformer.write_to_parquet_dataset(str(dataset_location))
+    written_files = source_transformer.write_to_parquet_dataset(str(dataset_location))
 
     parquet_file = written_files[0]
     assert "run_timestamp" in parquet_file.metadata.schema.names

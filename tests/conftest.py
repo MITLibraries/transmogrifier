@@ -19,6 +19,7 @@ def _test_config():
     SOURCES["cool-repo"] = {
         "name": "A Cool Repository",
         "base-url": "https://example.com/",
+        "transform-class": "transmogrifier.sources.xml.datacite.Datacite",
     }
 
 
@@ -257,33 +258,33 @@ def empty_dataset_location(tmp_path):
 
 
 @pytest.fixture
-def libguides_input_file():
+def source_input_file():
     return (
         "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml"
     )
 
 
 @pytest.fixture
-def empty_libguides_input_file():
+def empty_source_input_file():
     return (
         "tests/fixtures/dataset/libguides-2024-06-04-full-extracted-records-to-index.xml"
     )
 
 
 @pytest.fixture
-def libguides_transformer(monkeypatch, run_id, libguides_input_file):
+def source_transformer(monkeypatch, run_id, source_input_file):
     return Transformer.load(
-        "libguides",
-        libguides_input_file,
+        "cool-repo",
+        source_input_file,
         run_id=run_id,
     )
 
 
 @pytest.fixture
-def libguides_transformer_with_timestamp(monkeypatch, run_id, libguides_input_file):
+def source_transformer_with_timestamp(monkeypatch, run_id, source_input_file):
     return Transformer.load(
-        "libguides",
-        libguides_input_file,
+        "cool-repo",
+        source_input_file,
         run_id=run_id,
         run_timestamp="2024-06-03T15:30:45",
     )

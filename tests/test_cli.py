@@ -5,14 +5,14 @@ from transmogrifier.cli import main
 
 
 def test_transform_no_sentry_not_verbose(
-    caplog, monkeypatch, runner, libguides_input_file, empty_dataset_location
+    caplog, monkeypatch, runner, source_input_file, empty_dataset_location
 ):
     monkeypatch.delenv("SENTRY_DSN", raising=False)
     result = runner.invoke(
         main,
         [
             "-i",
-            libguides_input_file,
+            source_input_file,
             "--output-location",
             empty_dataset_location,
             "-s",
@@ -28,7 +28,7 @@ def test_transform_no_sentry_not_verbose(
 
 
 def test_transform_with_sentry_and_verbose(
-    caplog, monkeypatch, runner, libguides_input_file, empty_dataset_location
+    caplog, monkeypatch, runner, source_input_file, empty_dataset_location
 ):
     monkeypatch.setenv("SENTRY_DSN", "https://1234567890@00000.ingest.sentry.io/123456")
     monkeypatch.setenv("STATUS_UPDATE_INTERVAL", "10")
@@ -36,7 +36,7 @@ def test_transform_with_sentry_and_verbose(
         main,
         [
             "-i",
-            libguides_input_file,
+            source_input_file,
             "--output-location",
             empty_dataset_location,
             "-s",
@@ -56,8 +56,8 @@ def test_transform_with_sentry_and_verbose(
 def test_transform_no_records(
     caplog,
     runner,
-    libguides_input_file,
-    empty_libguides_input_file,
+    source_input_file,
+    empty_source_input_file,
     empty_dataset_location,
 ):
     caplog.set_level("DEBUG")
@@ -65,7 +65,7 @@ def test_transform_no_records(
         main,
         [
             "-i",
-            empty_libguides_input_file,
+            empty_source_input_file,
             "--output-location",
             empty_dataset_location,
             "-s",
@@ -77,13 +77,13 @@ def test_transform_no_records(
 
 
 def test_transform_deleted_records(
-    caplog, runner, libguides_input_file, empty_dataset_location
+    caplog, runner, source_input_file, empty_dataset_location
 ):
     result = runner.invoke(
         main,
         [
             "-i",
-            libguides_input_file,
+            source_input_file,
             "--output-location",
             empty_dataset_location,
             "-s",
@@ -200,7 +200,7 @@ def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_pat
             "run",
             "transform",
             "-s",
-            "libguides",
+            "researchdatabases",
             "-i",
             "tests/fixtures/dataset/libguides-2025-01-09-full-extracted-records-to-index.xml",
             "-o",
