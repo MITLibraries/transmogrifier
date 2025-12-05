@@ -34,6 +34,12 @@ logger = logging.getLogger(__name__)
     help="Source records were harvested from, must choose from list of options",
 )
 @click.option(
+    "-e",
+    "--exclusion-list-path",
+    required=False,
+    help="S3 or local path to exclusion list.",
+)
+@click.option(
     "-r",
     "--run-id",
     required=False,
@@ -56,6 +62,7 @@ def main(
     source: str,
     input_file: str,
     output_location: str,
+    exclusion_list_path: str,
     run_id: str,
     run_timestamp: str,
     verbose: bool,  # noqa: FBT001
@@ -69,6 +76,7 @@ def main(
     transformer = Transformer.load(
         source,
         input_file,
+        exclusion_list_path=exclusion_list_path,
         run_id=run_id,
         run_timestamp=run_timestamp,
     )

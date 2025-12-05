@@ -1,6 +1,8 @@
 import logging
 from datetime import UTC, datetime
 
+import smart_open  # type: ignore[import-untyped]
+
 import transmogrifier.models as timdex
 from transmogrifier.config import DATE_FORMATS
 
@@ -131,3 +133,25 @@ def validate_date_range(
         end_date,
     )
     return False
+
+
+def load_exclusion_list(
+    exclusion_list_path: str,
+) -> list[str]:
+    """
+    Load a CSV file from path (S3 or local filesystem) and return values as a list.
+
+    CSV file has no headers and contains identifiers to exclude, one per line.
+
+    Args:
+        exclusion_list_path: Path to exclusion list file (s3://bucket/key or local path).
+    """
+    with smart_open.open(exclusion_list_path, "r") as exclusion_list:
+        rows = exclusion_list.readlines()
+    exclusion_list = [row.strip() for row in rows if row.strip()]
+    logger.info(
+        f"Loaded exclusion list from {exclusion_list_path} with {len(exclusion_list)} "
+        "entries"
+    )
+    logger.debug(exclusion_list)
+    return exclusion_list

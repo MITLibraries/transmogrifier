@@ -1,5 +1,7 @@
+import boto3
 import pytest
 from click.testing import CliRunner
+from moto import mock_aws
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
@@ -38,6 +40,20 @@ def _bad_config():
     yield
     SOURCES.pop("bad-class-name")
     SOURCES.pop("bad-module-path")
+
+
+@pytest.fixture(scope="session")
+def mock_s3():
+    with mock_aws():
+        s3 = boto3.client("s3", region_name="us-east-1")
+        s3.create_bucket(Bucket="test-bucket")
+        s3.put_object(
+            Bucket="test-bucket",
+            Key="libguides/config/libguides-exclusions.csv",
+            Body="https://libguides.mit.edu/excluded1\n"
+            "https://libguides.mit.edu/excluded2\n",
+        )
+        yield s3
 
 
 @pytest.fixture

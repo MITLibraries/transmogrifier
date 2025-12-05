@@ -4,6 +4,7 @@ from datetime import datetime
 import transmogrifier.models as timdex
 from transmogrifier.helpers import (
     generate_citation,
+    load_exclusion_list,
     parse_date_from_string,
     validate_date,
     validate_date_range,
@@ -179,6 +180,15 @@ def test_generate_citation_with_all_fields(timdex_record_required_fields):
         == "Smith, Susie Q., Jones, John J. (2022): Some Data About Trees. "
         "Massachusetts Institute of Technology. Article. https://example.com/123"
     )
+
+
+def test_load_exclusion_list(mock_s3):
+    assert load_exclusion_list(
+        "s3://test-bucket/libguides/config/libguides-exclusions.csv"
+    ) == [
+        "https://libguides.mit.edu/excluded1",
+        "https://libguides.mit.edu/excluded2",
+    ]
 
 
 def test_parse_date_from_string_success():

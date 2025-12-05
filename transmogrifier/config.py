@@ -102,7 +102,7 @@ SOURCES = {
     "libguides": {
         "name": "LibGuides",
         "base-url": "https://libguides.mit.edu/",
-        "transform-class": "transmogrifier.sources.xml.springshare.SpringshareOaiDc",
+        "transform-class": "transmogrifier.sources.xml.libguides.LibGuides",
     },
     "mitlibwebsite": {
         "name": "MIT Libraries Website",

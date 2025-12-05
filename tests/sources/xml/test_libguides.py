@@ -1,6 +1,7 @@
 import transmogrifier.models as timdex
 from tests.sources.xml.test_springshare import (
     SPRINGSHARE_FIXTURES_PREFIX,
+    create_oaidc_source_record_stub,
 )
 from transmogrifier.sources.xml.libguides import LibGuides
 
@@ -101,3 +102,45 @@ def test_libguides_transform_with_optional_fields_missing_transforms_correctly()
             )
         ],
     )
+
+
+def test_libguides_record_is_excluded_returns_true_for_excluded_record(mock_s3):
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
+            <dc:identifier>https://libguides.mit.edu/1234</dc:identifier>
+            """
+        ),
+        metadata_insert=(
+            """
+            <dc:identifier>https://libguides.mit.edu/excluded1</dc:identifier>
+            """
+        ),
+    )
+    output_records = LibGuides(
+        "libguides",
+        iter(source_record),
+        exclusion_list_path="s3://test-bucket/libguides/config/libguides-exclusions.csv",
+    )
+    assert output_records.record_is_excluded(source_record) is True
+
+
+def test_libguides_record_is_excluded_returns_false_for_non_excluded_record(mock_s3):
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
+            <dc:identifier>https://libguides.mit.edu/5678</dc:identifier>
+            """
+        ),
+        metadata_insert=(
+            """
+            <dc:identifier>https://libguides.mit.edu/someotherguide</dc:identifier>
+            """
+        ),
+    )
+    output_records = LibGuides(
+        "libguides",
+        iter(source_record),
+        exclusion_list_path="s3://test-bucket/libguides/config/libguides-exclusions.csv",
+    )
+    assert output_records.record_is_excluded(source_record) is False
