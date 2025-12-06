@@ -17,7 +17,6 @@ class SpringshareOaiDc(OaiDc):
     Springshare transformer that extends generic OAI DC transformer.
 
     This transformer is used for:
-        - libguides
         - researchdatabases
     """
 
