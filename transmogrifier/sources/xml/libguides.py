@@ -18,7 +18,7 @@ class LibGuides(SpringshareOaiDc):
             source_record: A single source record.
         """
         source_link = self.get_source_link(source_record)
-        excluded = source_link in self.exclusion_list
+        excluded = source_link in self.exclusion_list if self.exclusion_list else False
         if excluded:
             logger.info(
                 f"Record ID {self.get_source_record_id(source_record)} with source link "
@@ -35,3 +35,4 @@ class LibGuides(SpringshareOaiDc):
             _source_record: A BeautifulSoup Tag representing a
                 single OAI DC record in XML.
         """
+        return None  # noqa: RET501

@@ -13,6 +13,16 @@ from transmogrifier.sources.transformer import Transformer
 from transmogrifier.sources.xml.datacite import Datacite
 
 
+def test_load_exclusion_list(source_transformer, mock_s3_exclusion_list):
+    source_transformer.exclusion_list_path = (
+        "s3://test-bucket/libguides/config/libguides-exclusions.csv"
+    )
+    assert source_transformer.load_exclusion_list() == [
+        "https://libguides.mit.edu/excluded1",
+        "https://libguides.mit.edu/excluded2",
+    ]
+
+
 def test_transformer_get_transformer_returns_correct_class_name():
     assert Transformer.get_transformer("jpal") == Datacite
 

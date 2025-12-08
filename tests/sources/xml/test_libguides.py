@@ -104,7 +104,9 @@ def test_libguides_transform_with_optional_fields_missing_transforms_correctly()
     )
 
 
-def test_libguides_record_is_excluded_returns_true_for_excluded_record(mock_s3):
+def test_libguides_record_is_excluded_returns_true_for_excluded_record(
+    mock_s3_exclusion_list,
+):
     source_record = create_oaidc_source_record_stub(
         header_insert=(
             """
@@ -125,7 +127,9 @@ def test_libguides_record_is_excluded_returns_true_for_excluded_record(mock_s3):
     assert output_records.record_is_excluded(source_record) is True
 
 
-def test_libguides_record_is_excluded_returns_false_for_non_excluded_record(mock_s3):
+def test_libguides_record_is_excluded_returns_false_for_non_excluded_record(
+    mock_s3_exclusion_list,
+):
     source_record = create_oaidc_source_record_stub(
         header_insert=(
             """

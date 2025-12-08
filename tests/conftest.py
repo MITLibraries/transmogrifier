@@ -47,13 +47,17 @@ def mock_s3():
     with mock_aws():
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket="test-bucket")
-        s3.put_object(
-            Bucket="test-bucket",
-            Key="libguides/config/libguides-exclusions.csv",
-            Body="https://libguides.mit.edu/excluded1\n"
-            "https://libguides.mit.edu/excluded2\n",
-        )
         yield s3
+
+
+@pytest.fixture(scope="session")
+def mock_s3_exclusion_list(mock_s3):
+    mock_s3.put_object(
+        Bucket="test-bucket",
+        Key="libguides/config/libguides-exclusions.csv",
+        Body="https://libguides.mit.edu/excluded1\n"
+        "https://libguides.mit.edu/excluded2\n",
+    )
 
 
 @pytest.fixture
