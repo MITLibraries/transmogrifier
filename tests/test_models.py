@@ -33,6 +33,7 @@ def test_timdex_record_required_fields_only(timdex_record_required_fields):
     assert timdex_record_required_fields.rights is None
     assert timdex_record_required_fields.subjects is None
     assert timdex_record_required_fields.summary is None
+    assert timdex_record_required_fields.fulltext is None
 
 
 def test_timdex_record_required_subfields_only(timdex_record_required_fields):
@@ -77,6 +78,7 @@ def test_timdex_record_required_subfields_only(timdex_record_required_fields):
     assert timdex_record_required_fields.rights is None
     assert timdex_record_required_fields.subjects[0].value == ["Stuff"]
     assert timdex_record_required_fields.summary is None
+    assert timdex_record_required_fields.fulltext is None
 
 
 def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_subfields):
@@ -212,6 +214,10 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
     assert timdex_record_all_fields_and_subfields.subjects[0].value == ["Stuff"]
     assert timdex_record_all_fields_and_subfields.subjects[0].kind == "LCSH"
     assert timdex_record_all_fields_and_subfields.summary[0] == "This is data."
+    assert (
+        timdex_record_all_fields_and_subfields.fulltext
+        == "This is the full text of the resource."
+    )
 
 
 def test_record_asdict_filters_empty_fields(
@@ -319,6 +325,7 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
         ],
         "subjects": [{"kind": "LCSH", "value": ["Stuff"]}],
         "summary": ["This is data."],
+        "fulltext": "This is the full text of the resource.",
     }
 
 

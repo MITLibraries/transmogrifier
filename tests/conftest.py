@@ -261,6 +261,7 @@ def timdex_record_all_fields_and_subfields():
         ],
         subjects=[timdex.Subject(value=["Stuff"], kind="LCSH")],
         summary=["This is data."],
+        fulltext="This is the full text of the resource.",
     )
 
 
