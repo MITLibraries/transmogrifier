@@ -9,7 +9,6 @@ from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.sources.xml.springshare import SpringshareOaiDc
 
 SPRINGSHARE_FIXTURES_PREFIX = "tests/fixtures/oai_dc/springshare"
-LIBGUIDES_FIXTURES_PREFIX = f"{SPRINGSHARE_FIXTURES_PREFIX}/libguides"
 RESEARCHDATABASES_FIXTURES_PREFIX = f"{SPRINGSHARE_FIXTURES_PREFIX}/research_databases"
 
 
@@ -212,112 +211,6 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_missing(
         ),
     ):
         springshare.get_source_link(source_record)
-
-
-###########################
-# Springshare - LibGuides
-###########################
-
-
-def test_springshare_libguides_transform_with_all_fields_transforms_correctly():
-    source_records = SpringshareOaiDc.parse_source_file(
-        f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_all_fields.xml"
-    )
-    output_records = SpringshareOaiDc("libguides", source_records)
-    timdex_record = output_records.transform(next(output_records.source_records))
-    assert timdex_record == timdex.TimdexRecord(
-        source="LibGuides",
-        source_link="https://libguides.mit.edu/materials",
-        timdex_record_id="libguides:guides-175846",
-        title="Materials Science & Engineering",
-        citation="Ye Li. Materials Science & Engineering. MIT Libraries. libguides. "
-        "https://libguides.mit.edu/materials",
-        content_type=["libguides"],
-        contributors=[
-            timdex.Contributor(
-                value="Ye Li",
-                kind="Creator",
-            )
-        ],
-        dates=[
-            timdex.Date(value="2008-06-19T17:55:27", kind="Created"),
-        ],
-        format="electronic resource",
-        identifiers=[
-            timdex.Identifier(value="oai:libguides.com:guides/175846", kind="OAI-PMH")
-        ],
-        links=[
-            timdex.Link(
-                url="https://libguides.mit.edu/materials",
-                kind="LibGuide URL",
-                text="LibGuide URL",
-            )
-        ],
-        publishers=[timdex.Publisher(name="MIT Libraries")],
-        subjects=[
-            timdex.Subject(
-                value=["Engineering", "Science"],
-                kind="Subject scheme not provided",
-            ),
-        ],
-        summary=["Useful databases and other research tips for materials science."],
-    )
-
-
-def test_springshare_libguides_transform_with_optional_fields_blank_transforms_correctly():
-    source_records = SpringshareOaiDc.parse_source_file(
-        f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_optional_fields_blank.xml"
-    )
-    output_records = SpringshareOaiDc("libguides", source_records)
-    timdex_record = output_records.transform(next(output_records.source_records))
-    assert timdex_record == timdex.TimdexRecord(
-        source="LibGuides",
-        source_link="https://libguides.mit.edu/materials",
-        timdex_record_id="libguides:guides-175846",
-        title="Materials Science & Engineering",
-        citation="Materials Science & Engineering. libguides. "
-        "https://libguides.mit.edu/materials",
-        content_type=["libguides"],
-        format="electronic resource",
-        identifiers=[
-            timdex.Identifier(value="oai:libguides.com:guides/175846", kind="OAI-PMH")
-        ],
-        links=[
-            timdex.Link(
-                url="https://libguides.mit.edu/materials",
-                kind="LibGuide URL",
-                text="LibGuide URL",
-            )
-        ],
-    )
-
-
-def test_springshare_libguides_transform_with_optional_fields_missing_transforms_correctly():
-    source_records = SpringshareOaiDc.parse_source_file(
-        f"{LIBGUIDES_FIXTURES_PREFIX}/libguides_record_optional_fields_missing.xml"
-    )
-    output_records = SpringshareOaiDc("libguides", source_records)
-    timdex_record = output_records.transform(next(output_records.source_records))
-    assert timdex_record == timdex.TimdexRecord(
-        source="LibGuides",
-        source_link="https://libguides.mit.edu/materials",
-        timdex_record_id="libguides:guides-175846",
-        title="Materials Science & Engineering",
-        citation="Materials Science & Engineering. libguides. "
-        "https://libguides.mit.edu/materials",
-        content_type=["libguides"],
-        format="electronic resource",
-        identifiers=[
-            timdex.Identifier(value="oai:libguides.com:guides/175846", kind="OAI-PMH")
-        ],
-        links=[
-            timdex.Link(
-                url="https://libguides.mit.edu/materials",
-                kind="LibGuide URL",
-                text="LibGuide URL",
-            )
-        ],
-    )
 
 
 ####################################

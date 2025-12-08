@@ -14,6 +14,7 @@ from datetime import date, datetime
 from importlib import import_module
 from typing import TYPE_CHECKING, final
 
+import smart_open  # type: ignore[import-untyped]
 from bs4 import Tag  # type: ignore[import-untyped]
 from timdex_dataset_api import (  # type: ignore[import-untyped, import-not-found]
     DatasetRecord,
@@ -23,7 +24,10 @@ from timdex_dataset_api import (  # type: ignore[import-untyped, import-not-foun
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES
 from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
-from transmogrifier.helpers import generate_citation, validate_date
+from transmogrifier.helpers import (
+    generate_citation,
+    validate_date,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -43,6 +47,7 @@ class Transformer(ABC):
         self,
         source: str,
         source_records: Iterator[dict[str, JSON] | Tag],
+        exclusion_list_path: str | None = None,
         source_file: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
@@ -52,12 +57,16 @@ class Transformer(ABC):
 
         Args:
             source: Source repository label. Must match a source key from config.SOURCES.
+            exclusion_list_path: S3 or local filepath to exclusion list CSV file.
+            exclsion_list: The exclusion list for this particular source.
             source_records: A set of source records to be processed.
             source_file: Filepath of the input source file.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
         """
         self.source: str = source
+        self.exclusion_list_path: str | None = exclusion_list_path
+        self._exclusion_list: list[str] | None = None
         self.source_base_url: str = SOURCES[source]["base-url"]
         self.source_name = SOURCES[source]["name"]
         self.source_records: Iterator[JSON | Tag] = source_records
@@ -77,6 +86,32 @@ class Transformer(ABC):
     @property
     def run_record_offset(self) -> int:
         return self.processed_record_count - 1
+
+    @property
+    def exclusion_list(self) -> list[str] | None:
+        if self.exclusion_list_path and self._exclusion_list is None:
+            self._exclusion_list = self.load_exclusion_list()
+        return self._exclusion_list
+
+    def load_exclusion_list(self) -> list[str]:
+        """
+        Load a CSV file from path (S3 or local filesystem) and return values as a list.
+
+        CSV file has no headers and contains identifiers to exclude, one per line.
+
+        Args:
+            exclusion_list_path: Path to exclusion list file (s3://bucket/key or local
+            path).
+        """
+        with smart_open.open(self.exclusion_list_path, "r") as exclusion_list:
+            rows = exclusion_list.readlines()
+        exclusion_list = [row.strip() for row in rows if row.strip()]
+        logger.info(
+            f"Loaded exclusion list from {self.exclusion_list_path} with "
+            f"{len(exclusion_list)} entries"
+        )
+        logger.debug(exclusion_list)
+        return exclusion_list
 
     @final
     def __iter__(self) -> Iterator[DatasetRecord]:
@@ -155,6 +190,7 @@ class Transformer(ABC):
         cls,
         source: str,
         source_file: str,
+        exclusion_list_path: str = "",
         run_id: str | None = None,
         run_timestamp: str | None = None,
     ) -> Transformer:
@@ -172,6 +208,7 @@ class Transformer(ABC):
         return transformer_class(
             source,
             source_records,
+            exclusion_list_path,
             source_file=source_file,
             run_id=run_id,
             run_timestamp=run_timestamp,
@@ -302,6 +339,12 @@ class Transformer(ABC):
         if self.record_is_deleted(source_record):
             timdex_record_id = self.get_timdex_record_id(source_record)
             raise DeletedRecordEvent(timdex_record_id)
+        if self.record_is_excluded(source_record):
+            source_record_id = self.get_source_record_id(source_record)
+            logger.info(
+                f"Record ID {source_record_id} is in exclusion list, skipping record."
+            )
+            raise SkippedRecordEvent(source_record_id)
 
         timdex_record = timdex.TimdexRecord(
             source=self.source_name,
@@ -316,6 +359,15 @@ class Transformer(ABC):
         self.generate_derived_fields(timdex_record)
 
         return timdex_record
+
+    def record_is_excluded(self, _source_record: dict[str, JSON] | Tag) -> bool:
+        """
+        Determine whether a source record should be excluded.
+
+        Args:
+            source_record: A single source record.
+        """
+        return False
 
     def write_to_parquet_dataset(self, dataset_location: str) -> list:
         """Write output to TIMDEX dataset."""

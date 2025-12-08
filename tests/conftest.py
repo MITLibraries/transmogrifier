@@ -1,5 +1,7 @@
+import boto3
 import pytest
 from click.testing import CliRunner
+from moto import mock_aws
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES, load_external_config
@@ -19,6 +21,7 @@ def _test_config():
     SOURCES["cool-repo"] = {
         "name": "A Cool Repository",
         "base-url": "https://example.com/",
+        "transform-class": "transmogrifier.sources.xml.datacite.Datacite",
     }
 
 
@@ -37,6 +40,24 @@ def _bad_config():
     yield
     SOURCES.pop("bad-class-name")
     SOURCES.pop("bad-module-path")
+
+
+@pytest.fixture(scope="session")
+def mock_s3():
+    with mock_aws():
+        s3 = boto3.client("s3", region_name="us-east-1")
+        s3.create_bucket(Bucket="test-bucket")
+        yield s3
+
+
+@pytest.fixture(scope="session")
+def mock_s3_exclusion_list(mock_s3):
+    mock_s3.put_object(
+        Bucket="test-bucket",
+        Key="libguides/config/libguides-exclusions.csv",
+        Body="https://libguides.mit.edu/excluded1\n"
+        "https://libguides.mit.edu/excluded2\n",
+    )
 
 
 @pytest.fixture
@@ -257,33 +278,33 @@ def empty_dataset_location(tmp_path):
 
 
 @pytest.fixture
-def libguides_input_file():
+def source_input_file():
     return (
         "tests/fixtures/dataset/libguides-2024-06-03-full-extracted-records-to-index.xml"
     )
 
 
 @pytest.fixture
-def empty_libguides_input_file():
+def empty_source_input_file():
     return (
         "tests/fixtures/dataset/libguides-2024-06-04-full-extracted-records-to-index.xml"
     )
 
 
 @pytest.fixture
-def libguides_transformer(monkeypatch, run_id, libguides_input_file):
+def source_transformer(monkeypatch, run_id, source_input_file):
     return Transformer.load(
-        "libguides",
-        libguides_input_file,
+        "cool-repo",
+        source_input_file,
         run_id=run_id,
     )
 
 
 @pytest.fixture
-def libguides_transformer_with_timestamp(monkeypatch, run_id, libguides_input_file):
+def source_transformer_with_timestamp(monkeypatch, run_id, source_input_file):
     return Transformer.load(
-        "libguides",
-        libguides_input_file,
+        "cool-repo",
+        source_input_file,
         run_id=run_id,
         run_timestamp="2024-06-03T15:30:45",
     )
