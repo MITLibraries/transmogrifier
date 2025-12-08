@@ -77,6 +77,7 @@ Options:
   -s, --source [alma|aspace|dspace|jpal|libguides|gismit|gisogm|researchdatabases|whoas|zenodo]
                                   Source records were harvested from, must
                                   choose from list of options  [required]
+  -e, --exclusion-list-path TEXT  S3 or local path to exclusion list. 
   -r, --run-id TEXT               Identifier for Transmogrifier run.  This can
                                   be used to group transformed records
                                   produced by Transmogrifier, even if they
