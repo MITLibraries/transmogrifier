@@ -255,6 +255,7 @@ class TimdexRecord:
         default=None, converter=dedupe, validator=optional(list_of(str))
     )
     format: str | None = field(default=None, validator=optional(instance_of(str)))
+    fulltext: str | None = field(default=None, validator=optional(instance_of(str)))
     funding_information: list[Funder] | None = field(
         default=None, converter=dedupe, validator=optional(list_of(Funder))
     )
