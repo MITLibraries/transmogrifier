@@ -190,7 +190,7 @@ class Transformer(ABC):
         cls,
         source: str,
         source_file: str,
-        exclusion_list_path: str = "",
+        exclusion_list_path: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
     ) -> Transformer:
@@ -200,6 +200,7 @@ class Transformer(ABC):
         Args:
             source: Source repository label. Must match a source key from config.SOURCES.
             source_file: A file containing source records to be transformed.
+            exclusion_list_path: CSV filepath to use for explicitly skipping records.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
         """
