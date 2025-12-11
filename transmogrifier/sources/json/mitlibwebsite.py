@@ -1,5 +1,9 @@
+import base64
 import hashlib
 import logging
+from functools import lru_cache
+
+from bs4 import BeautifulSoup, Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.jsontransformer import JSONTransformer
@@ -9,6 +13,30 @@ logger = logging.getLogger(__name__)
 
 
 class MITLibWebsite(JSONTransformer):
+
+    @classmethod
+    @lru_cache(maxsize=8)
+    def parse_html(cls, html_base64: str) -> Tag:
+        """Parse HTML from base64 encoded ASCII string.
+
+        For this mitlibwebsite source, also remove the <header> and <footer> elements
+        which are not helpful for any metadata or fulltext purposes.
+
+        This method utilizes an LRU cache to only parse the HTML once per unique HTML
+        base64 string passed.  Maxsize is set to 8 to ensure the cache is large enough
+        for 8 concurrent transformations if threading is used (increase if needed for
+        more threads).
+        """
+        html_bytes = base64.b64decode(html_base64)
+        html_soup = BeautifulSoup(html_bytes, "html.parser")
+
+        # remove header and footer
+        if header := html_soup.select_one("body > header"):
+            header.decompose()
+        if footer := html_soup.select_one("body > footer"):
+            footer.decompose()
+
+        return html_soup
 
     @classmethod
     def get_main_titles(cls, source_record: dict) -> list[str]:
@@ -81,12 +109,24 @@ class MITLibWebsite(JSONTransformer):
     def get_format(self, _source_record: dict) -> str:
         return "electronic resource"
 
+    def get_fulltext(self, source_record: dict) -> str:
+        html_soup = self.parse_html(source_record["html_base64"])
+        return html_soup.get_text(separator=" ", strip=True)
+
     @classmethod
     def get_links(cls, source_record: dict) -> list[timdex.Link]:
         return [timdex.Link(url=source_record["url"], kind="Website")]
 
     @classmethod
     def get_summary(cls, source_record: dict) -> list[str] | None:
-        if og_description := source_record.get("og_description"):
-            return [og_description]
-        return None
+        html_soup = cls.parse_html(source_record["html_base64"])
+
+        og_tag = html_soup.find("meta", attrs={"property": "og:description"})
+        if not og_tag:
+            return None
+
+        content = og_tag.get("content", "").strip()
+        if content == "":
+            return None
+
+        return [content]

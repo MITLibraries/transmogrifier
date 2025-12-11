@@ -1,15 +1,22 @@
 # ruff: noqa: RUF001
+import base64
 from unittest.mock import MagicMock, patch
 
 import transmogrifier.models as timdex
 from transmogrifier.sources.json.mitlibwebsite import MITLibWebsite
 
 
-def create_mitlibwebsite_source_record_stub() -> dict:
+def create_mitlibwebsite_source_record_stub(
+    html_filepath="tests/fixtures/mitlibwebsite/website.html",
+) -> dict:
+    with open(html_filepath) as f:
+        html_content = f.read()
+
     return {
         "url": "https://libraries.mit.edu/search/",
         "cdx_title": "Search | MIT Libraries",
-        "og_description": "Use this page to learn about different ways you can search the MIT Libraries' offerings.",  # noqa: E501
+        "html_base64": base64.b64encode(html_content.encode()).decode(),
+        "response_headers": {},
     }
 
 
@@ -45,6 +52,7 @@ def test_mitlibwebsite_transform_returns_timdex_record(mitlibwebsite_records):
         summary=[
             "Use this page to learn about different ways you can search the MIT Libraries’ offerings. Use the Default Quick Search Our Quick Search is the default search on the Libraries’ homepage. This collects results from different library search tools and sorts the results into 4 categories: Books and media Articles and book chapters Archives and manuscript collections Our library website and guides The tool will search the 4 categories and present the top results from each category. It is useful to see the full breadth of what MIT Libraries has on a particular topic or author. Go straight to our […]"  # noqa: E501
         ],
+        fulltext=timdex_record.fulltext,
     )
 
 
@@ -119,13 +127,14 @@ def test_mitlibwebsite_get_links_success():
 def test_mitlibwebsite_get_summary_success():
     source_record = create_mitlibwebsite_source_record_stub()
     assert MITLibWebsite.get_summary(source_record) == [
-        "Use this page to learn about different ways you can search the MIT Libraries' offerings."  # noqa: E501
+        "Use this page to learn about different ways you can search the MIT Libraries’ offerings. Use the Default Quick Search Our Quick Search is the default search on the Libraries’ homepage. This collects results from different library search tools and sorts the results into 4 categories: Books and media Articles and book chapters Archives and manuscript collections Our library website and guides The tool will search the 4 categories and present the top results from each category. It is useful to see the full breadth of what MIT Libraries has on a particular topic or author. Go straight to our […]"  # noqa: E501
     ]
 
 
 def test_mitlibwebsite_get_summary_returns_none_if_og_description_is_none():
-    source_record = create_mitlibwebsite_source_record_stub()
-    source_record["og_description"] = None
+    source_record = create_mitlibwebsite_source_record_stub(
+        html_filepath="tests/fixtures/mitlibwebsite/website_missing_og_description.html"
+    )
     assert MITLibWebsite.get_summary(source_record) is None
 
 
