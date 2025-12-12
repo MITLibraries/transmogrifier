@@ -2,6 +2,7 @@ import subprocess
 from unittest import mock
 
 from transmogrifier.cli import main
+from transmogrifier.exceptions import CriticalError
 
 
 def test_transform_no_sentry_not_verbose(
@@ -211,3 +212,36 @@ def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_pat
         check=False,
     )
     assert result.returncode == 0
+
+
+def test_transform_critical_error_prevents_writing(
+    caplog, runner, source_input_file, source_transformer, empty_dataset_location
+):
+    caplog.set_level("INFO")
+
+    with (
+        mock.patch(
+            "transmogrifier.cli.Transformer.load", return_value=source_transformer
+        ),
+        mock.patch.object(
+            source_transformer,
+            "get_timdex_record_id",
+            side_effect=CriticalError("Catastrophic failure, no records will work!"),
+        ),
+    ):
+        result = runner.invoke(
+            main,
+            [
+                "-s",
+                "libguides",
+                "-i",
+                source_input_file,
+                "--output-location",
+                empty_dataset_location,
+            ],
+        )
+
+    assert isinstance(result.exception, CriticalError)
+    assert str(result.exception) == "Catastrophic failure, no records will work!"
+    assert result.exit_code != 0
+    assert "Completed transform, total records processed" not in caplog.text

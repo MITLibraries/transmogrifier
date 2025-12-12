@@ -19,3 +19,10 @@ class SkippedRecordEvent(Exception):  # noqa: N818
     def __init__(self, message: str | None = None, source_record_id: str | None = None):
         super().__init__(message)
         self.source_record_id = source_record_id
+
+
+class CriticalError(Exception):
+    """Exception raised for critical errors that should terminate the run."""
+
+    def __init__(self, message: str | None = None):
+        super().__init__(message)
