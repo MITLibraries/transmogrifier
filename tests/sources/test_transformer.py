@@ -23,6 +23,51 @@ def test_load_exclusion_list(source_transformer, mock_s3_exclusion_list):
     ]
 
 
+def test_next_iter_sets_action_skip_when_record_is_excluded(tmp_path):
+    class ExcludingTransformer(Transformer):
+        @classmethod
+        def parse_source_file(cls, _source_file: str):
+            return iter(())
+
+        @classmethod
+        def get_main_titles(cls, _source_record):
+            return ["Title"]
+
+        def get_source_link(self, source_record):
+            return str(source_record["link"])
+
+        def get_timdex_record_id(self, source_record):
+            return f"cool-repo:{source_record['id']}"
+
+        @classmethod
+        def get_source_record_id(cls, source_record):
+            return str(source_record["id"])
+
+        @classmethod
+        def record_is_deleted(cls, _source_record):
+            return False
+
+        def record_is_excluded(self, source_record):
+            source_link = self.get_source_link(source_record)
+            return source_link in (self.exclusion_list or [])
+
+    exclusion_list_path = tmp_path / "exclusions.csv"
+    exclusion_list_path.write_text("https://example.com/exclude-me\n")
+    transformer = ExcludingTransformer(
+        "cool-repo",
+        iter([{"id": "123", "link": "https://example.com/exclude-me"}]),
+        exclusion_list_path=str(exclusion_list_path),
+    )
+
+    dataset_record = next(transformer)
+    assert dataset_record.action == "skip"
+    assert dataset_record.transformed_record is None
+    assert json.loads(dataset_record.source_record) == {
+        "id": "123",
+        "link": "https://example.com/exclude-me",
+    }
+
+
 def test_transformer_get_transformer_returns_correct_class_name():
     assert Transformer.get_transformer("jpal") == Datacite
 

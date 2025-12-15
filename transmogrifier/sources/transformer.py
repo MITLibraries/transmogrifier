@@ -23,7 +23,11 @@ from timdex_dataset_api import (  # type: ignore[import-untyped, import-not-foun
 
 import transmogrifier.models as timdex
 from transmogrifier.config import SOURCES
-from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
+from transmogrifier.exceptions import (
+    CriticalError,
+    DeletedRecordEvent,
+    SkippedRecordEvent,
+)
 from transmogrifier.helpers import (
     generate_citation,
     validate_date,
@@ -102,15 +106,22 @@ class Transformer(ABC):
         Args:
             exclusion_list_path: Path to exclusion list file (s3://bucket/key or local
             path).
+
+        Raises:
+            On error loading or parsing the file, raises CriticalError which will
+            terminate the run.
         """
-        with smart_open.open(self.exclusion_list_path, "r") as exclusion_list:
-            rows = exclusion_list.readlines()
-        exclusion_list = [row.strip() for row in rows if row.strip()]
+        try:
+            with smart_open.open(self.exclusion_list_path, "r") as exclusion_list:
+                rows = exclusion_list.readlines()
+            exclusion_list = [row.strip() for row in rows if row.strip()]
+        except Exception as exc:
+            raise CriticalError(f"Could not load exclusion list: {exc}") from exc
+
         logger.info(
             f"Loaded exclusion list from {self.exclusion_list_path} with "
             f"{len(exclusion_list)} entries"
         )
-        logger.debug(exclusion_list)
         return exclusion_list
 
     @final
@@ -148,6 +159,9 @@ class Transformer(ABC):
             except SkippedRecordEvent:
                 self.skipped_record_count += 1
                 action = "skip"
+
+            except CriticalError:
+                raise
 
             except Exception as exception:
                 self.error_record_count += 1
