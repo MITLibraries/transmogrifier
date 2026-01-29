@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import logging
+import re
 from functools import lru_cache
 
 from bs4 import BeautifulSoup, Tag
@@ -109,9 +110,71 @@ class MITLibWebsite(JSONTransformer):
     def get_format(self, _source_record: dict) -> str:
         return "electronic resource"
 
-    def get_fulltext(self, source_record: dict) -> str:
+    def get_fulltext(self, source_record: dict) -> str | None:
+        """Extract full-text from the full, rendered HTML captured.
+
+        Using the full-text from the entire page will include far too much content that
+        is not unique or relevant to the page at hand, including repeating header and
+        footer data.  Our approach may evolve over time, but this method aims to extract
+        only meaningful full-text from each record based on some simple rules and specific
+        container elements to look for.
+        """
         html_soup = self.parse_html(source_record["html_base64"])
-        return html_soup.get_text(separator=" ", strip=True)
+
+        url = self.get_source_link(source_record)
+        if re.match(r".*libguides.mit.edu.*", url):
+            fulltext = self._extract_fulltext_libguides_directory(html_soup)
+        else:
+            fulltext = self._extract_fulltext_wordpress_network(html_soup)
+
+        if fulltext == "".strip():
+            fulltext = None
+
+        if not fulltext:
+            logger.warning(
+                "Could not extract full-text for timdex_record_id: "
+                f"'{self.get_timdex_record_id(source_record)}', URL: '{url}'"
+            )
+
+        return fulltext
+
+    def _extract_fulltext_libguides_directory(self, html_soup: Tag) -> str | None:
+        """Extract full-text from Libguides (staff) directory pages.
+
+        Approach:
+            - use <div>.s-lib-header (title header) + <div>.s-lib-main (main content)
+        """
+        texts = set()
+        selectors = [
+            ("div", {"class": "s-lib-header"}),
+            ("div", {"class": "s-lib-main"}),
+        ]
+
+        for element, attrs in selectors:
+            if target := html_soup.find(element, attrs=attrs):
+                texts.add(target.get_text(separator=" ", strip=True))
+
+        return "\n".join(texts)
+
+    def _extract_fulltext_wordpress_network(self, html_soup: Tag) -> str | None:
+        """Extract full-text from WordPress network sites.
+
+        Approach:
+            - look for .content-main
+            - fallback on .main-content
+            - if neither is found, return None
+        """
+        texts = set()
+        selectors = [
+            (True, {"class": "content-main"}),  # True = wildcard element
+            (True, {"class": "main-content"}),  # True = wildcard element
+        ]
+
+        for name, attrs in selectors:
+            if target := html_soup.find(name, attrs=attrs):
+                texts.add(target.get_text(separator=" ", strip=True))
+
+        return "\n".join(texts)
 
     @classmethod
     def get_links(cls, source_record: dict) -> list[timdex.Link]:

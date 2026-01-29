@@ -153,3 +153,35 @@ def test_mitlibwebsite_record_is_deleted_returns_false_when_status_is_not_delete
 def test_mitlibwebsite_record_is_deleted_returns_false_when_status_field_is_missing():
     source_record = create_mitlibwebsite_source_record_stub()
     assert MITLibWebsite.record_is_deleted(source_record) is False
+
+
+def test_mitlibwebsite_get_fulltext_extracts_wordpress_content_main():
+    source_record = create_mitlibwebsite_source_record_stub(
+        html_filepath="tests/fixtures/mitlibwebsite/fulltext_wordpress.html"
+    )
+    mitlibwebsite = MITLibWebsite("mitlibwebsite", iter([source_record]))
+    fulltext = mitlibwebsite.get_fulltext(source_record)
+    assert "WordPress main content here." in fulltext
+    assert "Header content to ignore" not in fulltext
+    assert "Footer content to ignore" not in fulltext
+
+
+def test_mitlibwebsite_get_fulltext_extracts_libguides_directory():
+    source_record = create_mitlibwebsite_source_record_stub(
+        html_filepath="tests/fixtures/mitlibwebsite/fulltext_libguides.html"
+    )
+    source_record["url"] = "https://libguides.mit.edu/prf.php?id=12345"
+    mitlibwebsite = MITLibWebsite("mitlibwebsite", iter([source_record]))
+    fulltext = mitlibwebsite.get_fulltext(source_record)
+    assert "Staff Directory Header" in fulltext
+    assert "Libguides directory content here." in fulltext
+    assert "Header content to ignore" not in fulltext
+    assert "Footer content to ignore" not in fulltext
+
+
+def test_mitlibwebsite_get_fulltext_returns_none_if_wordpress_selectors_not_found():
+    source_record = create_mitlibwebsite_source_record_stub(
+        html_filepath="tests/fixtures/mitlibwebsite/fulltext_wordpress_no_content.html"
+    )
+    mitlibwebsite = MITLibWebsite("mitlibwebsite", iter([source_record]))
+    assert mitlibwebsite.get_fulltext(source_record) is None
