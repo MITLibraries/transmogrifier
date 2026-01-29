@@ -381,15 +381,13 @@ def test_datacite_with_attribute_and_subfield_variations_transforms_correctly():
 
 
 def test_get_alternate_titles_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <titles>
          <title>The Impact of Maternal Literacy and Participation Programs</title>
          <title titleType="AlternativeTitle">An Alternative Title</title>
          <title titleType="Subtitle">Baseline Data</title>
         </titles>
-        """
-    )
+        """)
     assert Datacite.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="An Alternative Title", kind="AlternativeTitle"),
         timdex.AlternateTitle(value="Baseline Data", kind="Subtitle"),
@@ -409,20 +407,16 @@ def test_get_alternate_titles_transforms_correctly_if_fields_missing():
 
 
 def test_get_content_type_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
-        """
-    )
+        """)
     assert Datacite.get_content_type(source_record) == ["Dataset"]
 
 
 def test_get_content_type_transforms_correctly_if_fields_blank():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <resourceType resourceTypeGeneral=""></resourceType>
-        """
-    )
+        """)
     assert Datacite.get_content_type(source_record) is None
 
 
@@ -432,8 +426,7 @@ def test_get_content_type_transforms_correctly_if_fields_missing():
 
 
 def test_get_contributors_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <creators>
          <creator>
           <creatorName nameType="Personal">Banerji, Rukmini</creatorName>
@@ -466,8 +459,7 @@ def test_get_contributors_success():
           <affiliation>Pratham and ASER Centre</affiliation>
          </contributor>
         </contributors>
-        """
-    )
+        """)
     assert Datacite.get_contributors(source_record) == [
         timdex.Contributor(
             value="Banerji, Rukmini",
@@ -497,15 +489,13 @@ def test_get_contributors_success():
 
 
 def test_get_contributors_transforms_correctly_if_fields_blank():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <creators>
          <creator />
         <contributors>
          <contributor />
         </contributors>
-        """
-    )
+        """)
     assert Datacite.get_contributors(source_record) is None
 
 
@@ -515,8 +505,7 @@ def test_get_contributors_transforms_correctly_if_fields_missing():
 
 
 def test_get_dates_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <publicationYear>2017</publicationYear>
         <dates>
          <date dateType="Submitted">2017-02-27</date>
@@ -524,8 +513,7 @@ def test_get_dates_success():
          dateInformation="This was updated on this date">2019-06-24</date>
          <date dateType="Collected">2007-01-01/2007-02-28</date>
         </dates>
-        """
-    )
+        """)
     assert Datacite.get_dates(source_record) == [
         timdex.Date(kind="Publication date", value="2017"),
         timdex.Date(kind="Submitted", value="2017-02-27"),
@@ -540,14 +528,12 @@ def test_get_dates_success():
 
 
 def test_get_dates_transforms_correctly_if_fields_blank():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <publicationYear />
         <dates>
          <date />
         </dates>
-        """
-    )
+        """)
     assert Datacite.get_dates(source_record) is None
 
 
@@ -572,8 +558,7 @@ def test_get_edition_transforms_correctly_if_fields_missing():
 
 
 def test_get_file_formats_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <formats>
          <format>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</format>
          <format>application/pdf</format>
@@ -587,8 +572,7 @@ def test_get_file_formats_success():
          <format>application/pdf</format>
          <format>application/pdf</format>
         </formats>
-        """
-    )
+        """)
     assert Datacite.get_file_formats(source_record) == [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/pdf",
@@ -619,8 +603,7 @@ def test_get_format_success():
 
 
 def test_get_funding_information_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <fundingReferences>
          <fundingReference>
           <funderName>3ie, Nike Foundation</funderName>
@@ -629,8 +612,7 @@ def test_get_funding_information_success():
           <awardNumber awardURI="http://awards.example/7689">OW1/1012 (3ie)</awardNumber>
          </fundingReference>
         </fundingReferences>
-        """
-    )
+        """)
     assert Datacite.get_funding_information(source_record) == [
         timdex.Funder(
             funder_name="3ie, Nike Foundation",
@@ -655,8 +637,7 @@ def test_get_funding_information_transforms_correctly_if_fields_missing():
 
 
 def test_get_identifiers_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <identifier identifierType="DOI">10.7910/DVN/19PPE7</identifier>
         <alternateIdentifiers>
          <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/5524465</alternateIdentifier>
@@ -673,8 +654,7 @@ def test_get_identifiers_success():
          <relatedIdentifier relatedIdentifierType="URL" relationType="IsPartOf">
          https://zenodo.org/communities/astronomy-general</relatedIdentifier>
         </relatedIdentifiers>
-        """
-    )
+        """)
     assert Datacite.get_identifiers(source_record) == [
         timdex.Identifier(value="10.7910/DVN/19PPE7", kind="DOI"),
         timdex.Identifier(value="https://zenodo.org/record/5524465", kind="url"),
@@ -683,8 +663,7 @@ def test_get_identifiers_success():
 
 
 def test_get_identifiers_transforms_correctly_if_fields_blank():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <identifier />
         <alternateIdentifiers>
          <alternateIdentifier />
@@ -692,8 +671,7 @@ def test_get_identifiers_transforms_correctly_if_fields_blank():
         <relatedIdentifiers>
          <relatedIdentifier />
         </relatedIdentifiers>
-        """
-    )
+        """)
     assert Datacite.get_identifiers(source_record) is None
 
 
@@ -730,15 +708,13 @@ def test_get_links_success(datacite_record_all_fields):
 
 
 def test_get_locations_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <geoLocations>
          <geoLocation>
           <geoLocationPlace>A point on the globe</geoLocationPlace>
          </geoLocation>
         </geoLocations>
-        """
-    )
+        """)
     assert Datacite.get_locations(source_record) == [
         timdex.Location(value="A point on the globe")
     ]
@@ -757,14 +733,12 @@ def test_get_locations_transforms_correctly_if_fields_missing():
 
 
 def test_get_notes_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <resourceType resourceTypeGeneral="Dataset">Survey Data</resourceType>
         <descriptions>
          <description descriptionType="TechnicalInfo">Stata, 13</description>
         </descriptions>
-        """
-    )
+        """)
     assert Datacite.get_notes(source_record) == [
         timdex.Note(value=["Survey Data"], kind="Datacite resource type"),
         timdex.Note(value=["Stata, 13"], kind="TechnicalInfo"),
@@ -840,15 +814,13 @@ def test_get_related_items_transforms_correctly_if_fields_missing():
 
 
 def test_get_rights_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <rightsList>
           <rights rightsURI="info:eu-repo/semantics/openAccess" />
           <rights
           rightsURI="http://creativecommons.org/publicdomain/zero/1.0">CC0 1.0</rights>
         </rightsList>
-        """
-    )
+        """)
     assert Datacite.get_rights(source_record) == [
         timdex.Rights(
             description=None, kind=None, uri="info:eu-repo/semantics/openAccess"
@@ -874,8 +846,7 @@ def test_get_rights_transforms_correctly_if_fields_missing():
 
 
 def test_get_subjects_success():
-    source_record = create_datacite_source_record_stub(
-        """
+    source_record = create_datacite_source_record_stub("""
         <subjects>
          <subject>Social Sciences</subject>
          <subject>Educational materials</subject>
@@ -883,8 +854,7 @@ def test_get_subjects_success():
          >Adult education, education inputs, field experiments</subject>
          <subject subjectScheme="LCSH">Education</subject>
         </subjects>
-        """
-    )
+        """)
     assert Datacite.get_subjects(source_record) == [
         timdex.Subject(
             value=["Social Sciences", "Educational materials"],

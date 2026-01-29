@@ -251,12 +251,10 @@ def test_dspace_dim_transform_with_optional_fields_missing_transforms_correctly(
 
 
 def test_get_alternate_titles_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="title"
         qualifier="alternative" lang="en">An Alternative Title</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="An Alternative Title", kind="alternative")
     ]
@@ -276,13 +274,11 @@ def test_get_alternate_titles_transforms_correctly_if_fields_missing():
 
 def test_get_alternate_titles_multiple_titles_success():
 
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="title">Title 1</dim:field>
         <dim:field mdschema="dc" element="title">Title 2</dim:field>
         <dim:field mdschema="dc" element="title">Title 3</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="Title 2"),
         timdex.AlternateTitle(value="Title 3"),
@@ -290,13 +286,11 @@ def test_get_alternate_titles_multiple_titles_success():
 
 
 def test_get_citation_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="identifier"
         qualifier="citation"
         >Journal of Geophysical Research: Solid Earth 121 (2016): 5859-5879</dim:field>
-        """
-    )
+        """)
     assert (
         DspaceDim.get_citation(source_record)
         == "Journal of Geophysical Research: Solid Earth 121 (2016): 5859-5879"
@@ -316,12 +310,10 @@ def test_get_citation_transforms_correctly_if_fields_missing():
 
 
 def test_get_content_type_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="type">Moving Image</dim:field>
         <dim:field mdschema="dc" element="type">Dataset</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_content_type(source_record) == [
         "Moving Image",
         "Dataset",
@@ -341,12 +333,10 @@ def test_get_content_type_transforms_correctly_if_fields_missing():
 
 
 def test_get_contents_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="description" qualifier="tableofcontents"
         >Chapter 1</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_contents(source_record) == ["Chapter 1"]
 
 
@@ -363,15 +353,13 @@ def test_get_contents_transforms_correctly_if_fields_missing():
 
 
 def test_get_contributors_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="contributor"
         qualifier="author">LaFountain, James R.</dim:field>
         <dim:field mdschema="dc" element="contributor"
         qualifier="author">Oldenbourg, Rudolf</dim:field>
         <dim:field mdschema="dc" element="creator">Jamerson, James</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_contributors(source_record) == [
         timdex.Contributor(value="Jamerson, James", kind="Creator"),
         timdex.Contributor(
@@ -386,12 +374,10 @@ def test_get_contributors_success():
 
 
 def test_get_contributors_transforms_correctly_if_fields_blank():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="contributor" qualifier="author" />
         <dim:field mdschema="dc" element="creator" />
-        """
-    )
+        """)
     assert DspaceDim.get_contributors(source_record) is None
 
 
@@ -401,8 +387,7 @@ def test_get_contributors_transforms_correctly_if_fields_missing():
 
 
 def test_get_dates_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="coverage"
         qualifier="temporal">1201-01-01 - 1965-12-21</dim:field>
         <dim:field mdschema="dc" element="coverage"
@@ -412,8 +397,7 @@ def test_get_dates_success():
         <dim:field mdschema="dc" element="date"
         qualifier="available">2009-01-08T16:24:37Z</dim:field>
         <dim:field mdschema="dc" element="date" qualifier="issued">2002-11</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_dates(source_record) == [
         timdex.Date(kind="accessioned", value="2009-01-08T16:24:37Z"),
         timdex.Date(kind="available", value="2009-01-08T16:24:37Z"),
@@ -430,12 +414,10 @@ def test_get_dates_success():
 
 
 def test_get_dates_transforms_correctly_if_fields_blank():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="coverage" qualifier="temporal" />
         <dim:field mdschema="dc" element="date" qualifier="available" />
-        """
-    )
+        """)
     assert DspaceDim.get_dates(source_record) is None
 
 
@@ -445,16 +427,14 @@ def test_get_dates_transforms_correctly_if_fields_missing():
 
 
 def test_get_file_formats_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="format"
         qualifier="mimetype">application/msword</dim:field>
         <dim:field mdschema="dc" element="format"
         qualifier="mimetype">image/tiff</dim:field>
         <dim:field mdschema="dc" element="format"
         qualifier="mimetype">video/quicktime</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_file_formats(source_record) == [
         "application/msword",
         "image/tiff",
@@ -479,12 +459,10 @@ def test_get_format_success():
 
 
 def test_get_funding_information_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="description" qualifier="sponsorship"
         >NSF Grant Numbers: OCE-1029305, OCE-1029411, OCE-1249353</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_funding_information(source_record) == [
         timdex.Funder(
             funder_name="NSF Grant Numbers: OCE-1029305, OCE-1029411, OCE-1249353",
@@ -505,11 +483,9 @@ def test_get_funding_information_transforms_correctly_if_fields_missing():
 
 
 def test_get_identifiers_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_identifiers(source_record) == [
         timdex.Identifier(value="https://hdl.handle.net/1912/2641", kind="uri")
     ]
@@ -528,11 +504,9 @@ def test_get_identifiers_transforms_correctly_if_fields_missing():
 
 
 def test_get_languages_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="language" qualifier="iso">en_US</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_languages(source_record) == ["en_US"]
 
 
@@ -549,12 +523,10 @@ def test_get_languages_transforms_correctly_if_fields_missing():
 
 
 def test_get_links_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="identifier"
         qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_links(source_record) == [
         timdex.Link(
             url="https://hdl.handle.net/1912/2641",
@@ -577,12 +549,10 @@ def test_get_links_transforms_correctly_if_fields_missing():
 
 
 def test_get_locations_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="coverage"
         qualifier="spatial">Central equatorial Pacific Ocean</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_locations(source_record) == [
         timdex.Location(value="Central equatorial Pacific Ocean")
     ]
@@ -601,14 +571,12 @@ def test_get_locations_transforms_correctly_if_fields_missing():
 
 
 def test_get_notes_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc"
         element="description">Author Posting. © The Author(s), 2008.</dim:field>
         <dim:field mdschema="dc" element="description"
         qualifier="embargo">2026-01</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_notes(source_record) == [
         timdex.Note(value=["Author Posting. © The Author(s), 2008."]),
         timdex.Note(value=["2026-01"], kind="embargo"),
@@ -628,12 +596,10 @@ def test_get_notes_transforms_correctly_if_fields_missing():
 
 
 def test_get_publishers_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc"
         element="publisher">Woods Hole Oceanographic Institution</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_publishers(source_record) == [
         timdex.Publisher(name="Woods Hole Oceanographic Institution")
     ]
@@ -652,16 +618,14 @@ def test_get_publishers_transforms_correctly_if_fields_missing():
 
 
 def test_get_related_items_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="relation"
         >A low resolution version of this movie was published.</dim:field>
         <dim:field mdschema="dc" element="relation" qualifier="ispartofseries"
         >International Association of Aquatic and Marine Science</dim:field>
         <dim:field mdschema="dc" element="relation" qualifier="uri"
         >https://doi.org/10.1002/2016JB013228</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_related_items(source_record) == [
         timdex.RelatedItem(
             description="A low resolution version of this movie was published.",
@@ -691,16 +655,14 @@ def test_get_related_items_transforms_correctly_if_fields_missing():
 
 
 def test_get_rights_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="rights"
         >Attribution-NonCommercial-NoDerivatives 4.0 International</dim:field>
         <dim:field mdschema="dc" element="rights"
         qualifier="uri">http://creativecommons.org/licenses/by-nc-nd/4.0/</dim:field>
         <dim:field mdschema="dc" element="rights"
         qualifier="license">CC-BY-NC 4.0</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_rights(source_record) == [
         timdex.Rights(
             description="Attribution-NonCommercial-NoDerivatives 4.0 International"
@@ -723,8 +685,7 @@ def test_get_rights_transforms_correctly_if_fields_missing():
 
 
 def test_get_subjects_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="subject"
         qualifier="lcsh">Spermatocyte</dim:field>
         <dim:field mdschema="dc" element="subject"
@@ -733,8 +694,7 @@ def test_get_subjects_success():
         qualifier="lcsh">Kinetochore microtubules</dim:field>
         <dim:field mdschema="dc" element="subject">Polarized light microscopy</dim:field>
         <dim:field mdschema="dc" element="subject">LC-PolScope</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_subjects(source_record) == [
         timdex.Subject(
             value=["Spermatocyte", "Microtubules", "Kinetochore microtubules"],
@@ -760,12 +720,10 @@ def test_get_subjects_transforms_correctly_if_fields_missing():
 
 
 def test_get_summary_success():
-    source_record = create_dspace_dim_source_record_stub(
-        """
+    source_record = create_dspace_dim_source_record_stub("""
         <dim:field mdschema="dc" element="description"
         qualifier="abstract">The events of meiosis I in a living.</dim:field>
-        """
-    )
+        """)
     assert DspaceDim.get_summary(source_record) == [
         "The events of meiosis I in a living."
     ]

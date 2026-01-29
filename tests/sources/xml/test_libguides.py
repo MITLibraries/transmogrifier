@@ -108,16 +108,12 @@ def test_libguides_record_is_excluded_returns_true_for_excluded_record(
     mock_s3_exclusion_list,
 ):
     source_record = create_oaidc_source_record_stub(
-        header_insert=(
-            """
+        header_insert=("""
             <dc:identifier>https://libguides.mit.edu/1234</dc:identifier>
-            """
-        ),
-        metadata_insert=(
-            """
+            """),
+        metadata_insert=("""
             <dc:identifier>https://libguides.mit.edu/excluded1</dc:identifier>
-            """
-        ),
+            """),
     )
     output_records = LibGuides(
         "libguides",
@@ -131,16 +127,12 @@ def test_libguides_record_is_excluded_returns_false_for_non_excluded_record(
     mock_s3_exclusion_list,
 ):
     source_record = create_oaidc_source_record_stub(
-        header_insert=(
-            """
+        header_insert=("""
             <dc:identifier>https://libguides.mit.edu/5678</dc:identifier>
-            """
-        ),
-        metadata_insert=(
-            """
+            """),
+        metadata_insert=("""
             <dc:identifier>https://libguides.mit.edu/someotherguide</dc:identifier>
-            """
-        ),
+            """),
     )
     output_records = LibGuides(
         "libguides",
