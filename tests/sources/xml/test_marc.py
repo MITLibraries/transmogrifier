@@ -857,9 +857,7 @@ def test_get_control_field_raises_skipped_record_event_if_field_missing():
 
 
 def test_get_alternate_titles_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="130" ind1="0" ind2="0">
                 <subfield code="a">Main Entry</subfield>
                 <subfield code="d">Date 1</subfield>
@@ -884,9 +882,7 @@ def test_get_alternate_titles_success():
                 <subfield code="n">Part 1</subfield>
                 <subfield code="n">Part 2</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="Main Entry Date 1 Date 2", kind="Preferred Title"),
         timdex.AlternateTitle(value="Uniform Date 1 Date 2", kind="Preferred Title"),
@@ -904,17 +900,13 @@ def test_get_alternate_titles_success():
 
 
 def test_get_alternate_titles_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="130" ind1="0" ind2="0">
                 <subfield code="a"></subfield>
                 <subfield code="d"></subfield>
                 <subfield code="d"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_alternate_titles(source_record) is None
 
 
@@ -924,9 +916,7 @@ def test_get_alternate_titles_transforms_correctly_if_fields_missing():
 
 
 def test_get_call_numbers_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="050" ind1=" " ind2="0">
                 <subfield code="a">MA123.4</subfield>
                 <subfield code="a">LC Call Number 2</subfield>
@@ -938,9 +928,7 @@ def test_get_call_numbers_success():
             <datafield tag="082" ind1="0" ind2=" ">
                 <subfield code="a">Dewey Call Number 3</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_call_numbers(source_record) == [
         "MA123.4",
         "LC Call Number 2",
@@ -951,15 +939,11 @@ def test_get_call_numbers_success():
 
 
 def test_get_call_numbers_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="050" ind1=" " ind2="0">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_call_numbers(source_record) is None
 
 
@@ -981,16 +965,12 @@ def test_get_content_type_transforms_correctly_if_char_position_blank():
 
 
 def test_get_contents_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="505" ind1="0" ind2="0">
                 <subfield code="a">General observations -- Methodology -- Initial phase</subfield>
                 <subfield code="g">Miscellaneous information.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_contents(source_record) == [
         "General observations",
         "Methodology",
@@ -1000,15 +980,11 @@ def test_get_contents_success():
 
 
 def test_get_contents_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="505" ind1="0" ind2="0">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_contents(source_record) is None
 
 
@@ -1018,9 +994,7 @@ def test_get_contents_transforms_correctly_if_fields_missing():
 
 
 def test_get_contributors_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="100" ind1="1" ind2=" ">
                 <subfield code="a">Tran, Phong,</subfield>
                 <subfield code="e">composer,</subfield>
@@ -1048,9 +1022,7 @@ def test_get_contributors_success():
                 <subfield code="e">Orchester,</subfield>
                 <subfield code="e">instrumentalist.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_contributors(source_record) == [
         timdex.Contributor(value="Tran, Phong", kind="composer"),
         timdex.Contributor(value="Tran, Phong", kind="performer"),
@@ -1069,16 +1041,12 @@ def test_get_contributors_success():
 
 
 def test_get_contributors_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="100" ind1="1" ind2=" ">
                 <subfield code="a"></subfield>
                 <subfield code="e">composer,</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_contributors(source_record) is None
 
 
@@ -1088,9 +1056,7 @@ def test_get_contributors_transforms_correctly_if_fields_missing():
 
 
 def test_get_contributors_transforms_correctly_if_contributor_multiple_kinds():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="100" ind1="1" ind2=" ">
                 <subfield code="a">Tran, Phong,</subfield>
                 <subfield code="e">composer,</subfield>
@@ -1099,9 +1065,7 @@ def test_get_contributors_transforms_correctly_if_contributor_multiple_kinds():
             <datafield tag="700" ind1="1" ind2=" ">
                 <subfield code="a">Tran, Phong</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_contributors(source_record) == [
         timdex.Contributor(value="Tran, Phong", kind="composer"),
         timdex.Contributor(value="Tran, Phong", kind="performer"),
@@ -1109,15 +1073,11 @@ def test_get_contributors_transforms_correctly_if_contributor_multiple_kinds():
 
 
 def test_get_contributors_transforms_correctly_if_kind_not_specified():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="100" ind1="1" ind2=" ">
                 <subfield code="a">Tran, Phong,</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_contributors(source_record) == [
         timdex.Contributor(value="Tran, Phong", kind="Not specified"),
     ]
@@ -1140,9 +1100,7 @@ def test_get_dates_transforms_correctly_if_char_positions_blank():
 
 
 def test_get_edition_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="250" ind1=" " ind2=" ">
                 <subfield code="a">9th ed. /</subfield>
                 <subfield code="b">Nick Ray ... [et al.].</subfield>
@@ -1150,24 +1108,18 @@ def test_get_edition_success():
             <datafield tag="250" ind1=" " ind2=" ">
                 <subfield code="a">Unabridged.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert (
         Marc.get_edition(source_record) == "9th ed. / Nick Ray ... [et al.]. Unabridged."
     )
 
 
 def test_get_edition_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="250" ind1=" " ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_edition(source_record) is None
 
 
@@ -1177,9 +1129,7 @@ def test_get_edition_transforms_correctly_if_fields_missing():
 
 
 def test_get_holdings_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="985" ind1=" " ind2=" ">
                 <subfield code="aa">STACK</subfield>
                 <subfield code="t">BOOK</subfield>
@@ -1199,9 +1149,7 @@ def test_get_holdings_success():
                 <subfield code="k">HeinOnline</subfield>
                 <subfield code="f">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_holdings(source_record) == [
         timdex.Holding(
             call_number="PL2687.L8.A28 1994",
@@ -1226,15 +1174,11 @@ def test_get_holdings_success():
 
 
 def test_get_holdings_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="985" ind1=" " ind2=" ">
                 <subfield code="aa"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_holdings(source_record) is None
 
 
@@ -1244,9 +1188,7 @@ def test_get_holdings_transforms_correctly_if_fields_missing():
 
 
 def test_get_identifiers_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="010" ind1=" " ind2=" ">
                 <subfield code="a">  2005022317</subfield>
             </datafield>
@@ -1264,9 +1206,7 @@ def test_get_identifiers_success():
             <datafield tag="035" ind1=" " ind2=" ">
                 <subfield code="a">(OCoLC)1312285564</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_identifiers(source_record) == [
         timdex.Identifier(value="2005022317", kind="LCCN"),
         timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
@@ -1279,15 +1219,11 @@ def test_get_identifiers_success():
 
 
 def test_get_identifiers_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="010" ind1=" " ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_identifiers(source_record) is None
 
 
@@ -1297,9 +1233,7 @@ def test_get_identifiers_transforms_correctly_if_fields_missing():
 
 
 def test_get_languages_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="041" ind1="0" ind2=" ">
                 <subfield code="d">eng</subfield>
                 <subfield code="d">fre</subfield>
@@ -1307,9 +1241,7 @@ def test_get_languages_success():
             <datafield tag="546" ind1=" " ind2=" ">
                 <subfield code="a">Sung in French.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_languages(source_record) == [
         "No linguistic content",
         "English",
@@ -1330,13 +1262,11 @@ def test_get_languages_transforms_correctly_if_char_positions_blank():
 def test_get_languages_transforms_correctly_if_fields_blank():
     source_record = create_marc_source_record_stub(
         '<controlfield tag="008">170906s2016    fr mun| o         e     d</controlfield>',
-        datafield_insert=(
-            """
+        datafield_insert=("""
             <datafield tag="041" ind1="0" ind2=" ">
                 <subfield code="d"></subfield>
             </datafield>
-            """
-        ),
+            """),
     )
     assert Marc.get_languages(source_record) is None
 
@@ -1364,9 +1294,7 @@ def test_get_literary_form_returns_none_if_control_field_too_short(caplog):
 
 
 def test_get_links_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="856" ind1="4" ind2="0">
                 <subfield code="u">http://catalog.hathitrust.org/api/volumes/oclc/1606890.html</subfield>
                 <subfield code="3">Hathi Trust</subfield>
@@ -1382,9 +1310,7 @@ def test_get_links_success():
                 <subfield code="k">HeinOnline</subfield>
                 <subfield code="f">http://BLCMIT.NaxosMusicLibrary.com/catalogue/item.asp?cid=ACC24383</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_links(source_record) == [
         timdex.Link(
             url="http://catalog.hathitrust.org/api/volumes/oclc/1606890.html",
@@ -1405,18 +1331,14 @@ def test_get_links_success():
 
 
 def test_get_links_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="856" ind1="4" ind2="1">
                 <subfield code="u"></subfield>
             </datafield>
             <datafield tag="986" ind1=" " ind2=" ">
                 <subfield code="f"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_links(source_record) is None
 
 
@@ -1426,9 +1348,7 @@ def test_get_links_transforms_correctly_if_fields_missing():
 
 
 def test_get_locations_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="751" ind1=" " ind2=" ">
                 <subfield code="a">Germany</subfield>
             </datafield>
@@ -1437,9 +1357,7 @@ def test_get_locations_success():
                 <subfield code="g">Nile River</subfield>
                 <subfield code="g">Sixth Cataract.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_locations(source_record) == [
         timdex.Location(value="France", kind="Place of Publication"),
         timdex.Location(value="Germany", kind="Geographic Name"),
@@ -1450,38 +1368,28 @@ def test_get_locations_success():
 
 
 def test_marc_get_locations_transforms_correctly_if_char_positions_blank():
-    source_record = create_marc_source_record_stub(
-        control_field_insert=(
-            """
+    source_record = create_marc_source_record_stub(control_field_insert=("""
             <controlfield tag="008">170906s2016       mun| o         e zxx d</controlfield>
-            """
-        )
-    )
+            """))
     assert Marc.get_locations(source_record) is None
 
 
 def test_marc_get_locations_transforms_correctly_if_fields_blank():
     source_record = create_marc_source_record_stub(
-        control_field_insert=(
-            """
+        control_field_insert=("""
             <controlfield tag="008">170906s2016       mun| o         e zxx d</controlfield>
-            """
-        ),
-        datafield_insert=(
-            """
+            """),
+        datafield_insert=("""
             <datafield tag="751" ind1=" " ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        ),
+            """),
     )
     assert Marc.get_locations(source_record) is None
 
 
 def test_get_notes_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="245" ind1="0" ind2="0">
                 <subfield code="c">arranged by the Arts Council of Great Britain.</subfield>
             </datafield>
@@ -1522,9 +1430,7 @@ def test_get_notes_success():
             <datafield tag="590" ind1=" " ind2=" ">
                 <subfield code="a">Rare Book copy: Advance copy notice inserted.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_notes(source_record) == [
         timdex.Note(
             value=["arranged by the Arts Council of Great Britain"],
@@ -1568,28 +1474,20 @@ def test_get_notes_success():
 
 
 def test_get_numbering_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="362" ind1="0" ind2=" ">
                 <subfield code="a">-Bd. 148, 4 (dez. 1997).</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_numbering(source_record) == "-Bd. 148, 4 (dez. 1997)."
 
 
 def test_get_numbering_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="362" ind1="0" ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_numbering(source_record) is None
 
 
@@ -1599,27 +1497,21 @@ def test_get_numbering_transforms_correctly_if_fields_missing():
 
 
 def test_get_numbering_transforms_correctly_if_multiple_fields():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="362" ind1="0" ind2=" ">
                 <subfield code="a">-Bd. 148, 4 (dez. 1997).</subfield>
             </datafield>
             <datafield tag="362" ind1="1" ind2=" ">
                 <subfield code="a">Began in 1902.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_numbering(source_record) == (
         "-Bd. 148, 4 (dez. 1997). Began in 1902."
     )
 
 
 def test_get_physical_description_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="300" ind1=" " ind2=" ">
                 <subfield code="a">484 p. :</subfield>
                 <subfield code="b">ill. ;</subfield>
@@ -1627,24 +1519,18 @@ def test_get_physical_description_success():
                 <subfield code="e">1 CD-ROM (4 3/4 in.).</subfield>
                 <subfield code="e">1 DVD-ROM (4 3/4 in.).</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_physical_description(source_record) == (
         "484 p. : ill. ; 30 cm. + 1 CD-ROM (4 3/4 in.). 1 DVD-ROM (4 3/4 in.)."
     )
 
 
 def test_get_physical_description_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="300" ind1=" " ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_physical_description(source_record) is None
 
 
@@ -1654,9 +1540,7 @@ def test_get_physical_description_transforms_correctly_if_fields_missing():
 
 
 def test_get_physical_description_transforms_correctly_if_multiple_tags():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="300" ind1=" " ind2=" ">
                 <subfield code="a">484 p. :</subfield>
                 <subfield code="b">ill. ;</subfield>
@@ -1668,9 +1552,7 @@ def test_get_physical_description_transforms_correctly_if_multiple_tags():
                 <subfield code="a">1 vocal score (248 p.) ;</subfield>
                 <subfield code="c">31 cm.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_physical_description(source_record) == (
         "484 p. : ill. ; 30 cm. + 1 CD-ROM (4 3/4 in.). 1 DVD-ROM (4 3/4 in.). "
         "1 vocal score (248 p.) ; 31 cm."
@@ -1678,28 +1560,20 @@ def test_get_physical_description_transforms_correctly_if_multiple_tags():
 
 
 def test_get_publication_frequency_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="310" ind1=" " ind2=" ">
                 <subfield code="a">Six no. a year</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_publication_frequency(source_record) == ["Six no. a year"]
 
 
 def test_get_publication_frequency_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="310" ind1=" " ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_publication_frequency(source_record) is None
 
 
@@ -1709,9 +1583,7 @@ def test_get_publication_frequency_transforms_correctly_if_fields_missing():
 
 
 def test_get_publishers_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="260" ind1=" " ind2=" ">
                 <subfield code="a">New York :</subfield>
                 <subfield code="b">New Press,</subfield>
@@ -1721,9 +1593,7 @@ def test_get_publishers_success():
                 <subfield code="c">℗2022,</subfield>
                 <subfield code="c">©2022</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_publishers(source_record) == [
         timdex.Publisher(name="New Press", date="2005", location="New York"),
         timdex.Publisher(name=None, date="℗2022", location=None),
@@ -1731,15 +1601,11 @@ def test_get_publishers_success():
 
 
 def test_get_publishers_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="260" ind1=" " ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_publishers(source_record) is None
 
 
@@ -1749,9 +1615,7 @@ def test_get_publishers_transforms_correctly_if_fields_missing():
 
 
 def test_get_related_items_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="765" ind1="0" ind2=" ">
                 <subfield code="t">Java 2 in plain English.</subfield>
             </datafield>
@@ -1788,9 +1652,7 @@ def test_get_related_items_success():
             <datafield tag="510" ind1="2" ind2=" ">
                 <subfield code="a">Predicasts</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_related_items(source_record) == [
         timdex.RelatedItem(
             description="Java 2 in plain English",
@@ -1828,15 +1690,11 @@ def test_get_related_items_success():
 
 
 def test_get_related_items_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="765" ind1="0" ind2=" ">
                 <subfield code="t"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_related_items(source_record) is None
 
 
@@ -1846,9 +1704,7 @@ def test_get_related_items_transforms_correctly_if_fields_missing():
 
 
 def test_get_subjects_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="600" ind1="1" ind2="0">
                 <subfield code="a">Renoir, Jean,</subfield>
                 <subfield code="d">1894-1979</subfield>
@@ -1868,9 +1724,7 @@ def test_get_subjects_success():
                 <subfield code="a">Great Plains</subfield>
                 <subfield code="x">Climate.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_subjects(source_record) == [
         timdex.Subject(
             value=["Renoir, Jean, - 1894-1979 - Bibliography"], kind="Personal Name"
@@ -1887,15 +1741,11 @@ def test_get_subjects_success():
 
 
 def test_get_subjects_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="600" ind1="1" ind2="0">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_subjects(source_record) is None
 
 
@@ -1905,28 +1755,20 @@ def test_get_subjects_transforms_correctly_if_fields_missing():
 
 
 def test_get_summary_success():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="520" ind1=" " ind2=" ">
                 <subfield code="a">This is a summary.</subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_summary(source_record) == ["This is a summary."]
 
 
 def test_get_summary_transforms_correctly_if_fields_blank():
-    source_record = create_marc_source_record_stub(
-        datafield_insert=(
-            """
+    source_record = create_marc_source_record_stub(datafield_insert=("""
             <datafield tag="520" ind1=" " ind2=" ">
                 <subfield code="a"></subfield>
             </datafield>
-            """
-        )
-    )
+            """))
     assert Marc.get_summary(source_record) is None
 
 
