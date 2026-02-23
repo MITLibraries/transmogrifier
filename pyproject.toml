@@ -7,7 +7,12 @@ disallow_untyped_defs = true
 exclude = ["tests/", "output/"]
 
 [[tool.mypy.overrides]]
-module = ["bs4", "bs4.*"]
+module = [
+    "bs4",
+    "bs4.*",
+    "pandas",
+    "requests"
+]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
@@ -42,12 +47,15 @@ ignore = [
     "D205", 
     "D212",
     "D402",
+    "EM101",
     "EM102",
     "G004",
     "PLR0912",
     "PLR0913", 
     "PLR0915",
     "S321",
+    "TD002",
+    "TD003",
     "TRY003"
 ]
 

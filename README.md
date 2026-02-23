@@ -13,6 +13,7 @@ flowchart TD
     DSpace
     GeoData
     MARC
+    Others
     transmogrifier((transmogrifier))
     timdex-dataset
     timdex-index-manager
@@ -20,6 +21,7 @@ flowchart TD
     DSpace[("DSpace<br>(METS XML)")] --> transmogrifier
     GeoData[("GeoData<br>(Aardvark JSON)")] --> transmogrifier
     MARC[("Alma<br>(MARCXML)")] --> transmogrifier
+    Others[("*Other Sources")] --> transmogrifier
     transmogrifier --> timdex-dataset["TIMDEX Parquet Dataset"]
     timdex-dataset["TIMDEX Parquet Dataset"] --> timdex-index-manager((timdex-index-manager))
 ```
@@ -52,7 +54,9 @@ WORKSPACE=### Set to `dev` for local development, this will be set to `stage` an
 ### Optional
 
 ```shell
-WARNING_ONLY_LOGGERS=### Comma-seperated list of logger names to set as WARNING only, e.g. 'botocore,charset_normalizer,smart_open' 
+WARNING_ONLY_LOGGERS=### Comma-seperated list of logger names to set as WARNING only, e.g. 'botocore,charset_normalizer,smart_open'
+LIBGUIDES_API_TOKEN=### Libguides API token [required for libguides source]
+LIBGUIDES_CLIENT_ID=### Libguides account id [required for libguides source] 
 ```
 
 ## CLI commands
