@@ -13,6 +13,7 @@ jsonlines = "*"
 lxml = "*"
 lxml-stubs = "*"
 python-dateutil = "*"
+requests = "*"
 sentry-sdk = "*"
 smart-open = {version = "*", extras = ["s3"]}
 types-python-dateutil = "*"

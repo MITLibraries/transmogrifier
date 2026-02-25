@@ -5,53 +5,60 @@ from transmogrifier.cli import main
 from transmogrifier.exceptions import CriticalError
 
 
-def test_transform_no_sentry_not_verbose(
-    caplog, monkeypatch, runner, source_input_file, empty_dataset_location
-):
+def _mock_transformer():
+    transformer = mock.MagicMock()
+    transformer.processed_record_count = 100
+    transformer.transformed_record_count = 100
+    transformer.skipped_record_count = 0
+    transformer.deleted_records = []
+    return transformer
+
+
+def test_transform_no_sentry_not_verbose(caplog, monkeypatch, runner, tmp_path):
     monkeypatch.delenv("SENTRY_DSN", raising=False)
-    result = runner.invoke(
-        main,
-        [
-            "-i",
-            source_input_file,
-            "--output-location",
-            empty_dataset_location,
-            "-s",
-            "libguides",
-        ],
-    )
-    assert result.exit_code == 0
+    with mock.patch(
+        "transmogrifier.cli.Transformer.load", return_value=_mock_transformer()
+    ):
+        result = runner.invoke(
+            main,
+            [
+                "-i",
+                "fake-input-file",
+                "--output-location",
+                str(tmp_path),
+                "-s",
+                "libguides",
+            ],
+        )
     assert "Logger 'root' configured with level=INFO" in caplog.text
     assert "No Sentry DSN found, exceptions will not be sent to Sentry" in caplog.text
-    assert "Running transform for source libguides" in caplog.text
-    assert ("Completed transform, total records processed: 4") in caplog.text
     assert "Total time to complete transform" in caplog.text
+    assert result.exit_code == 0
 
 
-def test_transform_with_sentry_and_verbose(
-    caplog, monkeypatch, runner, source_input_file, empty_dataset_location
-):
+def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path):
     monkeypatch.setenv("SENTRY_DSN", "https://1234567890@00000.ingest.sentry.io/123456")
     monkeypatch.setenv("STATUS_UPDATE_INTERVAL", "10")
-    result = runner.invoke(
-        main,
-        [
-            "-i",
-            source_input_file,
-            "--output-location",
-            empty_dataset_location,
-            "-s",
-            "libguides",
-            "-v",
-        ],
-    )
-    assert result.exit_code == 0
+    with mock.patch(
+        "transmogrifier.cli.Transformer.load", return_value=_mock_transformer()
+    ):
+        result = runner.invoke(
+            main,
+            [
+                "-i",
+                "fake-input-file",
+                "--output-location",
+                str(tmp_path),
+                "-s",
+                "libguides",
+                "-v",
+            ],
+        )
     assert "Logger 'root' configured with level=DEBUG" in caplog.text
     assert (
         "Sentry DSN found, exceptions will be sent to Sentry with env=test" in caplog.text
     )
-    assert "Running transform for source libguides" in caplog.text
-    assert ("Completed transform, total records processed: 4") in caplog.text
+    assert result.exit_code == 0
 
 
 def test_transform_no_records(

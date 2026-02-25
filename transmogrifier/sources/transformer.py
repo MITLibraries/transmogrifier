@@ -46,7 +46,6 @@ PARQUET_DATASET_BATCH_SIZE = 1_000
 class Transformer(ABC):
     """Base transformer class."""
 
-    @final
     def __init__(
         self,
         source: str,
@@ -356,9 +355,7 @@ class Transformer(ABC):
             raise DeletedRecordEvent(timdex_record_id)
         if self.record_is_excluded(source_record):
             source_record_id = self.get_source_record_id(source_record)
-            logger.info(
-                f"Record ID {source_record_id} is in exclusion list, skipping record."
-            )
+            logger.info(f"Record ID {source_record_id} is excluded, skipping.")
             raise SkippedRecordEvent(source_record_id)
 
         timdex_record = timdex.TimdexRecord(
