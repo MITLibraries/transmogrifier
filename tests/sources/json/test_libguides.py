@@ -7,7 +7,6 @@ import pandas as pd
 import pytest
 
 from transmogrifier import models
-from transmogrifier.sources.json.libguides import LibGuidesAPIClient
 
 
 @pytest.fixture(autouse=True)
@@ -351,6 +350,8 @@ def test_libguides_api_client_fetch_guides_expands_sub_pages_into_rows():
     Sub-pages inherit parent guide columns (like type_label, status_label, group_id)
     so they are treated identically to root pages throughout the transformation pipeline.
     """
+    from transmogrifier.sources.json.libguides import LibGuidesAPIClient
+
     mock_api_response = [
         {
             "id": 100,
