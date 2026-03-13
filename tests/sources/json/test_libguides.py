@@ -1,12 +1,13 @@
-# ruff: noqa: E501, PLC0415, S301, SLF001
+# ruff: noqa: E501, PLC0415, PLR2004, S301, SLF001
 
 import base64
-from unittest.mock import PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pandas as pd
 import pytest
 
 from transmogrifier import models
+from transmogrifier.sources.json.libguides import LibGuidesAPIClient
 
 
 @pytest.fixture(autouse=True)
@@ -342,3 +343,58 @@ def test_libguides_record_is_excluded_when_guide_type_not_allowed(libguides_tran
     libguides_transformer._allowed_guides_df = None
 
     assert libguides_transformer.record_is_excluded(source_record)
+
+
+def test_libguides_api_client_fetch_guides_expands_sub_pages_into_rows():
+    """Test that sub-pages from the API are expanded into their own DataFrame rows.
+
+    Sub-pages inherit parent guide columns (like type_label, status_label, group_id)
+    so they are treated identically to root pages throughout the transformation pipeline.
+    """
+    mock_api_response = [
+        {
+            "id": 100,
+            "name": "Root Guide",
+            "url": "https://libguides.mit.edu/c.php?g=100",
+            "friendly_url": "https://libguides.mit.edu/rootguide",
+            "type_label": "General Purpose Guide",
+            "status_label": "Published",
+            "group_id": 0,
+            "pages": [
+                {
+                    "id": 200,
+                    "name": "Sub Page",
+                    "url": "https://libguides.mit.edu/c.php?g=100&p=200",
+                    "friendly_url": None,
+                }
+            ],
+        }
+    ]
+
+    client = LibGuidesAPIClient()
+    mock_response = MagicMock()
+    mock_response.json.return_value = mock_api_response
+
+    with patch(
+        "transmogrifier.sources.json.libguides.requests.get",
+        return_value=mock_response,
+    ):
+        df = client.fetch_guides("fake-token")
+
+    # 1 guide + 1 sub-page = 2 rows
+    assert len(df) == 2
+
+    # root page untouched
+    root_row = df[df["id"] == 100].iloc[0]
+    assert root_row["url"] == "https://libguides.mit.edu/c.php?g=100"
+    assert root_row["friendly_url"] == "https://libguides.mit.edu/rootguide"
+
+    # sub-page has its own row
+    sub_row = df[df["id"] == 200].iloc[0]
+    assert sub_row["url"] == "https://libguides.mit.edu/c.php?g=100&p=200"
+    assert sub_row["friendly_url"] is None
+
+    # sub-page inherits parent types and statuses
+    assert sub_row["type_label"] == "General Purpose Guide"
+    assert sub_row["status_label"] == "Published"
+    assert sub_row["group_id"] == 0

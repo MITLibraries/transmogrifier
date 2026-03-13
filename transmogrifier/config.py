@@ -140,7 +140,7 @@ LIBGUIDES_TOKEN_URL = os.getenv(
     "LIBGUIDES_TOKEN_URL", "https://lgapi-us.libapps.com/1.2/oauth/token"
 )
 LIBGUIDES_GUIDES_URL = os.getenv(
-    "LIBGUIDES_GUIDES_URL", "https://lgapi-us.libapps.com/1.2/guides"
+    "LIBGUIDES_GUIDES_URL", "https://lgapi-us.libapps.com/1.2/guides?expand=pages"
 )
 LIBGUIDES_API_TOKEN = os.getenv("LIBGUIDES_API_TOKEN")
 LIBGUIDES_CLIENT_ID = os.getenv("LIBGUIDES_CLIENT_ID")
