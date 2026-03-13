@@ -3,6 +3,7 @@ import logging
 import re
 from collections import defaultdict
 from functools import lru_cache
+from urllib.parse import urlparse
 
 import pandas as pd
 import requests
@@ -34,7 +35,8 @@ EXCLUDED_GROUPS = [
     32635,  # Records retention schedules
 ]
 EXCLUDED_URL_REGEX = [
-    r".*libguides.mit.edu/directory.*",
+    r".*libguides.mit.edu/directory.*",  # staff directory main page
+    r".*libguides.mit.edu/c.php\?g=176063.*",  # staff directory sub-pages
 ]
 
 
@@ -84,21 +86,40 @@ class LibGuidesAPIClient:
         return payload.get("access_token")
 
     def fetch_guides(self, token: str) -> pd.DataFrame:
-        """Retrieve metadata for all LibGuides."""
+        """Retrieve metadata for all LibGuides.
+
+        Each guide may contain a 'pages' key with a list of sub-page dicts.  These
+        sub-pages are expanded into their own rows in the returned DataFrame, inheriting
+        any columns from the parent guide that the sub-page does not have.
+        """
         logger.debug("Retrieving all guides from Libguides API.")
         headers = {"Authorization": f"Bearer {token}"}
         response = requests.get(LIBGUIDES_GUIDES_URL, headers=headers, timeout=60)
         response.raise_for_status()
         guides = response.json()
-        return pd.DataFrame(guides)
+
+        all_rows: list[dict] = []
+        for guide in guides:
+            pages = guide.get("pages", [])
+            all_rows.append(guide)
+            for page in pages:
+                # inherit parent columns, then overlay page-specific columns
+                page_row = {**guide, **page}
+                all_rows.append(page_row)
+
+        return pd.DataFrame(all_rows)
 
     def get_guide_by_url(self, url: str) -> pd.Series:
         """Get metadata for a single guide via a URL."""
+        # strip GET parameter preview=...; duplicate for base URL
+        url = re.sub(r"&preview=[^&]*", "", url)
+
         matches = self.api_guides_df[
             (self.api_guides_df.url == url) | (self.api_guides_df.friendly_url == url)
         ]
         if len(matches) == 1:
             return matches.iloc[0]
+
         raise ValueError(f"Found {len(matches)} guide ids for URL: {url}, expecting one.")
 
 
@@ -169,12 +190,17 @@ class LibGuides(JSONTransformer):
         This method utilizes multiple private methods which check for specific things.  If
         any of them return True, the record is excluded.
         """
-        return any(
-            [
-                self._excluded_per_allowed_rules(source_record),
-                self._excluded_per_missing_html(source_record),
-            ]
+        return (
+            self._excluded_per_non_libguides_domain(source_record)
+            or self._excluded_per_allowed_rules(source_record)
+            or self._excluded_per_missing_html(source_record)
         )
+
+    @staticmethod
+    def _excluded_per_non_libguides_domain(source_record: dict) -> bool:
+        """Exclude a record if the captured URL is not from libguides.mit.edu."""
+        parsed = urlparse(source_record["url"])
+        return parsed.hostname != "libguides.mit.edu"
 
     def _excluded_per_allowed_rules(self, source_record: dict) -> bool:
         """Exclude a record if not present in allowed guides dataframe."""
@@ -235,8 +261,8 @@ class LibGuides(JSONTransformer):
         """Use the 'friendly' URL from LibGuides API data."""
         url = source_record["url"]
         guide = cls.api_client.get_guide_by_url(url)
-        friendly_url = guide.get("friendly_url", "").strip()
-        return friendly_url or url
+        friendly_url = guide.get("friendly_url") or ""
+        return friendly_url.strip() or url
 
     @classmethod
     def get_source_record_id(cls, source_record: dict) -> str:
