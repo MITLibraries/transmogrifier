@@ -14,6 +14,8 @@ from transmogrifier.sources.xmltransformer import XMLTransformer
 @pytest.fixture(autouse=True)
 def _test_env(monkeypatch):
     monkeypatch.setenv("WORKSPACE", "test")
+    monkeypatch.setenv("LIBGUIDES_CLIENT_ID", "123")
+    monkeypatch.setenv("LIBGUIDES_API_TOKEN", "abc123")
 
 
 @pytest.fixture(autouse=True, scope="session")
