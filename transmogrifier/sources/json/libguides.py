@@ -17,6 +17,7 @@ from transmogrifier.config import (
     LIBGUIDES_GUIDES_URL,
     LIBGUIDES_TOKEN_URL,
 )
+from transmogrifier.exceptions import SkippedRecordEvent
 from transmogrifier.sources.jsontransformer import JSONTransformer
 from transmogrifier.sources.transformer import JSON
 
@@ -288,14 +289,26 @@ class LibGuides(JSONTransformer):
     def get_source_link(cls, source_record: dict) -> str:
         """Use the 'friendly' URL from LibGuides API data."""
         url = source_record["url"]
-        guide = cls.api_client.get_guide_by_url(url)
+        try:
+            guide = cls.api_client.get_guide_by_url(url)
+        except ValueError:
+            logger.warning("Could not find guide in API data for URL: %s", url)
+            return url
         friendly_url = guide.get("friendly_url") or ""
         return friendly_url.strip() or url
 
     @classmethod
     def get_source_record_id(cls, source_record: dict) -> str:
         """Use numeric 'id' field from Libguides metadata with 'guides-' prefix."""
-        guide = cls.api_client.get_guide_by_url(cls.get_source_link(source_record))
+        try:
+            guide = cls.api_client.get_guide_by_url(cls.get_source_link(source_record))
+        except ValueError as exc:
+            message = (
+                "Could not determine source record ID, skipping record with URL: "
+                f"{source_record['url']}"
+            )
+            logger.warning(message)
+            raise SkippedRecordEvent(message) from exc
         return f"guides-{guide['id']}"
 
     def get_timdex_record_id(self, source_record: dict) -> str:
