@@ -113,6 +113,7 @@ class LibGuidesAPIClient:
         """Get metadata for a single guide via a URL."""
         # strip GET parameter preview=...; duplicate for base URL
         url = re.sub(r"([&?])preview=.*", "", url)
+        url = url.removesuffix("/")
 
         matches = self.api_guides_df[
             (self.api_guides_df.url.str.lower() == url.lower())
@@ -219,9 +220,12 @@ class LibGuides(JSONTransformer):
     def _exclude_sub_page_that_is_root_page(self, source_record: dict) -> bool:
         """Exclude sub-pages that are effectively the guide root page.
 
-        For guides that have sub-pages, e.g. `/foo`, there will be a sug-page that is
+        For guides that have sub-pages, e.g. `/foo`, there will be a sub-page that is
         effectively the root page itself.  These sub-pages will have a "position = 1"
-        and "name = 'Home'" properties.  These can be skipped.
+        and "parent_id = 0" properties (i.e., a top-level page in the first position).
+        These can be skipped.  Note that sub-pages can have sub-sub-pages as well.  These
+        will have "position = 1" but a parent_id of the sub-page.  These should NOT be
+        skipped as they are standalone, unique pages.
         """
         url = source_record["url"]
 
@@ -235,8 +239,8 @@ class LibGuides(JSONTransformer):
         if pd.isna(guide.position):
             return False
 
-        # if position = 1 and name = 'Home', skip
-        return int(guide.position) == 1 and guide["name"].strip() == "Home"
+        # if position = 1 and top-level page (parent_id = 0), skip
+        return guide.position == "1" and guide.parent_id == "0"
 
     @classmethod
     @lru_cache(maxsize=8)
