@@ -112,10 +112,11 @@ class LibGuidesAPIClient:
     def get_guide_by_url(self, url: str) -> pd.Series:
         """Get metadata for a single guide via a URL."""
         # strip GET parameter preview=...; duplicate for base URL
-        url = re.sub(r"&preview=[^&]*", "", url)
+        url = re.sub(r"([&?])preview=.*", "", url)
 
         matches = self.api_guides_df[
-            (self.api_guides_df.url == url) | (self.api_guides_df.friendly_url == url)
+            (self.api_guides_df.url.str.lower() == url.lower())
+            | (self.api_guides_df.friendly_url.str.lower() == url.lower())
         ]
         if len(matches) == 1:
             return matches.iloc[0]
@@ -194,6 +195,7 @@ class LibGuides(JSONTransformer):
             self._excluded_per_non_libguides_domain(source_record)
             or self._excluded_per_allowed_rules(source_record)
             or self._excluded_per_missing_html(source_record)
+            or self._exclude_sub_page_that_is_root_page(source_record)
         )
 
     @staticmethod
@@ -213,6 +215,28 @@ class LibGuides(JSONTransformer):
     def _excluded_per_missing_html(self, source_record: dict) -> bool:
         """Exclude a record if the crawled HTML is empty (e.g. a redirect)."""
         return source_record["html_base64"].strip() == ""
+
+    def _exclude_sub_page_that_is_root_page(self, source_record: dict) -> bool:
+        """Exclude sub-pages that are effectively the guide root page.
+
+        For guides that have sub-pages, e.g. `/foo`, there will be a sug-page that is
+        effectively the root page itself.  These sub-pages will have a "position = 1"
+        and "name = 'Home'" properties.  These can be skipped.
+        """
+        url = source_record["url"]
+
+        try:
+            guide = self.api_client.get_guide_by_url(url)
+        except ValueError as exc:
+            logger.warning(exc)
+            return True  # if we cannot find URL in API data, skip (likely crawl noise)
+
+        # if no position, assume root page and do NOT skip
+        if pd.isna(guide.position):
+            return False
+
+        # if position = 1 and name = 'Home', skip
+        return int(guide.position) == 1 and guide["name"].strip() == "Home"
 
     @classmethod
     @lru_cache(maxsize=8)
