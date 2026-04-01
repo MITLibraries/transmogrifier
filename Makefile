@@ -1,84 +1,103 @@
 SHELL=/bin/bash
 DATETIME:=$(shell date -u +%Y%m%dT%H%M%SZ)
-### This is the Terraform-generated header for transmogrifier-dev ###
-ECR_NAME_DEV:=transmogrifier-dev
-ECR_URL_DEV:=222053980223.dkr.ecr.us-east-1.amazonaws.com/transmogrifier-dev
+
+### This is the Terraform-generated header for transmogrifier-dev. ###
+ECR_NAME_DEV := transmogrifier-dev
+ECR_URL_DEV := 222053980223.dkr.ecr.us-east-1.amazonaws.com/transmogrifier-dev
+CPU_ARCH ?= $(shell cat .aws-architecture 2>/dev/null || echo "linux/amd64")
 ### End of Terraform-generated header ###
 
-help: ## Print this message
-	@awk 'BEGIN { FS = ":.*##"; print "Usage:  make <target>\n\nTargets:" } \
-/^[-_[:alpha:]]+:.?*##/ { printf "  %-15s%s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+help: # Preview Makefile commands
+	@awk 'BEGIN { FS = ":.*#"; print "Usage:  make <target>\n\nTargets:" } \
+/^[-_[:alpha:]]+:.?*#/ { printf "  %-15s%s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-### Dependency commands ###
-install: ## Install script and dependencies
-	pipenv install --dev
-	pipenv run pre-commit install
+.PHONY: help install venv update test coveralls lint lint-fix security transform dist-dev publish-dev dist-stage publish-stage
 
-update: install ## Update all Python dependencies
-	pipenv clean
-	pipenv update git+https://github.com/MITLibraries/timdex-dataset-api.git
-	pipenv update --dev
+##############################################
+# Python Environment and Dependency commands
+##############################################
 
+install: .venv .git/hooks/pre-commit .git/hooks/pre-push # Install Python dependencies
+	uv sync --dev
 
-### Testing commands ###
-test: ## Run tests and print a coverage report
-	pipenv run coverage run --source=transmogrifier -m pytest -vv
-	pipenv run coverage report -m
+.venv:
+	@echo "Creating virtual environment at .venv..."
+	uv venv .venv
 
-coveralls: test
-	pipenv run coverage lcov -o ./coverage/lcov.info
+.git/hooks/pre-commit:
+	@echo "Installing pre-commit commit hooks..."
+	uv run pre-commit install --hook-type pre-commit
 
+.git/hooks/pre-push:
+	@echo "Installing pre-commit push hooks..."
+	uv run pre-commit install --hook-type pre-push
 
-# linting commands
-lint: black mypy ruff safety 
+venv: .venv
 
-black:
-	pipenv run black --check --diff .
+update: # Update Python dependencies
+	uv lock --upgrade
+	uv sync --dev
 
-mypy:
-	pipenv run mypy .
+######################
+# Unit test commands
+######################
 
-ruff:
-	pipenv run ruff check .
+test: # Run tests and print a coverage report
+	uv run coverage run --source=transmogrifier -m pytest -vv
+	uv run coverage report -m
 
-safety: # Check for security vulnerabilities and verify Pipfile.lock is up-to-date
-	pipenv run pip-audit
-	pipenv verify
+coveralls: test # Write coverage data to an LCOV report
+	uv run coverage lcov -o ./coverage/lcov.info
 
-# apply changes to resolve any linting errors
-lint-apply: black-apply ruff-apply
+####################################
+# Code linting and formatting
+####################################
 
-black-apply: 
-	pipenv run black .
+lint: # Run linting, alerts only, no code changes
+	uv run ruff format --diff
+	uv run mypy .
+	uv run ruff check .
 
-ruff-apply: 
-	pipenv run ruff check --fix .
+lint-fix: # Run linting, auto fix behaviors where supported
+	uv run ruff format .
+	uv run ruff check --fix .
 
+security: # Run security / vulnerability checks
+	uv run pip-audit
 
-### Terraform-generated Developer Deploy Commands for Dev environment ###
-dist-dev: ## Build docker container (intended for developer-based manual build)
-	docker build --platform linux/amd64 \
-	    -t $(ECR_URL_DEV):latest \
-		-t $(ECR_URL_DEV):`git describe --always` \
-		-t $(ECR_NAME_DEV):latest .
+####################################
+# CLI Command
+####################################
 
-publish-dev: dist-dev ## Build, tag and push (intended for developer-based manual publish)
-	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_DEV)
-	docker push $(ECR_URL_DEV):latest
-	docker push $(ECR_URL_DEV):`git describe --always`
+transform: # CLI without any arguments, utilizing uv script entrypoint
+	uv run transform
 
-### Terraform-generated manual shortcuts for deploying to Stage ###
-### This requires that ECR_NAME_STAGE & ECR_URL_STAGE environment variables are set locally
-### by the developer and that the developer has authenticated to the correct AWS Account.
-### The values for the environment variables can be found in the stage_build.yml caller workflow.
-dist-stage: ## Only use in an emergency
-	docker build --platform linux/amd64 \
-	    -t $(ECR_URL_STAGE):latest \
-		-t $(ECR_URL_STAGE):`git describe --always` \
-		-t $(ECR_NAME_STAGE):latest .
+####################################
+# Container Build and Deploy
+####################################
 
-publish-stage: ## Only use in an emergency
-	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_STAGE)
-	docker push $(ECR_URL_STAGE):latest
-	docker push $(ECR_URL_STAGE):`git describe --always`
+dist-dev: # Build docker container (intended for developer-based manual build)
+	docker buildx build --platform $(CPU_ARCH) \
+	    -t $(ECR_URL_DEV):latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
+	    -t $(ECR_URL_DEV):make-latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
+	    -t $(ECR_URL_DEV):make-$(shell git describe --always) \
+	    -t $(ECR_NAME_DEV):latest .
+
+publish-dev: dist-dev # Build, tag and push (intended for developer-based manual publish)
+	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_DEV)
+	docker push $(ECR_URL_DEV):latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2)
+	docker push $(ECR_URL_DEV):make-latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2)
+	docker push $(ECR_URL_DEV):make-$(shell git describe --always)
+
+dist-stage: # Only use in an emergency
+	docker buildx build --platform $(CPU_ARCH) \
+	    -t $(ECR_URL_STAGE):latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
+	    -t $(ECR_URL_STAGE):make-latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
+	    -t $(ECR_URL_STAGE):make-$(shell git describe --always) .
+
+publish-stage: dist-stage # Only use in an emergency
+	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_STAGE)
+	docker push $(ECR_URL_STAGE):latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2)
+	docker push $(ECR_URL_STAGE):make-latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2)
+	docker push $(ECR_URL_STAGE):make-$(shell git describe --always)
 

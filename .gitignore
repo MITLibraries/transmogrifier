@@ -158,3 +158,4 @@ cython_debug/
 output/
 .vscode/
 .idea/
+.arch_tag

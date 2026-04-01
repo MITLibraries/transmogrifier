@@ -11,8 +11,9 @@ from transmogrifier import models
 
 @pytest.fixture(autouse=True)
 def _test_env_libguides():
-    with patch("transmogrifier.config.LIBGUIDES_CLIENT_ID", "123"), patch(
-        "transmogrifier.config.LIBGUIDES_API_TOKEN", "aaabbbdddccc"
+    with (
+        patch("transmogrifier.config.LIBGUIDES_CLIENT_ID", "123"),
+        patch("transmogrifier.config.LIBGUIDES_API_TOKEN", "aaabbbdddccc"),
     ):
         yield
 
@@ -137,9 +138,10 @@ def test_libguides_api_client_single_api_call_for_guides_dataframe():
     api_guides_df = pd.read_pickle("tests/fixtures/libguides/libguides_api_guides_df.pkl")
     client = LibGuidesAPIClient()
 
-    with patch.object(
-        client, "fetch_guides", return_value=api_guides_df
-    ) as mock_fetch, patch.object(client, "get_api_token", return_value="fake-token"):
+    with (
+        patch.object(client, "fetch_guides", return_value=api_guides_df) as mock_fetch,
+        patch.object(client, "get_api_token", return_value="fake-token"),
+    ):
         _ = client.api_guides_df
         _ = client.api_guides_df
         _ = client.api_guides_df

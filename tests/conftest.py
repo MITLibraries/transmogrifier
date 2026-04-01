@@ -57,8 +57,7 @@ def mock_s3_exclusion_list(mock_s3):
     mock_s3.put_object(
         Bucket="test-bucket",
         Key="libguides/config/libguides-exclusions.csv",
-        Body="https://libguides.mit.edu/excluded1\n"
-        "https://libguides.mit.edu/excluded2\n",
+        Body="https://libguides.mit.edu/excluded1\nhttps://libguides.mit.edu/excluded2\n",
     )
 
 

@@ -4,35 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-attrs = "*"
-beautifulsoup4 = "==4.12.3"
-boto3 = "*"
-boto3-stubs = "*"
-click = "*"
-jsonlines = "*"
-lxml = "*"
-lxml-stubs = "*"
-python-dateutil = "*"
-requests = "*"
-sentry-sdk = "*"
-smart-open = {version = "*", extras = ["s3"]}
-types-python-dateutil = "*"
-timdex-dataset-api = {git = "https://github.com/MITLibraries/timdex-dataset-api.git"}
 
 [dev-packages]
-black = "*"
-coveralls = "*"
-ipython = "*"
-moto = "*"
-mypy = "*"
-pre-commit = "*"
-pytest = "*"
-ruff = "*"
-safety = "*"
-pip-audit = "*"
 
 [requires]
-python_version = "3.12"
-
-[scripts]
-transform = "python -c \"from transmogrifier.cli import main; main()\""
+python_version = "3.11"

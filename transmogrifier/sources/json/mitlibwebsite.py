@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class MITLibWebsite(JSONTransformer):
-
     @classmethod
     @lru_cache(maxsize=8)
     def parse_html(cls, html_base64: str) -> Tag:

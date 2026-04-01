@@ -56,8 +56,7 @@ def create_ead_source_record_stub(
     """
     if metadata_insert and parent_element is None:
         message = (
-            "Argument 'parent_element' cannot be of NoneType "
-            "if 'metadata_insert' is set."
+            "Argument 'parent_element' cannot be of NoneType if 'metadata_insert' is set."
         )
         raise TypeError(message)
     if parent_element == "archdesc":
@@ -596,7 +595,8 @@ def test_ead_transform_with_invalid_date_and_date_range_omits_dates(caplog):
 
 def test_get_alternate_titles_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unittitle>
                 Charles J. Connick Stained Glass
                 <emph>
@@ -610,7 +610,8 @@ def test_get_alternate_titles_success():
                 <num>VC.0002</num>
             </unittitle>
             <unittitle>Title 3</unittitle>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_alternate_titles(source_record) == [
@@ -621,7 +622,8 @@ def test_get_alternate_titles_success():
 
 def test_get_alternate_titles_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unittitle>
                 Charles J. Connick Stained Glass
                 <emph>
@@ -632,7 +634,8 @@ def test_get_alternate_titles_transforms_correctly_if_fields_blank():
             </unittitle>
             <unittitle></unittitle>
             <unittitle></unittitle>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_alternate_titles(source_record) is None
@@ -640,7 +643,8 @@ def test_get_alternate_titles_transforms_correctly_if_fields_blank():
 
 def test_get_alternate_titles_transforms_correctly_if_fields_missing():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unittitle>
                 Charles J. Connick Stained Glass
                 <emph>
@@ -649,7 +653,8 @@ def test_get_alternate_titles_transforms_correctly_if_fields_missing():
                 </emph>
                 <num>VC.0002</num>
             </unittitle>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_alternate_titles(source_record) is None
@@ -675,9 +680,11 @@ def test_get_citation_success():
 
 def test_get_citation_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             prefercite></prefercite>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_citation(source_record) is None
@@ -690,13 +697,15 @@ def test_get_citation_transforms_correctly_if_fields_missing():
 
 def test_get_content_type_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess>
                 <genreform>
                     <part>Correspondence</part>
                 </genreform>
             </controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_content_type(source_record) == ["Archival materials", "Correspondence"]
@@ -704,11 +713,13 @@ def test_get_content_type_success():
 
 def test_get_content_type_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess>
                 <genreform></genreform>
             </controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_content_type(source_record) == ["Archival materials"]
@@ -716,9 +727,11 @@ def test_get_content_type_transforms_correctly_if_fields_blank():
 
 def test_get_content_type_transforms_correctly_if_fields_missing():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess></controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_content_type(source_record) == ["Archival materials"]
@@ -726,7 +739,8 @@ def test_get_content_type_transforms_correctly_if_fields_missing():
 
 def test_get_contents_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <arrangement>
                 <head>Arrangement</head>
                 <p>This collection is organized into ten series: </p>
@@ -734,7 +748,8 @@ def test_get_contents_success():
                 <p>Series 2. Charles J. Connick Studio and Associates job information</p>
                 <p>Series 3. Charles J. Connick Stained Glass Foundation documents</p>
             </arrangement>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_contents(source_record) == [
@@ -747,9 +762,11 @@ def test_get_contents_success():
 
 def test_get_contents_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <arrangement></arrangement>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_contents(source_record) is None
@@ -762,14 +779,16 @@ def test_get_contents_transforms_correctly_if_fields_missing():
 
 def test_get_contributors_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <origination label="Creator">
                 <persname>
                     Author, Best E.
                     <part>( <emph> Best <emph>Ever</emph> </emph> )</part>
                 </persname>
             </origination>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_contributors(source_record) == [
@@ -779,9 +798,11 @@ def test_get_contributors_success():
 
 def test_get_contributors_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <origination></origination>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_contributors(source_record) is None
@@ -794,7 +815,8 @@ def test_get_contributors_transforms_correctly_if_fields_missing():
 
 def test_get_contributors_transforms_correctly_if_multiple_contributors():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <origination label="Creator">
                 <persname>
                     Author, Best E.
@@ -803,7 +825,8 @@ def test_get_contributors_transforms_correctly_if_multiple_contributors():
                 <persname>
                     Author, Better
                 </persname>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_contributors(source_record) == [
@@ -820,7 +843,8 @@ def test_get_contributors_transforms_correctly_if_multiple_contributors():
 
 def test_get_contributors_transforms_correctly_with_source_based_identifiers():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <origination label="Creator">
                 <persname authfilenumber="a001" source="naf">
                     Author, Best E.
@@ -833,7 +857,8 @@ def test_get_contributors_transforms_correctly_with_source_based_identifiers():
             <origination>
                 <famname authfilenumber="c001" source="snac">Fambam</famname>
             </famname>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_contributors(source_record) == [
@@ -855,15 +880,19 @@ def test_get_contributors_transforms_correctly_with_source_based_identifiers():
 
 def test_get_dates_success():
     source_record = create_ead_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:mit/repositories/2/resources/1</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <unitdate certainty="approximate" datechar="creation" normal="1905/2012">
                 1905-2012
             </unitdate>
             <unitdate normal="2023-01-01">2023-01-01</unitdate>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_dates(source_record) == [
@@ -878,12 +907,16 @@ def test_get_dates_success():
 
 def test_get_dates_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:mit/repositories/2/resources/1</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <unitdate certainty="approximate" datechar="creation" normal=""></unitdate>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_dates(source_record) is None
@@ -891,9 +924,11 @@ def test_get_dates_transforms_correctly_if_fields_blank():
 
 def test_get_dates_transforms_correctly_if_fields_missing():
     source_record = create_ead_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:mit/repositories/2/resources/1</identifier>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_dates(source_record) is None
@@ -901,14 +936,18 @@ def test_get_dates_transforms_correctly_if_fields_missing():
 
 def test_get_dates_transforms_correctly_if_date_invalid():
     source_record = create_ead_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:mit/repositories/2/resources/1</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <unitdate certainty="approximate" datechar="creation" normal="">
                 INVALID
             </unitdate>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_dates(source_record) is None
@@ -916,12 +955,16 @@ def test_get_dates_transforms_correctly_if_date_invalid():
 
 def test_get_dates_transforms_correctly_if_normal_attribute_missing():
     source_record = create_ead_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:mit/repositories/2/resources/1</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <unitdate certainty="approximate" datechar="creation">2024</unitdate>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_dates(source_record) is None
@@ -929,9 +972,11 @@ def test_get_dates_transforms_correctly_if_normal_attribute_missing():
 
 def test_get_identifiers_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unitid>a001</unitid>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_identifiers(source_record) == [
@@ -941,9 +986,11 @@ def test_get_identifiers_success():
 
 def test_get_identifiers_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unitid></unitid>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_identifiers(source_record) is None
@@ -958,9 +1005,11 @@ def test_get_identifiers_transforms_correctly_if_fields_missing():
 
 def test_get_identifiers_transforms_correctly_if_type_attribute_invalid():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unitid type="aspace_uri">ignore-me</unitid>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_identifiers(source_record) is None
@@ -968,14 +1017,16 @@ def test_get_identifiers_transforms_correctly_if_type_attribute_invalid():
 
 def test_get_languages_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <langmaterial>
                 <language>English</language>
                 ,
                 <language>French</language>
                 .
             </langmaterial>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_languages(source_record) == ["English", "French"]
@@ -983,9 +1034,11 @@ def test_get_languages_success():
 
 def test_get_languages_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <langmaterial></langmaterial>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_languages(source_record) is None
@@ -998,11 +1051,13 @@ def test_get_languages_transforms_correctly_if_fields_missing():
 
 def test_get_locations_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess>
                 <geogname>Boston, MA</geogname>
             </controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_locations(source_record) == [timdex.Location(value="Boston, MA")]
@@ -1010,11 +1065,13 @@ def test_get_locations_success():
 
 def test_get_locations_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess>
                 <geogname></geogname>
             </controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_locations(source_record) is None
@@ -1027,7 +1084,8 @@ def test_get_locations_transforms_correctly_if_fields_missing():
 
 def test_get_notes_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <bibliography>
                 <head>Bibliography</head>
                 <bibref>
@@ -1039,7 +1097,8 @@ def test_get_notes_success():
                     royale du Cap, 1782. Nos. 30, 35.
                 </bibref>
             </bibliography>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_notes(source_record) == [
@@ -1057,11 +1116,13 @@ def test_get_notes_success():
 
 def test_get_notes_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <bibliography></bibliography>
             <bioghist></bioghist>
             <scopecontent></scopecontent>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_notes(source_record) is None
@@ -1074,7 +1135,8 @@ def test_get_notes_transforms_correctly_if_fields_missing():
 
 def test_get_notes_transforms_correctly_with_multiple_kinds():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <bibliography>
                 <head>Bibliography</head>
                 <bibref>
@@ -1093,7 +1155,8 @@ def test_get_notes_transforms_correctly_with_multiple_kinds():
                 </p>
                 <p>Connick founded his own studio in 1912 in Boston.</p>
             </bioghist>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_notes(source_record) == [
@@ -1118,7 +1181,8 @@ def test_get_notes_transforms_correctly_with_multiple_kinds():
 
 def test_get_notes_transforms_correctly_if_head_missing():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <bibliography>
                 <bibref>
                     <title>
@@ -1129,7 +1193,8 @@ def test_get_notes_transforms_correctly_if_head_missing():
                     royale du Cap, 1782. Nos. 30, 35.
                 </bibref>
             </bibliography>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_notes(source_record) == [
@@ -1147,14 +1212,16 @@ def test_get_notes_transforms_correctly_if_head_missing():
 
 def test_get_physical_description_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <physdesc>
                 <extent>4.5 Cubic Feet</extent>
                 <extent>
                     (10 manuscript boxes, 1 legal manuscript box, 1 cassette box)
                 </extent>
             </physdesc>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_physical_description(source_record) == (
@@ -1164,9 +1231,11 @@ def test_get_physical_description_success():
 
 def test_get_physical_description_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <physdesc></physdesc>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_physical_description(source_record) is None
@@ -1179,7 +1248,8 @@ def test_get_physical_description_transforms_correctly_if_fields_missing():
 
 def test_get_physical_description_transforms_correctly_if_multiple_physdesc():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <physdesc>
                 <extent>4.5 Cubic Feet</extent>
                 <extent>
@@ -1190,7 +1260,8 @@ def test_get_physical_description_transforms_correctly_if_multiple_physdesc():
                 <extent>1.5 Cubic Feet</extent>
                 <extent>(2 manuscript boxes)</extent>
             </physdesc>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_physical_description(source_record) == (
@@ -1201,7 +1272,8 @@ def test_get_physical_description_transforms_correctly_if_multiple_physdesc():
 
 def test_get_publishers_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <repository>
                 <corpname>
                     Massachusetts
@@ -1209,7 +1281,8 @@ def test_get_publishers_success():
                     of Technology. Libraries. Department of Distinctive Collections
                 </corpname>
             </repository>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_publishers(source_record) == [
@@ -1224,9 +1297,11 @@ def test_get_publishers_success():
 
 def test_get_publishers_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <repository></repository>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_publishers(source_record) is None
@@ -1239,7 +1314,8 @@ def test_get_publishers_transforms_correctly_if_fields_missing():
 
 def test_get_related_items_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <altformavail>
                 <head>Location of Copies</head>
                 <p>A use copy of photographic plates in box 4.</p>
@@ -1265,7 +1341,8 @@ def test_get_related_items_success():
                 <head>Related Materials</head>
                 <p>The Charles J. Connick and Associates Archives (http://www.bpl.org/).</p>
             </relatedmaterial>
-        """),
+        """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_related_items(source_record) == [
@@ -1288,9 +1365,11 @@ def test_get_related_items_success():
 
 def test_get_related_items_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <altformavail></altformavail>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_related_items(source_record) is None
@@ -1303,7 +1382,8 @@ def test_get_related_items_transforms_correctly_if_fields_missing():
 
 def test_get_related_items_transforms_correctly_if_relatedmaterials_list_multi_item():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <relatedmaterial>
                 <head>Related Materials</head>
                 <list>
@@ -1321,7 +1401,8 @@ def test_get_related_items_transforms_correctly_if_relatedmaterials_list_multi_i
                     </defitem>
                 </list>
                 </head
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_related_items(source_record) == [
@@ -1332,14 +1413,16 @@ def test_get_related_items_transforms_correctly_if_relatedmaterials_list_multi_i
 
 def test_get_related_items_transforms_correctly_if_relatedmaterials_multi_par():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <relatedmaterial>
                 <head>Related Materials</head>
                 <p>The Charles J. Connick and Associates Archives (http://www.bpl.org/).</p>
                 <p>The Charles J. Connick papers, 1901-1949 (http://www.aaa.si.edu/).</p>
                 <p>Information on the Charles J. Connick Stained Glass Foundation.</p>
             </relatedmaterial
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_related_items(source_record) == [
@@ -1357,7 +1440,8 @@ def test_get_related_items_transforms_correctly_if_relatedmaterials_multi_par():
 
 def test_get_rights_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <accessrestrict>
                 <head>Conditions Governing Access</head>
                 <p>This collection is open.</p>
@@ -1368,7 +1452,8 @@ def test_get_rights_success():
                     Access to collections in the Department of Distinctive Collections.
                 </p>
             </userestrict>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_rights(source_record) == [
@@ -1386,10 +1471,12 @@ def test_get_rights_success():
 
 def test_get_rights_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <accessrestrict></accessrestrict>
             <userestrict></userestrict>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_rights(source_record) is None
@@ -1402,11 +1489,13 @@ def test_get_rights_transforms_correctly_if_fields_missing():
 
 def test_get_subjects_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess>
                 <subject source="aat">Letters (Correspondence)</subject>
             </controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_subjects(source_record) == [
@@ -1418,11 +1507,13 @@ def test_get_subjects_success():
 
 def test_get_subjects_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess>
                 <subject source="aat"></subject>
             </controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_subjects(source_record) is None
@@ -1435,11 +1526,13 @@ def test_get_subjects_transforms_correctly_if_fields_missing():
 
 def test_get_subjects_transforms_correctly_if_source_attribute_missing():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <controlaccess>
                 <subject>Letters (Correspondence)</subject>
             </controlaccess>
-            """),
+            """
+        ),
         parent_element="archdesc",
     )
     assert Ead.get_subjects(source_record) == [
@@ -1469,9 +1562,11 @@ def test_get_summary_success():
 
 def test_get_summary_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <abstract></abstract>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_summary(source_record) is None
@@ -1484,7 +1579,8 @@ def test_get_summary_transforms_correctly_if_fields_missing():
 
 def test_get_main_titles_success():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unittitle>
                 Charles J. Connick Stained Glass
                 <emph>
@@ -1498,7 +1594,8 @@ def test_get_main_titles_success():
                 <num>VC.0002</num>
             </unittitle>
             <unittitle>Title 3</unittitle>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_main_titles(source_record) == [
@@ -1510,9 +1607,11 @@ def test_get_main_titles_success():
 
 def test_get_main_titles_transforms_correctly_if_fields_blank():
     source_record = create_ead_source_record_stub(
-        metadata_insert=("""
+        metadata_insert=(
+            """
             <unittitle></unittitle>
-            """),
+            """
+        ),
         parent_element="did",
     )
     assert Ead.get_main_titles(source_record) == []
