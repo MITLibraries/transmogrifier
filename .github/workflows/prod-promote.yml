@@ -1,21 +1,22 @@
-### This is the Terraform-generated prod-promote.yml workflow for the transmogrifier-prod repository. ###
-### If this is a Lambda repo, uncomment the FUNCTION line at the end of the document.         ###
-name: Prod Container Promote
+name: Prod Image Promote
 on:
   workflow_dispatch:
   release:
     types: [published]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  deploy:
-    name: Prod Container Promote
-    uses: mitlibraries/.github/.github/workflows/ecr-shared-promote-prod.yml@main
+
+  promote:
+    name: Prod promote
+    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-promote-prod.yml@main
     secrets: inherit
     with:
-      AWS_REGION: "us-east-1"
+      AWS_REGION: us-east-1
       GHA_ROLE_STAGE: transmogrifier-gha-stage
       GHA_ROLE_PROD: transmogrifier-gha-prod
-      ECR_STAGE: "transmogrifier-stage"
-      ECR_PROD: "transmogrifier-prod"
-      # FUNCTION: ""
- 
+      ECR_STAGE: transmogrifier-stage
+      ECR_PROD: transmogrifier-prod

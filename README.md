@@ -39,7 +39,9 @@ After Transmogrifier writes the transformed files to the TIMDEX parquet dataset,
 - To update dependencies: `make update`
 - To run unit tests: `make test`
 - To lint the repo: `make lint`
-- To run the app: `pipenv run transform <command>`
+- To auto-fix formatting and supported lint issues: `make lint-fix`
+- To scan dependencies for vulnerabilities: `make security`
+- To view CLI usage: `uv run transform --help`
 
 ## Environment Variables
 

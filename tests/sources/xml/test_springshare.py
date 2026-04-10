@@ -43,12 +43,16 @@ def create_oaidc_source_record_stub(
 
 def test_get_dates_success():
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:date>January 1st, 2000</dc:date>
-            """),
+            """
+        ),
     )
     assert SpringshareOaiDc.get_dates(source_record) == [
         timdex.Date(kind="Created", value="2000-01-01T00:00:00")
@@ -57,20 +61,28 @@ def test_get_dates_success():
 
 def test_get_dates_transforms_correctly_if_optional_fields_blank():
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:date></dc:date>
-            """),
+            """
+        ),
     )
     assert SpringshareOaiDc.get_dates(source_record) is None
 
 
 def test_get_dates_transforms_correctly_if_optional_fields_missing():
-    source_record = create_oaidc_source_record_stub(header_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """))
+            """
+        )
+    )
     assert SpringshareOaiDc.get_dates(source_record) is None
 
 
@@ -79,12 +91,16 @@ def test_get_dates_transforms_correctly_and_logs_error_if_date_invalid(
 ):
     caplog.set_level(logging.DEBUG)
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:date>INVALID</dc:date>
-            """),
+            """
+        ),
     )
     assert SpringshareOaiDc.get_dates(source_record) is None
     assert (
@@ -95,12 +111,16 @@ def test_get_dates_transforms_correctly_and_logs_error_if_date_invalid(
 
 def test_get_links_success():
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:identifier>https://libguides.mit.edu/materials</dc:identifier>
-            """),
+            """
+        ),
     )
     assert SpringshareOaiDc("libguides", iter(())).get_links(
         source_record=source_record
@@ -115,27 +135,39 @@ def test_get_links_success():
 
 def test_get_links_transforms_correctly_if_required_fields_blank():
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:identifier></dc:identifier>
-            """),
+            """
+        ),
     )
     assert SpringshareOaiDc("libguides", iter(())).get_links(source_record) is None
 
 
 def test_get_links_transforms_correctly_if_required_fields_missing():
-    source_record = create_oaidc_source_record_stub(header_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """))
+            """
+        )
+    )
     assert SpringshareOaiDc("libguides", iter(())).get_links(source_record) is None
 
 
 def test_get_source_link_success():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:identifier>https://libguides.mit.edu/materials</dc:identifier>
-            """))
+            """
+        )
+    )
     springshare = SpringshareOaiDc("libguides", iter(source_record))
     assert (
         springshare.get_source_link(source_record)
@@ -144,9 +176,13 @@ def test_get_source_link_success():
 
 
 def test_get_source_link_raises_skipped_record_event_if_required_fields_blank():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:identifier></dc:identifier>
-            """))
+            """
+        )
+    )
     springshare = SpringshareOaiDc("libguides", iter(source_record))
     with pytest.raises(
         SkippedRecordEvent,
@@ -159,9 +195,13 @@ def test_get_source_link_raises_skipped_record_event_if_required_fields_blank():
 
 
 def test_get_source_link_raises_skipped_record_event_if_required_fields_missing():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:identifier></dc:identifier>
-            """))
+            """
+        )
+    )
     springshare = SpringshareOaiDc("libguides", iter(source_record))
     with pytest.raises(
         SkippedRecordEvent,

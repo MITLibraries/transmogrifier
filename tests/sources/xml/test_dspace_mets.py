@@ -218,11 +218,13 @@ def test_dspace_mets_with_attribute_and_subfield_variations_transforms_correctly
 
 
 def test_get_alternate_titles_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:titleInfo>
          <mods:title type="alternative">A Slightly Different Title</mods:title>
         </mods:titleInfo>
-        """)
+        """
+    )
     assert DspaceMets.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="A Slightly Different Title", kind="alternative")
     ]
@@ -242,7 +244,8 @@ def test_get_alternate_titles_transforms_correctly_if_fields_missing():
 
 def test_get_alternate_titles_multiple_titles_success():
 
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:titleInfo>
          <mods:title>Title 1</mods:title>"
         </mods:titleInfo>
@@ -252,7 +255,8 @@ def test_get_alternate_titles_multiple_titles_success():
         <mods:titleInfo>
          <mods:title>Title 3</mods:title>
         </mods:titleInfo>
-        """)
+        """
+    )
     assert DspaceMets.get_alternate_titles(source_record) == [
         timdex.AlternateTitle(value="Title 2"),
         timdex.AlternateTitle(value="Title 3"),
@@ -303,7 +307,8 @@ def test_get_content_type_transforms_correctly_if_fields_missing():
 
 
 def test_get_contribtuors_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:name>
          <mods:role>
           <mods:roleTerm type="text">advisor</mods:roleTerm>
@@ -325,7 +330,8 @@ def test_get_contribtuors_success():
         <mods:name>
          <mods:namePart>Smith, Susie Q.</mods:namePart>
         </mods:name>
-        """)
+        """
+    )
     assert DspaceMets.get_contributors(source_record) == [
         timdex.Contributor(
             value="Checkelsky, Joseph",
@@ -359,11 +365,13 @@ def test_get_contributors_transforms_correctly_if_fields_missing():
 
 
 def test_get_dates_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:originInfo>
          <mods:dateIssued encoding="iso8601">2021-09</mods:dateIssued>
         </mods:originInfo>
-        """)
+        """
+    )
     assert DspaceMets.get_dates(source_record) == [
         timdex.Date(kind="Publication date", value="2021-09")
     ]
@@ -382,7 +390,8 @@ def test_get_dates_transforms_correctly_if_fields_missing():
 
 
 def test_get_file_formats_success():
-    source_record = create_dspace_mets_source_record_stub(filesec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        filesec_insert="""
         <fileGrp USE="ORIGINAL">
          <file ID="BITSTREAM_ORIGINAL_1721.1_142832_1"
         MIMETYPE="application/pdf">
@@ -396,7 +405,8 @@ def test_get_file_formats_success():
           xlink:href="https://dspace.mit.edu/bitstream/1721.1/142832/2/1.pdf.txt"/>
          </file>
         </fileGrp>
-        """)
+        """
+    )
     assert DspaceMets.get_file_formats(source_record) == ["application/pdf"]
 
 
@@ -417,9 +427,11 @@ def test_get_format_success():
 
 
 def test_get_identifiers_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:identifier type="uri">https://hdl.handle.net/1721.1/142832</mods:identifier>
-        """)
+        """
+    )
     assert DspaceMets.get_identifiers(source_record) == [
         timdex.Identifier(value="https://hdl.handle.net/1721.1/142832", kind="uri"),
     ]
@@ -438,11 +450,13 @@ def test_get_identifers_transforms_correctly_if_fields_missing():
 
 
 def test_get_languages_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:language>
          <mods:languageTerm authority="rfc3066">en_US</mods:languageTerm>
         </mods:language>
-        """)
+        """
+    )
     assert DspaceMets.get_languages(source_record) == ["en_US"]
 
 
@@ -459,9 +473,11 @@ def test_get_languages_transforms_correctly_if_fields_missing():
 
 
 def test_get_links_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:identifier type="uri">https://hdl.handle.net/1721.1/142832</mods:identifier>
-        """)
+        """
+    )
     assert DspaceMets.get_links(source_record) == [
         timdex.Link(
             url="https://hdl.handle.net/1721.1/142832",
@@ -504,11 +520,13 @@ def test_get_numbering_transforms_correctly_if_fields_missing():
 
 
 def test_get_publishers_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:originInfo>
          <mods:publisher>Massachusetts Institute of Technology</mods:publisher>
         </mods:originInfo>
-        """)
+        """
+    )
     assert DspaceMets.get_publishers(source_record) == [
         timdex.Publisher(name="Massachusetts Institute of Technology"),
     ]
@@ -527,9 +545,11 @@ def test_get_publishers_transforms_correctly_if_fields_missing():
 
 
 def test_get_related_items_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:relatedItem type="host">Nature Communications</mods:relatedItem>
-        """)
+        """
+    )
     assert DspaceMets.get_related_items(source_record) == [
         timdex.RelatedItem(description="Nature Communications", relationship="host"),
     ]
@@ -574,11 +594,13 @@ def test_get_rights_transforms_correctly_if_fields_missing():
 
 
 def test_get_subjects_items_success():
-    source_record = create_dspace_mets_source_record_stub(dmdsec_insert="""
+    source_record = create_dspace_mets_source_record_stub(
+        dmdsec_insert="""
         <mods:subject>
          <mods:topic>Metallurgy and Materials Science</mods:topic>
         </mods:subject>
-        """)
+        """
+    )
     assert DspaceMets.get_subjects(source_record) == [
         timdex.Subject(
             value=["Metallurgy and Materials Science"],
