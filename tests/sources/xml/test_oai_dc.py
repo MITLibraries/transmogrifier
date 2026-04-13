@@ -122,9 +122,13 @@ def test_get_content_type_raises_key_error_if_source_missing():
 
 
 def test_get_contributors_success():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:creator>Ye Li</dc:creator>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_contributors(source_record) == [
         timdex.Contributor(
             value="Ye Li",
@@ -134,9 +138,13 @@ def test_get_contributors_success():
 
 
 def test_get_contributors_transforms_correctly_if_fields_blank():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:creator></dc:creator>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_contributors(source_record) is None
 
 
@@ -147,12 +155,16 @@ def test_get_contributors_transforms_correctly_if_fields_missing():
 
 def test_get_dates_success():
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:date>2008-06-19T17:55:27</dc:date>
-            """),
+            """
+        ),
     )
     assert OaiDc.get_dates(source_record) == [
         timdex.Date(kind="Unknown", value="2008-06-19T17:55:27")
@@ -161,48 +173,68 @@ def test_get_dates_success():
 
 def test_get_dates_transforms_correctly_if_fields_blank():
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:date></dc:date>
-            """),
+            """
+        ),
     )
     assert OaiDc.get_dates(source_record) is None
 
 
 def test_get_dates_transforms_correctly_if_fields_missing():
-    source_record = create_oaidc_source_record_stub(header_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_dates(source_record) is None
 
 
 def test_get_dates_transforms_correctly_if_date_invalid():
     source_record = create_oaidc_source_record_stub(
-        header_insert=("""
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """),
-        metadata_insert=("""
+            """
+        ),
+        metadata_insert=(
+            """
             <dc:date>INVALID</dc:date>
-            """),
+            """
+        ),
     )
     assert OaiDc.get_dates(source_record) is None
 
 
 def test_get_identifiers_success():
-    source_record = create_oaidc_source_record_stub(header_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_identifiers(source_record) == [
         timdex.Identifier(value="oai:libguides.com:guides/175846", kind="OAI-PMH")
     ]
 
 
 def test_get_identifiers_transforms_correctly_if_fields_blank():
-    source_record = create_oaidc_source_record_stub(header_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
             <identifier></identifier>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_identifiers(source_record) is None
 
 
@@ -212,16 +244,24 @@ def test_get_identifiers_transforms_correctly_if_fields_missing():
 
 
 def test_get_publishers_success():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:publisher>MIT Libraries</dc:publisher>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_publishers(source_record) == [timdex.Publisher(name="MIT Libraries")]
 
 
 def test_get_publishers_transforms_correctly_if_fields_blank():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:publisher></dc:publisher>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_publishers(source_record) is None
 
 
@@ -231,10 +271,14 @@ def test_get_publishers_transforms_correctly_if_fields_missing():
 
 
 def test_get_subjects_success():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:subject>Engineering</dc:subject>
             <dc:subject>Science</dc:subject>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_subjects(source_record) == [
         timdex.Subject(
             value=["Engineering", "Science"], kind="Subject scheme not provided"
@@ -243,9 +287,13 @@ def test_get_subjects_success():
 
 
 def test_get_subjects_transforms_correctly_if_fields_blank():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:subject></dc:subject>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_subjects(source_record) is None
 
 
@@ -268,9 +316,13 @@ def test_get_summary_success():
 
 
 def test_get_summary_transforms_properly_if_fields_blank():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:description></dc:description>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_summary(source_record) is None
 
 
@@ -280,16 +332,24 @@ def test_get_summary_transforms_properly_if_fields_missing():
 
 
 def test_get_main_titles_success():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:title>Materials Science &amp; Engineering</dc:title>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_main_titles(source_record) == ["Materials Science & Engineering"]
 
 
 def test_get_main_titles_transforms_properly_if_fields_blank():
-    source_record = create_oaidc_source_record_stub(metadata_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        metadata_insert=(
+            """
             <dc:title></dc:title>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_main_titles(source_record) == []
 
 
@@ -299,16 +359,24 @@ def test_get_main_titles_transforms_properly_if_fields_missing():
 
 
 def test_get_source_record_id_success():
-    source_record = create_oaidc_source_record_stub(header_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
             <identifier>oai:libguides.com:guides/175846</identifier>
-            """))
+            """
+        )
+    )
     assert OaiDc.get_source_record_id(source_record) == "guides/175846"
 
 
 def test_get_source_record_id_raises_skipped_record_event_if_fields_blank():
-    source_record = create_oaidc_source_record_stub(header_insert=("""
+    source_record = create_oaidc_source_record_stub(
+        header_insert=(
+            """
             <identifier></identifier>
-            """))
+            """
+        )
+    )
     with pytest.raises(
         SkippedRecordEvent,
         match=(

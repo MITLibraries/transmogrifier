@@ -216,8 +216,7 @@ class Marc(XMLTransformer):
         if control_field := source_record.find("controlfield", tag="008", string=True):
             return str(control_field.string)
         message = (
-            "Record skipped because key information is missing: "
-            '<controlfield tag="008">.'
+            'Record skipped because key information is missing: <controlfield tag="008">.'
         )
         raise SkippedRecordEvent(message)
 

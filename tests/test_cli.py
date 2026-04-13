@@ -197,14 +197,14 @@ def test_transform_run_timestamp_argument_not_passed_and_timestamp_minted(
 
 
 def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_path):
-    """This test requires running the CLI as a subprocess to simulate the 'pipenv run ...'
-    context.  In this context, we have observed memory faults when BeautifulSoup4 is used
+    """This test requires running the CLI as a subprocess to simulate the 'uv run ...'
+    context. In this context, we have observed memory faults when BeautifulSoup4 is used
     by a source, and the number of records in the run requires multiple batches during
-    parquet dataset writing.  The exit code associated with this memory fault is -6.
+    parquet dataset writing. The exit code associated with this memory fault is -6.
     """
     result = subprocess.run(  # noqa: S603
         [  # noqa: S607
-            "pipenv",
+            "uv",
             "run",
             "transform",
             "-s",

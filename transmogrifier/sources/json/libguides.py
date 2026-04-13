@@ -385,7 +385,6 @@ class LibGuides(JSONTransformer):
         # add any non-URL DC identifiers (those are saved in 'links' field)
         dc_meta = self.extract_dublin_core_metadata(source_record["html_base64"])
         for identifier in dc_meta.get("Identifier", []):
-
             if identifier.lower().startswith("http"):
                 continue
 
