@@ -10,7 +10,7 @@ import os
 import re
 import uuid
 from abc import ABC, abstractmethod
-from datetime import date, datetime
+from datetime import UTC, datetime
 from importlib import import_module
 from typing import TYPE_CHECKING, final
 
@@ -313,13 +313,12 @@ class Transformer(ABC):
         logger.info(message)
         run_data["run_id"] = run_id
 
-        # if run_timestamp is not provided, mint one from run_date
+        # if run_timestamp is not provided, mint one from the current UTC time
         if not run_timestamp:
-            logger.info("explicit run_id not passed, minting new UUID")
-            run_timestamp = datetime.combine(
-                date.fromisoformat(run_data["run_date"]),
-                datetime.min.time(),
-            ).isoformat()
+            logger.info(
+                "explicit run_timestamp not passed, minting current UTC timestamp"
+            )
+            run_timestamp = datetime.now(UTC).isoformat()
         message = f"run_timestamp set: '{run_timestamp}'"
         logger.info(message)
         run_data["run_timestamp"] = run_timestamp
