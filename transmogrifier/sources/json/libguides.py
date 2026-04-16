@@ -407,11 +407,15 @@ class LibGuides(JSONTransformer):
     def get_fulltext(self, source_record: dict) -> str | None:
         """Extract meaningful full-text from full Libguide HTML.
 
-        Note: this does not currently capture sidebar content, where things like the guide
+        This does not currently capture sidebar content, where things like the guide
         creator or staff profile is populated.  This is a consideration for future work.
+
+        This method also extracts text from "keywords" metadata tags (repeatable) and
+        adds to the fulltext saved for the record.
         """
         html_soup = self.parse_html(source_record["html_base64"])
 
+        # capture fulltext from guide content
         texts = set()
         selectors = [
             ("div", {"class": "s-lib-header"}),
@@ -421,6 +425,19 @@ class LibGuides(JSONTransformer):
         for element, attrs in selectors:
             if target := html_soup.find(element, attrs=attrs):
                 texts.add(target.get_text(separator=" ", strip=True))
+
+        # capture fulltext from any "keywords" metadata elements
+        for meta in html_soup.find_all("meta"):
+            name = meta.get("name")
+
+            if not name or name.strip().lower() != "keywords":
+                continue
+
+            content = meta.get("content")
+            if not content or not content.strip():
+                continue
+
+            texts.add(content)
 
         return "\n".join(texts)
 

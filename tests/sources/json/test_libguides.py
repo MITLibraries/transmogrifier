@@ -261,6 +261,28 @@ def test_libguides_record_get_fulltext_success(libguides_transformer):
     assert "You should not find me either." not in fulltext
 
 
+def test_libguides_record_get_fulltext_includes_keywords_metadata(
+    libguides_transformer,
+):
+    html_content = """
+    <html>
+        <head>
+            <meta name="keywords" content="alpha, beta"/>
+            <meta name="keywords" content="   "/>
+        </head>
+        <body>
+            <div class="s-lib-main"><p>Content</p></div>
+        </body>
+    </html>
+    """
+    source_record = create_libguides_source_record_stub()
+    source_record["html_base64"] = base64.b64encode(html_content.encode()).decode()
+
+    fulltext = libguides_transformer.get_fulltext(source_record)
+
+    assert set(fulltext.splitlines()) == {"Content", "alpha, beta"}
+
+
 def test_libguides_record_get_summary_success(libguides_transformer):
     source_record = create_libguides_source_record_stub()
     summary = libguides_transformer.get_summary(source_record)
