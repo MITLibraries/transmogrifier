@@ -1,3 +1,5 @@
+from unittest import mock
+
 import boto3
 import pytest
 from click.testing import CliRunner
@@ -295,11 +297,14 @@ def empty_source_input_file():
 
 @pytest.fixture
 def source_transformer(monkeypatch, run_id, source_input_file):
-    return Transformer.load(
-        "cool-repo",
-        source_input_file,
-        run_id=run_id,
-    )
+    mocked_datetime = mock.MagicMock()
+    mocked_datetime.now.return_value.isoformat.return_value = "2024-06-03T12:34:56+00:00"
+    with mock.patch("transmogrifier.sources.transformer.datetime", mocked_datetime):
+        return Transformer.load(
+            "cool-repo",
+            source_input_file,
+            run_id=run_id,
+        )
 
 
 @pytest.fixture

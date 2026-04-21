@@ -141,13 +141,16 @@ def test_create_locations_from_spatial_subjects_success(timdex_record_required_f
 def test_transformer_get_run_data_from_source_file_and_run_id(
     source_transformer, source_input_file, run_id
 ):
-    assert source_transformer.get_run_data(source_input_file, run_id) == {
-        "source": "libguides",
-        "run_date": "2024-06-03",
-        "run_type": "full",
-        "run_id": run_id,
-        "run_timestamp": "2024-06-03T00:00:00",
-    }
+    mocked_datetime = mock.MagicMock()
+    mocked_datetime.now.return_value.isoformat.return_value = "2024-06-03T12:34:56+00:00"
+    with mock.patch("transmogrifier.sources.transformer.datetime", mocked_datetime):
+        assert source_transformer.get_run_data(source_input_file, run_id) == {
+            "source": "libguides",
+            "run_date": "2024-06-03",
+            "run_type": "full",
+            "run_id": run_id,
+            "run_timestamp": "2024-06-03T12:34:56+00:00",
+        }
 
 
 def test_transformer_get_run_data_with_explicit_run_timestamp(
@@ -167,11 +170,14 @@ def test_transformer_get_run_data_with_explicit_run_timestamp(
     }
 
 
-def test_transformer_get_run_data_mints_timestamp_from_run_date(
+def test_transformer_get_run_data_mints_current_utc_timestamp(
     source_transformer, source_input_file, run_id
 ):
-    result = source_transformer.get_run_data(source_input_file, run_id)
-    assert result["run_timestamp"] == "2024-06-03T00:00:00"
+    mocked_datetime = mock.MagicMock()
+    mocked_datetime.now.return_value.isoformat.return_value = "2024-06-03T12:34:56+00:00"
+    with mock.patch("transmogrifier.sources.transformer.datetime", mocked_datetime):
+        result = source_transformer.get_run_data(source_input_file, run_id)
+    assert result["run_timestamp"] == "2024-06-03T12:34:56+00:00"
 
 
 def test_transformer_get_run_data_no_source_file_raise_error(
@@ -295,7 +301,7 @@ def test_transformer_load_without_run_timestamp_parameter(
         "run_date": "2024-06-03",
         "run_type": "full",
         "run_id": run_id,
-        "run_timestamp": "2024-06-03T00:00:00",
+        "run_timestamp": "2024-06-03T12:34:56+00:00",
     }
 
 
