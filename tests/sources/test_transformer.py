@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 from lxml import etree
-from timdex_dataset_api.record import DatasetRecord
+from timdex_dataset_api import DatasetRecord
 
 import transmogrifier.models as timdex
 from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent

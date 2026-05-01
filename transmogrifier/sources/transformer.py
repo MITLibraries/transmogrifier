@@ -383,7 +383,7 @@ class Transformer(ABC):
     def write_to_parquet_dataset(self, dataset_location: str) -> list:
         """Write output to TIMDEX dataset."""
         timdex_dataset = TIMDEXDataset(location=dataset_location)
-        return timdex_dataset.write(records_iter=self)
+        return timdex_dataset.records.write(rows_iter=self)
 
     @final
     def get_valid_title(self, source_record: dict[str, JSON] | Tag) -> str:
