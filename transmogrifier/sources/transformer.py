@@ -111,8 +111,10 @@ class Transformer(ABC):
             terminate the run.
         """
         try:
-            with smart_open.open(self.exclusion_list_path, "r") as exclusion_list:
-                rows = exclusion_list.readlines()
+            with smart_open.open(
+                str(self.exclusion_list_path), "r"
+            ) as exclusion_list_file:
+                rows = exclusion_list_file.readlines()
             exclusion_list = [row.strip() for row in rows if row.strip()]
         except Exception as exc:
             raise CriticalError(f"Could not load exclusion list: {exc}") from exc
@@ -368,7 +370,6 @@ class Transformer(ABC):
             setattr(timdex_record, field_name, field_method(source_record))
 
         self.generate_derived_fields(timdex_record)
-
         return timdex_record
 
     def record_is_excluded(self, _source_record: dict[str, JSON] | Tag) -> bool:

@@ -89,6 +89,11 @@ SOURCES = {
         "base-url": "https://archivesspace.mit.edu/",
         "transform-class": "transmogrifier.sources.xml.ead.Ead",
     },
+    "digitalcollections": {
+        "name": "Digital Collections",
+        "base-url": "https://dome.mit.edu/handle/",
+        "transform-class": "transmogrifier.sources.xml.digital_collections.DigitalCollections",  # noqa: E501
+    },
     "dspace": {
         "name": "DSpace@MIT",
         "base-url": "https://dspace.mit.edu/handle/",
