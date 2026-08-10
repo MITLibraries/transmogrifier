@@ -1,7 +1,12 @@
 import logging
+import re
 from datetime import UTC, datetime
 
+import pandas as pd
+import requests
+
 import transmogrifier.models as timdex
+from transmogrifier import config
 from transmogrifier.config import DATE_FORMATS
 
 logger = logging.getLogger(__name__)
@@ -131,3 +136,90 @@ def validate_date_range(
         end_date,
     )
     return False
+
+
+class LibGuidesAPIClient:
+    """Client for LibGuides API communication and data retrieval.
+
+    This class retrieves metadata about all LibGuides via an API, retrieving data that is
+    not found in the OAI-PMH XML records or the websites themselves.  This valuable data
+    is used during transformation to identify records for exclusion, occasionally
+    provide friendlier URLs, and other data augmentation.
+
+    This class is instantiated as a singleton object in this module.  Once instantiated,
+    it is attached to the Libguides transformer instance.  This allows class methods
+    on the transformer to access cached data from this singleton object, ultimately
+    resulting in only a single API call per multiple record transformation run.
+
+    This class relies on two environment variables:
+        - LIBGUIDES_CLIENT_ID
+        - LIBGUIDES_API_TOKEN
+    """
+
+    def __init__(self) -> None:
+        if not config.LIBGUIDES_CLIENT_ID:
+            raise RuntimeError("Required env var 'LIBGUIDES_CLIENT_ID' is not set")
+        if not config.LIBGUIDES_API_TOKEN:
+            raise RuntimeError("Required env var 'LIBGUIDES_API_TOKEN' is not set")
+
+        self.client_id = str(config.LIBGUIDES_CLIENT_ID)
+        self.client_secret = config.LIBGUIDES_API_TOKEN
+        self._api_guides_df: pd.DataFrame | None = None
+
+    @property
+    def api_guides_df(self) -> pd.DataFrame:
+        if self._api_guides_df is None:
+            self._api_guides_df = self.fetch_guides(self.get_api_token())
+        return self._api_guides_df
+
+    def get_api_token(self) -> str:
+        data = {
+            "grant_type": "client_credentials",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
+        }
+        response = requests.post(
+            config.LIBGUIDES_TOKEN_URL, headers={}, data=data, timeout=60
+        )
+        response.raise_for_status()
+        payload = response.json()
+        return payload.get("access_token")
+
+    def fetch_guides(self, token: str) -> pd.DataFrame:
+        """Retrieve metadata for all LibGuides.
+
+        Each guide may contain a 'pages' key with a list of sub-page dicts.  These
+        sub-pages are expanded into their own rows in the returned DataFrame, inheriting
+        any columns from the parent guide that the sub-page does not have.
+        """
+        logger.debug("Retrieving all guides from Libguides API.")
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.get(config.LIBGUIDES_GUIDES_URL, headers=headers, timeout=60)
+        response.raise_for_status()
+        guides = response.json()
+
+        all_rows: list[dict] = []
+        for guide in guides:
+            pages = guide.get("pages", [])
+            all_rows.append(guide)
+            for page in pages:
+                # inherit parent columns, then overlay page-specific columns
+                page_row = {**guide, **page}
+                all_rows.append(page_row)
+
+        return pd.DataFrame(all_rows)
+
+    def get_guide_by_url(self, url: str) -> pd.Series:
+        """Get metadata for a single guide via a URL."""
+        # strip GET parameter preview=...; duplicate for base URL
+        url = re.sub(r"([&?])preview=.*", "", url)
+        url = url.removesuffix("/")
+
+        matches = self.api_guides_df[
+            (self.api_guides_df.url.str.lower() == url.lower())
+            | (self.api_guides_df.friendly_url.str.lower() == url.lower())
+        ]
+        if len(matches) == 1:
+            return matches.iloc[0]
+
+        raise ValueError(f"Found {len(matches)} guide ids for URL: {url}, expecting one.")
