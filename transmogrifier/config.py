@@ -127,7 +127,7 @@ SOURCES = {
     "researchdatabases": {
         "name": "Research Databases",
         "base-url": "https://libguides.mit.edu/",
-        "transform-class": "transmogrifier.sources.xml.springshare.SpringshareOaiDc",
+        "transform-class": "transmogrifier.sources.xml.researchdatabases.ResearchDatabases",  # noqa: E501
     },
     "whoas": {
         "name": "Woods Hole Open Access Server",
@@ -149,6 +149,7 @@ LIBGUIDES_GUIDES_URL = os.getenv(
 )
 LIBGUIDES_API_TOKEN = os.getenv("LIBGUIDES_API_TOKEN")
 LIBGUIDES_CLIENT_ID = os.getenv("LIBGUIDES_CLIENT_ID")
+LAST_AZ_IDENTIFIERS_PATH = os.getenv("LAST_AZ_IDENTIFIERS_PATH")
 
 
 def configure_logger(
