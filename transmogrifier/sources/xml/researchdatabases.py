@@ -16,7 +16,11 @@ logger = logging.getLogger(__name__)
 class ResearchDatabases(SpringshareOaiDc):
     @classmethod
     def parse_source_file(cls, source_file: str) -> Iterator[Tag]:
-        """Yield records from harvested OAI + API gathered records for possible delete."""
+        """Yield records from harvested OAI + API gathered records for possible delete.
+
+        Synthetic delete records are only yielded if the env var
+        'LAST_AZ_IDENTIFIERS_PATH' is set.
+        """
         yield from cls._yield_oai_xml_records_for_indexing(source_file)
         yield from cls._yield_api_records_for_deleting()
 
@@ -48,12 +52,18 @@ class ResearchDatabases(SpringshareOaiDc):
         a list of public/non-hidden AZ items, and comparing to a managed list of last
         known public/non-hidden AZ items.  Any items that are no longer public should
         be removed from TIMDEX, which these synthetic OAI XML records archive.
+
+        Determining deletes is opt-in via the env var 'LAST_AZ_IDENTIFIERS_PATH'.  If
+        unset, no synthetic delete records are yielded and the Springshare API is not
+        queried.  If set but the file does not yet exist, the file will be created for
+        future use.
         """
         if LAST_AZ_IDENTIFIERS_PATH is None:
-            raise RuntimeError(
-                "Env var 'LAST_AZ_IDENTIFIERS_PATH' must be set "
-                "for the 'researchdatabases' transformation'"
+            logger.warning(
+                "Env var 'LAST_AZ_IDENTIFIERS_PATH' is not set, synthetic delete "
+                "records will not be determined and yielded."
             )
+            return
 
         client = LibGuidesAPIClient()
 
@@ -61,8 +71,15 @@ class ResearchDatabases(SpringshareOaiDc):
         az_current_identifiers = client.get_current_az_identifiers()
 
         # retrieve previous AZ identifiers from file
-        with smart_open.open(LAST_AZ_IDENTIFIERS_PATH) as f:
-            az_previous_identifiers = f.read().splitlines()
+        try:
+            with smart_open.open(LAST_AZ_IDENTIFIERS_PATH) as f:
+                az_previous_identifiers = f.read().splitlines()
+        except OSError:
+            logger.warning(
+                "Env var 'LAST_AZ_IDENTIFIERS_PATH' is set, but file does not exist, "
+                "this run will create it."
+            )
+            az_previous_identifiers = []
 
         # isolate identifiers from previous list not in current list
         deleted_identifiers = set(az_previous_identifiers).difference(

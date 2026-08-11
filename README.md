@@ -59,7 +59,26 @@ WORKSPACE=### Set to `dev` for local development, this will be set to `stage` an
 WARNING_ONLY_LOGGERS=### Comma-seperated list of logger names to set as WARNING only, e.g. 'botocore,charset_normalizer,smart_open'
 LIBGUIDES_API_TOKEN=### Libguides API token [required for libguides source]
 LIBGUIDES_CLIENT_ID=### Libguides account id [required for libguides source] 
+LAST_AZ_IDENTIFIERS_PATH=### S3 or local filepath of the last known public AZ item identifiers [enables synthetic delete records for researchdatabases source]
 ```
+
+#### `LAST_AZ_IDENTIFIERS_PATH`
+
+The Springshare OAI-PMH endpoint does not emit deletes for AZ (research database) items
+that have been unpublished or hidden.  When `LAST_AZ_IDENTIFIERS_PATH` is set, the
+`researchdatabases` transformation queries the LibGuides API for the current set of
+public AZ items, compares it to the identifiers stored at this path, and yields synthetic
+delete records for any identifiers that have dropped out.  The file is then rewritten with
+the current identifiers for the next run.
+
+Notes:
+
+- If the env var is not set, no deletes are determined and the LibGuides API is not
+queried.  This makes the behavior opt-in and backwards compatible with runs that predate
+it.
+- If the env var is set but the file does not yet exist, that run cannot determine any
+deletes, but it will create the file so that subsequent runs can.
+- This also requires `LIBGUIDES_API_TOKEN` and `LIBGUIDES_CLIENT_ID` to be set.
 
 ## CLI commands
 
