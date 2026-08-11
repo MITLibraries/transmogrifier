@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+    <responseDate>2026-08-11T09:30:27Z</responseDate>
+    <request verb="ListRecords" metadataPrefix="oai_dc" set="az">
+        https://libguides.mit.edu/oai.php
+    </request>
+    <ListRecords>
+        <record>
+            <header>
+                <identifier>oai:libguides.com:az/65257807</identifier>
+                <datestamp>2025-12-01T14:59:03Z</datestamp>
+                <setSpec>az</setSpec>
+            </header>
+            <metadata>
+                <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                           xmlns:dc="http://purl.org/dc/elements/1.1/"
+                           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+                    <dc:title>
+                        <![CDATA[Linguistics and Language Behavior Abstracts (LLBA)]]></dc:title>
+                    <dc:subject><![CDATA[Humanities]]></dc:subject>
+                    <dc:type><![CDATA[Articles]]></dc:type>
+                    <dc:type><![CDATA[Dissertations & theses]]></dc:type>
+                    <dc:type><![CDATA[eBooks]]></dc:type>
+                    <dc:description>
+                        <![CDATA[<p>The most comprehensive index to articles in Linguistics and Language Development and use.</p>]]></dc:description>
+                    <dc:date>2022-01-28 22:15:37</dc:date>
+                    <dc:identifier>https://libguides.mit.edu/llba</dc:identifier>
+                </oai_dc:dc>
+            </metadata>
+        </record>
+        <record>
+            <header>
+                <identifier>oai:libguides.com:az/65257808</identifier>
+                <datestamp>2025-12-01T14:59:03Z</datestamp>
+                <setSpec>az</setSpec>
+            </header>
+            <metadata>
+                <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                           xmlns:dc="http://purl.org/dc/elements/1.1/"
+                           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+                    <dc:title><![CDATA[ADS (NASA Astrophysics Data System)]]></dc:title>
+                    <dc:subject><![CDATA[Engineering]]></dc:subject>
+                    <dc:subject><![CDATA[Science]]></dc:subject>
+                    <dc:type><![CDATA[Articles]]></dc:type>
+                    <dc:type><![CDATA[Data & statistics]]></dc:type>
+                    <dc:description>
+                        <![CDATA[<p>Indexes major astronomy and astrophysics journals; includes abstracts for most entries and full text scans of tens of thousands of articles.</p>]]></dc:description>
+                    <dc:date>2022-01-28 22:15:37</dc:date>
+                    <dc:identifier>https://libguides.mit.edu/ads</dc:identifier>
+                </oai_dc:dc>
+            </metadata>
+        </record>
+        <record>
+            <header>
+                <identifier>oai:libguides.com:az/65257809</identifier>
+                <datestamp>2025-12-01T14:59:03Z</datestamp>
+                <setSpec>az</setSpec>
+            </header>
+            <metadata>
+                <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+                           xmlns:dc="http://purl.org/dc/elements/1.1/"
+                           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+                    <dc:title><![CDATA[Ethnic NewsWatch]]></dc:title>
+                    <dc:subject><![CDATA[Social sciences]]></dc:subject>
+                    <dc:type><![CDATA[Newspapers & magazine articles]]></dc:type>
+                    <dc:type><![CDATA[Primary sources]]></dc:type>
+                    <dc:description>
+                        <![CDATA[<p><strong>Coverage:</strong> 1990 - present<br>A full-text collection of newspapers, journals and magazines published by ethnic and minority presses.</p>]]></dc:description>
+                    <dc:date>2022-01-28 22:15:37</dc:date>
+                    <dc:identifier>https://libguides.mit.edu/ethnic</dc:identifier>
+                </oai_dc:dc>
+            </metadata>
+        </record>
+    </ListRecords>
+</OAI-PMH>
