@@ -70,11 +70,11 @@ class SpringshareOaiDc(OaiDc):
                     url=str(identifier.string),
                 )
             )
-
-        logger.debug(
-            "Record ID %s has links that cannot be generated: missing dc:identifier",
-            source_record_id,
-        )
+        else:
+            logger.debug(
+                "Record ID %s has links that cannot be generated: missing dc:identifier",
+                source_record_id,
+            )
         return links or None
 
     def get_source_link(

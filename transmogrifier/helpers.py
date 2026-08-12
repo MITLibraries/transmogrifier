@@ -223,3 +223,24 @@ class LibGuidesAPIClient:
             return matches.iloc[0]
 
         raise ValueError(f"Found {len(matches)} guide ids for URL: {url}, expecting one.")
+
+    def fetch_az(self, token: str) -> pd.DataFrame:
+        """Retrieve AZ items from API."""
+        headers = {"Authorization": f"Bearer {token}"}
+        response = requests.get(
+            "https://lgapi-us.libapps.com/1.2/az?expand=pages",
+            headers=headers,
+            timeout=60,
+        )
+        response.raise_for_status()
+        return pd.DataFrame(response.json())
+
+    def get_current_az_identifiers(self) -> list[str]:
+        """Get list of identifiers for non-hidden / public AZ items.
+
+        When filtering to enable_hidden = 0, the count matches the OAI-PMH full harvest
+        for AZ items.
+        """
+        az_df = self.fetch_az(self.get_api_token())
+        non_hidden_az_df = az_df[az_df.enable_hidden == "0"]
+        return list(non_hidden_az_df.id)

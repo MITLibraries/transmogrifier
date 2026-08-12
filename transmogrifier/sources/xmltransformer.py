@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import threading
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING
 
 import smart_open  # type: ignore[import-untyped]
 from bs4 import BeautifulSoup, Tag  # type: ignore[import-untyped]
@@ -16,13 +16,10 @@ if TYPE_CHECKING:
 class XMLTransformer(Transformer):
     """XML transformer class."""
 
-    @final
     @classmethod
     def parse_source_file(cls, source_file: str) -> Iterator[Tag]:
         """
         Parse XML file and return source records as bs4 Tags via an iterator.
-
-        May not be overridden.
 
         Args:
             source_file: A file containing source records to be transformed.
