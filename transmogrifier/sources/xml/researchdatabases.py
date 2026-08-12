@@ -1,5 +1,4 @@
 import logging
-import os
 from collections.abc import Iterator
 from datetime import UTC, datetime
 
@@ -115,7 +114,7 @@ class ResearchDatabases(SpringshareOaiDc):
         Any identifier present in the dataset, not present in Springshare OAI/API, should
         be deleted.
         """
-        timdex_dataset = TIMDEXDataset(os.environ["TIMDEX_DATASET_LOCATION"])
+        timdex_dataset = TIMDEXDataset(config.TIMDEX_DATASET_LOCATION)
         return list(
             timdex_dataset.conn.query(
                 """
