@@ -401,7 +401,7 @@ def test_libguides_api_client_fetch_guides_expands_sub_pages_into_rows():
     mock_response.json.return_value = mock_api_response
 
     with patch(
-        "transmogrifier.sources.json.libguides.requests.get",
+        "transmogrifier.helpers.requests.get",
         return_value=mock_response,
     ):
         df = client.fetch_guides("fake-token")

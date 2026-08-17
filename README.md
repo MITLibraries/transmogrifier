@@ -59,6 +59,7 @@ WORKSPACE=### Set to `dev` for local development, this will be set to `stage` an
 WARNING_ONLY_LOGGERS=### Comma-seperated list of logger names to set as WARNING only, e.g. 'botocore,charset_normalizer,smart_open'
 LIBGUIDES_API_TOKEN=### Libguides API token [required for libguides source]
 LIBGUIDES_CLIENT_ID=### Libguides account id [required for libguides source] 
+TIMDEX_DATASET_LOCATION=### Location of the TIMDEX dataset 
 ```
 
 ## CLI commands
