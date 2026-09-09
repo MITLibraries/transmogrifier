@@ -5,8 +5,11 @@ from unittest.mock import patch
 import pytest
 from bs4 import Tag
 
+from transmogrifier.exceptions import CriticalError
 from transmogrifier.helpers import LibGuidesAPIClient
-from transmogrifier.sources.xml.researchdatabases import ResearchDatabases
+from transmogrifier.sources.xml.researchdatabases import (
+    ResearchDatabases,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -135,6 +138,60 @@ def test_researchdatabases_env_vars_not_set_skips_deletes(
         "Skipping deleting record detection, not all required env vars are set."
         in caplog.text
     )
+
+
+def test_researchdatabases_deletion_ratio_under_threshold_passes(
+    researchdatabases_transformer,
+    mocked_timdex_dataset_az_identifiers,
+    mocked_current_az_identifiers,
+):
+    """A deletion ratio under DELETION_COUNT_THRESHOLD yields delete records."""
+    deleted_records = list(
+        researchdatabases_transformer._yield_api_records_for_deleting()
+    )
+    assert len(deleted_records) == 1
+    assert isinstance(deleted_records[0], Tag)
+
+
+def test_researchdatabases_deletion_ratio_over_threshold_raises(
+    researchdatabases_transformer,
+    mocked_current_az_identifiers,
+):
+    """A deletion ratio exceeding DELETION_COUNT_THRESHOLD raises CriticalError."""
+    # all dataset records marked for delete -> 100% ratio
+    with (
+        patch.object(
+            ResearchDatabases,
+            "_get_current_dataset_az_identifiers",
+            return_value=["1234", "7777", "8888", "9999"],
+        ),
+        patch.object(
+            LibGuidesAPIClient,
+            "get_current_az_identifiers",
+            return_value=[],
+        ),
+        pytest.raises(CriticalError) as excinfo,
+    ):
+        list(researchdatabases_transformer._yield_api_records_for_deleting())
+
+    assert "exceeds the deletion percentage threshold" in str(excinfo.value)
+
+
+def test_researchdatabases_empty_dataset_identifiers_passes(
+    researchdatabases_transformer,
+    mocked_current_az_identifiers,
+):
+    """An empty dataset identifier list skips the threshold check entirely."""
+    with patch.object(
+        ResearchDatabases,
+        "_get_current_dataset_az_identifiers",
+        return_value=[],
+    ):
+        deleted_records = list(
+            researchdatabases_transformer._yield_api_records_for_deleting()
+        )
+
+    assert deleted_records == []
 
 
 def test_research_databases_custom_parse_source_file_yields_oai_and_synthetic_records(
