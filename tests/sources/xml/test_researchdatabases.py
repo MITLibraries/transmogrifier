@@ -145,7 +145,7 @@ def test_researchdatabases_deletion_ratio_under_threshold_passes(
     mocked_timdex_dataset_az_identifiers,
     mocked_current_az_identifiers,
 ):
-    """A deletion ratio under DELETION_COUNT_THRESHOLD yields delete records."""
+    """A deletion ratio under DELETION_PERCENT_THRESHOLD yields delete records."""
     deleted_records = list(
         researchdatabases_transformer._yield_api_records_for_deleting()
     )
@@ -157,7 +157,7 @@ def test_researchdatabases_deletion_ratio_over_threshold_raises(
     researchdatabases_transformer,
     mocked_current_az_identifiers,
 ):
-    """A deletion ratio exceeding DELETION_COUNT_THRESHOLD raises CriticalError."""
+    """A deletion ratio exceeding DELETION_PERCENT_THRESHOLD raises CriticalError."""
     # all dataset records marked for delete -> 100% ratio
     with (
         patch.object(

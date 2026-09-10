@@ -15,7 +15,7 @@ from transmogrifier.sources.xml.springshare import SpringshareOaiDc
 logger = logging.getLogger(__name__)
 
 # percentage of total records that if marked for deletion, indicate a problem
-DELETION_COUNT_THRESHOLD = 0.8
+DELETION_PERCENT_THRESHOLD = 0.8
 
 
 class ResearchDatabases(SpringshareOaiDc):
@@ -90,11 +90,11 @@ class ResearchDatabases(SpringshareOaiDc):
         # raise an exception if the records marked for delete exceed a threshold
         if dataset_az_identifiers:
             deletion_ratio = len(deleted_identifiers) / len(dataset_az_identifiers)
-            if deletion_ratio > DELETION_COUNT_THRESHOLD:
+            if deletion_ratio > DELETION_PERCENT_THRESHOLD:
                 raise CriticalError(
                     f"The number of records marked for deletion for 'researchdatabases' "
                     "exceeds the deletion percentage threshold of: "
-                    f"{DELETION_COUNT_THRESHOLD}%.  This may indicate an issue with "
+                    f"{DELETION_PERCENT_THRESHOLD:.0%}.  This may indicate an issue with "
                     f"pulling identifiers from the Springshare API.  It is therefore "
                     f"unsafe to continue."
                 )
