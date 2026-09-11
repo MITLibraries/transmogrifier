@@ -8,10 +8,14 @@ from lxml import etree
 from timdex_dataset_api import TIMDEXDataset  # type: ignore[import-untyped]
 
 from transmogrifier import config
+from transmogrifier.exceptions import CriticalError
 from transmogrifier.helpers import LibGuidesAPIClient
 from transmogrifier.sources.xml.springshare import SpringshareOaiDc
 
 logger = logging.getLogger(__name__)
+
+# percentage of total records that if marked for deletion, indicate a problem
+DELETION_PERCENT_THRESHOLD = 0.8
 
 
 class ResearchDatabases(SpringshareOaiDc):
@@ -82,6 +86,19 @@ class ResearchDatabases(SpringshareOaiDc):
         deleted_identifiers = set(dataset_az_identifiers).difference(
             az_current_identifiers
         )
+
+        # raise an exception if the records marked for delete exceed a threshold
+        if dataset_az_identifiers:
+            deletion_ratio = len(deleted_identifiers) / len(dataset_az_identifiers)
+            if deletion_ratio > DELETION_PERCENT_THRESHOLD:
+                raise CriticalError(
+                    f"The number of records marked for deletion for 'researchdatabases' "
+                    "exceeds the deletion percentage threshold of: "
+                    f"{DELETION_PERCENT_THRESHOLD:.0%}.  This may indicate an issue with "
+                    f"pulling identifiers from the Springshare API.  It is therefore "
+                    f"unsafe to continue."
+                )
+
         logger.info(
             f"{len(deleted_identifiers)} identifiers identified for deletion: "
             f"{list(deleted_identifiers)}"
