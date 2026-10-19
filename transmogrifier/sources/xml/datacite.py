@@ -221,7 +221,7 @@ class Datacite(XMLTransformer):
             identifiers.append(
                 timdex.Identifier(
                     value=str(identifier_element.string),
-                    kind=identifier_element.get("identifierType") or "Not specified",
+                    kind=identifier_element.get("identifierType"),
                 )
             )
         identifiers.extend(cls._get_alternate_identifiers(source_record))
@@ -238,8 +238,7 @@ class Datacite(XMLTransformer):
         ):
             yield timdex.Identifier(
                 value=str(alternate_identifier_element.string),
-                kind=alternate_identifier_element.get("alternateIdentifierType")
-                or "Not specified",
+                kind=alternate_identifier_element.get("alternateIdentifierType"),
             )
 
     @classmethod

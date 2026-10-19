@@ -462,7 +462,7 @@ class Marc(XMLTransformer):
             ("010", "a", "LCCN"),
             ("020", "aq", "ISBN"),
             ("022", "a", "ISSN"),
-            ("024", "aq2", "Other Identifier"),
+            ("024", "aq2", None),
             ("035", "a", "OCLC Number"),
         ]
         for tag, subfields, kind in identifier_marc_fields:

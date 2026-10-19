@@ -171,7 +171,7 @@ class DspaceDim(XMLTransformer):
         return [
             timdex.Identifier(
                 value=str(identifier.string),
-                kind=identifier.get("qualifier") or "Not specified",
+                kind=identifier.get("qualifier"),
             )
             for identifier in source_record.find_all(
                 "dim:field", element="identifier", string=True
