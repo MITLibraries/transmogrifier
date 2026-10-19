@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 class DspaceDim(XMLTransformer):
     """DSpace DIM transformer."""
 
+    # dc.identifier qualifiers that are not identifiers
+    skipped_identifier_qualifiers: tuple[str, ...] = ("citation", "mitlicense")
+
     @classmethod
     def get_alternate_titles(
         cls, source_record: Tag
@@ -173,7 +176,7 @@ class DspaceDim(XMLTransformer):
             for identifier in source_record.find_all(
                 "dim:field", element="identifier", string=True
             )
-            if identifier.get("qualifier") not in ("citation", "mitlicense")
+            if identifier.get("qualifier") not in cls.skipped_identifier_qualifiers
         ] or None
 
     @classmethod
