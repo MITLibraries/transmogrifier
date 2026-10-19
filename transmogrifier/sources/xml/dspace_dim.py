@@ -173,7 +173,7 @@ class DspaceDim(XMLTransformer):
             for identifier in source_record.find_all(
                 "dim:field", element="identifier", string=True
             )
-            if identifier.get("qualifier") != "citation"
+            if identifier.get("qualifier") not in ("citation", "mitlicense")
         ] or None
 
     @classmethod
