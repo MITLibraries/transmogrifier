@@ -677,14 +677,12 @@ def test_controlled_value_from_raw_uses_mappings(example_controlled_value):
     )
 
 
-def test_controlled_value_from_raw_none_returns_fallback(
-    caplog, example_controlled_value
-):
+def test_controlled_value_from_raw_none_returns_default(caplog, example_controlled_value):
     assert example_controlled_value.from_raw(None) == example_controlled_value.UNKNOWN
     assert "could not be mapped" not in caplog.text
 
 
-def test_controlled_value_from_raw_unmapped_returns_fallback_and_logs_once(
+def test_controlled_value_from_raw_unmapped_returns_default_and_logs_once(
     caplog, example_controlled_value
 ):
     for _ in range(3):
@@ -701,3 +699,15 @@ def test_controlled_value_direct_construction_is_strict(example_controlled_value
     assert example_controlled_value("Apple") == example_controlled_value.APPLE
     with pytest.raises(ValueError, match="'apple' is not a valid"):
         example_controlled_value("apple")
+
+
+def test_controlled_value_all_mappings_includes_members_and_mappings(
+    example_controlled_value,
+):
+    assert example_controlled_value.all_mappings() == {
+        "apple": example_controlled_value.APPLE,
+        "banana": example_controlled_value.BANANA,
+        "unknown": example_controlled_value.UNKNOWN,
+        "granny smith": example_controlled_value.APPLE,
+        "other": example_controlled_value.UNKNOWN,
+    }

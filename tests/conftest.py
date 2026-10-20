@@ -330,7 +330,7 @@ def example_controlled_value():
             return {"Granny Smith": cls.APPLE, "other": cls.UNKNOWN}
 
         @classmethod
-        def fallback(cls):
+        def default(cls):
             return cls.UNKNOWN
 
     return ExampleKind

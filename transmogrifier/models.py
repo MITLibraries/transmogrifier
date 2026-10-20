@@ -81,7 +81,7 @@ def dedupe(item_list: list | Any) -> list | None:  # noqa: ANN401
 class ControlledValue(StrEnum):
     """Base class for controlled vocabularies of TIMDEX field values.
 
-    Subclasses define members (the controlled values) and a fallback(), and may
+    Subclasses define members (the controlled values) and a default(), and may
     define mappings() for source values that should map to a member.
 
     Constructing a member directly, e.g. IdentifierKind("DOI"), is strict and raises
@@ -94,14 +94,14 @@ class ControlledValue(StrEnum):
         """Map source values to members, in addition to the members themselves.
 
         Keys are matched case-insensitively, like member values.  A mapping to
-        fallback() records a known source value without logging it as unmapped.
+        default() records a known source value without logging it as unmapped.
         """
         return {}
 
     @classmethod
-    def fallback(cls) -> Self:
+    def default(cls) -> Self:
         """Member returned for None or unmapped source values."""
-        message = f"{cls.__name__} must define a fallback()"
+        message = f"{cls.__name__} must define a default()"
         raise NotImplementedError(message)
 
     @classmethod
@@ -110,24 +110,32 @@ class ControlledValue(StrEnum):
         """Map a raw source value to a member, never raising.
 
         Every member maps to itself (case-insensitive, whitespace stripped), plus any
-        mappings().  None and unmapped values return fallback(), with unmapped values
+        mappings().  None and unmapped values return default(), with unmapped values
         logged.  Results are cached per input value, so the mapping is only built on
         a cache miss and each unmapped value is only logged once.
         """
         if value is None:
-            return cls.fallback()
-        mapping = {member.lower(): member for member in cls} | {
-            raw.lower(): member for raw, member in cls.mappings().items()
-        }
+            return cls.default()
         try:
-            return mapping[value.strip().lower()]
+            return cls.all_mappings()[value.strip().lower()]
         except KeyError:
             logger.warning(
                 f"{cls.__name__} value '{value}' could not be mapped, "
-                f"defaulting to '{cls.fallback()}'.  This warning will only be "
+                f"defaulting to '{cls.default()}'.  This warning will only be "
                 "logged once per run, not per instance encountered."
             )
-            return cls.fallback()
+            return cls.default()
+
+    @classmethod
+    def all_mappings(cls) -> dict[str, Self]:
+        """All source values that map to a member, as matched by from_raw().
+
+        Every member maps to itself, plus any mappings(), with keys lowercased.  Useful
+        for seeing the full set of source values a vocabulary accepts.
+        """
+        return {member.lower(): member for member in cls} | {
+            raw.lower(): member for raw, member in cls.mappings().items()
+        }
 
 
 @define
@@ -230,12 +238,12 @@ class Identifier:
             }
 
         @classmethod
-        def fallback(cls) -> Self:
+        def default(cls) -> Self:
             return cls.NOT_SPECIFIED
 
     value: str = field(validator=instance_of(str))  # Required subfield
     kind: IdentifierKind = field(
-        default=IdentifierKind.fallback(),
+        default=IdentifierKind.default(),
         converter=IdentifierKind.from_raw,  # type: ignore[misc]
         validator=instance_of(IdentifierKind),
     )
