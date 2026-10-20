@@ -491,6 +491,19 @@ def test_get_identifiers_success():
     ]
 
 
+def test_get_identifiers_skips_citation_and_mitlicense():
+    source_record = create_dspace_dim_source_record_stub("""
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1912/2641</dim:field>
+        <dim:field mdschema="dc" element="identifier"
+        qualifier="citation">Some citation</dim:field>
+        <dim:field mdschema="dc" element="identifier"
+        qualifier="mitlicense">PUBLISHER_CC</dim:field>
+        """)
+    assert DspaceDim.get_identifiers(source_record) == [
+        timdex.Identifier(value="https://hdl.handle.net/1912/2641", kind="uri")
+    ]
+
+
 def test_get_identifiers_transforms_correctly_if_fields_blank():
     source_record = create_dspace_dim_source_record_stub(
         '<dim:field mdschema="dc" element="identifier" qualifier="uri" />'

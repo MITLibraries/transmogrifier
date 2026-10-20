@@ -146,7 +146,7 @@ def test_timdex_record_all_fields_and_subfields(timdex_record_all_fields_and_sub
     assert timdex_record_all_fields_and_subfields.holdings[0].location == "Hayden Library"
     assert timdex_record_all_fields_and_subfields.holdings[0].note == "Holdings note"
     assert timdex_record_all_fields_and_subfields.identifiers[0].value == "123"
-    assert timdex_record_all_fields_and_subfields.identifiers[0].kind == "doi"
+    assert timdex_record_all_fields_and_subfields.identifiers[0].kind == "DOI"
     assert timdex_record_all_fields_and_subfields.languages == ["en_US"]
     assert timdex_record_all_fields_and_subfields.links[0].kind == "SpringerLink"
     assert (
@@ -280,7 +280,7 @@ def test_record_asdict_includes_all_fields(timdex_record_all_fields_and_subfield
                 "note": "Holdings note",
             }
         ],
-        "identifiers": [{"value": "123", "kind": "doi"}],
+        "identifiers": [{"value": "123", "kind": "DOI"}],
         "languages": ["en_US"],
         "links": [
             {
@@ -657,3 +657,57 @@ def test_timdex_dedupes_correctly_if_same_class():
         timdex.Identifier(value="x", kind="y"),
     ]
     assert timdex.dedupe(items) == [timdex.Identifier(value="x", kind="y")]
+
+
+def test_controlled_value_from_raw_matches_members_case_insensitive(
+    example_controlled_value,
+):
+    assert example_controlled_value.from_raw("Apple") == example_controlled_value.APPLE
+    assert example_controlled_value.from_raw(" BANANA ") == (
+        example_controlled_value.BANANA
+    )
+
+
+def test_controlled_value_from_raw_uses_mappings(example_controlled_value):
+    assert example_controlled_value.from_raw("granny smith") == (
+        example_controlled_value.APPLE
+    )
+    assert example_controlled_value.from_raw("Other") == (
+        example_controlled_value.UNKNOWN
+    )
+
+
+def test_controlled_value_from_raw_none_returns_default(caplog, example_controlled_value):
+    assert example_controlled_value.from_raw(None) == example_controlled_value.UNKNOWN
+    assert "could not be mapped" not in caplog.text
+
+
+def test_controlled_value_from_raw_unmapped_returns_default_and_logs_once(
+    caplog, example_controlled_value
+):
+    for _ in range(3):
+        assert example_controlled_value.from_raw("Cherry") == (
+            example_controlled_value.UNKNOWN
+        )
+    assert caplog.messages == [
+        "ExampleKind value 'Cherry' could not be mapped, defaulting to 'Unknown'.  "
+        "This warning will only be logged once per run, not per instance encountered."
+    ]
+
+
+def test_controlled_value_direct_construction_is_strict(example_controlled_value):
+    assert example_controlled_value("Apple") == example_controlled_value.APPLE
+    with pytest.raises(ValueError, match="'apple' is not a valid"):
+        example_controlled_value("apple")
+
+
+def test_controlled_value_all_mappings_includes_members_and_mappings(
+    example_controlled_value,
+):
+    assert example_controlled_value.all_mappings() == {
+        "apple": example_controlled_value.APPLE,
+        "banana": example_controlled_value.BANANA,
+        "unknown": example_controlled_value.UNKNOWN,
+        "granny smith": example_controlled_value.APPLE,
+        "other": example_controlled_value.UNKNOWN,
+    }

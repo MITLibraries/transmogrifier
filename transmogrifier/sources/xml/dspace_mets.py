@@ -108,7 +108,7 @@ class DspaceMets(XMLTransformer):
     def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
         return [
             timdex.Identifier(
-                kind=identifier.get("type") or "Not specified",
+                kind=identifier.get("type"),
                 value=str(identifier.string),
             )
             for identifier in source_record.find_all("mods:identifier", string=True)

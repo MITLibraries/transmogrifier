@@ -240,10 +240,8 @@ def test_marc_record_all_fields_transform_correctly():
             timdex.Identifier(value="0878426914. paperback. alkaline paper", kind="ISBN"),
             timdex.Identifier(value="0033-0736", kind="ISSN"),
             timdex.Identifier(value="0095-9014", kind="ISSN"),
-            timdex.Identifier(
-                value="10.1596/978-0-8213-7468-9. doi", kind="Other Identifier"
-            ),
-            timdex.Identifier(value="1234567890. score. sewn", kind="Other Identifier"),
+            timdex.Identifier(value="10.1596/978-0-8213-7468-9. doi"),
+            timdex.Identifier(value="1234567890. score. sewn"),
             timdex.Identifier(value="1312285564", kind="OCLC Number"),
             timdex.Identifier(value="on1312285564", kind="OCLC Number"),
         ],
@@ -629,7 +627,7 @@ def test_marc_record_attribute_and_subfield_variations_transforms_correctly():
         ],
         identifiers=[
             timdex.Identifier(value="q", kind="ISBN"),
-            timdex.Identifier(value="q", kind="Other Identifier"),
+            timdex.Identifier(value="q"),
         ],
         languages=[
             "No linguistic content",
@@ -1268,9 +1266,7 @@ def test_get_identifiers_success():
         timdex.Identifier(value="2005022317", kind="LCCN"),
         timdex.Identifier(value="9781250185969. hardcover", kind="ISBN"),
         timdex.Identifier(value="0033-0736", kind="ISSN"),
-        timdex.Identifier(
-            value="10.1596/978-0-8213-7468-9. doi", kind="Other Identifier"
-        ),
+        timdex.Identifier(value="10.1596/978-0-8213-7468-9. doi"),
         timdex.Identifier(value="1312285564", kind="OCLC Number"),
     ]
 

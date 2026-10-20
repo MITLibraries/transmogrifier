@@ -36,6 +36,17 @@ def test_get_funding_information_returns_none_with_sponsorship_field():
     assert DigitalCollections.get_funding_information(source_record) is None
 
 
+def test_get_identifiers_skips_vendorcode():
+    source_record = create_digital_collections_source_record_stub("""
+        <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/1721.3/77697</dim:field>
+        <dim:field mdschema="dc" element="identifier"
+        qualifier="vendorcode">Fruet 3-82</dim:field>
+        """)
+    assert DigitalCollections.get_identifiers(source_record) == [
+        timdex.Identifier(value="https://hdl.handle.net/1721.3/77697", kind="uri")
+    ]
+
+
 def test_get_notes_success():
     source_record = create_digital_collections_source_record_stub("""
         <dim:field mdschema="vra" element="culturalContext">American</dim:field>

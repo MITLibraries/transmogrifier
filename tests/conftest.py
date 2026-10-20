@@ -315,3 +315,22 @@ def source_transformer_with_timestamp(monkeypatch, run_id, source_input_file):
         run_id=run_id,
         run_timestamp="2024-06-03T15:30:45",
     )
+
+
+@pytest.fixture
+def example_controlled_value():
+    # defined per test, so each test gets a fresh from_raw() cache
+    class ExampleKind(timdex.ControlledValue):
+        APPLE = "Apple"
+        BANANA = "Banana"
+        UNKNOWN = "Unknown"
+
+        @classmethod
+        def mappings(cls):
+            return {"Granny Smith": cls.APPLE, "other": cls.UNKNOWN}
+
+        @classmethod
+        def default(cls):
+            return cls.UNKNOWN
+
+    return ExampleKind

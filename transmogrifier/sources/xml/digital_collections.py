@@ -9,6 +9,11 @@ from transmogrifier.sources.xml.dspace_dim import DspaceDim
 class DigitalCollections(DspaceDim):
     """Digital Collections transformer class."""
 
+    skipped_identifier_qualifiers = (
+        *DspaceDim.skipped_identifier_qualifiers,
+        "vendorcode",
+    )
+
     @classmethod
     def get_funding_information(cls, _source_record: Tag) -> list[timdex.Funder] | None:
         return None

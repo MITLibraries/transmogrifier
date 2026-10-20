@@ -1,9 +1,14 @@
+import functools
+import logging
 from collections.abc import Callable
-from typing import Any
+from enum import StrEnum
+from typing import Any, Self
 
 import attrs
 from attrs import asdict, define, field, validators
 from attrs.validators import instance_of, optional
+
+logger = logging.getLogger(__name__)
 
 
 def check_range(
@@ -71,6 +76,66 @@ def dedupe(item_list: list | Any) -> list | None:  # noqa: ANN401
     if not isinstance(item_list, list):
         return item_list
     return list(dict.fromkeys(item_list))
+
+
+class ControlledValue(StrEnum):
+    """Base class for controlled vocabularies of TIMDEX field values.
+
+    Subclasses define members (the controlled values) and a default(), and may
+    define mappings() for source values that should map to a member.
+
+    Constructing a member directly, e.g. IdentifierKind("DOI"), is strict and raises
+    a ValueError for anything but an exact controlled value.  from_raw() is the
+    lenient path for raw source values, and is intended as an attrs converter.
+    """
+
+    @classmethod
+    def mappings(cls) -> dict[str, Self]:
+        """Map source values to members, in addition to the members themselves.
+
+        Keys are matched case-insensitively, like member values.  A mapping to
+        default() records a known source value without logging it as unmapped.
+        """
+        return {}
+
+    @classmethod
+    def default(cls) -> Self:
+        """Member returned for None or unmapped source values."""
+        message = f"{cls.__name__} must define a default()"
+        raise NotImplementedError(message)
+
+    @classmethod
+    @functools.cache
+    def from_raw(cls, value: str | None) -> Self:
+        """Map a raw source value to a member, never raising.
+
+        Every member maps to itself (case-insensitive, whitespace stripped), plus any
+        mappings().  None and unmapped values return default(), with unmapped values
+        logged.  Results are cached per input value, so the mapping is only built on
+        a cache miss and each unmapped value is only logged once.
+        """
+        if value is None:
+            return cls.default()
+        try:
+            return cls.all_mappings()[value.strip().lower()]
+        except KeyError:
+            logger.warning(
+                f"{cls.__name__} value '{value}' could not be mapped, "
+                f"defaulting to '{cls.default()}'.  This warning will only be "
+                "logged once per run, not per instance encountered."
+            )
+            return cls.default()
+
+    @classmethod
+    def all_mappings(cls) -> dict[str, Self]:
+        """All source values that map to a member, as matched by from_raw().
+
+        Every member maps to itself, plus any mappings(), with keys lowercased.  Useful
+        for seeing the full set of source values a vocabulary accepts.
+        """
+        return {member.lower(): member for member in cls} | {
+            raw.lower(): member for raw, member in cls.mappings().items()
+        }
 
 
 @define
@@ -143,8 +208,45 @@ class Holding:
 
 @define
 class Identifier:
+    class IdentifierKind(ControlledValue):
+        """Controlled values for Identifier.kind."""
+
+        ALEPH = "Aleph"
+        COLLECTION_IDENTIFIER = "Collection Identifier"
+        DOI = "DOI"
+        GOVDOC = "GovDoc"
+        ISBN = "ISBN"
+        ISMN = "ISMN"
+        ISSN = "ISSN"
+        LCCN = "LCCN"
+        LIBGUIDE_ID = "LibGuide ID"
+        NOT_SPECIFIED = "Not Specified"
+        OAI_PMH = "OAI-PMH"
+        OCLC = "OCLC"
+        ORCID = "ORCID"
+        PMID = "PMID"
+        URI = "URI"
+
+        @classmethod
+        def mappings(cls) -> dict[str, Self]:
+            return {
+                "not spec": cls.NOT_SPECIFIED,
+                "oclc number": cls.OCLC,
+                "other": cls.NOT_SPECIFIED,
+                "other identifier": cls.NOT_SPECIFIED,
+                "url": cls.URI,
+            }
+
+        @classmethod
+        def default(cls) -> Self:
+            return cls.NOT_SPECIFIED
+
     value: str = field(validator=instance_of(str))  # Required subfield
-    kind: str | None = field(default=None, validator=optional(instance_of(str)))
+    kind: IdentifierKind = field(
+        default=IdentifierKind.default(),
+        converter=IdentifierKind.from_raw,  # type: ignore[misc]
+        validator=instance_of(IdentifierKind),
+    )
 
     __hash__ = timdex_object_hash
 

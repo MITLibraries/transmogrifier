@@ -201,7 +201,7 @@ class MITAardvark(JSONTransformer):
     @classmethod
     def get_identifiers(cls, source_record: dict) -> list[timdex.Identifier] | None:
         return [
-            timdex.Identifier(value=identifier_value, kind="Not specified")
+            timdex.Identifier(value=identifier_value)
             for identifier_value in source_record.get("dct_identifier_sm", [])
         ] or None
 
