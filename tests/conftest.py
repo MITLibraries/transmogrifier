@@ -77,6 +77,9 @@ def generic_transformer():
         def parse_source_file(self):
             pass
 
+        def parse_source_record(self):
+            pass
+
         def record_is_deleted(self):
             pass
 

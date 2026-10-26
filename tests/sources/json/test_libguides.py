@@ -48,10 +48,7 @@ def libguides_transformer(mocked_libguides_api_client_df_property, libguides_rec
     """Create LibGuides transformer."""
     from transmogrifier.sources.json.libguides import LibGuides
 
-    return LibGuides(
-        "libguides",
-        libguides_records,
-    )
+    return LibGuides("libguides", libguides_records)
 
 
 def create_libguides_source_record_stub(
