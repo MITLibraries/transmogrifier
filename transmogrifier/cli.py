@@ -84,6 +84,9 @@ def main(
 
     _validate_input_options(input_file, dataset, output_location)
 
+    # default the output location to the input dataset after validation
+    output_location = output_location or dataset
+
     transformer = Transformer.load(
         source,
         source_file=input_file,
