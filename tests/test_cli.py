@@ -24,7 +24,7 @@ def test_transform_no_sentry_not_verbose(caplog, monkeypatch, runner, tmp_path):
             [
                 "-i",
                 "fake-input-file",
-                "--output-location",
+                "--output-dataset",
                 str(tmp_path),
                 "-s",
                 "libguides",
@@ -47,7 +47,7 @@ def test_transform_with_sentry_and_verbose(caplog, monkeypatch, runner, tmp_path
             [
                 "-i",
                 "fake-input-file",
-                "--output-location",
+                "--output-dataset",
                 str(tmp_path),
                 "-s",
                 "libguides",
@@ -74,7 +74,7 @@ def test_transform_no_records(
         [
             "-i",
             empty_source_input_file,
-            "--output-location",
+            "--output-dataset",
             empty_dataset_location,
             "-s",
             "dspace",
@@ -92,7 +92,7 @@ def test_transform_deleted_records(
         [
             "-i",
             source_input_file,
-            "--output-location",
+            "--output-dataset",
             empty_dataset_location,
             "-s",
             "jpal",
@@ -260,7 +260,7 @@ def test_transform_critical_error_prevents_writing(
                 "libguides",
                 "-i",
                 source_input_file,
-                "--output-location",
+                "--output-dataset",
                 empty_dataset_location,
             ],
         )

@@ -30,15 +30,15 @@ logger = logging.getLogger(__name__)
     ),
 )
 @click.option(
-    "-d",
-    "--dataset",
+    "-id",
+    "--input-dataset",
     required=False,
-    help="Location of TIMDEX parquet dataset with source records to transform.",
+    help="Location of TIMDEX parquet dataset with source records used as input.",
 )
 @click.option(
     "-o",
-    "--output-location",
-    required=False,
+    "--output-dataset",
+    required=True,
     help="Location of TIMDEX dataset to write to.",
 )
 @click.option(
@@ -69,8 +69,8 @@ logger = logging.getLogger(__name__)
 def main(
     source: str,
     input_file: str,
-    dataset: str,
-    output_location: str,
+    input_dataset: str,
+    output_dataset: str,
     exclusion_list_path: str,
     run_id: str,
     run_timestamp: str,
@@ -82,20 +82,20 @@ def main(
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    _validate_input_options(input_file, dataset, output_location)
-
-    # default the output location to the input dataset after validation
-    output_location = output_location or dataset
+    if (input_file and input_dataset) or (not input_file and not input_dataset):
+        raise click.UsageError(
+            "Exactly one input source is required: --input-file or --input-dataset"
+        )
 
     transformer = Transformer.load(
         source,
         source_file=input_file,
-        source_dataset=dataset,
+        source_dataset=input_dataset,
         exclusion_list_path=exclusion_list_path,
         run_id=run_id,
         run_timestamp=run_timestamp,
     )
-    transformer.write_to_parquet_dataset(output_location)
+    transformer.write_to_parquet_dataset(output_dataset)
 
     logger.info(
         (
@@ -114,21 +114,3 @@ def main(
     logger.info(
         "Total time to complete transform: %s", str(timedelta(seconds=elapsed_time))
     )
-
-
-def _validate_input_options(
-    input_file: str | None = None,
-    dataset: str | None = None,
-    output_location: str | None = None,
-) -> None:
-    if (input_file and dataset) or (not input_file and not dataset):
-        raise click.UsageError(
-            "Exactly one input source is required: --input-file or --dataset"
-        )
-    if input_file and not output_location:
-        raise click.UsageError("--input-file must be used with --output-location")
-    if (dataset and output_location) and (dataset != output_location):
-        logger.warning(
-            "Transformed records will be written to a different TIMDEX dataset: "
-            f"{output_location}"
-        )
