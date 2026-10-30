@@ -4,13 +4,16 @@ import json
 from unittest import mock
 
 import pytest
+from bs4 import Tag
 from lxml import etree
 from timdex_dataset_api import DatasetRecord
 
 import transmogrifier.models as timdex
 from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
+from transmogrifier.sources.jsontransformer import JSONTransformer
 from transmogrifier.sources.transformer import Transformer
 from transmogrifier.sources.xml.datacite import Datacite
+from transmogrifier.sources.xmltransformer import XMLTransformer
 
 
 def test_load_exclusion_list(source_transformer, mock_s3_exclusion_list):
@@ -28,6 +31,10 @@ def test_next_iter_sets_action_skip_when_record_is_excluded(tmp_path):
         @classmethod
         def parse_source_file(cls, _source_file: str):
             return iter(())
+
+        @classmethod
+        def parse_source_record(cls, source_record: bytes):
+            return json.loads(source_record)
 
         @classmethod
         def get_main_titles(cls, _source_record):
@@ -144,7 +151,9 @@ def test_transformer_get_run_data_from_source_file_and_run_id(
     mocked_datetime = mock.MagicMock()
     mocked_datetime.now.return_value.isoformat.return_value = "2024-06-03T12:34:56+00:00"
     with mock.patch("transmogrifier.sources.transformer.datetime", mocked_datetime):
-        assert source_transformer.get_run_data(source_input_file, run_id) == {
+        assert source_transformer.get_run_data(
+            "libguides", source_input_file, run_id=run_id
+        ) == {
             "source": "libguides",
             "run_date": "2024-06-03",
             "run_type": "full",
@@ -158,7 +167,8 @@ def test_transformer_get_run_data_with_explicit_run_timestamp(
 ):
     run_timestamp = "2024-06-03T15:30:45"
     assert source_transformer.get_run_data(
-        source_input_file,
+        "libguides",
+        source_file=source_input_file,
         run_id=run_id,
         run_timestamp=run_timestamp,
     ) == {
@@ -176,19 +186,23 @@ def test_transformer_get_run_data_mints_current_utc_timestamp(
     mocked_datetime = mock.MagicMock()
     mocked_datetime.now.return_value.isoformat.return_value = "2024-06-03T12:34:56+00:00"
     with mock.patch("transmogrifier.sources.transformer.datetime", mocked_datetime):
-        result = source_transformer.get_run_data(source_input_file, run_id)
+        result = source_transformer.get_run_data(
+            "cool-repo", source_file=source_input_file, run_id=run_id
+        )
     assert result["run_timestamp"] == "2024-06-03T12:34:56+00:00"
 
 
-def test_transformer_get_run_data_no_source_file_raise_error(
+def test_transformer_get_run_data_multi_input_source_raise_error(
     monkeypatch, source_transformer
 ):
     monkeypatch.setenv("WORKSPACE", "dev")
     with pytest.raises(
         ValueError,
-        match="'source_file' parameter is required outside of test environments",
+        match="Exactly one input source is required: 'source_file' or 'source_dataset'",
     ):
-        source_transformer.get_run_data(None, "run-abc-123")
+        source_transformer.get_run_data(
+            "cool-repo", source_file="abc", source_dataset="def", run_id="run-abc-123"
+        )
 
 
 def test_transformer_next_iter_yields_dataset_records(source_transformer):
@@ -215,7 +229,9 @@ def test_transform_next_iter_uses_run_data_parsed_from_source_file(
     source_transformer, source_input_file, run_id
 ):
     record = next(source_transformer)
-    run_data = source_transformer.get_run_data(source_input_file, run_id)
+    run_data = source_transformer.get_run_data(
+        "cool-repo", source_file=source_input_file, run_id=run_id
+    )
     assert (
         record.run_date
         == datetime.datetime.strptime(run_data["run_date"], "%Y-%m-%d")
@@ -314,3 +330,45 @@ def test_transformer_dataset_write_includes_run_timestamp_column(
 
     parquet_file = written_files[0]
     assert "run_timestamp" in parquet_file.metadata.schema.names
+
+
+def test_xmltransformer_parse_source_record_returns_tag():
+    record = XMLTransformer.parse_source_record(b"<record><title>Hi</title></record>")
+    assert isinstance(record, Tag)
+    assert record.find("title").string == "Hi"
+
+
+def test_jsontransformer_parse_source_record_returns_dict():
+    assert JSONTransformer.parse_source_record(b'{"id": "123"}') == {"id": "123"}
+
+
+def test_jsontransformer_parse_source_record_non_dict_raises_error():
+    with pytest.raises(TypeError, match="Expected JSON source record to be a dict"):
+        JSONTransformer.parse_source_record(b"[1, 2, 3]")
+
+
+def test_transformer_parse_source_records_from_dataset_yields_parsed_records():
+    with mock.patch(
+        "transmogrifier.sources.transformer.TIMDEXDataset"
+    ) as mocked_dataset_class:
+        mocked_records = mocked_dataset_class.return_value.records
+        mocked_records.read_dicts_iter.return_value = iter(
+            [
+                {"source": "cool-repo", "source_record": b'{"id": "1"}'},
+                {"source": "cool-repo", "source_record": b'{"id": "2"}'},
+            ]
+        )
+        records = list(
+            JSONTransformer.parse_source_records_from_dataset(
+                "cool-repo", "s3://bucket/dataset"
+            )
+        )
+
+    assert records == [{"id": "1"}, {"id": "2"}]
+    mocked_dataset_class.assert_called_once_with("s3://bucket/dataset")
+    mocked_records.read_dicts_iter.assert_called_once_with(
+        table="current_records",
+        columns=["source_record"],
+        source="cool-repo",
+        action="index",
+    )

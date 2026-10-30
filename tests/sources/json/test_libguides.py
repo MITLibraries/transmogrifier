@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, PropertyMock, patch
 
 import pandas as pd
 import pytest
+from freezegun import freeze_time
 
 from transmogrifier import models
 
@@ -48,10 +49,8 @@ def libguides_transformer(mocked_libguides_api_client_df_property, libguides_rec
     """Create LibGuides transformer."""
     from transmogrifier.sources.json.libguides import LibGuides
 
-    return LibGuides(
-        "libguides",
-        libguides_records,
-    )
+    with freeze_time("2000-01-01"):
+        yield LibGuides("libguides", libguides_records)
 
 
 def create_libguides_source_record_stub(
@@ -189,6 +188,7 @@ def test_libguides_record_get_content_type_success(libguides_transformer):
     assert libguides_transformer.get_content_type(source_record) == ["LibGuide"]
 
 
+@freeze_time("2000-01-01")
 def test_libguides_record_get_dates_success(libguides_transformer):
     source_record = create_libguides_source_record_stub()
     dates = libguides_transformer.get_dates(source_record)

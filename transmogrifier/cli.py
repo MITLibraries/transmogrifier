@@ -12,26 +12,34 @@ logger = logging.getLogger(__name__)
 
 @click.command()
 @click.option(
-    "-i",
-    "--input-file",
-    required=True,
-    help="Filepath of input records to transform.  The filename must be in the format "
-    "<source>-<YYYY-MM-DD>-<run-type>-extracted-records-to-<action><index[optional]>"
-    ".<extension>.  Examples: 'gisogm-2024-03-28-daily-extracted-records-to-index.jsonl' "
-    "or 'alma-2023-01-13-full-extracted-records-to-index_17.xml'.",
-)
-@click.option(
-    "-o",
-    "--output-location",
-    required=True,
-    help="Location of TIMDEX parquet dataset to write to.",
-)
-@click.option(
     "-s",
     "--source",
     required=True,
     type=click.Choice(list(SOURCES.keys()), case_sensitive=False),
     help="Source records were harvested from, must choose from list of options",
+)
+@click.option(
+    "-i",
+    "--input-file",
+    required=False,
+    help=(
+        "Filepath of input records to transform.  The filename must be in the format "
+        "<source>-<YYYY-MM-DD>-<run-type>-extracted-records-to-<action><index[optional]>"
+        ".<extension>.  Examples: 'gisogm-2024-03-28-daily-extracted-records-to-index.jsonl' "  # noqa: E501
+        "or 'alma-2023-01-13-full-extracted-records-to-index_17.xml'."
+    ),
+)
+@click.option(
+    "-id",
+    "--input-dataset",
+    required=False,
+    help="Location of TIMDEX parquet dataset with source records used as input.",
+)
+@click.option(
+    "-o",
+    "--output-dataset",
+    required=True,
+    help="Location of TIMDEX dataset to write to.",
 )
 @click.option(
     "-e",
@@ -61,7 +69,8 @@ logger = logging.getLogger(__name__)
 def main(
     source: str,
     input_file: str,
-    output_location: str,
+    input_dataset: str,
+    output_dataset: str,
     exclusion_list_path: str,
     run_id: str,
     run_timestamp: str,
@@ -73,14 +82,20 @@ def main(
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
+    if (input_file and input_dataset) or (not input_file and not input_dataset):
+        raise click.UsageError(
+            "Exactly one input source is required: --input-file or --input-dataset"
+        )
+
     transformer = Transformer.load(
         source,
-        input_file,
+        source_file=input_file,
+        source_dataset=input_dataset,
         exclusion_list_path=exclusion_list_path,
         run_id=run_id,
         run_timestamp=run_timestamp,
     )
-    transformer.write_to_parquet_dataset(output_location)
+    transformer.write_to_parquet_dataset(output_dataset)
 
     logger.info(
         (

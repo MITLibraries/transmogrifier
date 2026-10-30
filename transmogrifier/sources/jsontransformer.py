@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
@@ -30,6 +31,23 @@ class JSONTransformer(Transformer):
         """
         with jsonlines.Reader(smart_open.open(source_file, "r")) as records:
             yield from records.iter(type=dict)
+
+    @final
+    @classmethod
+    def parse_source_record(cls, source_record: bytes) -> dict[str, JSON]:
+        """
+        Parse a single serialized JSON source record into a dict.
+
+        May not be overridden.
+
+        Args:
+            source_record: A JSON source record as bytes.
+        """
+        record = json.loads(source_record)
+        if not isinstance(record, dict):
+            message = f"Expected JSON source record to be a dict, got {type(record)}"
+            raise TypeError(message)
+        return record
 
     @classmethod
     @abstractmethod

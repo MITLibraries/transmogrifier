@@ -28,6 +28,7 @@ transform = "transmogrifier.cli:main"
 dev = [
   "boto3-stubs",
   "coveralls",
+  "freezegun>=1.5.5",
   "ipython",
   "lxml-stubs",
   "moto",
