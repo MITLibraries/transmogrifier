@@ -1,6 +1,7 @@
 # ruff: noqa: SLF001, D202
 import datetime
 import json
+import pickle
 from pathlib import Path
 from unittest import mock
 
@@ -16,7 +17,11 @@ from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
 from transmogrifier.sources import transformer as transformer_module
 from transmogrifier.sources.json.aardvark import MITAardvark
 from transmogrifier.sources.jsontransformer import JSONTransformer
-from transmogrifier.sources.transformer import PARQUET_FILES_SCHEMA, Transformer
+from transmogrifier.sources.transformer import (
+    PARQUET_FILES_SCHEMA,
+    Transformer,
+    TransformResult,
+)
 from transmogrifier.sources.xml.datacite import Datacite
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
@@ -604,3 +609,65 @@ def test_transformer_next_iter_stores_original_json_line(tmp_path):
     source_file.write_bytes(line + b"\n")
     transformer = Transformer.load("gismit", str(source_file))
     assert next(transformer).source_record == line
+
+
+@pytest.mark.parametrize(
+    ("transform_exception", "expected_action"),
+    [
+        (None, "index"),
+        (DeletedRecordEvent(timdex_record_id="libguides:guides-0"), "delete"),
+        (SkippedRecordEvent(source_record_id="guides-0"), "skip"),
+        (RuntimeError("totally unhandled event"), "error"),
+    ],
+)
+def test_transformer_process_source_record_does_not_change_counts(
+    source_transformer, transform_exception, expected_action
+):
+    record = next(source_transformer.source_records)
+    if transform_exception:
+        with mock.patch.object(
+            source_transformer, "transform", side_effect=transform_exception
+        ):
+            result = source_transformer._process_source_record(record, 0)
+    else:
+        result = source_transformer._process_source_record(record, 0)
+
+    assert result.action == expected_action
+    assert pickle.loads(pickle.dumps(result)) == result  # noqa: S301
+    assert source_transformer.transformed_record_count == 0
+    assert source_transformer.deleted_records == []
+    assert source_transformer.skipped_record_count == 0
+    assert source_transformer.error_record_count == 0
+
+
+def test_transformer_process_source_record_sets_provenance_run_record_offset(
+    source_transformer,
+):
+    record = next(source_transformer.source_records)
+    result = source_transformer._process_source_record(record, 42)
+    transformed_record = json.loads(result.transformed_record)
+    assert transformed_record["timdex_provenance"]["run_record_offset"] == 42  # noqa: PLR2004
+
+
+def test_transformer_update_record_counts(source_transformer):
+    source_transformer._update_record_counts(TransformResult("index"))
+    source_transformer._update_record_counts(
+        TransformResult("delete", timdex_record_id="cool-repo:1")
+    )
+    source_transformer._update_record_counts(TransformResult("skip"))
+    source_transformer._update_record_counts(TransformResult("error"))
+
+    assert source_transformer.transformed_record_count == 1
+    assert source_transformer.deleted_records == ["cool-repo:1"]
+    assert source_transformer.skipped_record_count == 1
+    assert source_transformer.error_record_count == 1
+
+
+def test_transformer_create_dataset_record_does_not_change_counts(source_transformer):
+    dataset_record = source_transformer._create_dataset_record(
+        b"<record/>", TransformResult("error")
+    )
+
+    assert dataset_record.source_record == b"<record/>"
+    assert dataset_record.action == "error"
+    assert source_transformer.error_record_count == 0

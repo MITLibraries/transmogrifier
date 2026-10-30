@@ -19,6 +19,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.dataset as ds
 import smart_open
+from attrs import define
 from bs4 import Tag
 from pyarrow import fs
 from timdex_dataset_api import (
@@ -69,6 +70,18 @@ INPUT_SOURCE_ERROR_MESSAGE = (
     "Exactly one input source is required: 'source_file', 'source_dataset', "
     "or 'source_parquet'"
 )
+
+
+@define(frozen=True)
+class TransformResult:
+    """Outcome of transforming a single source record.
+
+    Kept small and picklable, so it can be returned from a worker process.
+    """
+
+    action: str
+    timdex_record_id: str | None = None
+    transformed_record: bytes | None = None
 
 
 class Transformer(ABC):
@@ -170,66 +183,124 @@ class Transformer(ABC):
 
     @final
     def __next__(self) -> DatasetRecord:
-        """Return next transformed record."""
-        while True:
-            source_record = None
-            transformed_record = None
-            timdex_record_id = None
+        """Return next transformed record.
 
-            record = next(self.source_records)
-            self.processed_record_count += 1
+        Each source record is handled in three steps:
+            1. _process_source_record(): parse and transform the record, and determine
+               its action.  This changes no transformer state, so it is safe to run in
+               another process.
+            2. _update_record_counts(): update the run's record counts and deleted
+               records.
+            3. _create_dataset_record(): build the DatasetRecord from the result, the
+               original source record, and run data.
 
-            try:
-                source_record = (
-                    self.parse_source_record(record)
-                    if isinstance(record, bytes)
-                    else record
-                )
-                transformed_record = self.transform(source_record)
-                timdex_record_id = transformed_record.timdex_record_id
-                transformed_record.timdex_provenance = timdex.TimdexProvenance(
-                    source=self.run_data["source"],
-                    run_date=self.run_data["run_date"],
-                    run_id=self.run_data["run_id"],
-                    run_record_offset=self.run_record_offset,
-                )
-                self.transformed_record_count += 1
-                action = "index"
+        Anything that reads or changes run state must stay in this process and run in
+        order: incrementing processed_record_count (which sets run_record_offset),
+        updating record counts and deleted records, and building the DatasetRecord.
+        """
+        raw_source_record = next(self.source_records)
+        self.processed_record_count += 1
 
-            except DeletedRecordEvent as error:
-                self.deleted_records.append(error.timdex_record_id)
-                timdex_record_id = error.timdex_record_id
-                action = "delete"
+        # parse the raw source record bytes + transform the record
+        transform_result = self._process_source_record(
+            raw_source_record,
+            self.run_record_offset,
+        )
 
-            except SkippedRecordEvent:
-                self.skipped_record_count += 1
-                action = "skip"
+        # update bookkeeping
+        self._update_record_counts(transform_result)
 
-            except CriticalError:
-                raise
+        # return a DatasetRecord instance with source + transformed record
+        return self._create_dataset_record(raw_source_record, transform_result)
 
-            except Exception as exception:
-                self.error_record_count += 1
-                message = f"Unhandled exception during record transformation: {exception}"
-                logger.exception(message)
-                action = "error"
+    @final
+    def _process_source_record(
+        self, record: bytes | dict[str, JSON] | Tag, run_record_offset: int
+    ) -> TransformResult:
+        """Parse and transform a single source record, and determine its action.
 
-            return DatasetRecord(
-                timdex_record_id=timdex_record_id,
-                source_record=(
-                    record
-                    if isinstance(record, bytes)
-                    else self.serialize_source_record(record)
-                ),
-                transformed_record=(
-                    json.dumps(transformed_record.asdict()).encode()
-                    if transformed_record
-                    else None
-                ),
-                action=action,
-                run_record_offset=self.run_record_offset,
-                **self.run_data,
+        This step does not change transformer state (e.g. record counts), so it can run
+        in a worker process.
+
+        Args:
+            record: A source record as bytes, or an already parsed source record.
+            run_record_offset: The record's position in the run, for provenance.
+
+        Raises:
+            CriticalError: Propagated, as it should stop the run.
+        """
+        try:
+            source_record = (
+                self.parse_source_record(record) if isinstance(record, bytes) else record
             )
+            timdex_record = self.transform(source_record)
+            timdex_record.timdex_provenance = timdex.TimdexProvenance(
+                source=self.run_data["source"],
+                run_date=self.run_data["run_date"],
+                run_id=self.run_data["run_id"],
+                run_record_offset=run_record_offset,
+            )
+            return TransformResult(
+                action="index",
+                timdex_record_id=timdex_record.timdex_record_id,
+                transformed_record=json.dumps(timdex_record.asdict()).encode(),
+            )
+
+        except DeletedRecordEvent as error:
+            return TransformResult(
+                action="delete", timdex_record_id=error.timdex_record_id
+            )
+
+        except SkippedRecordEvent:
+            return TransformResult(action="skip")
+
+        except CriticalError:
+            raise
+
+        except Exception as exception:
+            message = f"Unhandled exception during record transformation: {exception}"
+            logger.exception(message)
+            return TransformResult(action="error")
+
+    @final
+    def _update_record_counts(self, result: TransformResult) -> None:
+        """Update the run's record counts and deleted records for a transform result.
+
+        Args:
+            result: The result of _process_source_record() for a record.
+        """
+        match result.action:
+            case "index":
+                self.transformed_record_count += 1
+            case "delete":
+                self.deleted_records.append(str(result.timdex_record_id))
+            case "skip":
+                self.skipped_record_count += 1
+            case "error":
+                self.error_record_count += 1
+
+    @final
+    def _create_dataset_record(
+        self, record: bytes | dict[str, JSON] | Tag, result: TransformResult
+    ) -> DatasetRecord:
+        """Create a DatasetRecord from a source record and its transform result.
+
+        Args:
+            record: The source record as read, stored as-is if bytes.
+            result: The result of _process_source_record() for this record.
+        """
+        return DatasetRecord(
+            timdex_record_id=result.timdex_record_id,
+            source_record=(
+                record
+                if isinstance(record, bytes)
+                else self.serialize_source_record(record)
+            ),
+            transformed_record=result.transformed_record,
+            action=result.action,
+            run_record_offset=self.run_record_offset,
+            **self.run_data,
+        )
 
     @final
     @classmethod
