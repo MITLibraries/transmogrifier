@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import re
 import uuid
 from abc import ABC, abstractmethod
@@ -252,80 +251,78 @@ class Transformer(ABC):
 
     @staticmethod
     def get_run_data(
-        source: str | None,
+        source: str,
         source_file: str | None = None,
         source_dataset: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
     ) -> dict:
-        """Prepare dictionary of ETL run data based on input source filename and CLI args.
+        """Prepare dictionary of ETL run data based on the input source and CLI options.
 
-        If 'source_file' is None and a testing environment is detected, a mocked
-        dictionary of run data will be returned.  This is primarily in place to remain
-        backwards compatible tests that exercise transformation logic but have little to
-        do with final outputs.
+        Run data is built in two steps:
+
+        1. A default dictionary is created using the provided 'source', the current
+           UTC date as 'run_date', and a 'run_type' of 'daily'. 'run_id' and
+           'run_timestamp' use the provided values, or are minted (a UUID and the
+           current UTC timestamp, respectively) if absent.
+        2. Values are then overridden based on the input source:
+            - 'source_file': 'source', 'run_date', and 'run_type' are parsed from
+              the filename and replace the defaults.
+            - 'source_dataset': 'run_type' is set to 'patch' (see below).
+            - neither: the defaults are returned as-is.
+
+        A 'patch' run re-transforms the current source records in the TIMDEX dataset
+        for a given source. A 'patch' run is typically performed after a transformer
+        has been updated. The patched records become the current versions of
+        those records, layered on top of the last 'full' run, *without* resetting the
+        baseline that defines current records.
 
         Args:
-            - source_file: str
+            source: Source label (for example, "libguides").
+            source_file: Filepath of the input source file.
                 - example: "libguides-2024-06-03-full-extracted-records-to-index.xml"
-            - run_id: str
+            source_dataset: Location of the TIMDEX dataset with input source records.
+            run_id: A unique identifier associated with this ETL run.
                 - example: "run-abc-123"
                 - provided as CLI argument or minted if absent
-            - run_timestamp: str
+            run_timestamp: A timestamp associated with this ETL run.
                 - example: "2025-06-17T12:56:56.000000"
                 - provided as CLI argument or minted if absent
+
+        Raises:
+            ValueError: If both 'source_file' and 'source_dataset' are provided.
 
         Example output:
             {
                 'source': 'libguides',
                 'run_date': '2024-06-03',
                 'run_type': 'full',
-                'run_id': 'run-abc-123'
+                'run_id': 'run-abc-123',
+                'run_timestamp': '2024-06-17T12:56:56.000000+00:00'
             }
         """
-        if os.getenv("WORKSPACE") == "test" and (not source_file and not source_dataset):
-            logger.warning(
-                "'source_file' is None, setting empty run data for test environment"
-            )
-            return {
-                "source": "placeholder",
-                "run_date": "2000-01-01",
-                "run_type": "daily",
-                "run_id": run_id or str(uuid.uuid4()),
-                "run_timestamp": "2000-01-01T00:00:00",
-            }
-
-        if (source_file and source_dataset) or (not source_file and not source_dataset):
+        if source_file and source_dataset:
             raise ValueError(
                 "Exactly one input source is required: 'source_file' or 'source_dataset'"
             )
+        current_datetime = datetime.now(UTC)
 
+        # set at default
+        run_data = {
+            "source": source,
+            "run_date": current_datetime.strftime("%Y-%m-%d"),
+            "run_type": "daily",
+            "run_id": run_id or str(uuid.uuid4()),
+            "run_timestamp": run_timestamp or current_datetime.isoformat(),
+        }
+
+        # if input source is a file, 'run_date' and 'run_type' are parsed from filename
         if source_file:
-            run_data = Transformer._parse_run_data_from_source_file(source_file)
+            run_data.update(Transformer._parse_run_data_from_source_file(source_file))
+
+        # if input source is a dataset, 'run_type' is set to patch
         elif source_dataset:
-            run_data = {
-                "source": source,
-                "run_date": datetime.now(UTC).strftime("%Y-%m-%d"),
-                "run_type": "patch",
-            }
-
-        # if run_id is not provided, mint one
-        if not run_id:
-            logger.info("explicit run_id not passed, minting new UUID")
-            run_id = str(uuid.uuid4())
-        message = f"run_id set: '{run_id}'"
-        logger.info(message)
-        run_data["run_id"] = run_id
-
-        # if run_timestamp is not provided, mint one from the current UTC time
-        if not run_timestamp:
-            logger.info(
-                "explicit run_timestamp not passed, minting current UTC timestamp"
-            )
-            run_timestamp = datetime.now(UTC).isoformat()
-        message = f"run_timestamp set: '{run_timestamp}'"
-        logger.info(message)
-        run_data["run_timestamp"] = run_timestamp
+            run_data["run_type"] = "patch"
 
         return run_data
 
@@ -483,10 +480,12 @@ class Transformer(ABC):
     def parse_source_records_from_dataset(
         cls, source: str, source_dataset: str
     ) -> Iterator[dict[str, JSON] | Tag]:
-        """
-        Read current source records from a TIMDEX dataset and parse them.
+        """Read current source records from a TIMDEX dataset and parse them.
 
         Each record is parsed by the format-specific `parse_source_record` method.
+        Currently, format-specific sub-classes XMLTransformer and JSONTransformer
+        define this for parsing their respective file record formats.
+        Source-specific transformers will generally just inhereit.
 
         Args:
             source_dataset: Location of TIMDEX dataset with source records.

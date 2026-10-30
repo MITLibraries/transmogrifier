@@ -106,7 +106,8 @@ def test_transform_run_id_argument_passed_and_used(caplog, runner, tmp_path):
     caplog.set_level("INFO")
     run_id = "abc123"
     with mock.patch(
-        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
+        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+        autospec=True,
     ) as mocked_transform_and_write:
         mocked_transform_and_write.side_effect = Exception("stopping transformation")
         runner.invoke(
@@ -123,15 +124,21 @@ def test_transform_run_id_argument_passed_and_used(caplog, runner, tmp_path):
                 f"{tmp_path}/dataset",
             ],
         )
-    assert f"run_id set: '{run_id}'" in caplog.text
+        transformer = mocked_transform_and_write.call_args.args[0]
+        assert transformer.run_data["run_id"] == run_id
 
 
 def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tmp_path):
     caplog.set_level("INFO")
-    with mock.patch(
-        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
-    ) as mocked_transform_and_write:
+    with (
+        mock.patch(
+            "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+            autospec=True,
+        ) as mocked_transform_and_write,
+        mock.patch("transmogrifier.sources.transformer.uuid.uuid4") as mocked_uuid4,
+    ):
         mocked_transform_and_write.side_effect = Exception("stopping transformation")
+        mocked_uuid4.return_value = "a-really-cool-minted-uuid"
         runner.invoke(
             main,
             [
@@ -144,15 +151,16 @@ def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tm
                 f"{tmp_path}/dataset",
             ],
         )
-    assert "explicit run_id not passed, minting new UUID" in caplog.text
-    assert "run_id set:" in caplog.text
+        transformer = mocked_transform_and_write.call_args.args[0]
+        assert transformer.run_data["run_id"] == "a-really-cool-minted-uuid"
 
 
 def test_transform_run_timestamp_argument_passed_and_used(caplog, runner, tmp_path):
     caplog.set_level("INFO")
     run_timestamp = "2024-06-03T12:34:56"
     with mock.patch(
-        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
+        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+        autospec=True,
     ) as mocked_transform_and_write:
         mocked_transform_and_write.side_effect = Exception("stopping transformation")
         runner.invoke(
@@ -169,7 +177,9 @@ def test_transform_run_timestamp_argument_passed_and_used(caplog, runner, tmp_pa
                 f"{tmp_path}/dataset",
             ],
         )
-    assert f"run_timestamp set: '{run_timestamp}'" in caplog.text
+        transformer = mocked_transform_and_write.call_args.args[0]
+        assert transformer.run_data["run_timestamp"] == run_timestamp
+        assert transformer.run_data["run_date"] == "2024-06-03"
 
 
 def test_transform_run_timestamp_argument_not_passed_and_timestamp_minted(
@@ -180,7 +190,8 @@ def test_transform_run_timestamp_argument_not_passed_and_timestamp_minted(
     mocked_datetime.now.return_value.isoformat.return_value = "2024-06-03T12:34:56+00:00"
     with (
         mock.patch(
-            "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset"
+            "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+            autospec=True,
         ) as mocked_transform_and_write,
         mock.patch("transmogrifier.sources.transformer.datetime", mocked_datetime),
     ):
@@ -197,10 +208,9 @@ def test_transform_run_timestamp_argument_not_passed_and_timestamp_minted(
                 f"{tmp_path}/dataset",
             ],
         )
-    assert (
-        "explicit run_timestamp not passed, minting current UTC timestamp" in caplog.text
-    )
-    assert "run_timestamp set: '2024-06-03T12:34:56+00:00'" in caplog.text
+        transformer = mocked_transform_and_write.call_args.args[0]
+        assert transformer.run_data["run_timestamp"] == "2024-06-03T12:34:56+00:00"
+        assert transformer.run_data["run_date"] == "2024-06-03"
 
 
 def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_path):

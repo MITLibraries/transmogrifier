@@ -192,7 +192,7 @@ def test_transformer_get_run_data_mints_current_utc_timestamp(
     assert result["run_timestamp"] == "2024-06-03T12:34:56+00:00"
 
 
-def test_transformer_get_run_data_no_source_file_raise_error(
+def test_transformer_get_run_data_multi_input_source_raise_error(
     monkeypatch, source_transformer
 ):
     monkeypatch.setenv("WORKSPACE", "dev")
@@ -201,7 +201,7 @@ def test_transformer_get_run_data_no_source_file_raise_error(
         match="Exactly one input source is required: 'source_file' or 'source_dataset'",
     ):
         source_transformer.get_run_data(
-            "cool-repo", source_file=None, run_id="run-abc-123"
+            "cool-repo", source_file="abc", source_dataset="def", run_id="run-abc-123"
         )
 
 
