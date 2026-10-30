@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 
 from bs4 import Tag
 from lxml import etree
@@ -34,6 +34,21 @@ class Marc(XMLTransformer):
     marc_content_type_crosswalk = load_external_config(
         "config/marc_content_type_crosswalk.json", "json"
     )
+
+    @classmethod
+    def parse_source_record(cls, source_record: bytes) -> etree._Element:
+        """
+        Parse a single serialized MARC XML source record into an lxml element.
+
+        Overrides XMLTransformer.parse_source_record(), as lxml lookups are much faster
+        than bs4 for MARC records. Parser options match those bs4 uses.
+
+        Args:
+            source_record: A MARC XML source record as bytes.
+        """
+        return etree.fromstring(
+            source_record, parser=etree.XMLParser(recover=True, strip_cdata=False)
+        )
 
     @staticmethod
     def get_element_string(element: etree._Element) -> str | None:
@@ -78,14 +93,35 @@ class Marc(XMLTransformer):
             name: Element local name, in any or no namespace.
             attributes: Attribute values each matching element must have.
         """
-        for found in element.iter(f"{{*}}{name}"):
-            if all(
-                found.get(attribute) in value
-                if isinstance(value, list)
-                else found.get(attribute) == value
-                for attribute, value in attributes.items()
-            ):
+        if element.tag.rpartition("}")[2] == name and Marc._attributes_match(
+            element, attributes
+        ):
+            yield element
+        # single attribute values are matched by lxml path predicates, lists here
+        predicates = "".join(
+            f"[@{attribute}='{value}']"
+            for attribute, value in attributes.items()
+            if isinstance(value, str)
+        )
+        list_attributes = {
+            attribute: value
+            for attribute, value in attributes.items()
+            if isinstance(value, list)
+        }
+        for found in element.iterfind(f".//{{*}}{name}{predicates}"):
+            if Marc._attributes_match(found, list_attributes):
                 yield found
+
+    @staticmethod
+    def _attributes_match(
+        element: etree._Element, attributes: Mapping[str, str | list[str]]
+    ) -> bool:
+        return all(
+            element.get(attribute) in value
+            if isinstance(value, list)
+            else element.get(attribute) == value
+            for attribute, value in attributes.items()
+        )
 
     @staticmethod
     def find_element_string(
@@ -107,7 +143,7 @@ class Marc(XMLTransformer):
 
     @staticmethod
     def create_subfield_value_list_from_datafield(
-        xml_element: Tag,
+        xml_element: etree._Element,
         subfield_codes: list | str,
     ) -> list:
         """
@@ -124,18 +160,19 @@ class Marc(XMLTransformer):
         The method returns the output: [value 1, value2].
 
         Args:
-            xml_element: A BeautifulSoup Tag representing a single MARC XML element.
+            xml_element: An lxml element representing a single MARC XML element.
             subfield_codes: Subfield codes from which values are extracted.
         """
         return [
-            str(subfield.string)
-            for subfield in xml_element.find_all(name=True, string=True)
+            string
+            for subfield in xml_element.iterdescendants(etree.Element)
             if subfield.get("code", "") in subfield_codes
+            and (string := Marc.get_element_string(subfield)) is not None
         ]
 
     @staticmethod
     def create_subfield_value_string_from_datafield(
-        xml_element: Tag,
+        xml_element: etree._Element,
         subfield_codes: list | str,
         separator: str = "",
     ) -> str:
@@ -154,7 +191,7 @@ class Marc(XMLTransformer):
         The method returns the output: "value 1 - value 2".
 
         Args:
-            xml_element: A BeautifulSoup Tag representing a single MARC XML element.
+            xml_element: An lxml element representing a single MARC XML element.
             subfield_codes: Subfield codes from which values are extracted.
             separator: String value used for joining values.
         """
@@ -164,7 +201,7 @@ class Marc(XMLTransformer):
 
     @classmethod
     def concatenate_subfield_value_strings_from_datafield(
-        cls, source_record: Tag, tag: str, subfield_codes: str
+        cls, source_record: etree._Element, tag: str, subfield_codes: str
     ) -> str:
         """
         Create a string by joining a list of subfield value strings
@@ -185,7 +222,7 @@ class Marc(XMLTransformer):
         the method returns the output: "value 1 value 2 value 3 value 4".
 
         Args:
-            source_record (Tag): A BeautifulSoup Tag representing a single
+            source_record (etree._Element): An lxml element representing a single
                 MARC XML record.
             tag (str): Variable data field tag which is denoted in the "tag"
                 attribute of a MARC 'datafield' XML element.
@@ -196,20 +233,22 @@ class Marc(XMLTransformer):
             cls.create_subfield_value_string_from_datafield(
                 datafield, subfield_codes, " "
             )
-            for datafield in source_record.find_all("datafield", tag=tag)
+            for datafield in cls.find_all_elements(source_record, "datafield", tag=tag)
         )
 
     @staticmethod
-    def get_single_subfield_string(xml_element: Tag, subfield_code: str) -> str | None:
+    def get_single_subfield_string(
+        xml_element: etree._Element, subfield_code: str
+    ) -> str | None:
         """
         Get the string value of a subfield element for a specified code.
 
         Finds and returns the string value of a single subfield element if the
-        element contains a string. This uses bs4's find() method and thus will return
-        only the string value from the first subfield element matching the criteria.
+        element contains a string. This returns only the string value from the first
+        subfield element matching the criteria.
 
         Args:
-            xml_element: A BeautifulSoup Tag representing a single MARC XML element.
+            xml_element: An lxml element representing a single MARC XML element.
             subfield_code: Subfield code from which a single value is extracted.
 
         Returns:
@@ -217,8 +256,12 @@ class Marc(XMLTransformer):
                 and the value is not only whitespace, the string value is returned;
                 else None is returned.
         """
-        if subfield := xml_element.find("subfield", code=subfield_code, string=True):
-            return str(subfield.string).strip() or None
+        if (
+            subfield_string := Marc.find_element_string(
+                xml_element, "subfield", code=subfield_code
+            )
+        ) is not None:
+            return subfield_string.strip() or None
         return None
 
     @staticmethod
@@ -284,16 +327,20 @@ class Marc(XMLTransformer):
         return str(code_element.parent.find("name").string)
 
     @classmethod
-    def _get_leader_field(cls, source_record: Tag) -> str:
-        if leader := source_record.find("leader", string=True):
-            return str(leader.string)
+    def _get_leader_field(cls, source_record: etree._Element) -> str:
+        if (leader := cls.find_element_string(source_record, "leader")) is not None:
+            return leader
         message = "Record skipped because key information is missing: <leader>."
         raise SkippedRecordEvent(message)
 
     @classmethod
-    def _get_control_field(cls, source_record: Tag) -> str:
-        if control_field := source_record.find("controlfield", tag="008", string=True):
-            return str(control_field.string)
+    def _get_control_field(cls, source_record: etree._Element) -> str:
+        if (
+            control_field := cls.find_element_string(
+                source_record, "controlfield", tag="008"
+            )
+        ) is not None:
+            return control_field
         message = (
             'Record skipped because key information is missing: <controlfield tag="008">.'
         )
@@ -301,7 +348,7 @@ class Marc(XMLTransformer):
 
     @classmethod
     def get_alternate_titles(
-        cls, source_record: Tag
+        cls, source_record: etree._Element
     ) -> list[timdex.AlternateTitle] | None:
         alternate_titles = []
         alternate_title_marc_fields = [
@@ -318,7 +365,9 @@ class Marc(XMLTransformer):
                         value=alternate_title_value.rstrip(" .,/"),
                         kind=kind,
                     )
-                    for datafield in source_record.find_all("datafield", tag=tag)
+                    for datafield in cls.find_all_elements(
+                        source_record, "datafield", tag=tag
+                    )
                     if (
                         alternate_title_value := (
                             cls.create_subfield_value_string_from_datafield(
@@ -333,7 +382,7 @@ class Marc(XMLTransformer):
         return alternate_titles or None
 
     @classmethod
-    def get_call_numbers(cls, source_record: Tag) -> list[str] | None:
+    def get_call_numbers(cls, source_record: etree._Element) -> list[str] | None:
         call_numbers: list = []
         call_number_marc_fields = [
             {
@@ -346,8 +395,8 @@ class Marc(XMLTransformer):
             },
         ]
         for call_number_marc_field in call_number_marc_fields:
-            for datafield in source_record.find_all(
-                "datafield", tag=call_number_marc_field["tag"]
+            for datafield in cls.find_all_elements(
+                source_record, "datafield", tag=call_number_marc_field["tag"]
             ):
                 call_numbers.extend(
                     call_number
@@ -358,7 +407,7 @@ class Marc(XMLTransformer):
         return call_numbers or None
 
     @classmethod
-    def get_content_type(cls, source_record: Tag) -> list[str] | None:
+    def get_content_type(cls, source_record: etree._Element) -> list[str] | None:
         if content_type := cls.json_crosswalk_code_to_name(
             code=cls._get_leader_field(source_record)[6:7],
             crosswalk=cls.marc_content_type_crosswalk,
@@ -369,9 +418,9 @@ class Marc(XMLTransformer):
         return None
 
     @classmethod
-    def get_contents(cls, source_record: Tag) -> list[str] | None:
+    def get_contents(cls, source_record: etree._Element) -> list[str] | None:
         contents = []
-        for datafield in source_record.find_all("datafield", tag="505"):
+        for datafield in cls.find_all_elements(source_record, "datafield", tag="505"):
             for contents_value in cls.create_subfield_value_list_from_datafield(
                 datafield,
                 "agrt",
@@ -385,7 +434,9 @@ class Marc(XMLTransformer):
         return contents or None
 
     @classmethod
-    def get_contributors(cls, source_record: Tag) -> list[timdex.Contributor] | None:
+    def get_contributors(
+        cls, source_record: etree._Element
+    ) -> list[timdex.Contributor] | None:
         """Retrieve contributors using data from relevant MARC fields.
 
         The method starts by creating a dictionary where the keys are
@@ -411,7 +462,7 @@ class Marc(XMLTransformer):
         ]
 
         for tag, subfields in contributor_marc_fields:
-            for datafield in source_record.find_all("datafield", tag=tag):
+            for datafield in cls.find_all_elements(source_record, "datafield", tag=tag):
                 if contributor_name := (
                     cls.create_subfield_value_string_from_datafield(
                         xml_element=datafield,
@@ -440,17 +491,17 @@ class Marc(XMLTransformer):
         return contributors or None
 
     @classmethod
-    def get_dates(cls, source_record: Tag) -> list[timdex.Date] | None:
+    def get_dates(cls, source_record: etree._Element) -> list[timdex.Date] | None:
         publication_year = cls._get_control_field(source_record)[7:11].strip()
         if validate_date(publication_year, cls.get_source_record_id(source_record)):
             return [timdex.Date(kind="Publication date", value=publication_year)]
         return None
 
     @classmethod
-    def get_edition(cls, source_record: Tag) -> str | None:
+    def get_edition(cls, source_record: etree._Element) -> str | None:
         edition_values = [
             edition_value
-            for datafield in source_record.find_all("datafield", tag="250")
+            for datafield in cls.find_all_elements(source_record, "datafield", tag="250")
             if (
                 edition_value := cls.create_subfield_value_string_from_datafield(
                     xml_element=datafield, subfield_codes="ab", separator=" "
@@ -460,15 +511,17 @@ class Marc(XMLTransformer):
         return " ".join(edition_values) or None
 
     @classmethod
-    def get_holdings(cls, source_record: Tag) -> list[timdex.Holding] | None:
+    def get_holdings(cls, source_record: etree._Element) -> list[timdex.Holding] | None:
         holdings: list[timdex.Holding] = []
         holdings.extend(cls._get_holdings_physical_items(source_record))
         holdings.extend(cls._get_holdings_electronic_items(source_record))
         return holdings or None
 
     @classmethod
-    def _get_holdings_physical_items(cls, source_record: Tag) -> Iterator[timdex.Holding]:
-        for datafield in source_record.find_all("datafield", tag="985"):
+    def _get_holdings_physical_items(
+        cls, source_record: etree._Element
+    ) -> Iterator[timdex.Holding]:
+        for datafield in cls.find_all_elements(source_record, "datafield", tag="985"):
             holding_call_number = cls.create_subfield_value_string_from_datafield(
                 datafield, ["bb"]
             )
@@ -512,9 +565,9 @@ class Marc(XMLTransformer):
 
     @classmethod
     def _get_holdings_electronic_items(
-        cls, source_record: Tag
+        cls, source_record: etree._Element
     ) -> Iterator[timdex.Holding]:
-        for datafield in source_record.find_all("datafield", tag="986"):
+        for datafield in cls.find_all_elements(source_record, "datafield", tag="986"):
             holding_collection = cls.get_single_subfield_string(datafield, "j")
             holding_location = (
                 cls.get_single_subfield_string(datafield, "f")
@@ -537,7 +590,9 @@ class Marc(XMLTransformer):
                 )
 
     @classmethod
-    def get_identifiers(cls, source_record: Tag) -> list[timdex.Identifier] | None:
+    def get_identifiers(
+        cls, source_record: etree._Element
+    ) -> list[timdex.Identifier] | None:
         identifiers = []
         identifier_marc_fields = [
             ("010", "a", "LCCN"),
@@ -553,7 +608,9 @@ class Marc(XMLTransformer):
                         value=identifier.strip().replace("(OCoLC)", ""),
                         kind=kind,
                     )
-                    for datafield in source_record.find_all("datafield", tag=tag)
+                    for datafield in cls.find_all_elements(
+                        source_record, "datafield", tag=tag
+                    )
                     if (
                         identifier := (
                             cls.create_subfield_value_string_from_datafield(
@@ -568,7 +625,7 @@ class Marc(XMLTransformer):
         return identifiers or None
 
     @classmethod
-    def get_languages(cls, source_record: Tag) -> list[str] | None:
+    def get_languages(cls, source_record: etree._Element) -> list[str] | None:
 
         languages = []
         language_codes: list[str] = []
@@ -578,7 +635,7 @@ class Marc(XMLTransformer):
             language_codes.append(fixed_language_value)
 
         # get language codes from data field 041
-        for datafield in source_record.find_all("datafield", tag="041"):
+        for datafield in cls.find_all_elements(source_record, "datafield", tag="041"):
             language_codes.extend(
                 cls.create_subfield_value_list_from_datafield(datafield, "abdefghjkmn")
             )
@@ -589,7 +646,7 @@ class Marc(XMLTransformer):
 
     @classmethod
     def _get_language_names(
-        cls, source_record: Tag, language_codes: list[str]
+        cls, source_record: etree._Element, language_codes: list[str]
     ) -> list[str]:
         return [
             language_name
@@ -605,26 +662,26 @@ class Marc(XMLTransformer):
         ]
 
     @classmethod
-    def _get_language_notes(cls, source_record: Tag) -> list[str]:
+    def _get_language_notes(cls, source_record: etree._Element) -> list[str]:
         return [
-            str(language_note.string).rstrip(" .")
-            for datafield in source_record.find_all("datafield", tag="546")
-            if (language_note := datafield.find("subfield", code="a", string=True))
+            language_note.rstrip(" .")
+            for datafield in cls.find_all_elements(source_record, "datafield", tag="546")
+            if (language_note := cls.find_element_string(datafield, "subfield", code="a"))
+            is not None
         ]
 
     @classmethod
-    def get_links(cls, source_record: Tag) -> list[timdex.Link] | None:
+    def get_links(cls, source_record: etree._Element) -> list[timdex.Link] | None:
         links: list[timdex.Link] = []
-        for datafield in source_record.find_all(
-            "datafield", tag="856", ind1="4", ind2=["0", "1"]
+        for datafield in cls.find_all_elements(
+            source_record, "datafield", tag="856", ind1="4", ind2=["0", "1"]
         ):
             url_value = cls.create_subfield_value_list_from_datafield(datafield, "u")
             text_value = cls.create_subfield_value_list_from_datafield(datafield, "y")
             restrictions_value = cls.create_subfield_value_list_from_datafield(
                 datafield, "z"
             )
-            if kind_value := datafield.find("subfield", code="3", string=True):
-                kind_value = str(kind_value.string)
+            kind_value = cls.find_element_string(datafield, "subfield", code="3")
             if url_value:
                 links.append(
                     timdex.Link(
@@ -641,9 +698,9 @@ class Marc(XMLTransformer):
 
     @classmethod
     def _get_links_holdings_electronic_items(
-        cls, source_record: Tag
+        cls, source_record: etree._Element
     ) -> Iterator[timdex.Link]:
-        for datafield in source_record.find_all("datafield", tag="986"):
+        for datafield in cls.find_all_elements(source_record, "datafield", tag="986"):
             holding_collection = cls.get_single_subfield_string(datafield, "j")
             holding_location = (
                 cls.get_single_subfield_string(datafield, "f")
@@ -658,7 +715,7 @@ class Marc(XMLTransformer):
                 )
 
     @classmethod
-    def get_literary_form(cls, source_record: Tag) -> str | None:
+    def get_literary_form(cls, source_record: etree._Element) -> str | None:
         """Retrieve literary form for book materials.
 
         Book materials configurations are used when Leader/06 (Type of record)
@@ -686,7 +743,7 @@ class Marc(XMLTransformer):
         return None
 
     @classmethod
-    def get_locations(cls, source_record: Tag) -> list[timdex.Location] | None:
+    def get_locations(cls, source_record: etree._Element) -> list[timdex.Location] | None:
         locations = []
         location_marc_fields = [
             ("751", "a", "Geographic Name"),
@@ -704,7 +761,9 @@ class Marc(XMLTransformer):
                         value=location_value.rstrip(" .,/)"),
                         kind=kind,
                     )
-                    for datafield in source_record.find_all("datafield", tag=tag)
+                    for datafield in cls.find_all_elements(
+                        source_record, "datafield", tag=tag
+                    )
                     if (
                         location_value := (
                             cls.create_subfield_value_string_from_datafield(
@@ -719,7 +778,9 @@ class Marc(XMLTransformer):
         return locations or None
 
     @classmethod
-    def _get_location_publication(cls, source_record: Tag) -> timdex.Location | None:
+    def _get_location_publication(
+        cls, source_record: etree._Element
+    ) -> timdex.Location | None:
         if (
             fixed_location_code := cls._get_control_field(source_record)[15:18].strip()
         ) and (
@@ -734,7 +795,7 @@ class Marc(XMLTransformer):
         return None
 
     @classmethod
-    def get_notes(cls, source_record: Tag) -> list[timdex.Note] | None:
+    def get_notes(cls, source_record: etree._Element) -> list[timdex.Note] | None:
         notes = []
         note_marc_fields = [
             ("245", "c", "Title Statement of Responsibility"),
@@ -761,7 +822,9 @@ class Marc(XMLTransformer):
                         value=[note_value.rstrip(" .")],
                         kind=kind,
                     )
-                    for datafield in source_record.find_all("datafield", tag=tag)
+                    for datafield in cls.find_all_elements(
+                        source_record, "datafield", tag=tag
+                    )
                     if (
                         note_value := (
                             cls.create_subfield_value_string_from_datafield(
@@ -776,7 +839,7 @@ class Marc(XMLTransformer):
         return notes or None
 
     @classmethod
-    def get_numbering(cls, source_record: Tag) -> str | None:
+    def get_numbering(cls, source_record: etree._Element) -> str | None:
         return (
             cls.concatenate_subfield_value_strings_from_datafield(
                 source_record, tag="362", subfield_codes="abcefg"
@@ -785,7 +848,7 @@ class Marc(XMLTransformer):
         )
 
     @classmethod
-    def get_physical_description(cls, source_record: Tag) -> str | None:
+    def get_physical_description(cls, source_record: etree._Element) -> str | None:
         return (
             cls.concatenate_subfield_value_strings_from_datafield(
                 source_record, tag="300", subfield_codes="abcefg"
@@ -794,10 +857,10 @@ class Marc(XMLTransformer):
         )
 
     @classmethod
-    def get_publication_frequency(cls, source_record: Tag) -> list[str] | None:
+    def get_publication_frequency(cls, source_record: etree._Element) -> list[str] | None:
         return [
             publication_frequency_value
-            for datafield in source_record.find_all("datafield", tag="310")
+            for datafield in cls.find_all_elements(source_record, "datafield", tag="310")
             if (
                 publication_frequency_value := (
                     cls.create_subfield_value_string_from_datafield(
@@ -808,10 +871,14 @@ class Marc(XMLTransformer):
         ] or None
 
     @classmethod
-    def get_publishers(cls, source_record: Tag) -> list[timdex.Publisher] | None:
+    def get_publishers(
+        cls, source_record: etree._Element
+    ) -> list[timdex.Publisher] | None:
         publishers = []
         for publisher_marc_tag in ["260", "264"]:
-            for datafield in source_record.find_all("datafield", tag=publisher_marc_tag):
+            for datafield in cls.find_all_elements(
+                source_record, "datafield", tag=publisher_marc_tag
+            ):
                 if any(
                     [
                         publisher_name := cls.get_single_subfield_string(datafield, "b"),
@@ -835,7 +902,9 @@ class Marc(XMLTransformer):
         return publishers or None
 
     @classmethod
-    def get_related_items(cls, source_record: Tag) -> list[timdex.RelatedItem] | None:
+    def get_related_items(
+        cls, source_record: etree._Element
+    ) -> list[timdex.RelatedItem] | None:
         related_items = []
         related_item_marc_fields = [
             ("765", "abcdghikmnorstuwxyz", "Original Language Version"),
@@ -854,7 +923,9 @@ class Marc(XMLTransformer):
                         description=related_item_value.rstrip(" ."),
                         relationship=relationship,
                     )
-                    for datafield in source_record.find_all("datafield", tag=tag)
+                    for datafield in cls.find_all_elements(
+                        source_record, "datafield", tag=tag
+                    )
                     if (
                         related_item_value := (
                             cls.create_subfield_value_string_from_datafield(
@@ -869,7 +940,7 @@ class Marc(XMLTransformer):
         return related_items or None
 
     @classmethod
-    def get_subjects(cls, source_record: Tag) -> list[timdex.Subject] | None:
+    def get_subjects(cls, source_record: etree._Element) -> list[timdex.Subject] | None:
         subjects = []
         subject_marc_fields = [
             ("600", "abcdefghjklmnopqrstuvxyz", "Personal Name"),
@@ -884,7 +955,9 @@ class Marc(XMLTransformer):
                         value=[subject_value.rstrip(" .")],
                         kind=kind,
                     )
-                    for datafield in source_record.find_all("datafield", tag=tag)
+                    for datafield in cls.find_all_elements(
+                        source_record, "datafield", tag=tag
+                    )
                     if (
                         subject_value := (
                             cls.create_subfield_value_string_from_datafield(
@@ -899,10 +972,10 @@ class Marc(XMLTransformer):
         return subjects or None
 
     @classmethod
-    def get_summary(cls, source_record: Tag) -> list[str] | None:
+    def get_summary(cls, source_record: etree._Element) -> list[str] | None:
         return [
             summary_value
-            for datafield in source_record.find_all("datafield", tag="520")
+            for datafield in cls.find_all_elements(source_record, "datafield", tag="520")
             if (
                 summary_value := cls.create_subfield_value_string_from_datafield(
                     xml_element=datafield, subfield_codes="a", separator=" "
@@ -911,55 +984,67 @@ class Marc(XMLTransformer):
         ] or None
 
     @classmethod
-    def get_main_titles(cls, source_record: Tag) -> list[str]:
+    def get_main_titles(  # type: ignore[override]
+        cls, source_record: etree._Element
+    ) -> list[str]:
         """
         Retrieve main title(s) from a MARC XML record.
 
         Overrides metaclass get_main_titles() method.
 
         Args:
-            source_record: A BeautifulSoup Tag representing a single MARC XML record.
+            source_record: An lxml element representing a single MARC XML record.
         """
-        try:
-            main_title_values = []
-            if main_title_value := cls.create_subfield_value_string_from_datafield(
-                xml_element=source_record.find("datafield", tag="245"),
-                subfield_codes="abfgknps",
-                separator=" ",
-            ):
-                main_title_values.append(main_title_value.rstrip(" .,/"))
-        except AttributeError:
-            logger.exception(
+        datafield = next(
+            cls.find_all_elements(source_record, "datafield", tag="245"), None
+        )
+        if datafield is None:
+            logger.error(
                 "Record ID %s is missing a 245 field",
                 cls.get_source_record_id(source_record),
             )
             return []
-        else:
-            return main_title_values
+        main_title_values = []
+        if main_title_value := cls.create_subfield_value_string_from_datafield(
+            xml_element=datafield,
+            subfield_codes="abfgknps",
+            separator=" ",
+        ):
+            main_title_values.append(main_title_value.rstrip(" .,/"))
+        return main_title_values
 
     @classmethod
-    def get_source_record_id(cls, source_record: Tag) -> str:
+    def get_source_record_id(  # type: ignore[override]
+        cls, source_record: etree._Element
+    ) -> str:
         """
         Get the source record ID from a MARC XML record.
 
         Overrides metaclass get_source_record_id() method.
 
         Args:
-            source_record: A BeautifulSoup Tag representing a single MARC XML record.
+            source_record: An lxml element representing a single MARC XML record.
         """
-        return str(source_record.find("controlfield", tag="001", string=True).string)
+        if (
+            source_record_id := cls.find_element_string(
+                source_record, "controlfield", tag="001"
+            )
+        ) is None:
+            message = 'Record is missing <controlfield tag="001">.'
+            raise ValueError(message)
+        return source_record_id
 
     @classmethod
-    def record_is_deleted(cls, source_record: Tag) -> bool:
+    def record_is_deleted(  # type: ignore[override]
+        cls, source_record: etree._Element
+    ) -> bool:
         """
         Determine whether record has a status of deleted.
 
         Overrides metaclass record_is_deleted() method.
 
         Args:
-            source_record: A BeautifulSoup Tag representing a single MARC XML record
+            source_record: An lxml element representing a single MARC XML record
         """
-        if leader := source_record.find("leader", string=True):  # noqa: SIM102
-            if leader.string[5:6] == "d":
-                return True
-        return False
+        leader = cls.find_element_string(source_record, "leader")
+        return leader is not None and leader[5:6] == "d"
