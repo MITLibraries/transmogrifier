@@ -459,6 +459,24 @@ class Transformer(ABC):
         timdex_dataset = TIMDEXDataset(location=dataset_location)
         return timdex_dataset.records.write(rows_iter=self)
 
+    def write_to_file(self, output_file: str) -> int:
+        """Write transformed records to a JSONLines file, one record per line.
+
+        Only records with action 'index' are written.  Deleted, skipped, and errored
+        records are counted and logged as usual, but not written.
+
+        Args:
+            output_file: Local or S3 filepath to write to.
+        """
+        count = 0
+        with smart_open.open(output_file, "wb") as file:
+            for record in self:
+                if record.action == "index":
+                    file.write(record.transformed_record + b"\n")
+                    count += 1
+        logger.info(f"File write complete - records: {count}, file: {output_file}")
+        return count
+
     def write_to_parquet_files(self, output_location: str) -> list[str]:
         """Write output to a directory of parquet files.
 

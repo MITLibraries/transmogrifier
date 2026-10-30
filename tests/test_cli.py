@@ -304,8 +304,8 @@ def test_transform_no_output_option_raises_usage_error(runner):
     result = runner.invoke(main, ["-s", "alma", "--input-file", "fake-input-file"])
     assert result.exit_code == 2  # noqa: PLR2004
     assert (
-        "Exactly one output option is required: --output-dataset or --output-parquet"
-        in result.output
+        "Exactly one output option is required: --output-file or --output-dataset or "
+        "--output-parquet" in result.output
     )
 
 
@@ -346,3 +346,22 @@ def test_transform_input_parquet_and_output_parquet(
     assert result.exit_code == 0
     assert "Parquet files write complete - files: 1" in caplog.text
     assert [path.name for path in output_location.iterdir()] == ["part-0.parquet"]
+
+
+def test_transform_output_file(caplog, runner, source_input_file, tmp_path):
+    caplog.set_level("INFO")
+    output_file = tmp_path / "records.jsonl"
+    result = runner.invoke(
+        main,
+        [
+            "-s",
+            "jpal",
+            "--input-file",
+            source_input_file,
+            "--output-file",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code == 0
+    assert "deleted records: 1" in caplog.text
+    assert f"File write complete - records: 3, file: {output_file}" in caplog.text

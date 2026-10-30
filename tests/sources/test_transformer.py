@@ -532,3 +532,15 @@ def test_transformer_parquet_files_round_trip_preserves_transformed_records(
     assert [without_provenance(row) for row in round_trip_rows] == [
         without_provenance(row) for row in original_indexed
     ]
+
+
+def test_transformer_write_to_file_writes_only_indexed_records(
+    tmp_path, source_transformer
+):
+    output_file = tmp_path / "records.jsonl"
+    count = source_transformer.write_to_file(str(output_file))
+
+    lines = output_file.read_text().splitlines()
+    assert count == len(lines) == source_transformer.transformed_record_count == 3  # noqa: PLR2004
+    assert len(source_transformer.deleted_records) == 1
+    assert all(json.loads(line)["timdex_record_id"] for line in lines)

@@ -45,6 +45,15 @@ logger = logging.getLogger(__name__)
     ),
 )
 @click.option(
+    "-of",
+    "--output-file",
+    required=False,
+    help=(
+        "Filepath (local or S3) of a JSONLines file to write transformed records to, "
+        "one per line.  Only records with action 'index' are written."
+    ),
+)
+@click.option(
     "-o",
     "--output-dataset",
     required=False,
@@ -89,6 +98,7 @@ def main(
     input_file: str | None,
     input_dataset: str | None,
     input_parquet: str | None,
+    output_file: str | None,
     output_dataset: str | None,
     output_parquet: str | None,
     exclusion_list_path: str,
@@ -109,6 +119,7 @@ def main(
             "--input-parquet": input_parquet,
         },
         outputs={
+            "--output-file": output_file,
             "--output-dataset": output_dataset,
             "--output-parquet": output_parquet,
         },
@@ -123,7 +134,9 @@ def main(
         run_id=run_id,
         run_timestamp=run_timestamp,
     )
-    if output_dataset:
+    if output_file:
+        transformer.write_to_file(output_file)
+    elif output_dataset:
         transformer.write_to_timdex_dataset(output_dataset)
     elif output_parquet:
         transformer.write_to_parquet_files(output_parquet)
