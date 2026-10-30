@@ -3,6 +3,7 @@ from collections import defaultdict
 from collections.abc import Iterator
 
 from bs4 import Tag
+from lxml import etree
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
@@ -33,6 +34,76 @@ class Marc(XMLTransformer):
     marc_content_type_crosswalk = load_external_config(
         "config/marc_content_type_crosswalk.json", "json"
     )
+
+    @staticmethod
+    def get_element_string(element: etree._Element) -> str | None:
+        """Get the single string within an lxml element, as bs4's Tag.string does.
+
+        If the element has exactly one child node and it is a string (text, comment,
+        or processing instruction), that string is returned. If the one child node is
+        an element, its string is returned, recursively. Otherwise, including when the
+        element has no child nodes, None is returned.
+
+        Unlike bs4, whitespace-only strings are returned as-is, not collapsed to a
+        single space or newline.
+
+        Args:
+            element: An lxml element.
+        """
+        children = list(element)
+        node_count = bool(element.text) + sum(1 + bool(child.tail) for child in children)
+        if node_count != 1:
+            return None
+        if element.text:
+            return element.text
+        child = children[0]
+        if isinstance(child, etree._Comment):  # noqa: SLF001
+            return child.text or ""
+        if isinstance(child, etree._ProcessingInstruction):  # noqa: SLF001
+            target = str(child.target)
+            return f"{target} {child.text or ''}"
+        return Marc.get_element_string(child)
+
+    @staticmethod
+    def find_all_elements(
+        element: etree._Element, name: str, **attributes: str | list[str]
+    ) -> Iterator[etree._Element]:
+        """Find elements by local name and attribute values, as bs4's find_all() does.
+
+        Searches the element and its descendants in document order. An attribute value
+        given as a list matches any of its values.
+
+        Args:
+            element: An lxml element.
+            name: Element local name, in any or no namespace.
+            attributes: Attribute values each matching element must have.
+        """
+        for found in element.iter(f"{{*}}{name}"):
+            if all(
+                found.get(attribute) in value
+                if isinstance(value, list)
+                else found.get(attribute) == value
+                for attribute, value in attributes.items()
+            ):
+                yield found
+
+    @staticmethod
+    def find_element_string(
+        element: etree._Element, name: str, **attributes: str
+    ) -> str | None:
+        """Get the string of the first matching element that has one.
+
+        Equivalent to bs4's find(name, string=True, **attributes).string.
+
+        Args:
+            element: An lxml element.
+            name: Element local name, in any or no namespace.
+            attributes: Attribute values the matching element must have.
+        """
+        for found in Marc.find_all_elements(element, name, **attributes):
+            if (string := Marc.get_element_string(found)) is not None:
+                return string
+        return None
 
     @staticmethod
     def create_subfield_value_list_from_datafield(

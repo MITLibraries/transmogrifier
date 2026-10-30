@@ -4,6 +4,7 @@ from unittest import mock
 
 import pytest
 from bs4 import BeautifulSoup  # type: ignore[import-untyped]
+from lxml import etree
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
@@ -1967,6 +1968,91 @@ def test_marc_record_missing_008_skips_record(caplog):
     assert len(list(output_records)) == 1
     assert output_records.processed_record_count == 1
     assert output_records.skipped_record_count == 1
+
+
+@pytest.mark.parametrize(
+    "xml",
+    [
+        "<a>value</a>",
+        "<a>  padded value  </a>",
+        "<a/>",
+        "<a></a>",
+        "<a>&#160;</a>",
+        "<a>&amp; entity</a>",
+        "<a><![CDATA[cdata]]></a>",
+        "<a><b>nested</b></a>",
+        "<a><b><c>deeply nested</c></b></a>",
+        "<a><b/></a>",
+        "<a>text<b>child</b></a>",
+        "<a><b>child</b>tail</a>",
+        "<a><b>child</b> </a>",
+        "<a><b>one</b><c>two</c></a>",
+        "<a><!--comment--></a>",
+        "<a>text<!--comment--></a>",
+        "<a><?target data?></a>",
+        "<a><?target?></a>",
+    ],
+)
+def test_get_element_string_matches_bs4_string(xml):
+    bs4_string = BeautifulSoup(xml, "xml").find("a").string
+    expected = None if bs4_string is None else str(bs4_string)
+    assert Marc.get_element_string(etree.fromstring(xml.encode())) == expected
+
+
+@pytest.mark.parametrize(
+    ("xml", "expected"),
+    [
+        ("<a>   </a>", "   "),
+        ("<a> \n  </a>", " \n  "),
+        ("<a>\t</a>", "\t"),
+        ("<a><!----></a>", ""),
+    ],
+)
+def test_get_element_string_keeps_whitespace_only_strings(xml, expected):
+    # unlike bs4, which collapses whitespace-only strings to a single space or newline
+    assert Marc.get_element_string(etree.fromstring(xml.encode())) == expected
+
+
+def test_find_all_elements_matches_name_in_any_namespace_including_self():
+    element = etree.fromstring(
+        b'<datafield xmlns="http://www.loc.gov/MARC21/slim" tag="100">'
+        b'<subfield code="a">one</subfield><datafield tag="100"/></datafield>'
+    )
+    assert [
+        found.get("tag") for found in Marc.find_all_elements(element, "datafield")
+    ] == [
+        "100",
+        "100",
+    ]
+
+
+def test_find_all_elements_matches_attribute_values():
+    element = etree.fromstring(
+        b"<record>"
+        b'<datafield tag="856" ind2="0">one</datafield>'
+        b'<datafield tag="856" ind2="2">two</datafield>'
+        b'<datafield tag="856" ind2="1">three</datafield>'
+        b'<datafield tag="245" ind2="0">four</datafield>'
+        b"</record>"
+    )
+    assert [
+        found.text
+        for found in Marc.find_all_elements(
+            element, "datafield", tag="856", ind2=["0", "1"]
+        )
+    ] == ["one", "three"]
+
+
+def test_find_element_string_skips_elements_without_string():
+    element = etree.fromstring(
+        b"<datafield>"
+        b'<subfield code="a"/>'
+        b'<subfield code="a"><b>x</b><c>y</c></subfield>'
+        b'<subfield code="a">value</subfield>'
+        b"</datafield>"
+    )
+    assert Marc.find_element_string(element, "subfield", code="a") == "value"
+    assert Marc.find_element_string(element, "subfield", code="b") is None
 
 
 def test_create_subfield_value_list_from_datafield_with_values():

@@ -604,3 +604,11 @@ def test_transformer_next_iter_stores_original_json_line(tmp_path):
     source_file.write_bytes(line + b"\n")
     transformer = Transformer.load("gismit", str(source_file))
     assert next(transformer).source_record == line
+
+
+def test_transformer_serialize_source_record_lxml_element(generic_transformer):
+    element = etree.fromstring(b'<record><title lang="en">Title</title></record>')
+    assert (
+        generic_transformer("cool-repo", iter([])).serialize_source_record(element)
+        == b'<record><title lang="en">Title</title></record>'
+    )
