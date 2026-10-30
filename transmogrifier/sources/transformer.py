@@ -217,9 +217,9 @@ class Transformer(ABC):
             return DatasetRecord(
                 timdex_record_id=timdex_record_id,
                 source_record=(
-                    self.serialize_source_record(source_record)
-                    if source_record is not None
-                    else record
+                    record
+                    if isinstance(record, bytes)
+                    else self.serialize_source_record(record)
                 ),
                 transformed_record=(
                     json.dumps(transformed_record.asdict()).encode()
@@ -413,6 +413,11 @@ class Transformer(ABC):
         return run_data
 
     def serialize_source_record(self, source_record: Tag | dict) -> bytes | None:
+        """Serialize an already parsed source record, for storing in the dataset.
+
+        Source records read as bytes are stored as-is; this is only used when a
+        transformer is given already parsed records.
+        """
         if isinstance(source_record, Tag):
             return source_record.encode()
         if isinstance(source_record, dict):

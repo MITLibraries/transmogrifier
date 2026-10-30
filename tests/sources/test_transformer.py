@@ -584,3 +584,23 @@ def test_jsontransformer_read_source_file_yields_line_bytes(tmp_path):
         b'{"id": "1"}',
         b'{"id": "2"}',
     ]
+
+
+def test_transformer_next_iter_stores_original_source_record_bytes(source_input_file):
+    original_records = list(XMLTransformer.read_source_file(source_input_file))
+    transformer = Transformer.load("cool-repo", source_input_file)
+    stored_records = [dataset_record.source_record for dataset_record in transformer]
+    assert stored_records == original_records
+    assert not stored_records[0].startswith(b"<?xml")
+
+
+def test_transformer_next_iter_stores_original_json_line(tmp_path):
+    source_file = tmp_path / "gismit-2024-01-01-full-extracted-records-to-index.jsonl"
+    line = (
+        Path("tests/fixtures/aardvark/aardvark_record_all_fields.jsonl")
+        .read_bytes()
+        .strip()
+    )
+    source_file.write_bytes(line + b"\n")
+    transformer = Transformer.load("gismit", str(source_file))
+    assert next(transformer).source_record == line
