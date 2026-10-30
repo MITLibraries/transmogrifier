@@ -62,14 +62,19 @@ def researchdatabases_transformer():
 
 def test_researchdatabases_yields_oai_records_pass(researchdatabases_transformer):
 
-    oai_records = list(
-        researchdatabases_transformer._yield_oai_xml_records_for_indexing(
-            researchdatabases_transformer.source_file
+    with patch.object(
+        ResearchDatabases,
+        "_yield_api_records_for_deleting",
+        return_value=iter([]),
+    ):
+        oai_records = list(
+            researchdatabases_transformer.read_source_file(
+                researchdatabases_transformer.source_file
+            )
         )
-    )
 
     assert len(oai_records) == 3
-    assert isinstance(oai_records[0], Tag)
+    assert isinstance(oai_records[0], bytes)
 
 
 def test_researchdatabases_yields_deleted_records_success(

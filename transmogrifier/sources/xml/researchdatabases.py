@@ -2,9 +2,7 @@ import logging
 from collections.abc import Iterator
 from datetime import UTC, datetime
 
-import smart_open  # type: ignore[import-untyped]
 from bs4 import BeautifulSoup, Tag
-from lxml import etree
 from timdex_dataset_api import TIMDEXDataset  # type: ignore[import-untyped]
 
 from transmogrifier import config
@@ -20,7 +18,7 @@ DELETION_PERCENT_THRESHOLD = 0.8
 
 class ResearchDatabases(SpringshareOaiDc):
     @classmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[Tag]:
+    def read_source_file(cls, source_file: str) -> Iterator[bytes]:
         """Yield records from harvested OAI + API gathered records for possible delete.
 
         If the following env vars are not set, detecting deleted records will be skipped:
@@ -28,27 +26,9 @@ class ResearchDatabases(SpringshareOaiDc):
             - LIBGUIDES_CLIENT_ID
             - TIMDEX_DATASET_LOCATION
         """
-        yield from cls._yield_oai_xml_records_for_indexing(source_file)
-        yield from cls._yield_api_records_for_deleting()
-
-    @classmethod
-    def _yield_oai_xml_records_for_indexing(cls, source_file: str) -> Iterator[Tag]:
-        """Yield OAI records from extracted XML file.
-
-        This functionality is a direct port from XMLTransformer, but allows for a custom
-        self.parse_source_file in this transformer class.
-        """
-        with smart_open.open(source_file, "rb") as file:
-            for _, element in etree.iterparse(
-                file,
-                tag="{*}record",
-                encoding="utf-8",
-                recover=True,
-            ):
-                record_string = etree.tostring(element, encoding="utf-8")
-                record = cls.parse_bs4_in_isolated_thread(record_string)
-                yield record
-                element.clear()
+        yield from super().read_source_file(source_file)
+        for record in cls._yield_api_records_for_deleting():
+            yield record.encode()
 
     @classmethod
     def _yield_api_records_for_deleting(cls) -> Iterator[Tag]:

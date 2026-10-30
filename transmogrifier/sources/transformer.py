@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, final
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.dataset as ds
-import pyarrow.parquet as pq
 import smart_open
 from bs4 import Tag
 from pyarrow import fs
@@ -78,7 +77,7 @@ class Transformer(ABC):
     def __init__(
         self,
         source: str,
-        source_records: Iterator[dict[str, JSON] | Tag],
+        source_records: Iterator[bytes | dict[str, JSON] | Tag],
         exclusion_list_path: str | None = None,
         source_file: str | None = None,
         source_dataset: str | None = None,
@@ -93,7 +92,8 @@ class Transformer(ABC):
             source: Source repository label. Must match a source key from config.SOURCES.
             exclusion_list_path: S3 or local filepath to exclusion list CSV file.
             exclsion_list: The exclusion list for this particular source.
-            source_records: A set of source records to be processed.
+            source_records: A set of source records to be processed, as bytes to be
+                parsed during transformation, or already parsed records.
             source_file: Filepath of the input source file.
             source_dataset: Location of the TIMDEX dataset with input source records.
             source_parquet: Location of parquet file(s) with input source records.
@@ -105,7 +105,7 @@ class Transformer(ABC):
         self._exclusion_list: list[str] | None = None
         self.source_base_url: str = SOURCES[source]["base-url"]
         self.source_name = SOURCES[source]["name"]
-        self.source_records: Iterator[JSON | Tag] = source_records
+        self.source_records: Iterator[bytes | dict[str, JSON] | Tag] = source_records
         self.processed_record_count: int = 0
         self.transformed_record_count: int = 0
         self.skipped_record_count: int = 0
@@ -172,13 +172,19 @@ class Transformer(ABC):
     def __next__(self) -> DatasetRecord:
         """Return next transformed record."""
         while True:
+            source_record = None
             transformed_record = None
             timdex_record_id = None
 
-            source_record = next(self.source_records)
+            record = next(self.source_records)
             self.processed_record_count += 1
 
             try:
+                source_record = (
+                    self.parse_source_record(record)
+                    if isinstance(record, bytes)
+                    else record
+                )
                 transformed_record = self.transform(source_record)
                 timdex_record_id = transformed_record.timdex_record_id
                 transformed_record.timdex_provenance = timdex.TimdexProvenance(
@@ -210,7 +216,11 @@ class Transformer(ABC):
 
             return DatasetRecord(
                 timdex_record_id=timdex_record_id,
-                source_record=self.serialize_source_record(source_record),
+                source_record=(
+                    self.serialize_source_record(source_record)
+                    if source_record is not None
+                    else record
+                ),
                 transformed_record=(
                     json.dumps(transformed_record.asdict()).encode()
                     if transformed_record
@@ -266,14 +276,16 @@ class Transformer(ABC):
         if len([i for i in (source_file, source_dataset, source_parquet) if i]) != 1:
             raise ValueError(INPUT_SOURCE_ERROR_MESSAGE)
 
+        # source records are read as bytes, and parsed one at a time during transform
+        source_records: Iterator[bytes]
         if source_file:
-            source_records = transformer_class.parse_source_file(source_file)
+            source_records = transformer_class.read_source_file(source_file)
         elif source_dataset:
-            source_records = transformer_class.parse_source_records_from_dataset(
+            source_records = transformer_class.read_source_records_from_dataset(
                 source, source_dataset
             )
         elif source_parquet:
-            source_records = transformer_class.parse_source_records_from_parquet(
+            source_records = transformer_class.read_source_records_from_parquet(
                 source, source_parquet
             )
 
@@ -565,15 +577,26 @@ class Transformer(ABC):
 
     @classmethod
     @abstractmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[dict[str, JSON] | Tag]:
+    def read_source_file(cls, source_file: str) -> Iterator[bytes]:
         """
-        Parse source file and return source records via an iterator.
+        Read source file and yield each source record as bytes, without parsing.
 
         Must be overridden by format subclasses.
 
         Args:
             source_file: A file containing source records to be transformed.
         """
+
+    @classmethod
+    def parse_source_file(cls, source_file: str) -> Iterator[dict[str, JSON] | Tag]:
+        """
+        Read source file and yield each source record parsed.
+
+        Args:
+            source_file: A file containing source records to be transformed.
+        """
+        for source_record in cls.read_source_file(source_file):
+            yield cls.parse_source_record(source_record)
 
     @classmethod
     @abstractmethod
@@ -588,15 +611,13 @@ class Transformer(ABC):
         """
 
     @classmethod
-    def parse_source_records_from_dataset(
+    def read_source_records_from_dataset(
         cls, source: str, source_dataset: str
-    ) -> Iterator[dict[str, JSON] | Tag]:
-        """Read current source records from a TIMDEX dataset and parse them.
+    ) -> Iterator[bytes]:
+        """Read current source records from a TIMDEX dataset, as bytes.
 
-        Each record is parsed by the format-specific `parse_source_record` method.
-        Currently, format-specific sub-classes XMLTransformer and JSONTransformer
-        define this for parsing their respective file record formats.
-        Source-specific transformers will generally just inhereit.
+        Records are parsed during transformation by the format-specific
+        `parse_source_record` method.
 
         Args:
             source_dataset: Location of TIMDEX dataset with source records.
@@ -609,44 +630,38 @@ class Transformer(ABC):
             source=source,
             action="index",
         ):
-            yield cls.parse_source_record(record["source_record"])
+            yield record["source_record"]
 
     @classmethod
-    def parse_source_records_from_parquet(
+    def read_source_records_from_parquet(
         cls, source: str, source_parquet: str
-    ) -> Iterator[dict[str, JSON] | Tag]:
-        """Read source records from parquet file(s) and parse them.
+    ) -> Iterator[bytes]:
+        """Read source records from parquet file(s), as bytes.
 
         The parquet file(s) must have the TIMDEX records columns 'source_record',
-        'source', and 'action', e.g. a Timmy export.  A directory is read recursively,
-        in sorted path order, ignoring non-parquet files like a Timmy 'export.json'.
-        Only rows for the given source with action 'index' are parsed, in file order.
+        'source', and 'action'.  A directory is read recursively, in sorted path order,
+        ignoring non-parquet files.  Only rows for the given source with action 'index'
+        are read, in file order.
 
         Args:
             source: Source label to filter rows by.
             source_parquet: Local or S3 location of a parquet file or directory.
         """
         filesystem, path = _parse_location(source_parquet)
-        if filesystem.get_file_info(path).type == fs.FileType.Directory:
-            filepaths = _list_parquet_files(filesystem, path)
-        else:
-            filepaths = [path]
-        logger.info(f"Reading source records from {len(filepaths)} parquet file(s)")
+        dataset = ds.dataset(
+            path,
+            filesystem=filesystem,
+            format="parquet",
+            exclude_invalid_files=True,
+        )
+        logger.info(f"Reading source records from {len(dataset.files)} parquet file(s)")
 
-        for filepath in filepaths:
-            with filesystem.open_input_file(filepath) as file:
-                for batch in pq.ParquetFile(file).iter_batches(
-                    columns=["source_record", "source", "action"],
-                    batch_size=PARQUET_DATASET_BATCH_SIZE,
-                ):
-                    mask = pc.and_(
-                        pc.equal(batch.column("source"), source),
-                        pc.equal(batch.column("action"), "index"),
-                    )
-                    for source_record in (
-                        batch.filter(mask).column("source_record").to_pylist()
-                    ):
-                        yield cls.parse_source_record(source_record)
+        for batch in dataset.to_batches(
+            columns=["source_record"],
+            filter=(pc.field("source") == source) & (pc.field("action") == "index"),
+            batch_size=PARQUET_DATASET_BATCH_SIZE,
+        ):
+            yield from batch.column("source_record").to_pylist()
 
     @classmethod
     @abstractmethod
@@ -819,14 +834,3 @@ def _parse_location(location: str) -> tuple[fs.FileSystem, str]:
     if location.startswith("s3://"):
         return fs.S3FileSystem(), location.removeprefix("s3://")
     return fs.LocalFileSystem(), os.path.abspath(location)
-
-
-def _list_parquet_files(filesystem: fs.FileSystem, path: str) -> list[str]:
-    """Return sorted paths of parquet files under a directory, if it exists."""
-    if filesystem.get_file_info(path).type != fs.FileType.Directory:
-        return []
-    return sorted(
-        file_info.path
-        for file_info in filesystem.get_file_info(fs.FileSelector(path, recursive=True))
-        if file_info.path.endswith(".parquet")
-    )

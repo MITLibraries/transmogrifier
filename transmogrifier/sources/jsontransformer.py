@@ -4,7 +4,6 @@ import json
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
-import jsonlines
 import smart_open  # type: ignore[import-untyped]
 
 from transmogrifier.sources.transformer import JSON, Transformer
@@ -18,19 +17,19 @@ class JSONTransformer(Transformer):
 
     @final
     @classmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[dict[str, JSON]]:
+    def read_source_file(cls, source_file: str) -> Iterator[bytes]:
         """
-        Parse JSON file and return source records as JSON objects via an iterator.
+        Read JSONLines file and yield each non-blank line as bytes.
 
         May not be overridden.
-
-        Validates that records in the file are dicts for proper processing.
 
         Args:
             source_file: A file containing source records to be transformed.
         """
-        with jsonlines.Reader(smart_open.open(source_file, "r")) as records:
-            yield from records.iter(type=dict)
+        with smart_open.open(source_file, "rb") as file:
+            for line in file:
+                if line.strip():
+                    yield line.rstrip(b"\r\n")
 
     @final
     @classmethod
