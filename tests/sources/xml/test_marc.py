@@ -1106,6 +1106,24 @@ def test_get_contributors_transforms_correctly_if_contributor_multiple_kinds():
     ]
 
 
+def test_get_contributors_kinds_differing_only_by_case_sorted_consistently():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="700" ind1="1" ind2=" ">
+                <subfield code="a">Seybolt, Taylor B</subfield>
+                <subfield code="e">editor</subfield>
+                <subfield code="e">Editor</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contributors(source_record) == [
+        timdex.Contributor(value="Seybolt, Taylor B", kind="Editor"),
+        timdex.Contributor(value="Seybolt, Taylor B", kind="editor"),
+    ]
+
+
 def test_get_contributors_transforms_correctly_if_kind_not_specified():
     source_record = create_marc_source_record_stub(
         datafield_insert=(

@@ -358,10 +358,12 @@ class Marc(XMLTransformer):
             if len(kinds) == 0:
                 contributors.append(timdex.Contributor(value=name, kind="Not specified"))
             else:
+                # break ties between kinds differing only by case by lowercasing to
+                # preserve order in final record
                 contributors.extend(
                     [
                         timdex.Contributor(value=name, kind=kind.strip(" .,"))
-                        for kind in sorted(kinds, key=lambda k: k.lower())
+                        for kind in sorted(kinds, key=lambda k: (k.lower(), k))
                     ]
                 )
         return contributors or None
