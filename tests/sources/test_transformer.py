@@ -13,7 +13,11 @@ from lxml import etree
 from timdex_dataset_api import DatasetRecord
 
 import transmogrifier.models as timdex
-from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
+from transmogrifier.exceptions import (
+    CriticalError,
+    DeletedRecordEvent,
+    SkippedRecordEvent,
+)
 from transmogrifier.sources import transformer as transformer_module
 from transmogrifier.sources.json.aardvark import MITAardvark
 from transmogrifier.sources.jsontransformer import JSONTransformer
@@ -671,3 +675,53 @@ def test_transformer_create_dataset_record_does_not_change_counts(source_transfo
     assert dataset_record.source_record == b"<record/>"
     assert dataset_record.action == "error"
     assert source_transformer.error_record_count == 0
+
+
+class CriticalErrorDatacite(Datacite):
+    """Module level, so worker processes can import it."""
+
+    def get_timdex_record_id(self, _source_record):
+        raise CriticalError("Catastrophic failure in a worker!")
+
+
+def test_transformer_workers_output_matches_single_process(source_input_file, run_id):
+    def load(workers: int) -> Transformer:
+        return Transformer.load(
+            "jpal",
+            source_input_file,
+            run_id=run_id,
+            run_timestamp="2024-06-03T15:30:45",
+            workers=workers,
+        )
+
+    single_process, with_workers = load(1), load(2)
+    single_process_records = list(single_process)
+    with_workers_records = list(with_workers)
+
+    assert with_workers_records == single_process_records
+    assert len(with_workers.deleted_records) == 1
+    for attribute in (
+        "processed_record_count",
+        "transformed_record_count",
+        "skipped_record_count",
+        "error_record_count",
+        "deleted_records",
+    ):
+        assert getattr(with_workers, attribute) == getattr(single_process, attribute)
+
+
+def test_transformer_workers_critical_error_stops_run(source_input_file):
+    transformer = CriticalErrorDatacite(
+        "jpal",
+        XMLTransformer.read_source_file(source_input_file),
+        source_file=source_input_file,
+        workers=2,
+    )
+    with pytest.raises(CriticalError, match="Catastrophic failure in a worker!"):
+        list(transformer)
+
+
+def test_transformer_workers_require_bytes_source_records(oai_pmh_records):
+    transformer = XMLTransformer("cool-repo", oai_pmh_records, workers=2)
+    with pytest.raises(TypeError, match="requires source records as bytes"):
+        list(transformer)

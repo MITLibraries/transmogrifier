@@ -7,10 +7,13 @@ from __future__ import annotations
 import itertools
 import json
 import logging
+import multiprocessing
 import os
 import re
 import uuid
 from abc import ABC, abstractmethod
+from collections import deque
+from concurrent.futures import Future, ProcessPoolExecutor
 from datetime import UTC, datetime
 from importlib import import_module
 from typing import TYPE_CHECKING, final
@@ -28,7 +31,7 @@ from timdex_dataset_api import (
 )
 
 import transmogrifier.models as timdex
-from transmogrifier.config import SOURCES
+from transmogrifier.config import SOURCES, configure_logger, configure_sentry
 from transmogrifier.exceptions import (
     CriticalError,
     DeletedRecordEvent,
@@ -66,10 +69,16 @@ PARQUET_FILES_MAX_ROWS_PER_FILE = 100_000
 PARQUET_FILES_ROW_GROUP_SIZE = 5_000
 PARQUET_FILES_COMPRESSION = "zstd"
 
+WORKER_CHUNK_SIZE = 100
+WORKER_MAX_PENDING_CHUNKS_PER_WORKER = 4
+
 INPUT_SOURCE_ERROR_MESSAGE = (
     "Exactly one input source is required: 'source_file', 'source_dataset', "
     "or 'source_parquet'"
 )
+
+# set once per worker process by _init_worker(), and used by _transform_in_worker()
+_worker_transformer: Transformer | None = None
 
 
 @define(frozen=True)
@@ -97,6 +106,7 @@ class Transformer(ABC):
         source_parquet: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
+        workers: int = 1,
     ) -> None:
         """
         Initialize Transformer instance.
@@ -112,6 +122,8 @@ class Transformer(ABC):
             source_parquet: Location of parquet file(s) with input source records.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
+            workers: Number of worker processes to transform records with.  With 1,
+                records are transformed in this process.
         """
         self.source: str = source
         self.exclusion_list_path: str | None = exclusion_list_path
@@ -127,6 +139,7 @@ class Transformer(ABC):
         self.source_file = source_file
         self.source_dataset = source_dataset
         self.source_parquet = source_parquet
+        self.workers = workers
 
         self.run_data = self.get_run_data(
             source=source,
@@ -178,8 +191,83 @@ class Transformer(ABC):
 
     @final
     def __iter__(self) -> Iterator[DatasetRecord]:
-        """Iterate over transformed records."""
+        """Iterate over transformed records, using worker processes if configured."""
+        if self.workers > 1:
+            return self._iter_with_workers()
         return self
+
+    @final
+    def _iter_with_workers(self) -> Iterator[DatasetRecord]:
+        """Yield transformed records, transformed by a pool of worker processes.
+
+        The main process reads source records as bytes and sends them to workers in
+        chunks, each with its run_record_offset.  Workers return only TransformResults;
+        the main process keeps the source record bytes, and handles results in input
+        order.  Output is therefore identical to transforming in a single process.
+
+        Workers are started fresh, each building its own instance of this transformer's
+        class, with this transformer's run data.  A CriticalError in any worker stops the
+        run.
+        """
+        logger.info(f"Transforming records with {self.workers} worker processes")
+        executor = ProcessPoolExecutor(
+            max_workers=self.workers,
+            mp_context=multiprocessing.get_context("spawn"),
+            initializer=_init_worker,
+            initargs=(
+                type(self),
+                self.source,
+                self.exclusion_list_path,
+                self.run_data,
+                logging.getLogger().getEffectiveLevel() == logging.DEBUG,
+            ),
+        )
+        max_pending_chunks = self.workers * WORKER_MAX_PENDING_CHUNKS_PER_WORKER
+        pending: deque[tuple[list[bytes], Future[list[TransformResult]]]] = deque()
+        offsets = itertools.count(self.processed_record_count)
+        try:
+            for chunk in itertools.batched(
+                self.source_records, WORKER_CHUNK_SIZE, strict=False
+            ):
+                records: list[bytes] = []
+                for record in chunk:
+                    if not isinstance(record, bytes):
+                        raise TypeError(
+                            "Transforming with workers requires source records as bytes"
+                        )
+                    records.append(record)
+                pending.append(
+                    (
+                        records,
+                        executor.submit(
+                            _transform_in_worker,
+                            [(record, next(offsets)) for record in records],
+                        ),
+                    )
+                )
+                if len(pending) >= max_pending_chunks:
+                    yield from self._create_dataset_records(*pending.popleft())
+            while pending:
+                yield from self._create_dataset_records(*pending.popleft())
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+
+    def _create_dataset_records(
+        self, records: list[bytes], future: Future[list[TransformResult]]
+    ) -> Iterator[DatasetRecord]:
+        """Yield DatasetRecords for a chunk of records transformed by a worker.
+
+        Waits for the worker's results, then does the main process bookkeeping for each
+        record in run order, as __next__() does when not using workers.
+
+        Args:
+            records: The chunk's source records, as sent to the worker.
+            future: The worker's pending TransformResults for the chunk, in order.
+        """
+        for record, result in zip(records, future.result(), strict=True):
+            self.processed_record_count += 1
+            self._update_record_counts(result)
+            yield self._create_dataset_record(record, result)
 
     @final
     def __next__(self) -> DatasetRecord:
@@ -329,6 +417,7 @@ class Transformer(ABC):
         exclusion_list_path: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
+        workers: int = 1,
     ) -> Transformer:
         """
         Instantiate specified transformer class and populate with source records.
@@ -341,6 +430,7 @@ class Transformer(ABC):
             exclusion_list_path: CSV filepath to use for explicitly skipping records.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
+            workers: Number of worker processes to transform records with.
         """
         transformer_class = cls.get_transformer(source)
 
@@ -369,6 +459,7 @@ class Transformer(ABC):
             source_parquet=source_parquet,
             run_id=run_id,
             run_timestamp=run_timestamp,
+            workers=workers,
         )
 
     @staticmethod
@@ -910,3 +1001,30 @@ def _parse_location(location: str) -> tuple[fs.FileSystem, str]:
     if location.startswith("s3://"):
         return fs.S3FileSystem(), location.removeprefix("s3://")
     return fs.LocalFileSystem(), os.path.abspath(location)
+
+
+def _init_worker(
+    transformer_class: type[Transformer],
+    source: str,
+    exclusion_list_path: str | None,
+    run_data: dict,
+    verbose: bool,  # noqa: FBT001
+) -> None:
+    """Build this worker process's transformer, with the main process's run data."""
+    global _worker_transformer  # noqa: PLW0603
+    configure_logger(logging.getLogger(), verbose=verbose)
+    configure_sentry()
+    _worker_transformer = transformer_class(
+        source, iter(()), exclusion_list_path=exclusion_list_path
+    )
+    _worker_transformer.run_data = run_data
+
+
+def _transform_in_worker(chunk: list[tuple[bytes, int]]) -> list[TransformResult]:
+    """Transform a chunk of (source record, run_record_offset) in a worker process."""
+    if _worker_transformer is None:
+        raise RuntimeError("Worker transformer was not initialized")
+    return [
+        _worker_transformer._process_source_record(record, run_record_offset)  # noqa: SLF001
+        for record, run_record_offset in chunk
+    ]
