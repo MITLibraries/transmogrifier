@@ -66,10 +66,27 @@ TIMDEX_DATASET_LOCATION=### Location of the TIMDEX dataset
 
 ### `transform`
 
+Exactly one input option and exactly one output option are required.
+
+| Input | Reads |
+|---|---|
+| `--input-file` | A source file of extracted records; run data is parsed from the filename. |
+| `--input-dataset` | Current source records from a TIMDEX dataset, as a `patch` run. |
+| `--input-parquet` | Source records from a parquet file or directory as a `patch` run. Only rows for `--source` with action `index` are read. |
+
+| Output | Writes |
+|---|---|
+| `--output-file` | Transformed records with action `index` to a JSONLines file, one per line. Useful for debugging. |
+| `--output-dataset` | All records to a TIMDEX dataset. |
+| `--output-parquet` | All records to parquet files. |
+
 ```text
-Usage: -c [OPTIONS]
+Usage: transform [OPTIONS]
 
 Options:
+  -s, --source [alma|aspace|digitalcollections|dspace|jpal|libguides|mitlibwebsite|gismit|gisogm|researchdatabases|whoas|zenodo]
+                                  Source records were harvested from, must
+                                  choose from list of options  [required]
   -i, --input-file TEXT           Filepath of input records to transform.  The
                                   filename must be in the format
                                   <source>-<YYYY-MM-DD>-<run-type>-extracted-
@@ -78,13 +95,22 @@ Options:
                                   Examples: 'gisogm-2024-03-28-daily-
                                   extracted-records-to-index.jsonl' or
                                   'alma-2023-01-13-full-extracted-records-to-
-                                  index_17.xml'.  [required]
-  -o, --output-location TEXT      Location of TIMDEX parquet dataset to write
-                                  to.  [required]
-  -s, --source [alma|aspace|dspace|jpal|libguides|gismit|gisogm|researchdatabases|whoas|zenodo]
-                                  Source records were harvested from, must
-                                  choose from list of options  [required]
-  -e, --exclusion-list-path TEXT  S3 or local path to exclusion list. 
+                                  index_17.xml'.
+  -id, --input-dataset TEXT       Location of TIMDEX parquet dataset with
+                                  source records used as input.
+  -ip, --input-parquet TEXT       Location of a parquet file, or directory of
+                                  parquet files, with source records used as
+                                  input, e.g. a Timmy export.
+  -of, --output-file TEXT         Filepath (local or S3) of a JSONLines file
+                                  to write transformed records to, one per
+                                  line.  Only records with action 'index' are
+                                  written.
+  -o, --output-dataset TEXT       Location of TIMDEX dataset to write to.
+  -op, --output-parquet TEXT      Location of a directory to write parquet
+                                  files to, e.g. for a Timmy import.  Files
+                                  have the TIMDEX records schema, but no
+                                  dataset partitioning or metadata.
+  -e, --exclusion-list-path TEXT  S3 or local path to exclusion list.
   -r, --run-id TEXT               Identifier for Transmogrifier run.  This can
                                   be used to group transformed records
                                   produced by Transmogrifier, even if they
