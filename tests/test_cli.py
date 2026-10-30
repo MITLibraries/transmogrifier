@@ -106,7 +106,7 @@ def test_transform_run_id_argument_passed_and_used(caplog, runner, tmp_path):
     caplog.set_level("INFO")
     run_id = "abc123"
     with mock.patch(
-        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+        "transmogrifier.sources.transformer.Transformer.write_to_timdex_dataset",
         autospec=True,
     ) as mocked_transform_and_write:
         mocked_transform_and_write.side_effect = Exception("stopping transformation")
@@ -132,7 +132,7 @@ def test_transform_run_id_argument_not_passed_and_uuid_minted(caplog, runner, tm
     caplog.set_level("INFO")
     with (
         mock.patch(
-            "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+            "transmogrifier.sources.transformer.Transformer.write_to_timdex_dataset",
             autospec=True,
         ) as mocked_transform_and_write,
         mock.patch("transmogrifier.sources.transformer.uuid.uuid4") as mocked_uuid4,
@@ -159,7 +159,7 @@ def test_transform_run_timestamp_argument_passed_and_used(caplog, runner, tmp_pa
     caplog.set_level("INFO")
     run_timestamp = "2024-06-03T12:34:56"
     with mock.patch(
-        "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+        "transmogrifier.sources.transformer.Transformer.write_to_timdex_dataset",
         autospec=True,
     ) as mocked_transform_and_write:
         mocked_transform_and_write.side_effect = Exception("stopping transformation")
@@ -190,7 +190,7 @@ def test_transform_run_timestamp_argument_not_passed_and_timestamp_minted(
     mocked_datetime.now.return_value.isoformat.return_value = "2024-06-03T12:34:56+00:00"
     with (
         mock.patch(
-            "transmogrifier.sources.transformer.Transformer.write_to_parquet_dataset",
+            "transmogrifier.sources.transformer.Transformer.write_to_timdex_dataset",
             autospec=True,
         ) as mocked_transform_and_write,
         mock.patch("transmogrifier.sources.transformer.datetime", mocked_datetime),
@@ -269,3 +269,80 @@ def test_transform_critical_error_prevents_writing(
     assert str(result.exception) == "Catastrophic failure, no records will work!"
     assert result.exit_code != 0
     assert "Completed transform, total records processed" not in caplog.text
+
+
+def test_transform_no_input_option_raises_usage_error(runner, tmp_path):
+    result = runner.invoke(
+        main, ["-s", "alma", "--output-dataset", str(tmp_path / "dataset")]
+    )
+    assert result.exit_code == 2  # noqa: PLR2004
+    assert (
+        "Exactly one input option is required: --input-file or --input-dataset or "
+        "--input-parquet" in result.output
+    )
+
+
+def test_transform_multiple_input_options_raises_usage_error(runner, tmp_path):
+    result = runner.invoke(
+        main,
+        [
+            "-s",
+            "alma",
+            "--input-file",
+            "fake-input-file",
+            "--input-parquet",
+            "fake-input-parquet",
+            "--output-dataset",
+            str(tmp_path / "dataset"),
+        ],
+    )
+    assert result.exit_code == 2  # noqa: PLR2004
+    assert "Exactly one input option is required" in result.output
+
+
+def test_transform_no_output_option_raises_usage_error(runner):
+    result = runner.invoke(main, ["-s", "alma", "--input-file", "fake-input-file"])
+    assert result.exit_code == 2  # noqa: PLR2004
+    assert (
+        "Exactly one output option is required: --output-dataset or --output-parquet"
+        in result.output
+    )
+
+
+def test_transform_multiple_output_options_raises_usage_error(runner, tmp_path):
+    result = runner.invoke(
+        main,
+        [
+            "-s",
+            "alma",
+            "--input-file",
+            "fake-input-file",
+            "--output-dataset",
+            str(tmp_path / "dataset"),
+            "--output-parquet",
+            str(tmp_path / "parquet"),
+        ],
+    )
+    assert result.exit_code == 2  # noqa: PLR2004
+    assert "Exactly one output option is required" in result.output
+
+
+def test_transform_input_parquet_and_output_parquet(
+    caplog, runner, source_parquet_location, tmp_path
+):
+    caplog.set_level("INFO")
+    output_location = tmp_path / "output"
+    result = runner.invoke(
+        main,
+        [
+            "-s",
+            "researchdatabases",
+            "--input-parquet",
+            source_parquet_location,
+            "--output-parquet",
+            str(output_location),
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Parquet files write complete - files: 1" in caplog.text
+    assert [path.name for path in output_location.iterdir()] == ["part-0.parquet"]

@@ -36,10 +36,28 @@ logger = logging.getLogger(__name__)
     help="Location of TIMDEX parquet dataset with source records used as input.",
 )
 @click.option(
+    "-ip",
+    "--input-parquet",
+    required=False,
+    help=(
+        "Location of a parquet file, or directory of parquet files, with source "
+        "records used as input."
+    ),
+)
+@click.option(
     "-o",
     "--output-dataset",
-    required=True,
+    required=False,
     help="Location of TIMDEX dataset to write to.",
+)
+@click.option(
+    "-op",
+    "--output-parquet",
+    required=False,
+    help=(
+        "Location of a directory to write parquet files to.  Files have the TIMDEX "
+        "records schema, but no dataset partitioning or metadata."
+    ),
 )
 @click.option(
     "-e",
@@ -68,9 +86,11 @@ logger = logging.getLogger(__name__)
 )
 def main(
     source: str,
-    input_file: str,
-    input_dataset: str,
-    output_dataset: str,
+    input_file: str | None,
+    input_dataset: str | None,
+    input_parquet: str | None,
+    output_dataset: str | None,
+    output_parquet: str | None,
     exclusion_list_path: str,
     run_id: str,
     run_timestamp: str,
@@ -82,20 +102,31 @@ def main(
     logger.info(configure_sentry())
     logger.info("Running transform for source %s", source)
 
-    if (input_file and input_dataset) or (not input_file and not input_dataset):
-        raise click.UsageError(
-            "Exactly one input source is required: --input-file or --input-dataset"
-        )
+    _validate_options(
+        inputs={
+            "--input-file": input_file,
+            "--input-dataset": input_dataset,
+            "--input-parquet": input_parquet,
+        },
+        outputs={
+            "--output-dataset": output_dataset,
+            "--output-parquet": output_parquet,
+        },
+    )
 
     transformer = Transformer.load(
         source,
         source_file=input_file,
         source_dataset=input_dataset,
+        source_parquet=input_parquet,
         exclusion_list_path=exclusion_list_path,
         run_id=run_id,
         run_timestamp=run_timestamp,
     )
-    transformer.write_to_parquet_dataset(output_dataset)
+    if output_dataset:
+        transformer.write_to_timdex_dataset(output_dataset)
+    elif output_parquet:
+        transformer.write_to_parquet_files(output_parquet)
 
     logger.info(
         (
@@ -114,3 +145,15 @@ def main(
     logger.info(
         "Total time to complete transform: %s", str(timedelta(seconds=elapsed_time))
     )
+
+
+def _validate_options(
+    inputs: dict[str, str | None],
+    outputs: dict[str, str | None],
+) -> None:
+    """Ensure exactly one input option and exactly one output option are set."""
+    for kind, options in (("input", inputs), ("output", outputs)):
+        if len([value for value in options.values() if value]) != 1:
+            raise click.UsageError(
+                f"Exactly one {kind} option is required: {' or '.join(options)}"
+            )

@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
+import itertools
 import json
 import logging
+import os
 import re
 import uuid
 from abc import ABC, abstractmethod
@@ -13,9 +15,14 @@ from datetime import UTC, datetime
 from importlib import import_module
 from typing import TYPE_CHECKING, final
 
-import smart_open  # type: ignore[import-untyped]
-from bs4 import Tag  # type: ignore[import-untyped]
-from timdex_dataset_api import (  # type: ignore[import-untyped, import-not-found]
+import pyarrow as pa
+import pyarrow.compute as pc
+import pyarrow.dataset as ds
+import pyarrow.parquet as pq
+import smart_open
+from bs4 import Tag
+from pyarrow import fs
+from timdex_dataset_api import (
     DatasetRecord,
     TIMDEXDataset,
 )
@@ -41,6 +48,29 @@ type JSON = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
 PARQUET_DATASET_BATCH_SIZE = 1_000
 
+PARQUET_FILES_SCHEMA = pa.schema(
+    [
+        pa.field("timdex_record_id", pa.string()),
+        pa.field("source_record", pa.binary()),
+        pa.field("transformed_record", pa.string()),
+        pa.field("source", pa.string()),
+        pa.field("run_date", pa.date32()),
+        pa.field("run_type", pa.string()),
+        pa.field("action", pa.string()),
+        pa.field("run_id", pa.string()),
+        pa.field("run_record_offset", pa.int64()),
+        pa.field("run_timestamp", pa.timestamp("us", tz="UTC")),
+    ]
+)
+PARQUET_FILES_MAX_ROWS_PER_FILE = 100_000
+PARQUET_FILES_ROW_GROUP_SIZE = 5_000
+PARQUET_FILES_COMPRESSION = "zstd"
+
+INPUT_SOURCE_ERROR_MESSAGE = (
+    "Exactly one input source is required: 'source_file', 'source_dataset', "
+    "or 'source_parquet'"
+)
+
 
 class Transformer(ABC):
     """Base transformer class."""
@@ -52,6 +82,7 @@ class Transformer(ABC):
         exclusion_list_path: str | None = None,
         source_file: str | None = None,
         source_dataset: str | None = None,
+        source_parquet: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
     ) -> None:
@@ -65,6 +96,7 @@ class Transformer(ABC):
             source_records: A set of source records to be processed.
             source_file: Filepath of the input source file.
             source_dataset: Location of the TIMDEX dataset with input source records.
+            source_parquet: Location of parquet file(s) with input source records.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
         """
@@ -81,11 +113,13 @@ class Transformer(ABC):
         self.deleted_records: list[str] = []
         self.source_file = source_file
         self.source_dataset = source_dataset
+        self.source_parquet = source_parquet
 
         self.run_data = self.get_run_data(
             source=source,
             source_file=source_file,
             source_dataset=source_dataset,
+            source_parquet=source_parquet,
             run_id=run_id,
             run_timestamp=run_timestamp,
         )
@@ -210,6 +244,7 @@ class Transformer(ABC):
         source: str,
         source_file: str | None = None,
         source_dataset: str | None = None,
+        source_parquet: str | None = None,
         exclusion_list_path: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
@@ -221,22 +256,25 @@ class Transformer(ABC):
             source: Source repository label. Must match a source key from config.SOURCES.
             source_file: A file containing source records to be transformed.
             source_dataset: TIMDEX dataset with source records to be transformed.
+            source_parquet: Parquet file(s) with source records to be transformed.
             exclusion_list_path: CSV filepath to use for explicitly skipping records.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
         """
         transformer_class = cls.get_transformer(source)
 
-        if (source_file and source_dataset) or (not source_file and not source_dataset):
-            raise ValueError(
-                "Exactly one input source is required: 'source_file' or 'source_dataset'"
-            )
+        if len([i for i in (source_file, source_dataset, source_parquet) if i]) != 1:
+            raise ValueError(INPUT_SOURCE_ERROR_MESSAGE)
 
         if source_file:
             source_records = transformer_class.parse_source_file(source_file)
         elif source_dataset:
             source_records = transformer_class.parse_source_records_from_dataset(
                 source, source_dataset
+            )
+        elif source_parquet:
+            source_records = transformer_class.parse_source_records_from_parquet(
+                source, source_parquet
             )
 
         return transformer_class(
@@ -245,6 +283,7 @@ class Transformer(ABC):
             exclusion_list_path,
             source_file=source_file,
             source_dataset=source_dataset,
+            source_parquet=source_parquet,
             run_id=run_id,
             run_timestamp=run_timestamp,
         )
@@ -254,6 +293,7 @@ class Transformer(ABC):
         source: str,
         source_file: str | None = None,
         source_dataset: str | None = None,
+        source_parquet: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
     ) -> dict:
@@ -268,7 +308,8 @@ class Transformer(ABC):
         2. Values are then overridden based on the input source:
             - 'source_file': 'source', 'run_date', and 'run_type' are parsed from
               the filename and replace the defaults.
-            - 'source_dataset': 'run_type' is set to 'patch' (see below).
+            - 'source_dataset' or 'source_parquet': 'run_type' is set to 'patch'
+              (see below).
             - neither: the defaults are returned as-is.
 
         A 'patch' run re-transforms the current source records in the TIMDEX dataset
@@ -282,6 +323,7 @@ class Transformer(ABC):
             source_file: Filepath of the input source file.
                 - example: "libguides-2024-06-03-full-extracted-records-to-index.xml"
             source_dataset: Location of the TIMDEX dataset with input source records.
+            source_parquet: Location of parquet file(s) with input source records.
             run_id: A unique identifier associated with this ETL run.
                 - example: "run-abc-123"
                 - provided as CLI argument or minted if absent
@@ -290,7 +332,7 @@ class Transformer(ABC):
                 - provided as CLI argument or minted if absent
 
         Raises:
-            ValueError: If both 'source_file' and 'source_dataset' are provided.
+            ValueError: If more than one input source is provided.
 
         Example output:
             {
@@ -301,10 +343,8 @@ class Transformer(ABC):
                 'run_timestamp': '2024-06-17T12:56:56.000000+00:00'
             }
         """
-        if source_file and source_dataset:
-            raise ValueError(
-                "Exactly one input source is required: 'source_file' or 'source_dataset'"
-            )
+        if len([i for i in (source_file, source_dataset, source_parquet) if i]) > 1:
+            raise ValueError(INPUT_SOURCE_ERROR_MESSAGE)
         current_datetime = datetime.now(UTC)
 
         # set at default
@@ -320,8 +360,8 @@ class Transformer(ABC):
         if source_file:
             run_data.update(Transformer._parse_run_data_from_source_file(source_file))
 
-        # if input source is a dataset, 'run_type' is set to patch
-        elif source_dataset:
+        # if input source is a dataset or parquet file(s), 'run_type' is set to patch
+        elif source_dataset or source_parquet:
             run_data["run_type"] = "patch"
 
         return run_data
@@ -414,10 +454,63 @@ class Transformer(ABC):
         """
         return False
 
-    def write_to_parquet_dataset(self, dataset_location: str) -> list:
+    def write_to_timdex_dataset(self, dataset_location: str) -> list:
         """Write output to TIMDEX dataset."""
         timdex_dataset = TIMDEXDataset(location=dataset_location)
         return timdex_dataset.records.write(rows_iter=self)
+
+    def write_to_parquet_files(self, output_location: str) -> list[str]:
+        """Write output to a directory of parquet files.
+
+        The schema very closely mirrors the TIMDEX Dataset schema.
+
+        Args:
+            output_location: Local or S3 directory to write parquet files to.  Must be
+                empty or not yet exist.
+        """
+        filesystem, path = _parse_location(output_location)
+        written_files: list[ds.WrittenFile] = []
+        ds.write_dataset(
+            self._create_parquet_files_batches(),
+            base_dir=path,
+            basename_template="part-{i}.parquet",
+            existing_data_behavior="error",
+            file_options=ds.ParquetFileFormat().make_write_options(
+                compression=PARQUET_FILES_COMPRESSION
+            ),
+            file_visitor=written_files.append,
+            filesystem=filesystem,
+            format="parquet",
+            max_rows_per_file=PARQUET_FILES_MAX_ROWS_PER_FILE,
+            max_rows_per_group=PARQUET_FILES_ROW_GROUP_SIZE,
+            preserve_order=True,
+            schema=PARQUET_FILES_SCHEMA,
+        )
+
+        total_rows = sum(written_file.metadata.num_rows for written_file in written_files)
+        logger.info(
+            f"Parquet files write complete - files: {len(written_files)}, "
+            f"rows: {total_rows}"
+        )
+        return [written_file.path for written_file in written_files]
+
+    def _create_parquet_files_batches(self) -> Iterator[pa.RecordBatch]:
+        """Yield record batches, each one parquet row group, of transformed records."""
+        for batch in itertools.batched(self, PARQUET_FILES_ROW_GROUP_SIZE, strict=False):
+            yield pa.RecordBatch.from_pylist(
+                [
+                    {name: getattr(record, name) for name in PARQUET_FILES_SCHEMA.names}
+                    | {
+                        "transformed_record": (
+                            record.transformed_record.decode()
+                            if record.transformed_record
+                            else None
+                        )
+                    }
+                    for record in batch
+                ],
+                schema=PARQUET_FILES_SCHEMA,
+            )
 
     @final
     def get_valid_title(self, source_record: dict[str, JSON] | Tag) -> str:
@@ -499,6 +592,43 @@ class Transformer(ABC):
             action="index",
         ):
             yield cls.parse_source_record(record["source_record"])
+
+    @classmethod
+    def parse_source_records_from_parquet(
+        cls, source: str, source_parquet: str
+    ) -> Iterator[dict[str, JSON] | Tag]:
+        """Read source records from parquet file(s) and parse them.
+
+        The parquet file(s) must have the TIMDEX records columns 'source_record',
+        'source', and 'action', e.g. a Timmy export.  A directory is read recursively,
+        in sorted path order, ignoring non-parquet files like a Timmy 'export.json'.
+        Only rows for the given source with action 'index' are parsed, in file order.
+
+        Args:
+            source: Source label to filter rows by.
+            source_parquet: Local or S3 location of a parquet file or directory.
+        """
+        filesystem, path = _parse_location(source_parquet)
+        if filesystem.get_file_info(path).type == fs.FileType.Directory:
+            filepaths = _list_parquet_files(filesystem, path)
+        else:
+            filepaths = [path]
+        logger.info(f"Reading source records from {len(filepaths)} parquet file(s)")
+
+        for filepath in filepaths:
+            with filesystem.open_input_file(filepath) as file:
+                for batch in pq.ParquetFile(file).iter_batches(
+                    columns=["source_record", "source", "action"],
+                    batch_size=PARQUET_DATASET_BATCH_SIZE,
+                ):
+                    mask = pc.and_(
+                        pc.equal(batch.column("source"), source),
+                        pc.equal(batch.column("action"), "index"),
+                    )
+                    for source_record in (
+                        batch.filter(mask).column("source_record").to_pylist()
+                    ):
+                        yield cls.parse_source_record(source_record)
 
     @classmethod
     @abstractmethod
@@ -664,3 +794,21 @@ class Transformer(ABC):
             for subject in spatial_subjects:
                 for place_name in subject.value:
                     yield timdex.Location(value=place_name, kind="Place Name")
+
+
+def _parse_location(location: str) -> tuple[fs.FileSystem, str]:
+    """Return a pyarrow filesystem and path for a local or S3 location."""
+    if location.startswith("s3://"):
+        return fs.S3FileSystem(), location.removeprefix("s3://")
+    return fs.LocalFileSystem(), os.path.abspath(location)
+
+
+def _list_parquet_files(filesystem: fs.FileSystem, path: str) -> list[str]:
+    """Return sorted paths of parquet files under a directory, if it exists."""
+    if filesystem.get_file_info(path).type != fs.FileType.Directory:
+        return []
+    return sorted(
+        file_info.path
+        for file_info in filesystem.get_file_info(fs.FileSelector(path, recursive=True))
+        if file_info.path.endswith(".parquet")
+    )
