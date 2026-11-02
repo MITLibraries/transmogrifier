@@ -37,6 +37,16 @@ class XMLTransformer(Transformer):
                 element.clear()
 
     @classmethod
+    def parse_source_record(cls, source_record: bytes) -> Tag:
+        """
+        Parse a single serialized XML source record into a bs4 Tag.
+
+        Args:
+            source_record: An XML source record as bytes.
+        """
+        return cls.parse_bs4_in_isolated_thread(source_record)
+
+    @classmethod
     def parse_bs4_in_isolated_thread(cls, source_record: bytes) -> Tag:
         def parse() -> Tag:
             nonlocal source_record

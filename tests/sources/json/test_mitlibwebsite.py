@@ -2,6 +2,8 @@
 import base64
 from unittest.mock import MagicMock, patch
 
+from freezegun import freeze_time
+
 import transmogrifier.models as timdex
 from transmogrifier.sources.json.mitlibwebsite import MITLibWebsite
 
@@ -20,6 +22,7 @@ def create_mitlibwebsite_source_record_stub(
     }
 
 
+@freeze_time("2000-01-01")
 def test_mitlibwebsite_transform_returns_timdex_record(mitlibwebsite_records):
     mitlibwebsite = MITLibWebsite("mitlibwebsite", mitlibwebsite_records)
     timdex_record = mitlibwebsite.transform(next(mitlibwebsite.source_records))
@@ -39,7 +42,7 @@ def test_mitlibwebsite_transform_returns_timdex_record(mitlibwebsite_records):
                 mit_affiliated=True,
             )
         ],
-        dates=[timdex.Date(value="2000-01-01T00:00:00", kind="Accessed")],
+        dates=[timdex.Date(value="2000-01-01T00:00:00+00:00", kind="Accessed")],
         format="electronic resource",
         links=[
             timdex.Link(
@@ -103,11 +106,12 @@ def test_mitlibwebsite_get_contributors_success():
     ]
 
 
+@freeze_time("2000-01-01")
 def test_mitlibwebsite_get_dates_success():
     source_record = create_mitlibwebsite_source_record_stub()
     mitlibwebsite = MITLibWebsite("mitlibwebsite", iter([source_record]))
     assert mitlibwebsite.get_dates(source_record) == [
-        timdex.Date(value="2000-01-01T00:00:00", kind="Accessed")
+        timdex.Date(value="2000-01-01T00:00:00+00:00", kind="Accessed")
     ]
 
 
