@@ -710,6 +710,27 @@ def test_transformer_workers_output_matches_single_process(source_input_file, ru
         assert getattr(with_workers, attribute) == getattr(single_process, attribute)
 
 
+def test_transformer_workers_mixed_next_and_iteration_keeps_all_records(
+    source_input_file, run_id
+):
+    def load(workers: int) -> Transformer:
+        return Transformer.load(
+            "jpal",
+            source_input_file,
+            run_id=run_id,
+            run_timestamp="2024-06-03T15:30:45",
+            workers=workers,
+        )
+
+    single_process_records = list(load(1))
+    with_workers = load(2)
+    with_workers_records = [next(with_workers), next(iter(with_workers))]
+    with_workers_records.extend(list(with_workers))
+
+    assert with_workers_records == single_process_records
+    assert with_workers.processed_record_count == len(single_process_records)
+
+
 def test_transformer_workers_critical_error_stops_run(source_input_file):
     transformer = CriticalErrorDatacite(
         "jpal",

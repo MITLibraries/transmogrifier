@@ -140,6 +140,7 @@ class Transformer(ABC):
         self.source_dataset = source_dataset
         self.source_parquet = source_parquet
         self.workers = workers
+        self._worker_iterator: Iterator[DatasetRecord] | None = None
 
         self.run_data = self.get_run_data(
             source=source,
@@ -191,9 +192,16 @@ class Transformer(ABC):
 
     @final
     def __iter__(self) -> Iterator[DatasetRecord]:
-        """Iterate over transformed records, using worker processes if configured."""
+        """Iterate over transformed records, using worker processes if configured.
+
+        With workers, a single worker iterator is kept and reused, so that iterating
+        more than once, or mixing iteration with next(), resumes where it left off
+        instead of dropping records already sent to workers.
+        """
         if self.workers > 1:
-            return self._iter_with_workers()
+            if self._worker_iterator is None:
+                self._worker_iterator = self._iter_with_workers()
+            return self._worker_iterator
         return self
 
     @final
@@ -285,7 +293,12 @@ class Transformer(ABC):
         Anything that reads or changes run state must stay in this process and run in
         order: incrementing processed_record_count (which sets run_record_offset),
         updating record counts and deleted records, and building the DatasetRecord.
+
+        With workers, the next record is taken from the shared worker iterator.
         """
+        if self.workers > 1:
+            return next(iter(self))
+
         raw_source_record = next(self.source_records)
         self.processed_record_count += 1
 
