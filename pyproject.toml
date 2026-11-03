@@ -14,6 +14,7 @@ dependencies = [
   "jsonlines",
   "lxml",
   "pandas",
+  "pyarrow",
   "python-dateutil",
   "requests",
   "sentry-sdk",
@@ -53,7 +54,11 @@ module = [
   "bs4",
   "bs4.*",
   "pandas",
+  "pyarrow",
+  "pyarrow.*",
   "requests",
+  "smart_open",
+  "timdex_dataset_api"
 ]
 ignore_missing_imports = true
 

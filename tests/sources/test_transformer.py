@@ -1,8 +1,11 @@
 # ruff: noqa: SLF001, D202
 import datetime
 import json
+from pathlib import Path
 from unittest import mock
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 from bs4 import Tag
 from lxml import etree
@@ -10,8 +13,9 @@ from timdex_dataset_api import DatasetRecord
 
 import transmogrifier.models as timdex
 from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
+from transmogrifier.sources import transformer as transformer_module
 from transmogrifier.sources.jsontransformer import JSONTransformer
-from transmogrifier.sources.transformer import Transformer
+from transmogrifier.sources.transformer import PARQUET_FILES_SCHEMA, Transformer
 from transmogrifier.sources.xml.datacite import Datacite
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
@@ -198,7 +202,8 @@ def test_transformer_get_run_data_multi_input_source_raise_error(
     monkeypatch.setenv("WORKSPACE", "dev")
     with pytest.raises(
         ValueError,
-        match="Exactly one input source is required: 'source_file' or 'source_dataset'",
+        match="Exactly one input source is required: 'source_file', 'source_dataset', "
+        "or 'source_parquet'",
     ):
         source_transformer.get_run_data(
             "cool-repo", source_file="abc", source_dataset="def", run_id="run-abc-123"
@@ -326,7 +331,7 @@ def test_transformer_dataset_write_includes_run_timestamp_column(
     source_transformer,
 ):
     dataset_location = tmp_path / "dataset"
-    written_files = source_transformer.write_to_parquet_dataset(str(dataset_location))
+    written_files = source_transformer.write_to_timdex_dataset(str(dataset_location))
 
     parquet_file = written_files[0]
     assert "run_timestamp" in parquet_file.metadata.schema.names
@@ -372,3 +377,170 @@ def test_transformer_parse_source_records_from_dataset_yields_parsed_records():
         source="cool-repo",
         action="index",
     )
+
+
+def test_transformer_get_run_data_from_source_parquet_sets_patch_run_type(run_id):
+    run_data = Transformer.get_run_data(
+        "alma", source_parquet="path/to/export", run_id=run_id
+    )
+    assert run_data["source"] == "alma"
+    assert run_data["run_type"] == "patch"
+    assert run_data["run_id"] == run_id
+
+
+def test_transformer_load_multiple_input_sources_raises_error(source_input_file):
+    with pytest.raises(ValueError, match="Exactly one input source is required"):
+        Transformer.load(
+            "cool-repo", source_file=source_input_file, source_parquet="path/to/export"
+        )
+
+
+def test_transformer_load_from_source_parquet(tmp_path, source_parquet_location):
+    transformer = Transformer.load(
+        "researchdatabases", source_parquet=source_parquet_location
+    )
+    assert transformer.source_parquet == source_parquet_location
+    assert transformer.run_data["run_type"] == "patch"
+    assert next(transformer).action == "index"
+
+
+def test_transformer_parse_source_records_from_parquet_filters_source_and_action(
+    tmp_path,
+):
+    pq.write_table(
+        pa.Table.from_pylist(
+            [
+                {
+                    "source_record": b'{"id": "1"}',
+                    "source": "cool-repo",
+                    "action": "index",
+                },
+                {"source_record": b'{"id": "2"}', "source": "other", "action": "index"},
+                {
+                    "source_record": b'{"id": "3"}',
+                    "source": "cool-repo",
+                    "action": "delete",
+                },
+                {
+                    "source_record": b'{"id": "4"}',
+                    "source": "cool-repo",
+                    "action": "index",
+                },
+            ]
+        ),
+        tmp_path / "records.parquet",
+    )
+    records = list(
+        JSONTransformer.parse_source_records_from_parquet(
+            "cool-repo", str(tmp_path / "records.parquet")
+        )
+    )
+    assert records == [{"id": "1"}, {"id": "4"}]
+
+
+def test_transformer_parse_source_records_from_parquet_directory_in_path_order(
+    tmp_path,
+):
+    data_dir = tmp_path / "export" / "data"
+    data_dir.mkdir(parents=True)
+    (tmp_path / "export" / "export.json").write_text("{}")
+    for i in (1, 0):
+        pq.write_table(
+            pa.Table.from_pylist(
+                [
+                    {
+                        "source_record": f'{{"id": "{i}"}}'.encode(),
+                        "source": "cool-repo",
+                        "action": "index",
+                    }
+                ]
+            ),
+            data_dir / f"part-{i:05d}.parquet",
+        )
+    records = list(
+        JSONTransformer.parse_source_records_from_parquet(
+            "cool-repo", str(tmp_path / "export")
+        )
+    )
+    assert records == [{"id": "0"}, {"id": "1"}]
+
+
+def test_transformer_write_to_parquet_files_matches_timmy_export_layout(
+    tmp_path, source_transformer
+):
+    written_files = source_transformer.write_to_parquet_files(str(tmp_path / "output"))
+
+    assert [Path(f).name for f in written_files] == ["part-0.parquet"]
+    parquet_file = pq.ParquetFile(written_files[0])
+    assert parquet_file.schema_arrow.equals(PARQUET_FILES_SCHEMA)
+    assert parquet_file.metadata.row_group(0).column(0).compression == "ZSTD"
+
+    rows = parquet_file.read().to_pylist()
+    assert [row["run_record_offset"] for row in rows] == list(range(len(rows)))
+    index_row = next(row for row in rows if row["action"] == "index")
+    transformed_record = json.loads(index_row["transformed_record"])
+    assert transformed_record["timdex_record_id"] == index_row["timdex_record_id"]
+
+
+def test_transformer_write_to_parquet_files_splits_files_in_run_order(
+    monkeypatch, tmp_path, source_transformer
+):
+    monkeypatch.setattr(transformer_module, "PARQUET_FILES_MAX_ROWS_PER_FILE", 2)
+    monkeypatch.setattr(transformer_module, "PARQUET_FILES_ROW_GROUP_SIZE", 2)
+    written_files = source_transformer.write_to_parquet_files(str(tmp_path / "output"))
+
+    row_counts = [pq.ParquetFile(f).metadata.num_rows for f in written_files]
+    assert len(written_files) > 1
+    assert all(count <= 2 for count in row_counts)  # noqa: PLR2004
+    offsets = [
+        offset
+        for f in sorted(written_files)
+        for offset in pq.read_table(f).column("run_record_offset").to_pylist()
+    ]
+    assert offsets == list(range(sum(row_counts)))
+
+
+def test_transformer_write_to_parquet_files_non_empty_output_raises_error(
+    tmp_path, source_transformer
+):
+    output_location = tmp_path / "output"
+    output_location.mkdir()
+    pq.write_table(pa.table({"a": [1]}), output_location / "part-00000.parquet")
+    with pytest.raises(ValueError, match="directory is not empty"):
+        source_transformer.write_to_parquet_files(str(output_location))
+
+
+def test_transformer_parquet_files_round_trip_preserves_transformed_records(
+    tmp_path, source_parquet_location
+):
+    original_rows = pq.read_table(source_parquet_location).to_pylist()
+    transformer = Transformer.load(
+        "researchdatabases", source_parquet=source_parquet_location
+    )
+    written_files = transformer.write_to_parquet_files(str(tmp_path / "round_trip"))
+    round_trip_rows = pq.read_table(written_files[0]).to_pylist()
+
+    def without_provenance(row: dict) -> dict:
+        record = json.loads(row["transformed_record"])
+        record.pop("timdex_provenance")
+        return record
+
+    original_indexed = [row for row in original_rows if row["action"] == "index"]
+    assert [row["timdex_record_id"] for row in round_trip_rows] == [
+        row["timdex_record_id"] for row in original_indexed
+    ]
+    assert [without_provenance(row) for row in round_trip_rows] == [
+        without_provenance(row) for row in original_indexed
+    ]
+
+
+def test_transformer_write_to_file_writes_only_indexed_records(
+    tmp_path, source_transformer
+):
+    output_file = tmp_path / "records.jsonl"
+    count = source_transformer.write_to_file(str(output_file))
+
+    lines = output_file.read_text().splitlines()
+    assert count == len(lines) == source_transformer.transformed_record_count == 3  # noqa: PLR2004
+    assert len(source_transformer.deleted_records) == 1
+    assert all(json.loads(line)["timdex_record_id"] for line in lines)

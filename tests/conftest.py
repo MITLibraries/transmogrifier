@@ -311,6 +311,20 @@ def source_transformer(monkeypatch, run_id, source_input_file):
 
 
 @pytest.fixture
+def source_parquet_location(tmp_path, run_id):
+    """Parquet files, like a Timmy export, of records transformed from a source file."""
+    transformer = Transformer.load(
+        "researchdatabases",
+        "tests/fixtures/researchdatabases/"
+        "researchdatabases-2026-08-11-full-extracted-records-to-index.xml",
+        run_id=run_id,
+    )
+    location = str(tmp_path / "source_parquet")
+    transformer.write_to_parquet_files(location)
+    return location
+
+
+@pytest.fixture
 def source_transformer_with_timestamp(monkeypatch, run_id, source_input_file):
     return Transformer.load(
         "cool-repo",
