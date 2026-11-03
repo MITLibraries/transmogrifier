@@ -1990,26 +1990,19 @@ def test_marc_record_missing_008_skips_record(caplog):
         "<a>text<!--comment--></a>",
         "<a><?target data?></a>",
         "<a><?target?></a>",
+        "<a>   </a>",
+        "<a> \n  </a>",
+        "<a>\t\r\x0c</a>",
+        "<a><![CDATA[   ]]></a>",
+        "<a><b> </b></a>",
+        "<a><!----></a>",
+        "<a><!--  \n --></a>",
     ],
 )
 def test_get_element_string_matches_bs4_string(xml):
     bs4_string = BeautifulSoup(xml, "xml").find("a").string
     expected = None if bs4_string is None else str(bs4_string)
     assert Marc.get_element_string(Marc.parse_source_record(xml.encode())) == expected
-
-
-@pytest.mark.parametrize(
-    ("xml", "expected"),
-    [
-        ("<a>   </a>", "   "),
-        ("<a> \n  </a>", " \n  "),
-        ("<a>\t</a>", "\t"),
-        ("<a><!----></a>", ""),
-    ],
-)
-def test_get_element_string_keeps_whitespace_only_strings(xml, expected):
-    # unlike bs4, which collapses whitespace-only strings to a single space or newline
-    assert Marc.get_element_string(etree.fromstring(xml.encode())) == expected
 
 
 def test_find_all_elements_matches_name_in_any_namespace_including_self():

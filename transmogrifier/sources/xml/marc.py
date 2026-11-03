@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 # cache of LOC crosswalk code element lookups, keyed by (code type, code)
 _loc_crosswalk_code_cache: dict[tuple[str, str], Tag | None] = {}
 
+# whitespace characters bs4 collapses in whitespace-only strings
+BS4_ASCII_SPACES = " \n\t\x0c\r"
+
 
 class Marc(XMLTransformer):
     """Marc transformer."""
@@ -59,8 +62,8 @@ class Marc(XMLTransformer):
         an element, its string is returned, recursively. Otherwise, including when the
         element has no child nodes, None is returned.
 
-        Unlike bs4, whitespace-only strings are returned as-is, not collapsed to a
-        single space or newline.
+        As bs4 stores them, strings of only ASCII whitespace are collapsed to a single
+        newline if they contain one, otherwise a single space.
 
         Args:
             element: An lxml element.
@@ -70,14 +73,21 @@ class Marc(XMLTransformer):
         if node_count != 1:
             return None
         if element.text:
-            return element.text
+            return Marc._collapse_whitespace(element.text)
         child = children[0]
         if isinstance(child, etree._Comment):  # noqa: SLF001
-            return child.text or ""
+            return Marc._collapse_whitespace(child.text or "")
         if isinstance(child, etree._ProcessingInstruction):  # noqa: SLF001
             target = str(child.target)
             return f"{target} {child.text or ''}"
         return Marc.get_element_string(child)
+
+    @staticmethod
+    def _collapse_whitespace(string: str) -> str:
+        """Collapse a string of only ASCII whitespace, as bs4 does when parsing."""
+        if string.strip(BS4_ASCII_SPACES):
+            return string
+        return "\n" if "\n" in string else " "
 
     @staticmethod
     def find_all_elements(
