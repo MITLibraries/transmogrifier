@@ -429,7 +429,7 @@ class Transformer(ABC):
         if isinstance(source_record, Tag):
             return source_record.encode()
         if isinstance(source_record, etree._Element):  # noqa: SLF001
-            return etree.tostring(source_record, encoding="utf-8")
+            return etree.tostring(source_record, encoding="utf-8", with_tail=False)
         if isinstance(source_record, dict):
             return json.dumps(source_record).encode()
         return None
