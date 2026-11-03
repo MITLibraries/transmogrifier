@@ -684,7 +684,13 @@ class CriticalErrorDatacite(Datacite):
         raise CriticalError("Catastrophic failure in a worker!")
 
 
-def test_transformer_workers_output_matches_single_process(source_input_file, run_id):
+def test_transformer_workers_output_matches_single_process(
+    monkeypatch, source_input_file, run_id
+):
+    # one record per chunk and a small pending limit, to span chunks and drain pending
+    monkeypatch.setattr(transformer_module, "WORKER_CHUNK_SIZE", 1)
+    monkeypatch.setattr(transformer_module, "WORKER_MAX_PENDING_CHUNKS_PER_WORKER", 1)
+
     def load(workers: int) -> Transformer:
         return Transformer.load(
             "jpal",
