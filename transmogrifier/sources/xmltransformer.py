@@ -31,7 +31,7 @@ class XMLTransformer(Transformer):
                 encoding="utf-8",
                 recover=True,
             ):
-                yield etree.tostring(element, encoding="utf-8")
+                yield etree.tostring(element, encoding="utf-8", with_tail=False)
                 element.clear()
 
     @classmethod
