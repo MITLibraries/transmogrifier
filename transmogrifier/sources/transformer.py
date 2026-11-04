@@ -77,7 +77,8 @@ INPUT_SOURCE_ERROR_MESSAGE = (
     "or 'source_parquet'"
 )
 
-# set once per worker process by _init_worker(), and used by _transform_in_worker()
+# set once per worker process by _init_transformer_class_for_worker(), and then used
+# by _transform_in_worker()
 _worker_transformer: Transformer | None = None
 
 
@@ -208,20 +209,30 @@ class Transformer(ABC):
     def _iter_with_workers(self) -> Iterator[DatasetRecord]:
         """Yield transformed records, transformed by a pool of worker processes.
 
-        The main process reads source records as bytes and sends them to workers in
-        chunks, each with its run_record_offset.  Workers return only TransformResults;
-        the main process keeps the source record bytes, and handles results in input
-        order.  Output is therefore identical to transforming in a single process.
+        The main process reads source records as bytes and sends them to workers for
+        transformation.  Workers return only TransformResults; the main process keeps the
+        source record bytes, and handles results in input order.  Output is therefore
+        identical to transforming in a single process.
 
         Workers are started fresh, each building its own instance of this transformer's
-        class, with this transformer's run data.  A CriticalError in any worker stops the
-        run.
+        class, with this transformer's run data (source, run_date, run_type, etc.).  This
+        is done by _init_transformer_class_for_worker(), which runs once in each worker
+        process as it starts.  Each worker then reuses that instance for every chunk.
+
+        Each chunk is a list of (<record bytes>, <run_record_offset>) tuples, passed
+        directly to _transform_in_worker().  Workers therefore never read their instance's
+        source_records, which is why _init_transformer_class_for_worker() passes an empty
+        iterator.
+
+        A CriticalError in any worker stops the run.
         """
         logger.info(f"Transforming records with {self.workers} worker processes")
+
+        # prepare an executor that will manage workers
         executor = ProcessPoolExecutor(
             max_workers=self.workers,
             mp_context=multiprocessing.get_context("spawn"),
-            initializer=_init_worker,
+            initializer=_init_transformer_class_for_worker,
             initargs=(
                 type(self),
                 self.source,
@@ -230,6 +241,8 @@ class Transformer(ABC):
                 logging.getLogger().getEffectiveLevel() == logging.DEBUG,
             ),
         )
+
+        # break input source records into chunks and feed to workers
         max_pending_chunks = self.workers * WORKER_MAX_PENDING_CHUNKS_PER_WORKER
         pending: deque[tuple[list[bytes], Future[list[TransformResult]]]] = deque()
         offsets = itertools.count(self.processed_record_count)
@@ -257,6 +270,8 @@ class Transformer(ABC):
                     yield from self._create_dataset_records(*pending.popleft())
             while pending:
                 yield from self._create_dataset_records(*pending.popleft())
+
+        # regardless of success or failure, shutdown the executor and free processes
         finally:
             executor.shutdown(wait=True, cancel_futures=True)
 
@@ -1016,14 +1031,20 @@ def _parse_location(location: str) -> tuple[fs.FileSystem, str]:
     return fs.LocalFileSystem(), os.path.abspath(location)
 
 
-def _init_worker(
+def _init_transformer_class_for_worker(
     transformer_class: type[Transformer],
     source: str,
     exclusion_list_path: str | None,
     run_data: dict,
     verbose: bool,  # noqa: FBT001
 ) -> None:
-    """Build this worker process's transformer, with the main process's run data."""
+    """Build this worker process's transformer, with the main process's run data.
+
+    The transformer class is initialized with an empty iterator in place of its source
+    records, because it uses the function _transform_in_worker() for transformation,
+    which receives a custom chunk of records to process.
+    <worker_transformer>.source_records is never used.
+    """
     global _worker_transformer  # noqa: PLW0603
     configure_logger(logging.getLogger(), verbose=verbose)
     configure_sentry()
@@ -1033,11 +1054,19 @@ def _init_worker(
     _worker_transformer.run_data = run_data
 
 
-def _transform_in_worker(chunk: list[tuple[bytes, int]]) -> list[TransformResult]:
-    """Transform a chunk of (source record, run_record_offset) in a worker process."""
+def _transform_in_worker(
+    source_records_chunk: list[tuple[bytes, int]],
+) -> list[TransformResult]:
+    """Transform one chunk of source records in a worker process.
+
+    Args:
+        source_records_chunk: One chunk of the run's source records, sent by the main
+            process in run order, as tuples of (source record bytes, run_record_offset).
+            The offset is the record's position in the whole run, not in this chunk.
+    """
     if _worker_transformer is None:
         raise RuntimeError("Worker transformer was not initialized")
     return [
         _worker_transformer._process_source_record(record, run_record_offset)  # noqa: SLF001
-        for record, run_record_offset in chunk
+        for record, run_record_offset in source_records_chunk
     ]
