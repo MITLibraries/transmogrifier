@@ -7,13 +7,10 @@ from __future__ import annotations
 import itertools
 import json
 import logging
-import multiprocessing
 import os
 import re
 import uuid
 from abc import ABC, abstractmethod
-from collections import deque
-from concurrent.futures import Future, ProcessPoolExecutor
 from datetime import UTC, datetime
 from importlib import import_module
 from typing import TYPE_CHECKING, final
@@ -22,7 +19,6 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.dataset as ds
 import smart_open
-from attrs import define
 from bs4 import Tag
 from pyarrow import fs
 from timdex_dataset_api import (
@@ -31,7 +27,7 @@ from timdex_dataset_api import (
 )
 
 import transmogrifier.models as timdex
-from transmogrifier.config import SOURCES, configure_logger, configure_sentry
+from transmogrifier.config import SOURCES
 from transmogrifier.exceptions import (
     CriticalError,
     DeletedRecordEvent,
@@ -69,29 +65,10 @@ PARQUET_FILES_MAX_ROWS_PER_FILE = 100_000
 PARQUET_FILES_ROW_GROUP_SIZE = 5_000
 PARQUET_FILES_COMPRESSION = "zstd"
 
-WORKER_CHUNK_SIZE = 100
-WORKER_MAX_PENDING_CHUNKS_PER_WORKER = 4
-
 INPUT_SOURCE_ERROR_MESSAGE = (
     "Exactly one input source is required: 'source_file', 'source_dataset', "
     "or 'source_parquet'"
 )
-
-# set once per worker process by _init_transformer_class_for_worker(), and then used
-# by _transform_in_worker()
-_worker_transformer: Transformer | None = None
-
-
-@define(frozen=True)
-class TransformResult:
-    """Outcome of transforming a single source record.
-
-    Kept small and picklable, so it can be returned from a worker process.
-    """
-
-    action: str
-    timdex_record_id: str | None = None
-    transformed_record: bytes | None = None
 
 
 class Transformer(ABC):
@@ -107,7 +84,6 @@ class Transformer(ABC):
         source_parquet: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
-        workers: int = 1,
     ) -> None:
         """
         Initialize Transformer instance.
@@ -123,8 +99,6 @@ class Transformer(ABC):
             source_parquet: Location of parquet file(s) with input source records.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
-            workers: Number of worker processes to transform records with.  With 1,
-                records are transformed in this process.
         """
         self.source: str = source
         self.exclusion_list_path: str | None = exclusion_list_path
@@ -140,8 +114,11 @@ class Transformer(ABC):
         self.source_file = source_file
         self.source_dataset = source_dataset
         self.source_parquet = source_parquet
-        self.workers = workers
-        self._worker_iterator: Iterator[DatasetRecord] | None = None
+
+        # transformed records are yielded from this private object, by default this
+        # instance; with multiple workers, the CLI replaces this with records coming
+        # back from the workers
+        self._transformed_records: Iterator[DatasetRecord] = self
 
         self.run_data = self.get_run_data(
             source=source,
@@ -193,230 +170,71 @@ class Transformer(ABC):
 
     @final
     def __iter__(self) -> Iterator[DatasetRecord]:
-        """Iterate over transformed records, using worker processes if configured.
-
-        With workers, a single worker iterator is kept and reused, so that iterating
-        more than once, or mixing iteration with next(), resumes where it left off
-        instead of dropping records already sent to workers.
-        """
-        if self.workers > 1:
-            if self._worker_iterator is None:
-                self._worker_iterator = self._iter_with_workers()
-            return self._worker_iterator
-        return self
-
-    @final
-    def _iter_with_workers(self) -> Iterator[DatasetRecord]:
-        """Yield transformed records, transformed by a pool of worker processes.
-
-        The main process reads source records as bytes and sends them to workers for
-        transformation.  Workers return only TransformResults; the main process keeps the
-        source record bytes, and handles results in input order.  Output is therefore
-        identical to transforming in a single process.
-
-        Workers are started fresh, each building its own instance of this transformer's
-        class, with this transformer's run data (source, run_date, run_type, etc.).  This
-        is done by _init_transformer_class_for_worker(), which runs once in each worker
-        process as it starts.  Each worker then reuses that instance for every chunk.
-
-        Each chunk is a list of (<record bytes>, <run_record_offset>) tuples, passed
-        directly to _transform_in_worker().  Workers therefore never read their instance's
-        source_records, which is why _init_transformer_class_for_worker() passes an empty
-        iterator.
-
-        A CriticalError in any worker stops the run.
-        """
-        logger.info(f"Transforming records with {self.workers} worker processes")
-
-        # prepare an executor that will manage workers
-        executor = ProcessPoolExecutor(
-            max_workers=self.workers,
-            mp_context=multiprocessing.get_context("spawn"),
-            initializer=_init_transformer_class_for_worker,
-            initargs=(
-                type(self),
-                self.source,
-                self.exclusion_list_path,
-                self.run_data,
-                logging.getLogger().getEffectiveLevel() == logging.DEBUG,
-            ),
-        )
-
-        # break input source records into chunks and feed to workers
-        max_pending_chunks = self.workers * WORKER_MAX_PENDING_CHUNKS_PER_WORKER
-        pending: deque[tuple[list[bytes], Future[list[TransformResult]]]] = deque()
-        offsets = itertools.count(self.processed_record_count)
-        try:
-            for chunk in itertools.batched(
-                self.source_records, WORKER_CHUNK_SIZE, strict=False
-            ):
-                records: list[bytes] = []
-                for record in chunk:
-                    if not isinstance(record, bytes):
-                        raise TypeError(
-                            "Transforming with workers requires source records as bytes"
-                        )
-                    records.append(record)
-                pending.append(
-                    (
-                        records,
-                        executor.submit(
-                            _transform_in_worker,
-                            [(record, next(offsets)) for record in records],
-                        ),
-                    )
-                )
-                if len(pending) >= max_pending_chunks:
-                    yield from self._create_dataset_records(*pending.popleft())
-            while pending:
-                yield from self._create_dataset_records(*pending.popleft())
-
-        # regardless of success or failure, shutdown the executor and free processes
-        finally:
-            executor.shutdown(wait=True, cancel_futures=True)
-
-    def _create_dataset_records(
-        self, records: list[bytes], future: Future[list[TransformResult]]
-    ) -> Iterator[DatasetRecord]:
-        """Yield DatasetRecords for a chunk of records transformed by a worker.
-
-        Waits for the worker's results, then does the main process bookkeeping for each
-        record in run order, as __next__() does when not using workers.
-
-        Args:
-            records: The chunk's source records, as sent to the worker.
-            future: The worker's pending TransformResults for the chunk, in order.
-        """
-        for record, result in zip(records, future.result(), strict=True):
-            self.processed_record_count += 1
-            self._update_record_counts(result)
-            yield self._create_dataset_record(record, result)
+        """Iterate over transformed records."""
+        return self._transformed_records
 
     @final
     def __next__(self) -> DatasetRecord:
-        """Return next transformed record.
+        """Return next transformed record."""
+        while True:
+            source_record = None
+            transformed_record = None
+            timdex_record_id = None
 
-        Each source record is handled in three steps:
-            1. _process_source_record(): parse and transform the record, and determine
-               its action.  This changes no transformer state, so it is safe to run in
-               another process.
-            2. _update_record_counts(): update the run's record counts and deleted
-               records.
-            3. _create_dataset_record(): build the DatasetRecord from the result, the
-               original source record, and run data.
+            record = next(self.source_records)
+            self.processed_record_count += 1
 
-        Anything that reads or changes run state must stay in this process and run in
-        order: incrementing processed_record_count (which sets run_record_offset),
-        updating record counts and deleted records, and building the DatasetRecord.
-
-        With workers, the next record is taken from the shared worker iterator.
-        """
-        if self.workers > 1:
-            return next(iter(self))
-
-        raw_source_record = next(self.source_records)
-        self.processed_record_count += 1
-
-        # parse the raw source record bytes + transform the record
-        transform_result = self._process_source_record(
-            raw_source_record,
-            self.run_record_offset,
-        )
-
-        # update bookkeeping
-        self._update_record_counts(transform_result)
-
-        # return a DatasetRecord instance with source + transformed record
-        return self._create_dataset_record(raw_source_record, transform_result)
-
-    @final
-    def _process_source_record(
-        self, record: bytes | dict[str, JSON] | Tag, run_record_offset: int
-    ) -> TransformResult:
-        """Parse and transform a single source record, and determine its action.
-
-        This step does not change transformer state (e.g. record counts), so it can run
-        in a worker process.
-
-        Args:
-            record: A source record as bytes, or an already parsed source record.
-            run_record_offset: The record's position in the run, for provenance.
-
-        Raises:
-            CriticalError: Propagated, as it should stop the run.
-        """
-        try:
-            source_record = (
-                self.parse_source_record(record) if isinstance(record, bytes) else record
-            )
-            timdex_record = self.transform(source_record)
-            timdex_record.timdex_provenance = timdex.TimdexProvenance(
-                source=self.run_data["source"],
-                run_date=self.run_data["run_date"],
-                run_id=self.run_data["run_id"],
-                run_record_offset=run_record_offset,
-            )
-            return TransformResult(
-                action="index",
-                timdex_record_id=timdex_record.timdex_record_id,
-                transformed_record=json.dumps(timdex_record.asdict()).encode(),
-            )
-
-        except DeletedRecordEvent as error:
-            return TransformResult(
-                action="delete", timdex_record_id=error.timdex_record_id
-            )
-
-        except SkippedRecordEvent:
-            return TransformResult(action="skip")
-
-        except CriticalError:
-            raise
-
-        except Exception as exception:
-            message = f"Unhandled exception during record transformation: {exception}"
-            logger.exception(message)
-            return TransformResult(action="error")
-
-    @final
-    def _update_record_counts(self, result: TransformResult) -> None:
-        """Update the run's record counts and deleted records for a transform result.
-
-        Args:
-            result: The result of _process_source_record() for a record.
-        """
-        match result.action:
-            case "index":
+            try:
+                source_record = (
+                    self.parse_source_record(record)
+                    if isinstance(record, bytes)
+                    else record
+                )
+                transformed_record = self.transform(source_record)
+                timdex_record_id = transformed_record.timdex_record_id
+                transformed_record.timdex_provenance = timdex.TimdexProvenance(
+                    source=self.run_data["source"],
+                    run_date=self.run_data["run_date"],
+                    run_id=self.run_data["run_id"],
+                    run_record_offset=self.run_record_offset,
+                )
                 self.transformed_record_count += 1
-            case "delete":
-                self.deleted_records.append(str(result.timdex_record_id))
-            case "skip":
+                action = "index"
+
+            except DeletedRecordEvent as error:
+                self.deleted_records.append(error.timdex_record_id)
+                timdex_record_id = error.timdex_record_id
+                action = "delete"
+
+            except SkippedRecordEvent:
                 self.skipped_record_count += 1
-            case "error":
+                action = "skip"
+
+            except CriticalError:
+                raise
+
+            except Exception as exception:
                 self.error_record_count += 1
+                message = f"Unhandled exception during record transformation: {exception}"
+                logger.exception(message)
+                action = "error"
 
-    @final
-    def _create_dataset_record(
-        self, record: bytes | dict[str, JSON] | Tag, result: TransformResult
-    ) -> DatasetRecord:
-        """Create a DatasetRecord from a source record and its transform result.
-
-        Args:
-            record: The source record as read, stored as-is if bytes.
-            result: The result of _process_source_record() for this record.
-        """
-        return DatasetRecord(
-            timdex_record_id=result.timdex_record_id,
-            source_record=(
-                record
-                if isinstance(record, bytes)
-                else self.serialize_source_record(record)
-            ),
-            transformed_record=result.transformed_record,
-            action=result.action,
-            run_record_offset=self.run_record_offset,
-            **self.run_data,
-        )
+            return DatasetRecord(
+                timdex_record_id=timdex_record_id,
+                source_record=(
+                    record
+                    if isinstance(record, bytes)
+                    else self.serialize_source_record(record)
+                ),
+                transformed_record=(
+                    json.dumps(transformed_record.asdict()).encode()
+                    if transformed_record
+                    else None
+                ),
+                action=action,
+                run_record_offset=self.run_record_offset,
+                **self.run_data,
+            )
 
     @final
     @classmethod
@@ -445,7 +263,6 @@ class Transformer(ABC):
         exclusion_list_path: str | None = None,
         run_id: str | None = None,
         run_timestamp: str | None = None,
-        workers: int = 1,
     ) -> Transformer:
         """
         Instantiate specified transformer class and populate with source records.
@@ -458,7 +275,6 @@ class Transformer(ABC):
             exclusion_list_path: CSV filepath to use for explicitly skipping records.
             run_id: A unique identifier associated with this ETL run.
             run_timestamp: A timestamp associated with this ETL run.
-            workers: Number of worker processes to transform records with.
         """
         transformer_class = cls.get_transformer(source)
 
@@ -487,7 +303,6 @@ class Transformer(ABC):
             source_parquet=source_parquet,
             run_id=run_id,
             run_timestamp=run_timestamp,
-            workers=workers,
         )
 
     @staticmethod
@@ -1029,44 +844,3 @@ def _parse_location(location: str) -> tuple[fs.FileSystem, str]:
     if location.startswith("s3://"):
         return fs.S3FileSystem(), location.removeprefix("s3://")
     return fs.LocalFileSystem(), os.path.abspath(location)
-
-
-def _init_transformer_class_for_worker(
-    transformer_class: type[Transformer],
-    source: str,
-    exclusion_list_path: str | None,
-    run_data: dict,
-    verbose: bool,  # noqa: FBT001
-) -> None:
-    """Build this worker process's transformer, with the main process's run data.
-
-    The transformer class is initialized with an empty iterator in place of its source
-    records, because it uses the function _transform_in_worker() for transformation,
-    which receives a custom chunk of records to process.
-    <worker_transformer>.source_records is never used.
-    """
-    global _worker_transformer  # noqa: PLW0603
-    configure_logger(logging.getLogger(), verbose=verbose)
-    configure_sentry()
-    _worker_transformer = transformer_class(
-        source, iter(()), exclusion_list_path=exclusion_list_path
-    )
-    _worker_transformer.run_data = run_data
-
-
-def _transform_in_worker(
-    source_records_chunk: list[tuple[bytes, int]],
-) -> list[TransformResult]:
-    """Transform one chunk of source records in a worker process.
-
-    Args:
-        source_records_chunk: One chunk of the run's source records, sent by the main
-            process in run order, as tuples of (source record bytes, run_record_offset).
-            The offset is the record's position in the whole run, not in this chunk.
-    """
-    if _worker_transformer is None:
-        raise RuntimeError("Worker transformer was not initialized")
-    return [
-        _worker_transformer._process_source_record(record, run_record_offset)  # noqa: SLF001
-        for record, run_record_offset in source_records_chunk
-    ]

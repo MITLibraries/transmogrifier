@@ -5,6 +5,7 @@ from time import perf_counter
 import click
 
 from transmogrifier.config import SOURCES, configure_logger, configure_sentry
+from transmogrifier.parallel import iter_transformed_records
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -143,8 +144,12 @@ def main(
         exclusion_list_path=exclusion_list_path,
         run_id=run_id,
         run_timestamp=run_timestamp,
-        workers=workers,
     )
+    if workers > 1:
+        transformer._transformed_records = iter_transformed_records(  # noqa: SLF001
+            transformer, workers
+        )
+
     if output_file:
         transformer.write_to_file(output_file)
     elif output_dataset:
