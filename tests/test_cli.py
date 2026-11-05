@@ -365,3 +365,41 @@ def test_transform_output_file(caplog, runner, source_input_file, tmp_path):
     assert result.exit_code == 0
     assert "deleted records: 1" in caplog.text
     assert f"File write complete - records: 3, file: {output_file}" in caplog.text
+
+
+def test_transform_workers_option(caplog, runner, source_parquet_location, tmp_path):
+    caplog.set_level("INFO")
+    result = runner.invoke(
+        main,
+        [
+            "-s",
+            "researchdatabases",
+            "--input-parquet",
+            source_parquet_location,
+            "--output-parquet",
+            str(tmp_path / "output"),
+            "--workers",
+            "2",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Transforming records with 2 worker processes" in caplog.text
+    assert "Completed transform, total records processed: 3" in caplog.text
+
+
+def test_transform_workers_option_must_be_positive(runner, tmp_path):
+    result = runner.invoke(
+        main,
+        [
+            "-s",
+            "alma",
+            "--input-file",
+            "fake-input-file",
+            "--output-dataset",
+            str(tmp_path / "dataset"),
+            "--workers",
+            "0",
+        ],
+    )
+    assert result.exit_code == 2  # noqa: PLR2004
+    assert "Invalid value for '-w' / '--workers'" in result.output

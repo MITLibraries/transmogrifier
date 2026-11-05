@@ -1,11 +1,14 @@
 # ruff: noqa: E501, SLF001
 import logging
+from unittest import mock
 
 import pytest
 from bs4 import BeautifulSoup  # type: ignore[import-untyped]
 
 import transmogrifier.models as timdex
+from transmogrifier.config import load_external_config
 from transmogrifier.exceptions import SkippedRecordEvent
+from transmogrifier.sources.xml import marc
 from transmogrifier.sources.xml.marc import Marc
 
 
@@ -2069,6 +2072,50 @@ def test_loc_crosswalk_code_to_name_returns_name(caplog, loc_country_crosswalk):
         )
         == "United States"
     )
+
+
+@pytest.mark.parametrize(
+    "crosswalk_path", ["config/loc-countries.xml", "config/loc-languages.xml"]
+)
+def test_loc_crosswalk_code_to_name_cached_matches_uncached(crosswalk_path):
+    # duplicate and obsolete codes, plus a sample of current codes and an invalid code
+    crosswalk = load_external_config(crosswalk_path, "xml")
+    code_elements = crosswalk.find_all("code")
+    all_codes = [str(code.string) for code in code_elements]
+    codes = [
+        *{code for code in all_codes if all_codes.count(code) > 1},
+        *[str(code.string) for code in code_elements if code.get("status")][:25],
+        *all_codes[::50],
+        "wrong",
+    ]
+
+    uncached = []
+    for code in codes:
+        with mock.patch.dict(marc._loc_crosswalk_code_cache, clear=True):
+            uncached.append(
+                Marc.loc_crosswalk_code_to_name(code, crosswalk, "record-01", "code")
+            )
+    cached = [
+        Marc.loc_crosswalk_code_to_name(code, crosswalk, "record-01", "code")
+        for code in codes
+    ]
+
+    assert cached == uncached
+
+
+def test_loc_crosswalk_code_to_name_cached_duplicate_code_uses_first_match(
+    caplog, loc_country_crosswalk
+):
+    # 'ai' is an obsolete code for Anguilla before it is the current code for Armenia
+    caplog.set_level(logging.DEBUG)
+    for record_id in ("record-01", "record-02"):
+        assert (
+            Marc.loc_crosswalk_code_to_name(
+                "ai", loc_country_crosswalk, record_id, "country"
+            )
+            == "Anguilla"
+        )
+        assert f"Record #{record_id} uses an obsolete country code: ai" in caplog.text
 
 
 def test_get_main_titles_record_with_title():

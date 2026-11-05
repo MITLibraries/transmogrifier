@@ -74,7 +74,7 @@ def runner():
 @pytest.fixture
 def generic_transformer():
     class GenericTransformer(Transformer):
-        def parse_source_file(self):
+        def read_source_file(self):
             pass
 
         def parse_source_record(self):

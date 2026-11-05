@@ -17,9 +17,9 @@ class XMLTransformer(Transformer):
     """XML transformer class."""
 
     @classmethod
-    def parse_source_file(cls, source_file: str) -> Iterator[Tag]:
+    def read_source_file(cls, source_file: str) -> Iterator[bytes]:
         """
-        Parse XML file and return source records as bs4 Tags via an iterator.
+        Read XML file and yield each <record> element as bytes.
 
         Args:
             source_file: A file containing source records to be transformed.
@@ -31,9 +31,7 @@ class XMLTransformer(Transformer):
                 encoding="utf-8",
                 recover=True,
             ):
-                record_string = etree.tostring(element, encoding="utf-8")
-                record = cls.parse_bs4_in_isolated_thread(record_string)
-                yield record
+                yield etree.tostring(element, encoding="utf-8", with_tail=False)
                 element.clear()
 
     @classmethod

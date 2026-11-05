@@ -2,7 +2,7 @@ import logging
 from collections import defaultdict
 from collections.abc import Iterator
 
-from bs4 import Tag  # type: ignore[import-untyped]
+from bs4 import Tag
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
@@ -11,6 +11,9 @@ from transmogrifier.helpers import validate_date
 from transmogrifier.sources.xmltransformer import XMLTransformer
 
 logger = logging.getLogger(__name__)
+
+# cache of LOC crosswalk code element lookups, keyed by (code type, code)
+_loc_crosswalk_code_cache: dict[tuple[str, str], Tag | None] = {}
 
 
 class Marc(XMLTransformer):
@@ -192,7 +195,12 @@ class Marc(XMLTransformer):
             str | None: If a mapping for the code is found in the crosswalk, the
                 mapped value is returned; else None is returned.
         """
-        code_element = crosswalk.find("code", string=code)
+        # searching the full crosswalk is expensive and repeated for every record, so
+        # cache the code element found for each code
+        cache_key = (code_type, code)
+        if cache_key not in _loc_crosswalk_code_cache:
+            _loc_crosswalk_code_cache[cache_key] = crosswalk.find("code", string=code)
+        code_element = _loc_crosswalk_code_cache[cache_key]
         if code_element is None:
             logger.debug(
                 "Record #%s uses an invalid %s code: %s", record_id, code_type, code

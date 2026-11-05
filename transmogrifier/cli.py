@@ -5,6 +5,7 @@ from time import perf_counter
 import click
 
 from transmogrifier.config import SOURCES, configure_logger, configure_sentry
+from transmogrifier.parallel import iter_transformed_records
 from transmogrifier.sources.transformer import Transformer
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,15 @@ logger = logging.getLogger(__name__)
     "allows a single run_timestamp to be associated with all outputs for single run_id.",
 )
 @click.option(
+    "-w",
+    "--workers",
+    type=click.IntRange(min=1),
+    default=1,
+    show_default=True,
+    help="Number of worker processes to transform records with.  With 1, records are "
+    "transformed in the main process.  Output is the same for any number of workers.",
+)
+@click.option(
     "-v", "--verbose", is_flag=True, help="Pass to log at debug level instead of info"
 )
 def main(
@@ -104,6 +114,7 @@ def main(
     exclusion_list_path: str,
     run_id: str,
     run_timestamp: str,
+    workers: int,
     verbose: bool,  # noqa: FBT001
 ) -> None:
     start_time = perf_counter()
@@ -134,6 +145,11 @@ def main(
         run_id=run_id,
         run_timestamp=run_timestamp,
     )
+    if workers > 1:
+        transformer._transformed_records = iter_transformed_records(  # noqa: SLF001
+            transformer, workers
+        )
+
     if output_file:
         transformer.write_to_file(output_file)
     elif output_dataset:

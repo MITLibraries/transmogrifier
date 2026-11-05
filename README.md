@@ -80,6 +80,14 @@ Exactly one input option and exactly one output option are required.
 | `--output-dataset` | All records to a TIMDEX dataset. |
 | `--output-parquet` | All records to parquet files. |
 
+Source records are stored in the output as they were read: the bytes of each XML `<record>` element (as serialized by lxml), each JSONLines line, or the `source_record` of each dataset or parquet row.
+
+#### Workers and performance
+
+`--workers N` transforms records in `N` worker processes. The main process reads source records and writes output; workers parse and transform. Records are handled in input order, so output is identical for any number of workers. The default, `1`, transforms in the main process.
+
+Workers help most for sources with slow, CPU-bound transforms. Each worker uses roughly 0.5 GB of memory. JSON sources are already fast, and may not benefit.
+
 ```text
 Usage: transform [OPTIONS]
 
@@ -124,6 +132,11 @@ Options:
                                   allows a single run_timestamp to be
                                   associated with all outputs for single
                                   run_id.
+  -w, --workers INTEGER RANGE     Number of worker processes to transform
+                                  records with.  With 1, records are
+                                  transformed in the main process.  Output is
+                                  the same for any number of workers.
+                                  [default: 1; x>=1]
   -v, --verbose                   Pass to log at debug level instead of info
   --help                          Show this message and exit.
 ```

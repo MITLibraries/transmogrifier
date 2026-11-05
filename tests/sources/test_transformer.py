@@ -14,6 +14,7 @@ from timdex_dataset_api import DatasetRecord
 import transmogrifier.models as timdex
 from transmogrifier.exceptions import DeletedRecordEvent, SkippedRecordEvent
 from transmogrifier.sources import transformer as transformer_module
+from transmogrifier.sources.json.aardvark import MITAardvark
 from transmogrifier.sources.jsontransformer import JSONTransformer
 from transmogrifier.sources.transformer import PARQUET_FILES_SCHEMA, Transformer
 from transmogrifier.sources.xml.datacite import Datacite
@@ -33,7 +34,7 @@ def test_load_exclusion_list(source_transformer, mock_s3_exclusion_list):
 def test_next_iter_sets_action_skip_when_record_is_excluded(tmp_path):
     class ExcludingTransformer(Transformer):
         @classmethod
-        def parse_source_file(cls, _source_file: str):
+        def read_source_file(cls, _source_file: str):
             return iter(())
 
         @classmethod
@@ -352,7 +353,7 @@ def test_jsontransformer_parse_source_record_non_dict_raises_error():
         JSONTransformer.parse_source_record(b"[1, 2, 3]")
 
 
-def test_transformer_parse_source_records_from_dataset_yields_parsed_records():
+def test_transformer_read_source_records_from_dataset_yields_bytes():
     with mock.patch(
         "transmogrifier.sources.transformer.TIMDEXDataset"
     ) as mocked_dataset_class:
@@ -364,12 +365,12 @@ def test_transformer_parse_source_records_from_dataset_yields_parsed_records():
             ]
         )
         records = list(
-            JSONTransformer.parse_source_records_from_dataset(
+            JSONTransformer.read_source_records_from_dataset(
                 "cool-repo", "s3://bucket/dataset"
             )
         )
 
-    assert records == [{"id": "1"}, {"id": "2"}]
+    assert records == [b'{"id": "1"}', b'{"id": "2"}']
     mocked_dataset_class.assert_called_once_with("s3://bucket/dataset")
     mocked_records.read_dicts_iter.assert_called_once_with(
         table="current_records",
@@ -404,7 +405,7 @@ def test_transformer_load_from_source_parquet(tmp_path, source_parquet_location)
     assert next(transformer).action == "index"
 
 
-def test_transformer_parse_source_records_from_parquet_filters_source_and_action(
+def test_transformer_read_source_records_from_parquet_filters_source_and_action(
     tmp_path,
 ):
     pq.write_table(
@@ -431,14 +432,14 @@ def test_transformer_parse_source_records_from_parquet_filters_source_and_action
         tmp_path / "records.parquet",
     )
     records = list(
-        JSONTransformer.parse_source_records_from_parquet(
+        JSONTransformer.read_source_records_from_parquet(
             "cool-repo", str(tmp_path / "records.parquet")
         )
     )
-    assert records == [{"id": "1"}, {"id": "4"}]
+    assert records == [b'{"id": "1"}', b'{"id": "4"}']
 
 
-def test_transformer_parse_source_records_from_parquet_directory_in_path_order(
+def test_transformer_read_source_records_from_parquet_directory_in_path_order(
     tmp_path,
 ):
     data_dir = tmp_path / "export" / "data"
@@ -458,11 +459,11 @@ def test_transformer_parse_source_records_from_parquet_directory_in_path_order(
             data_dir / f"part-{i:05d}.parquet",
         )
     records = list(
-        JSONTransformer.parse_source_records_from_parquet(
+        JSONTransformer.read_source_records_from_parquet(
             "cool-repo", str(tmp_path / "export")
         )
     )
-    assert records == [{"id": "0"}, {"id": "1"}]
+    assert records == [b'{"id": "0"}', b'{"id": "1"}']
 
 
 def test_transformer_write_to_parquet_files_matches_timmy_export_layout(
@@ -544,3 +545,62 @@ def test_transformer_write_to_file_writes_only_indexed_records(
     assert count == len(lines) == source_transformer.transformed_record_count == 3  # noqa: PLR2004
     assert len(source_transformer.deleted_records) == 1
     assert all(json.loads(line)["timdex_record_id"] for line in lines)
+
+
+def test_transformer_load_reads_source_records_as_bytes(source_input_file):
+    transformer = Transformer.load("cool-repo", source_input_file)
+    assert isinstance(next(transformer.source_records), bytes)
+
+
+def test_transformer_next_iter_parses_bytes_source_record(source_input_file):
+    transformer = Transformer.load("cool-repo", source_input_file)
+    with mock.patch.object(
+        transformer, "parse_source_record", wraps=transformer.parse_source_record
+    ) as mocked_parse:
+        dataset_record = next(transformer)
+    mocked_parse.assert_called_once()
+    assert isinstance(mocked_parse.call_args.args[0], bytes)
+    assert dataset_record.action == "index"
+
+
+def test_transformer_next_iter_unparseable_source_record_sets_action_error():
+    transformer = MITAardvark("gismit", iter([b"not json"]))
+    dataset_record = next(transformer)
+    assert dataset_record.action == "error"
+    assert dataset_record.source_record == b"not json"
+    assert transformer.error_record_count == 1
+
+
+def test_xmltransformer_read_source_file_yields_record_bytes():
+    records = list(XMLTransformer.read_source_file("tests/fixtures/oai_pmh_records.xml"))
+    assert all(isinstance(record, bytes) for record in records)
+    assert XMLTransformer.parse_source_record(records[0]).find("record")
+
+
+def test_jsontransformer_read_source_file_yields_line_bytes(tmp_path):
+    source_file = tmp_path / "records.jsonl"
+    source_file.write_text('{"id": "1"}\n\n{"id": "2"}\r\n')
+    assert list(JSONTransformer.read_source_file(str(source_file))) == [
+        b'{"id": "1"}',
+        b'{"id": "2"}',
+    ]
+
+
+def test_transformer_next_iter_stores_original_source_record_bytes(source_input_file):
+    original_records = list(XMLTransformer.read_source_file(source_input_file))
+    transformer = Transformer.load("cool-repo", source_input_file)
+    stored_records = [dataset_record.source_record for dataset_record in transformer]
+    assert stored_records == original_records
+    assert not stored_records[0].startswith(b"<?xml")
+
+
+def test_transformer_next_iter_stores_original_json_line(tmp_path):
+    source_file = tmp_path / "gismit-2024-01-01-full-extracted-records-to-index.jsonl"
+    line = (
+        Path("tests/fixtures/aardvark/aardvark_record_all_fields.jsonl")
+        .read_bytes()
+        .strip()
+    )
+    source_file.write_bytes(line + b"\n")
+    transformer = Transformer.load("gismit", str(source_file))
+    assert next(transformer).source_record == line
