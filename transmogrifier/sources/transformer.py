@@ -20,6 +20,7 @@ import pyarrow.compute as pc
 import pyarrow.dataset as ds
 import smart_open
 from bs4 import Tag
+from lxml import etree
 from pyarrow import fs
 from timdex_dataset_api import (
     DatasetRecord,
@@ -417,7 +418,9 @@ class Transformer(ABC):
 
         return run_data
 
-    def serialize_source_record(self, source_record: Tag | dict) -> bytes | None:
+    def serialize_source_record(
+        self, source_record: Tag | etree._Element | dict
+    ) -> bytes | None:
         """Serialize an already parsed source record, for storing in the dataset.
 
         Source records read as bytes are stored as-is; this is only used when a
@@ -425,6 +428,8 @@ class Transformer(ABC):
         """
         if isinstance(source_record, Tag):
             return source_record.encode()
+        if isinstance(source_record, etree._Element):  # noqa: SLF001
+            return etree.tostring(source_record, encoding="utf-8", with_tail=False)
         if isinstance(source_record, dict):
             return json.dumps(source_record).encode()
         return None

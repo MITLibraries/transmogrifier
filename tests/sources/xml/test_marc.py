@@ -4,6 +4,7 @@ from unittest import mock
 
 import pytest
 from bs4 import BeautifulSoup  # type: ignore[import-untyped]
+from lxml import etree
 
 import transmogrifier.models as timdex
 from transmogrifier.config import load_external_config
@@ -44,13 +45,12 @@ def create_marc_source_record_stub(
         </collection>
     """
 
-    return BeautifulSoup(
+    return Marc.parse_source_record(
         xml_string.format(
             leader_field_insert=leader_field_insert,
             control_field_insert=control_field_insert,
             datafield_insert=datafield_insert,
-        ),
-        "xml",
+        ).encode()
     )
 
 
@@ -1106,6 +1106,24 @@ def test_get_contributors_transforms_correctly_if_contributor_multiple_kinds():
     ]
 
 
+def test_get_contributors_kinds_differing_only_by_case_sorted_consistently():
+    source_record = create_marc_source_record_stub(
+        datafield_insert=(
+            """
+            <datafield tag="700" ind1="1" ind2=" ">
+                <subfield code="a">Seybolt, Taylor B</subfield>
+                <subfield code="e">editor</subfield>
+                <subfield code="e">Editor</subfield>
+            </datafield>
+            """
+        )
+    )
+    assert Marc.get_contributors(source_record) == [
+        timdex.Contributor(value="Seybolt, Taylor B", kind="Editor"),
+        timdex.Contributor(value="Seybolt, Taylor B", kind="editor"),
+    ]
+
+
 def test_get_contributors_transforms_correctly_if_kind_not_specified():
     source_record = create_marc_source_record_stub(
         datafield_insert=(
@@ -1951,11 +1969,91 @@ def test_marc_record_missing_008_skips_record(caplog):
     assert output_records.skipped_record_count == 1
 
 
+@pytest.mark.parametrize(
+    "xml",
+    [
+        "<a>value</a>",
+        "<a>  padded value  </a>",
+        "<a/>",
+        "<a></a>",
+        "<a>&#160;</a>",
+        "<a>&amp; entity</a>",
+        "<a><![CDATA[cdata]]></a>",
+        "<a><b>nested</b></a>",
+        "<a><b><c>deeply nested</c></b></a>",
+        "<a><b/></a>",
+        "<a>text<b>child</b></a>",
+        "<a><b>child</b>tail</a>",
+        "<a><b>child</b> </a>",
+        "<a><b>one</b><c>two</c></a>",
+        "<a><!--comment--></a>",
+        "<a>text<!--comment--></a>",
+        "<a><?target data?></a>",
+        "<a><?target?></a>",
+        "<a>   </a>",
+        "<a> \n  </a>",
+        "<a>\t\r\x0c</a>",
+        "<a><![CDATA[   ]]></a>",
+        "<a><b> </b></a>",
+        "<a><!----></a>",
+        "<a><!--  \n --></a>",
+    ],
+)
+def test_get_element_string_matches_bs4_string(xml):
+    bs4_string = BeautifulSoup(xml, "xml").find("a").string
+    expected = None if bs4_string is None else str(bs4_string)
+    assert Marc.get_element_string(Marc.parse_source_record(xml.encode())) == expected
+
+
+def test_find_all_elements_matches_name_in_any_namespace_including_self():
+    element = etree.fromstring(
+        b'<datafield xmlns="http://www.loc.gov/MARC21/slim" tag="100">'
+        b'<subfield code="a">one</subfield><datafield tag="100"/></datafield>'
+    )
+    assert [
+        found.get("tag") for found in Marc.find_all_elements(element, "datafield")
+    ] == [
+        "100",
+        "100",
+    ]
+
+
+def test_find_all_elements_matches_attribute_values():
+    element = etree.fromstring(
+        b"<record>"
+        b'<datafield tag="856" ind2="0">one</datafield>'
+        b'<datafield tag="856" ind2="2">two</datafield>'
+        b'<datafield tag="856" ind2="1">three</datafield>'
+        b'<datafield tag="245" ind2="0">four</datafield>'
+        b"</record>"
+    )
+    assert [
+        found.text
+        for found in Marc.find_all_elements(
+            element, "datafield", tag="856", ind2=["0", "1"]
+        )
+    ] == ["one", "three"]
+
+
+def test_find_element_string_skips_elements_without_string():
+    element = etree.fromstring(
+        b"<datafield>"
+        b'<subfield code="a"/>'
+        b'<subfield code="a"><b>x</b><c>y</c></subfield>'
+        b'<subfield code="a">value</subfield>'
+        b"</datafield>"
+    )
+    assert Marc.find_element_string(element, "subfield", code="a") == "value"
+    assert Marc.find_element_string(element, "subfield", code="b") is None
+
+
 def test_create_subfield_value_list_from_datafield_with_values():
     marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
-    datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
+    datafield = next(
+        Marc.find_all_elements(next(marc_xml_records), "datafield", tag="130")
+    )
     assert Marc.create_subfield_value_list_from_datafield(datafield, "ad") == [
         "Main Entry",
         "Date 1",
@@ -1967,7 +2065,9 @@ def test_create_subfield_value_list_from_datafield_with_blank_values():
     marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
-    datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
+    datafield = next(
+        Marc.find_all_elements(next(marc_xml_records), "datafield", tag="130")
+    )
     assert Marc.create_subfield_value_list_from_datafield(datafield, "ad") == []
 
 
@@ -1975,7 +2075,9 @@ def test_create_subfield_value_string_from_datafield_with_values():
     marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
-    datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
+    datafield = next(
+        Marc.find_all_elements(next(marc_xml_records), "datafield", tag="130")
+    )
     assert (
         Marc.create_subfield_value_string_from_datafield(datafield, "ad", " ")
         == "Main Entry Date 1 Date 2"
@@ -1986,27 +2088,29 @@ def test_create_subfield_value_string_from_datafield_with_blank_values():
     marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_blank_optional_fields.xml"
     )
-    datafield = next(marc_xml_records).find_all("datafield", tag="130")[0]
+    datafield = next(
+        Marc.find_all_elements(next(marc_xml_records), "datafield", tag="130")
+    )
     assert Marc.create_subfield_value_string_from_datafield(datafield, "ad") == ""
 
 
 def test_get_single_subfield_string_returns_expected_string():
-    datafield = BeautifulSoup(
-        '<datafield><subfield code="found"> the string  </subfield>/<datafield>', "xml"
+    datafield = etree.fromstring(
+        b'<datafield><subfield code="found"> the string  </subfield></datafield>'
     )
     assert Marc.get_single_subfield_string(datafield, "found") == "the string"
 
 
 def test_get_single_subfield_string_returns_none_if_no_string():
-    datafield = BeautifulSoup(
-        '<datafield><subfield code="empty"></subfield>/<datafield>', "xml"
+    datafield = etree.fromstring(
+        b'<datafield><subfield code="empty"></subfield></datafield>'
     )
     assert Marc.get_single_subfield_string(datafield, "empty") is None
 
 
 def test_get_single_subfield_string_returns_none_if_whitespace_string():
-    datafield = BeautifulSoup(
-        '<datafield><subfield code="whitespace">    </subfield>/<datafield>', "xml"
+    datafield = etree.fromstring(
+        b'<datafield><subfield code="whitespace">    </subfield></datafield>'
     )
     assert Marc.get_single_subfield_string(datafield, "found") is None
 
@@ -2141,11 +2245,41 @@ def test_get_main_titles_record_without_title():
     assert Marc.get_main_titles(next(marc_xml_records)) == []
 
 
+def test_get_main_titles_record_without_title_logs_error(caplog):
+    caplog.set_level("ERROR")
+    marc_xml_records = Marc.parse_source_file(
+        "tests/fixtures/marc/marc_record_missing_optional_fields.xml"
+    )
+    Marc.get_main_titles(next(marc_xml_records))
+    assert "is missing a 245 field" in caplog.text
+
+
 def test_get_source_record_id():
     marc_xml_records = Marc.parse_source_file(
         "tests/fixtures/marc/marc_record_all_fields.xml"
     )
     assert Marc.get_source_record_id(next(marc_xml_records)) == "990027185640106761"
+
+
+def test_get_source_record_id_missing_001_raises_error():
+    source_record = Marc.parse_source_record(
+        b"<record><leader>03282nam  2200721Ki 4500</leader></record>"
+    )
+    with pytest.raises(ValueError, match='missing <controlfield tag="001">'):
+        Marc.get_source_record_id(source_record)
+
+
+def test_marc_parse_source_record_returns_lxml_element():
+    source_record = Marc.parse_source_record(
+        b'<?xml version="1.0" encoding="utf-8"?>\n<record><leader>x</leader></record>'
+    )
+    assert isinstance(source_record, etree._Element)
+    assert source_record.tag == "record"
+
+
+def test_marc_parse_source_record_recovers_from_malformed_xml():
+    source_record = Marc.parse_source_record(b"<record><leader>x</leader>")
+    assert Marc.find_element_string(source_record, "leader") == "x"
 
 
 def test_record_is_deleted_returns_true_if_deleted():
