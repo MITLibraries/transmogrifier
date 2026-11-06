@@ -1,5 +1,4 @@
 import logging
-import threading
 from collections import defaultdict
 from collections.abc import Iterator, Mapping
 
@@ -47,31 +46,12 @@ class Marc(XMLTransformer):
         Overrides XMLTransformer.parse_source_record(), as lxml lookups are much faster
         than bs4 for MARC records. Parser options match those bs4 uses.
 
-        As with XMLTransformer.parse_bs4_in_isolated_thread(), parsing is handled in a
-        short-lived, isolated thread to avoid a memory fault when the application exits.
-
         Args:
             source_record: A MARC XML source record as bytes.
         """
-        element: etree._Element | None = None
-        error: Exception | None = None
-
-        def parse() -> None:
-            nonlocal element, error
-            try:
-                element = etree.fromstring(
-                    source_record,
-                    parser=etree.XMLParser(recover=True, strip_cdata=False),
-                )
-            except Exception as exception:  # noqa: BLE001
-                error = exception
-
-        thread = threading.Thread(target=parse)
-        thread.start()
-        thread.join()
-        if error is not None:
-            raise error
-        return element  # type: ignore[return-value]
+        return etree.fromstring(
+            source_record, parser=etree.XMLParser(recover=True, strip_cdata=False)
+        )
 
     @staticmethod
     def get_element_string(element: etree._Element) -> str | None:

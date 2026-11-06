@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import itertools
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
 import smart_open  # type: ignore[import-untyped]
@@ -12,6 +14,8 @@ from transmogrifier.sources.transformer import Transformer
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+READ_CHUNK_SIZE = 100
+
 
 class XMLTransformer(Transformer):
     """XML transformer class."""
@@ -21,9 +25,25 @@ class XMLTransformer(Transformer):
         """
         Read XML file and yield each <record> element as bytes.
 
+        The file is read on a single, dedicated thread.  pyarrow may resume this generator
+        under a new thread state each time, and lxml has a string dictionary per thread
+        state.  If iterparse finishes under a different thread state than it started, one
+        that has parsed something else, lxml replaces the document's dictionary and the
+        application aborts with a memory fault when that document is freed.
+
         Args:
             source_file: A file containing source records to be transformed.
         """
+        records = cls._iterparse_source_file(source_file)
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            while chunk := executor.submit(
+                lambda: list(itertools.islice(records, READ_CHUNK_SIZE))
+            ).result():
+                yield from chunk
+
+    @classmethod
+    def _iterparse_source_file(cls, source_file: str) -> Iterator[bytes]:
+        """Iteratively parse an XML file and yield each <record> element as bytes."""
         with smart_open.open(source_file, "rb") as file:
             for _, element in etree.iterparse(
                 file,
