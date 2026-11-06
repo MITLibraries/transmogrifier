@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
@@ -62,18 +61,7 @@ class XMLTransformer(Transformer):
         Args:
             source_record: An XML source record as bytes.
         """
-        return cls.parse_bs4_in_isolated_thread(source_record)
-
-    @classmethod
-    def parse_bs4_in_isolated_thread(cls, source_record: bytes) -> Tag:
-        def parse() -> Tag:
-            nonlocal source_record
-            source_record = BeautifulSoup(source_record, "xml")
-
-        thread = threading.Thread(target=parse)
-        thread.start()
-        thread.join()
-        return source_record
+        return BeautifulSoup(source_record, "xml")
 
     @classmethod
     def get_main_titles(cls, _source_record: Tag) -> list[Tag]:
