@@ -238,6 +238,39 @@ def test_transform_no_memory_fault_for_threaded_bs4_parsing(monkeypatch, tmp_pat
     assert result.returncode == 0
 
 
+def test_transform_no_memory_fault_for_threaded_marc_parsing(tmp_path):
+    """As test_transform_no_memory_fault_for_threaded_bs4_parsing, for lxml parsing.
+
+    Requires one more record than a single parquet dataset write batch.
+    """
+    record = (
+        "<record><leader>03282nam  2200721Ki 4500</leader>"
+        '<controlfield tag="001">990027185640106761</controlfield>'
+        '<controlfield tag="008">170906s2016    fr mun| o         e zxx d</controlfield>'
+        '<datafield tag="245"><subfield code="a">Title</subfield></datafield></record>'
+    )
+    input_file = tmp_path / "alma-2026-01-01-daily-extracted-records-to-index.xml"
+    input_file.write_text(f"<collection>{record * 1001}</collection>")
+
+    result = subprocess.run(  # noqa: S603
+        [  # noqa: S607
+            "uv",
+            "run",
+            "transform",
+            "-s",
+            "alma",
+            "-i",
+            str(input_file),
+            "-o",
+            f"{tmp_path}/dataset",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+
+
 def test_transform_critical_error_prevents_writing(
     caplog, runner, source_input_file, source_transformer, empty_dataset_location
 ):

@@ -2282,6 +2282,11 @@ def test_marc_parse_source_record_recovers_from_malformed_xml():
     assert Marc.find_element_string(source_record, "leader") == "x"
 
 
+def test_marc_parse_source_record_raises_parsing_errors():
+    with pytest.raises(etree.XMLSyntaxError, match="Document is empty"):
+        Marc.parse_source_record(b"")
+
+
 def test_record_is_deleted_returns_true_if_deleted():
     deleted_record = Marc.parse_source_file("tests/fixtures/marc/marc_record_deleted.xml")
     assert Marc.record_is_deleted(next(deleted_record)) is True
