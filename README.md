@@ -113,7 +113,9 @@ Options:
                                   to write transformed records to, one per
                                   line.  Only records with action 'index' are
                                   written.
-  -o, --output-dataset TEXT       Location of TIMDEX dataset to write to.
+  -o, --output-dataset, --output-location TEXT
+                                  Location of TIMDEX dataset to write to.
+                                  --output-location is a deprecated alias.
   -op, --output-parquet TEXT      Location of a directory to write parquet
                                   files to, e.g. for a Timmy import.  Files
                                   have the TIMDEX records schema, but no

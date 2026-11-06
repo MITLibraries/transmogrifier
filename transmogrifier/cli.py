@@ -57,8 +57,13 @@ logger = logging.getLogger(__name__)
 @click.option(
     "-o",
     "--output-dataset",
+    "--output-location",
+    "output_dataset",
     required=False,
-    help="Location of TIMDEX dataset to write to.",
+    help=(
+        "Location of TIMDEX dataset to write to.  --output-location is a deprecated "
+        "alias."
+    ),
 )
 @click.option(
     "-op",
