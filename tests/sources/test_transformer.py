@@ -1,4 +1,4 @@
-# ruff: noqa: SLF001, D202
+# ruff: noqa: SLF001, D202, ICN001
 import datetime
 import json
 from pathlib import Path
